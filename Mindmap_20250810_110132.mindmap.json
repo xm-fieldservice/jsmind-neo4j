@@ -1,0 +1,129 @@
+{
+  "type": "mindmap-export",
+  "version": "1.0.0",
+  "exportedAt": "2025-08-10T03:01:32.609Z",
+  "app": "project_manager(neo4j+d3.jsECHART)",
+  "data": {
+    "id": "root",
+    "label": "项目名称",
+    "style": {
+      "selected": {
+        "lineWidth": 2,
+        "stroke": "#5B8FF9",
+        "shadowBlur": 6,
+        "shadowColor": "#5B8FF9"
+      },
+      "radius": 0,
+      "stroke": "#45A0E6",
+      "fill": "#F2F3F5",
+      "fontWeight": "bold"
+    },
+    "children": [
+      {
+        "id": "node-1754777616264",
+        "label": "新节点6",
+        "style": {
+          "selected": {
+            "lineWidth": 2,
+            "stroke": "#5B8FF9",
+            "shadowBlur": 6,
+            "shadowColor": "#5B8FF9"
+          },
+          "radius": 0,
+          "stroke": "#BBB",
+          "fill": "#F2F3F5"
+        },
+        "isOriginal": false,
+        "x": 60,
+        "y": -80,
+        "depth": 1,
+        "type": "mind-node",
+        "size": [
+          140,
+          36
+        ],
+        "labelCfg": {
+          "style": {
+            "fontSize": 14,
+            "fill": "#333"
+          }
+        },
+        "content": "",
+        "createdAt": "2025-08-10T01:48:53.809Z",
+        "stateStyles": {
+          "selected": {
+            "stroke": "#1890FF",
+            "lineWidth": 2,
+            "fill": "#E6F7FF"
+          }
+        },
+        "modifiedAt": "2025-08-10T02:17:18.198Z"
+      },
+      {
+        "id": "node-1754777622717",
+        "label": "新节点5",
+        "style": {
+          "selected": {
+            "lineWidth": 2,
+            "stroke": "#5B8FF9",
+            "shadowBlur": 6,
+            "shadowColor": "#5B8FF9"
+          },
+          "radius": 0,
+          "stroke": "#BBB",
+          "fill": "#F2F3F5"
+        },
+        "isOriginal": false,
+        "x": 60,
+        "y": -20,
+        "depth": 1,
+        "type": "mind-node",
+        "size": [
+          140,
+          36
+        ],
+        "labelCfg": {
+          "style": {
+            "fontSize": 14,
+            "fill": "#333"
+          }
+        },
+        "content": "",
+        "createdAt": "2025-08-10T01:48:54.367Z",
+        "stateStyles": {
+          "selected": {
+            "stroke": "#1890FF",
+            "lineWidth": 2,
+            "fill": "#E6F7FF"
+          }
+        },
+        "modifiedAt": "2025-08-10T02:17:16.446Z"
+      }
+    ],
+    "isOriginal": false,
+    "x": -180,
+    "y": -50,
+    "depth": 0,
+    "type": "mind-node",
+    "size": [
+      140,
+      36
+    ],
+    "labelCfg": {
+      "style": {
+        "fontSize": 14,
+        "fill": "#333"
+      }
+    },
+    "content": "标集合建议（供设定默认）\n内容/文档：📝（文本/备注）、📎（附件）、📄（文档）、🔖（书签）\n任务/状态：✅（完成）、⏳（进行中）、⚠️（风险）、❗（高优先级）、❓（待确认）、🛠️（处理中）\n时间/提醒：🗓️（日期/截止）、⏰（提醒）\n资源/链接：🔗（外链）、🖼️（图片）、🎥（视频）、🧩（关联）\n协作/变更：👥（协作）、🆕（新增）、♻️（更新）\n分类/语义：⭐（重点）、📌（置顶）、🏷️（标签）、🔍（调研）\n说明：\n\n当前默认仅启用“📝：当 content 非空显示”。\n你可以指定若干规则作为“默认图标集”（例如：deadline→⏰，priority=high→❗，done=true→✅）。我可以把它参数化到一个配置对象，渲染时自动应用。",
+    "createdAt": "2025-08-10T01:48:55.195Z",
+    "modifiedAt": "2025-08-10T01:56:32.486Z",
+    "stateStyles": {
+      "selected": {
+        "stroke": "#1890FF",
+        "lineWidth": 2,
+        "fill": "#E6F7FF"
+      }
+    }
+  }
+}

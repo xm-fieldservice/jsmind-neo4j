@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理系统 - 四栏布局</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- jsMind 样式与脚本 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsmind/style/jsmind.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsmind/js/jsmind.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsmind/js/jsmind.draggable.js"></script>
+    <!-- Markdown 渲染与样式 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown.min.css">
+    <!-- 使用iconfont图标库 -->
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_2616996_po7xxw0dged.css">
+    <!-- 自定义脚本 -->
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <header class="app-header">
+            <div class="logo">
+                <img src="https://cdn.jsdelivr.net/gh/autogenstanford/assets/logo/autogen_symbol_square_dark_1k.png" alt="AutoGen" height="36">
+                <span>项目管理系统</span>
+            </div>
+            <nav class="main-nav">
+                <button class="nav-btn active" data-view="all">四栏视图</button>
+                <button class="nav-btn" data-view="list">列表视图</button>
+                <button class="nav-btn" data-view="mindmap">脑图视图</button>
+                <button class="nav-btn" data-view="detail">详情视图</button>
+            </nav>
+            <div class="user-actions">
+                <button id="save-btn" class="action-btn primary">保存</button>
+                <button id="settings-btn" class="action-btn">设置</button>
+                <button id="help-btn" class="action-btn">帮助</button>
+            </div>
+        </header>
+
+        <!-- 主内容区域 - 四栏布局 -->
+        <main class="main-content">
+            <!-- 第一栏: 项目列表 -->
+            <section id="list-panel" class="panel">
+                <div class="panel-header">
+                    <h3>项目列表</h3>
+                    <div class="panel-actions">
+                        <button class="panel-btn" title="添加项目"><i class="iconfont icon-add"></i></button>
+                        <button class="panel-btn" title="刷新列表"><i class="iconfont icon-refresh"></i></button>
+                        <button class="panel-btn" title="筛选"><i class="iconfont icon-filter"></i></button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="search-box">
+                        <input type="text" placeholder="搜索项目...">
+                        <i class="iconfont icon-search"></i>
+                    </div>
+                    <ul class="project-list">
+                        <li class="active">
+                            <span class="project-title">需求分析</span>
+                            <span class="project-status">进行中</span>
+                        </li>
+                        <li>
+                            <span class="project-title">系统设计</span>
+                            <span class="project-status">已完成</span>
+                        </li>
+                        <li>
+                            <span class="project-title">开发实现</span>
+                            <span class="project-status">未开始</span>
+                        </li>
+                        <li>
+                            <span class="project-title">测试部署</span>
+                            <span class="project-status">计划中</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 第二栏: 脑图视图 -->
+            <section id="mindmap-panel" class="panel">
+                <div class="panel-header">
+                    <h3>脑图视图</h3>
+                    <div class="panel-actions">
+                        <button class="panel-btn" title="全屏模式"><i class="iconfont icon-fullscreen"></i></button>
+                        <button class="panel-btn" title="导出脑图"><i class="iconfont icon-download"></i></button>
+                        <button class="panel-btn" title="导入脑图"><i class="iconfont icon-upload"></i></button>
+                        <button class="panel-btn" title="新建脑图">新建</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div id="jsmind-container" class="jsmind-container">
+                        <!-- jsMind 将在此处渲染脑图 -->
+                    </div>
+                    
+                    <!-- 脑图工具栏 -->
+                    <div class="mindmap-toolbar">
+                        <div class="toolbar-group">
+                            <button data-action="add-child" title="添加子节点 (Tab)"><i class="iconfont icon-add-child"></i></button>
+                            <button data-action="add-sibling" title="添加同级节点 (Enter)"><i class="iconfont icon-add-sibling"></i></button>
+                            <button data-action="remove" title="删除节点 (Delete)"><i class="iconfont icon-delete"></i></button>
+                        </div>
+                        <div class="toolbar-group">
+                            <button data-action="copy" title="复制 (Ctrl+C)"><i class="iconfont icon-copy"></i></button>
+                            <button data-action="cut" title="剪切 (Ctrl+X)"><i class="iconfont icon-cut"></i></button>
+                            <button data-action="paste" title="粘贴 (Ctrl+V)"><i class="iconfont icon-paste"></i></button>
+                        </div>
+                        <div class="toolbar-group">
+                            <button data-action="zoom-in" title="放大"><i class="iconfont icon-zoom-in"></i></button>
+                            <button data-action="zoom-out" title="缩小"><i class="iconfont icon-zoom-out"></i></button>
+                            <button data-action="fit" title="适应屏幕"><i class="iconfont icon-fit"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第三栏: 关系图 -->
+            <section id="relation-panel" class="panel">
+                <div class="panel-header">
+                    <h3>关系图</h3>
+                    <div class="panel-actions">
+                        <button class="panel-btn" title="刷新关系"><i class="iconfont icon-refresh"></i></button>
+                        <button class="panel-btn" title="同步到Neo4j">同步</button>
+                        <button class="panel-btn" title="展开视图"><i class="iconfont icon-expand"></i></button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="relation-filters">
+                        <div class="filter-row">
+                            <label>方向:</label>
+                            <select id="relation-direction">
+                                <option value="all">全部</option>
+                                <option value="out">出边</option>
+                                <option value="in">入边</option>
+                            </select>
+                        </div>
+                        <div class="filter-row">
+                            <label>类型:</label>
+                            <input type="text" placeholder="输入关系类型...">
+                        </div>
+                    </div>
+                    
+                    <!-- 关系列表 -->
+                    <div id="relation-list" class="relation-list">
+                        <div class="relation-item">
+                            <div class="relation-type">DEPENDS_ON</div>
+                            <div class="relation-nodes">需求分析 → 系统设计</div>
+                            <div class="relation-actions">
+                                <button title="编辑"><i class="iconfont icon-edit"></i></button>
+                                <button title="删除"><i class="iconfont icon-delete"></i></button>
+                            </div>
+                        </div>
+                        <div class="relation-item">
+                            <div class="relation-type">IMPLEMENTS</div>
+                            <div class="relation-nodes">系统设计 → 开发实现</div>
+                            <div class="relation-actions">
+                                <button title="编辑"><i class="iconfont icon-edit"></i></button>
+                                <button title="删除"><i class="iconfont icon-delete"></i></button>
+                            </div>
+                        </div>
+                        <div class="relation-item">
+                            <div class="relation-type">VERIFIES</div>
+                            <div class="relation-nodes">测试部署 → 开发实现</div>
+                            <div class="relation-actions">
+                                <button title="编辑"><i class="iconfont icon-edit"></i></button>
+                                <button title="删除"><i class="iconfont icon-delete"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 关系可视化 -->
+                    <div class="relation-graph">
+                        <svg width="100%" height="100%">
+                            <g class="nodes-container">
+                                <circle cx="30%" cy="30%" r="20" fill="#4A90E2" />
+                                <circle cx="70%" cy="30%" r="20" fill="#F5A623" />
+                                <circle cx="50%" cy="70%" r="20" fill="#7ED321" />
+                                
+                                <text x="30%" y="30%" dy="-25" text-anchor="middle">需求分析</text>
+                                <text x="70%" y="30%" dy="-25" text-anchor="middle">系统设计</text>
+                                <text x="50%" y="70%" dy="-25" text-anchor="middle">开发实现</text>
+                            </g>
+                            <g class="edges-container">
+                                <line x1="30%" y1="30%" x2="70%" y2="30%" stroke="#666" stroke-width="2" />
+                                <line x1="70%" y1="30%" x2="50%" y2="70%" stroke="#666" stroke-width="2" />
+                                <line x1="30%" y1="30%" x2="50%" y2="70%" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第四栏: 节点详情 -->
+            <section id="detail-panel" class="panel">
+                <div class="panel-header">
+                    <h3>节点详情</h3>
+                    <div class="panel-actions">
+                        <button class="panel-btn" title="保存"><i class="iconfont icon-save"></i></button>
+                        <button class="panel-btn" title="历史记录"><i class="iconfont icon-history"></i></button>
+                        <button class="panel-btn" title="导出"><i class="iconfont icon-export"></i></button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <!-- 选项卡导航 -->
+                    <div class="tabs">
+                        <div class="tabs-nav">
+                            <button class="tab-btn active" data-tab="info">详情</button>
+                            <button class="tab-btn" data-tab="query1">查询1</button>
+                            <button class="tab-btn" data-tab="query2">查询2</button>
+                            <button class="tab-btn" data-tab="query3">查询3</button>
+                        </div>
+                        
+                        <div class="tab-container">
+                            <!-- 详情选项卡 -->
+                            <div id="tab-info" class="tab-content active">
+                                <!-- 标题与ID -->
+                                <div class="detail-section">
+                                    <label for="detail-title">标题</label>
+                                    <input type="text" id="detail-title" placeholder="节点标题" value="系统设计">
+                                    <div class="node-id">ID: node_123456</div>
+                                </div>
+                                
+                                <!-- 状态 -->
+                                <div class="detail-section">
+                                    <div class="section-header">
+                                        <label>状态</label>
+                                        <button class="small-btn">更改</button>
+                                    </div>
+                                    <div class="status-display">
+                                        <span class="status-badge in-progress">进行中</span>
+                                        <span class="status-progress">50%</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- 内容 -->
+                                <div class="detail-section">
+                                    <div class="section-header">
+                                        <label for="detail-content">内容 (Markdown)</label>
+                                        <button class="small-btn toggle-preview">预览</button>
+                                    </div>
+                                    <textarea id="detail-content" placeholder="在此编写内容...">
+# 系统设计文档
+
+## 架构概述
+- 前端：HTML/CSS/JavaScript
+- 后端：Python/FastAPI
+- 数据库：Neo4j图数据库
+
+## 组件设计
+1. 项目列表组件
+2. 脑图渲染组件
+3. 关系管理组件
+4. 详情编辑组件
+                                    </textarea>
+                                    <div id="content-preview" class="markdown-body content-preview">
+                                        <!-- 预览内容将动态生成 -->
+                                    </div>
+                                </div>
+                                
+                                <!-- 附件 -->
+                                <div class="detail-section">
+                                    <div class="section-header">
+                                        <label>附件</label>
+                                        <button class="small-btn">添加</button>
+                                    </div>
+                                    <ul class="attachment-list">
+                                        <li>
+                                            <i class="iconfont icon-file-pdf"></i>
+                                            <span>系统设计规格书.pdf</span>
+                                            <div class="attachment-actions">
+                                                <button title="查看"><i class="iconfont icon-view"></i></button>
+                                                <button title="删除"><i class="iconfont icon-delete"></i></button>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <i class="iconfont icon-file-image"></i>
+                                            <span>架构图.png</span>
+                                            <div class="attachment-actions">
+                                                <button title="查看"><i class="iconfont icon-view"></i></button>
+                                                <button title="删除"><i class="iconfont icon-delete"></i></button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- 标签 -->
+                                <div class="detail-section">
+                                    <label>标签</label>
+                                    <div class="tag-panel">
+                                        <div class="tag-groups">
+                                            <div class="tag-group active">常用标签</div>
+                                            <div class="tag-group">状态</div>
+                                            <div class="tag-group">优先级</div>
+                                            <div class="tag-group">类型</div>
+                                        </div>
+                                        <div class="tag-list">
+                                            <div class="tag" style="background-color:#e6f7ff;color:#0066cc">设计文档</div>
+                                            <div class="tag" style="background-color:#f9f0ff;color:#722ed1">架构</div>
+                                            <div class="tag" style="background-color:#f6ffed;color:#389e0d">进行中</div>
+                                            <div class="tag active" style="background-color:#fff7e6;color:#d46b08">重要</div>
+                                            <div class="tag" style="background-color:#fff1f0;color:#cf1322">紧急</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 查询选项卡 -->
+                            <div id="tab-query1" class="tab-content">
+                                <h4>相关节点查询</h4>
+                                <div class="query-form">
+                                    <select>
+                                        <option>按关系类型</option>
+                                        <option>按节点属性</option>
+                                        <option>按创建时间</option>
+                                    </select>
+                                    <input type="text" placeholder="输入查询参数...">
+                                    <button class="query-btn">执行</button>
+                                </div>
+                                <div class="query-results">
+                                    查询结果将显示在这里...
+                                </div>
+                            </div>
+                            
+                            <div id="tab-query2" class="tab-content">
+                                <h4>路径分析</h4>
+                                <div class="query-form">
+                                    <select>
+                                        <option>最短路径</option>
+                                        <option>全部路径</option>
+                                        <option>加权路径</option>
+                                    </select>
+                                    <input type="text" placeholder="目标节点ID或名称...">
+                                    <button class="query-btn">分析</button>
+                                </div>
+                                <div class="query-results">
+                                    路径分析结果将显示在这里...
+                                </div>
+                            </div>
+                            
+                            <div id="tab-query3" class="tab-content">
+                                <h4>自定义Cypher查询</h4>
+                                <div class="query-form">
+                                    <textarea placeholder="输入Cypher查询语句..."></textarea>
+                                    <button class="query-btn">执行</button>
+                                </div>
+                                <div class="query-results">
+                                    自定义查询结果将显示在这里...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 状态栏 -->
+        <footer class="app-footer">
+            <div class="status-info">
+                <span>已选择: 系统设计 (node_123456)</span>
+                <span>最后修改: 2025-08-30 11:30</span>
+            </div>
+            <div class="sync-status">
+                <i class="iconfont icon-cloud-sync"></i>
+                <span>已同步</span>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- 隐藏元素 -->
+    <input type="file" id="fileInputMindmap" accept=".json,.mindmap.json" style="display:none">
+    <input type="file" id="fileInputAttachment" multiple style="display:none">
+    
+    <!-- 右键菜单 -->
+    <div id="context-menu" class="context-menu">
+        <ul>
+            <li data-action="add-child"><i class="iconfont icon-add-child"></i> 添加子节点 <span class="shortcut">Tab</span></li>
+            <li data-action="add-sibling"><i class="iconfont icon-add-sibling"></i> 添加同级节点 <span class="shortcut">Enter</span></li>
+            <li data-action="edit"><i class="iconfont icon-edit"></i> 编辑节点 <span class="shortcut">F2</span></li>
+            <li class="divider"></li>
+            <li data-action="copy"><i class="iconfont icon-copy"></i> 复制 <span class="shortcut">Ctrl+C</span></li>
+            <li data-action="cut"><i class="iconfont icon-cut"></i> 剪切 <span class="shortcut">Ctrl+X</span></li>
+            <li data-action="paste"><i class="iconfont icon-paste"></i> 粘贴 <span class="shortcut">Ctrl+V</span></li>
+            <li class="divider"></li>
+            <li data-action="remove"><i class="iconfont icon-delete"></i> 删除节点 <span class="shortcut">Delete</span></li>
+        </ul>
+    </div>
+    
+    <!-- 提示消息 -->
+    <div id="toast" class="toast"></div>
+    
+    <!-- 模态对话框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>对话框标题</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 动态内容区域 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn cancel-btn">取消</button>
+                <button class="btn confirm-btn primary">确认</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

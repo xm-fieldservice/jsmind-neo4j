@@ -1,0 +1,624 @@
+{
+  "id": "root",
+  "label": "项目脑图  ",
+  "content": "# 根节点\n\n使用与验证\n在原内容框点击“全屏”（或 F/Alt+Enter）。\n你会看到：\n左侧全屏编辑器为弹屏，独立于任何容器。\n右侧会话列表仅覆盖原内容框区域（不是容器内部）。\n点击背景关闭；ESC 关闭；Ctrl+Enter 保存并关闭。\n关闭后，内容写回原内容框并走现有保存逻辑。\n可调参数（请确认）\n左右间距：当前为 12px（变量 gap），需更大/更小？\n宽度倍数：当前为原内容框宽度的 3 倍，且不超过视口 95%，是否需要固定 px 或其它上限？\n垂直对齐：当前顶部与原内容框对齐，是否需要额外上/下偏移？\n遮罩透明度：目前 0.25；是否需要更浅/更深？\nz-index：当前 2000，如有与其他组件叠加冲突可再抬高。\n任务状态\n已完成“独立弹屏 + 会话列表仅覆盖内容框区域”的结构性改造，并保留原有工具栏与交互。请体验当前布局位置与尺寸，如需微调上述参数，我可立即调整。\n\n---\n\n### 会话 2025-08-11 19:34:02\n\n111\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n---\n\n### 会话 2025-08-11 19:34:09\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n---\n\n### 会话 2025-08-11 19:37:37\n\n",
+  "expanded": true,
+  "children": [
+    {
+      "id": "n1",
+      "label": "脑图",
+      "content": "需求说明...11111111111111",
+      "expanded": true,
+      "children": [
+        {
+          "id": "node-1754889644439-jhlp",
+          "label": "节点",
+          "content": "创建: 2025-08-11 20:03:07\n\n",
+          "expanded": true,
+          "children": [
+            {
+              "id": "node-1754889657956-uwgg",
+              "label": "给节点打标签",
+              "content": "标签开关与联动\n对“当前获得焦点的节点”，点击某个标签：\n在内容中插入该“标签”（再次点击同标签则移除/恢复，开关动作）。\n点击该节点时，该标签在标签列表中“点亮”（被选中态）。\n需要确认“标签写入内容”的具体格式偏好：\n方案A：在内容末尾维护一行，例如：#标签A #标签B\n方案B：YAML/Front-matter，如：\n---\ntags: [标签A, 标签B]\n---\n方案C：正文内显式段落，如：标签：标签A, 标签B\n请告诉我你偏好的格式（A/B/C 或自定义），我将马上实现以下逻辑：\n\n在 \nrenderTagList()\n 中为 .tag-chip 绑定点击事件：切换某标签在当前节点的选中状态；更新内容中的标签串；保存并刷新高亮。\n在 \nupdateNodeDetails()\n/节点切换时：根据节点内容中的标签，自动点亮对应 .tag-chip.active。\n数据结构（建议）：在节点的 data.tags 持久化标签数组，同时确保内容中与 data.tags 双向同步，避免信息漂移。\n下一步建议\n确认内容中标签的写入格式与显示样式。\n我将据此提交实现“标签开关 + 内容同步 + 点亮显示”。",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "node-1754889657956-izu8",
+                  "label": "emoji加到节点标签尾部 ✅",
+                  "content": "标签: 完成\n\nEmoji 本质是 Unicode 字符，能直接作为“纯文本”追加到节点标题中，无需 support_html 或任何 HTML 渲染。\n形式示例：\"需求 🏷️🔧📌\"（直接把 emoji 拼到 topic/label 字符串尾部）。\n注意点\n排版影响：emoji 依然会占用宽度，会影响布局（但不涉及 HTML 行内元素的额外样式/高度）。\n跨平台字体：不同系统/浏览器的 emoji 外观与宽度可能略有差异。\n数据污染：\n若直接 update_node(id, \"标题 + emoji\")，导出/存储时标题会包含 emoji。\n若你想“仅显示不入库”，建议：\n内部存储保留纯文本标题（例如存于 this.data 的 label）。\n每次渲染时用“纯文本标题 + emoji 后缀”调用 update_node()。\n导入时在 \nfromJsMindTree()\n 中剥离我们约定的 emoji 后缀（或存/取时用单独字段如 data.baseLabel）。\n实施要点（不改数据结构的轻实现）\n关闭 support_html（或保持 false）。\n建立标签→emoji 的映射，生成一个后缀字符串（推荐用固定分隔符，如 \" · \"）。\n渲染时：update_node(nodeId, baseLabel + \" · \" + emojiList.join(\" \"))\n保存/导入时：\n保存前用“剥离函数”从标题去掉我们拼接的 \" · \" + emojis，确保入库仍是纯文本标题。\n或在 this.data 中始终保留纯文本，保存时以 this.data 为准。\n需要我把当前实现切换为“纯 emoji 方案（不依赖 HTML），并确保不污染存储”吗？我可以补上映射、后缀生成与剥离逻辑。",
+                  "expanded": true,
+                  "children": []
+                },
+                {
+                  "id": "node-1754889657956-91dl",
+                  "label": "不同的标签有不同的效果",
+                  "content": "",
+                  "expanded": true,
+                  "children": [
+                    {
+                      "id": "node-1754889657956-rj44",
+                      "label": "不同的标签有不同的效果",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "89885dfd868949d1",
+              "label": "节点折叠后在该节点上自动显示数字角码",
+              "content": "创建: 2025-08-11 20:03:14\n\n",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "node-1754905616766-wf23",
+              "label": "实现节点和内容的持久化存储 ✅",
+              "content": "标签: 完成\n\n创建: 2025-08-11 18:56:35\n\n",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "node-1754905616766-se87",
+                  "label": "节点的折叠状态也实现持久化存储 ✅",
+                  "content": "标签: 完成\n\n创建: 2025-08-11 18:57:06\n\n",
+                  "expanded": true,
+                  "children": []
+                },
+                {
+                  "id": "89890b5ea06f83df",
+                  "label": "内容框的大小页做成持久化 ✅",
+                  "content": "标签: 完成\n\n创建: 2025-08-11 18:52:02\n\n",
+                  "expanded": true,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "896f9c441f8a2a14",
+          "label": "内容框",
+          "content": "创建: 2025-08-11 18:57:57\n\n",
+          "expanded": false,
+          "children": [
+            {
+              "id": "896f9db171d1174d",
+              "label": "MD阅读器，能显示MD格式",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "896fa132822cfc38",
+              "label": "全屏-会话列表改造 ✅",
+              "content": "标签: 完成\n\n创建: 2025-08-11 18:58:49\n\n# MD 阅读器全屏与会话增强需求文档\n\n## 1. 背景\n在节点详情的内容框（Markdown 阅读/编辑区域）基础上，增加“全屏编辑”和“会话分段管理”能力，以提升长文与多段内容编辑效率，并保持与现有持久化机制和标签/Emoji 联动的稳定性。\n\n## 2. 目标\n- 提供全屏级别（宽度增强 x3，等高）的编辑体验，同时保持小屏自适应。\n- 在全屏模式下支持“会话列表”与“新增会话”的大纲式编辑流程。\n- 提供常用 Markdown 工具栏按钮，提升编辑效率。\n- 与原内容框双向同步，关闭全屏后自动持久化保存。\n\n## 3. 术语\n- 内容框：节点详情中的现有 `textarea` 编辑区域。\n- 全屏框：进入全屏模式后出现的主编辑区域（左侧）。\n- 会话列表：全屏模式下，原内容框位置显示的右侧会话列表区域。\n- 段落分隔符：用于切分会话的统一标识，采用 `\\n\\n---\\n\\n`。\n- 会话头部：每段会话的标题行，格式为 `### 会话 yyyy-MM-dd HH:mm:ss`。\n\n## 4. 功能需求\n- 全屏按钮：\n  - 出现在内容框工具区；点击后进入全屏模式。\n  - 全屏框高度 = 当前内容框高度；宽度 = 当前内容框 3 倍。\n  - 最大宽度限制：不超过视口宽度 95%，小屏时自适应。\n- 退出全屏：\n  - 关闭按钮或 ESC 关闭；关闭后恢复原布局。\n  - 全屏内容同步回原内容框并触发保存（沿用现有防抖/失焦策略）。\n- 会话列表：\n  - 显示在全屏模式右侧，占用原内容框的位置。\n  - 顶部包含“新增会话”按钮。\n  - 自动解析当前全屏内容为多段，按分隔符切片；用每段首个非空行为标题。\n  - 若首行不是 `###` 标题，则自动补一个 `### 会话 yyyy-MM-dd HH:mm:ss` 作为标题。\n  - 点击任一会话项，左侧全屏框滚动并将光标定位到该会话头部。\n- 新增会话：\n  - 在光标处（无选区则在内容尾部）插入：`\\n\\n---\\n\\n### 会话 yyyy-MM-dd HH:mm:ss\\n\\n`。\n  - 自动添加时间戳并将光标置于新会话标题后的空行，等待输入。\n- 全屏编辑：\n  - 支持对全局内容进行自由编辑与浏览，不局限于单一会话。\n\n## 5. Markdown 工具栏（作用域：全屏内容区）\n- 标题 H1~H6：在当前行首插入 `#`~`######`。\n- 分隔符：插入 `\\n\\n---\\n\\n`。\n- 加粗：包裹选区为 `**文本**`；无选区插入模板 `**粗体**` 并选中“粗体”。\n- 斜体：`*文本*`；无选区插入 `*斜体*`。\n- 删除线：`~~文本~~`；无选区插入 `~~删除线~~`。\n- 列表：\n  - 无序列表：在行首插入 `- `。\n  - 有序列表：在行首插入 `1. `。\n- 任务清单：在行首插入 `- [ ] `。\n- 引用：在行首插入 `> `。\n- 行内代码：包裹为 `` `文本` ``；代码块为三反引号包裹（可选语言）。\n- 链接/图片模板：`[标题](url)` / `![描述](url)`（可后续阶段实现）。\n- 字体大小：仅影响全屏编辑区 textarea 的字号（放大/缩小/重置）。\n- 复制：优先复制选中文本，否则复制全文。\n- 粘贴：读取剪贴板文本并在光标处插入；若权限受限给出中文提示。\n\n## 6. 布局与样式\n- 进入全屏：区域采用左右分栏：\n  - 左：全屏框（主编辑区，宽度=原内容框 3x，最大 95vw），含工具栏 + 编辑区。\n  - 右：会话列表（在原内容框位置），顶部“新增会话”按钮，列表可滚动。\n- 退出全屏：恢复为原单列内容框布局。\n- 样式类名建议：\n  - `.mm-fullscreen-wrap`（全屏根容器）\n  - `.mm-editor-pane`（左侧编辑区容器）\n  - `.mm-session-list`（右侧会话列表容器）\n  - `.mm-toolbar`（工具栏）\n  - `.mm-editor`（textarea 编辑器）\n\n## 7. 同步与持久化\n- 打开全屏：从 `dom.contentEditor.value` 载入当前内容。\n- 关闭全屏：将全屏内容写回 `dom.contentEditor.value`，并调用现有保存函数 `saveContentFromDetail()` 或触发已存在的防抖保存；遵循“空值不覆盖”的占位策略。\n- 保持与现有标签/Emoji 逻辑兼容，不改变内容结构以外的行为。\n\n## 8. 快捷键\n- 打开全屏：`F` 或 `Alt+Enter`。\n- 关闭全屏：`ESC`。\n- 保存并关闭：`Ctrl+Enter`（可选）。\n- 复制/粘贴：优先支持系统快捷键，同时提供按钮。\n\n## 9. 兼容性与降级\n- 复制/粘贴优先使用 Clipboard API；若不可用则提示手动操作。\n- 小屏幕下宽度自适应，不强制 3x；以 95% 视口宽度为上限。\n\n## 10. 非功能性要求\n- 文案、按钮、提示均使用中文。\n- 不影响现有的本地存储持久化、节点选择、标签高亮及 Emoji 显示。\n- 代码结构清晰，便于后续扩展实时预览（Markdown 渲染）能力。\n\n## 11. 里程碑\n- 阶段一：UI 与布局（全屏/会话列表/解析与跳转/同步）。\n- 阶段二：工具栏按钮与剪贴板、字号、快捷键完善。\n- 阶段三（可选）：Markdown 预览与双栏编辑。\n\n",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "896fa5c2af658a9e",
+                  "label": "增加编辑图标按键 ✅",
+                  "content": "标签: 完成\n\n创建: 2025-08-11 19:22:21\n\n",
+                  "expanded": true,
+                  "children": [
+                    {
+                      "id": "89893f2095e3d715",
+                      "label": "复制按键",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "8989405fdf374e8b",
+                      "label": "粘贴按键",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "898941e5c7b7db7a",
+                      "label": "格式按键",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "898955a515e5a53a",
+                      "label": "时间戳按键",
+                      "content": "创建: 2025-08-11 19:22:26\n\n",
+                      "expanded": true,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "898f6fa1884e3ca9",
+                  "label": "全屏框大小可以调节 ✅",
+                  "content": "标签: 完成\n\n创建: 2025-08-11 19:49:46\n\n新增：\n我注意到全屏框右下角有个屏幕调节按键，把这个调节按键，移到左下角。激活（当前没有激活）\n弹屏可以被上下移动，结合左下角的高度和宽度调节器，就可以”无限度“地定制全屏框。 \n对于全屏框的大小，做持久化处理。",
+                  "expanded": true,
+                  "children": [
+                    {
+                      "id": "89900eeebaef5abe",
+                      "label": "持久化没做好",
+                      "content": "创建: 2025-08-11 20:01:01\n\n",
+                      "expanded": true,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "898f0885daf4be9c",
+                  "label": "嵌入智能体 🔶",
+                  "content": "标签: 里程碑\n\n创建: 2025-08-11 19:22:21\n\n向智能体发送会话，可以是：\n1. 可以是我的提问，\n2. 可以是我添加了要求的一段文字；\n要求回复也在同一个会话内；\n",
+                  "expanded": true,
+                  "children": [
+                    {
+                      "id": "898f1d7bcf68d261",
+                      "label": "打通了智能体和笔记管理的通道",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "898f215f4a51e59f",
+                      "label": "素材可以直接让智能体AI处理",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "898f241d707a57aa",
+                      "label": "AI生成的素材，可以直接被关系处理和进一步的AI处理",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "898f2915892d8486",
+                      "label": "嵌入智能体 🔶",
+                      "content": "标签: 里程碑\n\n创建: 2025-08-11 19:22:21\n\n向智能体发送会话，可以是：\n1. 可以是我的提问，\n2. 可以是我添加了要求的一段文字；\n要求回复也在同一个会话内；\n",
+                      "expanded": true,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "898fa8bd60e14a90",
+                  "label": "全屏框就是一个调试器，同时也是生产工具 🔶",
+                  "content": "标签: 里程碑\n\n创建: 2025-08-11 19:22:21\n\n向智能体发送会话，可以是：\n1. 可以是我的提问，\n2. 可以是我添加了要求的一段文字；\n要求回复也在同一个会话内；\n",
+                  "expanded": true,
+                  "children": [
+                    {
+                      "id": "898fad083717935f",
+                      "label": "打开哪个节点：大姐点，就可以对该节点下的所有内容进行处理",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "898fb2eb0f8cd650",
+                      "label": "也可以整理内容申城新节点",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "898fb5f95f99a6ae",
+                      "label": "新节点可以送到关系处理，然后再形成新的脑图形成闭环",
+                      "content": "",
+                      "expanded": true,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "898896ffbf2adaa5",
+              "label": "暂时默认一个节点对应一个会话 ✅",
+              "content": "标签: 完成\n\n创建: 2025-08-11 18:57:58\n\n",
+              "expanded": false,
+              "children": [
+                {
+                  "id": "89889bf43cbeaac5",
+                  "label": "每次输入自动创建时间戳，和标签一样写入内容 ✅",
+                  "content": "标签: 完成\n\n已修复：新建节点未见时间戳\n我已调整新建节点后的流程，确保“创建时间”立即出现在详情内容框中。\n\n修改位置：d:/AI-Projects/project_manager(neo4j+d3.jsECHART)/jsmind-controller.js\n关键点\n在 \naddChildNode()\n 和 \naddSiblingNode()\n 中，初始内容设为：创建: YYYY-MM-DD HH:mm:ss 后跟一个空行，便于视觉分隔。\n新建后立即执行：\nthis.setSelectedNode(newId)\nthis.updateNodeDetails(newId) 强制刷新详情面板\nthis.showToast(...) 提示创建时间\nthis.editNode(newId) 进入编辑\n新增工具方法：\n_formatDateTimeLocal(d) 格式化本地时间\n_buildCreatedLine(ts) 生成“创建:”行\n涉及的方法：\n\naddChildNode(parentId)\naddSiblingNode(nodeId)\n_formatDateTimeLocal(d)\n_buildCreatedLine(ts)\nupdateNodeDetails(nodeId)\n 已被调用以强制刷新显示\n测试方法\n使用以下任一方式创建节点：\n选中节点后按 Tab（子节点）或 Enter（同级） —— \nwireKeyboardShortcuts()\n 已绑定到 \naddChildNode()\n/\naddSiblingNode()\n通过右键菜单创建（若集成）\n预期：\n详情内容框首行显示：创建: 2025-08-11 17:58:51（示例）\n下方有一空行供继续输入正文\n顶部出现“已创建，时间：...”提示\n说明\n仅对“新创建”的节点生效；已有节点不会补写“创建”行（可选可加“补写脚本”批量迁移）。\n粘贴节点会保留来源内容（包括其原“创建”行），符合复制语义。\n持久化依旧通过 LocalStorage，刷新后可恢复。\n如果现在仍未显示，请告知你是通过哪种方式创建节点（快捷键/菜单/按钮），我会针对该入口补充刷新逻辑或监听。是否需要同时加上“更新时间”自动维护？",
+                  "expanded": true,
+                  "children": []
+                },
+                {
+                  "id": "node-1754909879566-tf6p",
+                  "label": "在内容头部自动填写创建时间 ✅",
+                  "content": "标签: 完成\n\n创建: 2025-08-11 18:57:23\n\n",
+                  "expanded": true,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "898902bb257ae8e8",
+              "label": "删掉“状态”",
+              "content": "创建: 2025-08-11 18:21:16\n\n",
+              "expanded": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "897938d0d13c7212",
+          "label": "标签",
+          "content": "",
+          "expanded": false,
+          "children": [
+            {
+              "id": "89793da14815b68a",
+              "label": "标签布局修改-显性",
+              "content": "创建: 2025-08-11 18:32:33\n\n",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "8988836201461be7",
+              "label": "【操作】标签每个标签有自己的emoji符号 ✅",
+              "content": "标签: 完成\n\nEmoji 建议\n项目管理\n📁 项目\n🗂️ 任务集\n✅ 完成\n⏳ 待办/进行中\n🧭 规划\n🧱 里程碑\n🧪 测试\n🛠️ 开发\n🚀 发布\n📊 报表\n办公\n🖥️ 电脑\n📝 文档\n📧 邮件\n📞 电话\n📅 日程\n🧾 表格\n🗣️ 讨论\n🤝 协作\n📌 关注\n🔒 权限\n日常活动\n🌞 早晨\n☕ 咖啡\n🏃 运动\n🍽️ 用餐\n🚶 休息/散步\n📚 学习\n🛒 采购\n🏠 家务\n🌙 晚间\n😴 睡眠\n衍生（可选）\n优先级：🔴 高 🔶 中 🔵 低\n状态：🟢 已完成 🟡 进行中 🔵 待开始 🔴 阻塞\n风险/问题：⚠️ 风险 ❗ 问题 ❓ 疑问\n\n完成：✅\n工作区：🛠️\n问题 ❓\n里程碑：🔶\n收藏：📌 关注\n\n你的需求复述\n标签与对应符号（操作组）\n完成 → ✅\n工作区 → 🛠️\n问题 → ❓\n里程碑 → 🔶\n收藏/关注 → 📌 关注\n追加位置与呈现方式\n将对应的 emoji 作为“纯文本符号”追加到节点标题尾部。\n不进行 HTML 渲染，不改变 jsMind 节点结构，仅作为标题文本的后缀显示。\n开关与多选\n该组标签支持复选：可同时选中多项。\n标签为开关项：选中则添加对应 emoji；取消则移除对应 emoji。\n标题中的 emoji 集合需与当前选中标签实时一致，且顺序与定义一致（或约定顺序）。\n一致性与持久化\n通过标签面板点击切换时，节点标题即时更新。\n更新后的标题与标签状态一并持久化（刷新后保持）。\n如需，我可以马上在 \njsmind-controller.js\n 的标签切换逻辑中实现该规则，并保证不会影响其他标题文本内容。当前状态：已明确需求，等待你确认是否开始实现。",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "897942f5754f0f98",
+              "label": "标签“差分锁”",
+              "content": "",
+              "expanded": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "89883625bf38835f",
+          "label": "讨论技术路线",
+          "content": "创建: 2025-08-11 20:08:53\n\n",
+          "expanded": true,
+          "children": [
+            {
+              "id": "898839071b548012",
+              "label": "前后端分离",
+              "content": "结论先行\n现在代码量可控，但已出现“组件/样式/交互”复合需求（如标签面板、MindMap联动）。是合适的时机抽离成前后端分离架构，统一接口、统一样式系统、统一部署流程，便于本地与服务器、PC/平板/手机一致运行与迭代。\n总体目标\n前后端分离，严格遵循 AutoGen 0.6.2 规范。\n本地与服务器一致（Dev/Prod 同构），一套代码多端适配（PC/Pad/Phone）。\n提供标准化 CI/CD、包管理与启动脚本，PowerShell 规范。\n技术路线总览\n前端：Vue 3 + TypeScript + Vite + Element Plus + Pinia + Vue Router\n后端：FastAPI + Uvicorn + Pydantic + AutoGen 0.6.2\n配置与数据：JSON 驱动（延展 Neo4j/文件存储均可），前端优先适配后端字段\nAPI 规范：RESTful + 统一响应格式 + OpenAPI/Swagger 自动文档\n鉴权：Token（JWT/Session）+ CORS + 代理\n构建与部署：GitHub Actions（或 Gitea/阿里云流水线）+ Docker 可选\n端口与本地代理：前端 5174，后端 8000（保持现有惯例）\n适配：响应式布局 + PWA 可选\n目录结构建议\n根/\nbackend/（FastAPI 应用，requirements.txt）\nfrontend/（Vue 应用，package.json）\nconfig/（JSON 配置、AutoGen 模型/工具/团队等）\nscripts/（PowerShell 启动/端口清理/打包）\n.github/workflows/（CI/CD）\nREADME.md\n前端方案\n路由：/dashboard /chat /models /agents /teams /tools /config /monitor /debug（已对齐）\n状态：Pinia 管理用户态、模型列表、工具列表、标签等\n请求：基于 @/services/simpleApiService 统一封装；baseUrl 为空配合 Vite 代理到 /api -> http://localhost:8000\n样式与适配：\n使用 CSS 变量 + 主题类；Flex/Grid 做响应式\n断点建议：≥1200 PC，768–1199 Pad，<768 Phone\n标签面板当前实现已支持行内对齐；为移动端添加换行与点击区域增大（触控命中目标 40px）\nPWA（可选）：Workbox + manifest.json，离线缓存只缓存静态与只读接口\n前端打包：vite build 产出 dist/，服务器 Nginx/静态目录托管，接口反代到后端\n后端方案\nFastAPI 工程化：\n路由分层：/api/v1/models /agents /teams /tools /status /health\nSchemas：Pydantic 统一输入输出；确保字段与前端严格一致（遵循“前端适配后端”）\nAutoGen 0.6.2：模型与工具组件按本地知识库规范组织，提供组合 Agent 的服务端编排接口\n存储：保持 JSON 配置为主；如需图数据，用 Neo4j 作为外部服务（使用官方驱动），但对前端保持同一 REST 接口\n文档：FastAPI 自带 /docs /openapi.json\n启动：Uvicorn（生产建议使用 Uvicorn + Nginx 或 Gunicorn+Uvicorn workers）\nAPI 设计与契约\n统一响应：\n成功：{ code:0, data:..., message:'' }\n失败：{ code:非0, message:'错误信息', detail:{...} }\n版本化：/api/v1/...（已使用）\n标签/节点接口建议：\nGET /api/v1/tags/groups 返回分组与标签，字段与 MindMap “标签管理”一致\nPOST /api/v1/nodes/{id}/tags/toggle 切换标签\nGET /api/v1/nodes/{id}/PUT 同步内容（占位符策略：仅在用户输入时保存，避免空值覆盖）\n本地开发流程（PowerShell）\n安装依赖\n后端: pip install -r backend/requirements.txt\n前端: npm install --prefix frontend\n启动\n后端: python -m uvicorn src.simple_autogen.simple_main:app --host 0.0.0.0 --port 8000 --reload\n前端: npm run dev:simple --prefix frontend\n代理与端口：\n前端 Vite 配置 /api 代理到 http://localhost:8000\n启动前清理冲突端口（PowerShell）：\nGet-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Stop-Process -Id {$_.OwningProcess} -Force\nGet-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue | Stop-Process -Id {$_.OwningProcess} -Force\n服务器部署套路\n方案A（轻量，无容器）：\n前端：构建后拷贝 frontend/dist 至 Nginx \nhtml/\n 或 IIS 静态站点\n反向代理：/api -> http://127.0.0.1:8000\n后端：Uvicorn 常驻进程（Windows 可用 NSSM/Task Scheduler；Linux 用 systemd）\n方案B（容器化）：\n分别构建 frontend 与 backend 镜像；Docker Compose 统一编排\nNginx 作为前端静态与反代；后端服务独立容器\n环境配置：\n.env 与 config/*.json 区分 dev/prod\nAPI Key/敏感信息由环境变量注入，不入库不入前端包\nCI/CD（GitHub Actions 示例）\n触发：push 到 main/dev 分支\nJob 1 前端：\n安装依赖、Lint、Unit Test、npm run build\n产物上传到 Artifact 或推送到静态存储（OSS/Pages）\nJob 2 后端：\npip install -r requirements.txt\npytest（如有）\n构建 Docker 镜像并推送（可选）或直接 Rsync/SSH 发布\n约束：\n遵循“用户不希望安装时执行系统检查命令”的偏好，不在流水线执行系统信息探测；直接安装与构建\n跨端适配策略\n布局：Container + Grid/Flex，移动端单列、Pad 双列、PC 三列；侧栏可折叠/抽屉化\n交互尺寸：触控目标 ≥ 40px；标签 chip 扩大点击区\n字体与间距：基于 \nrem\n，随根字体缩放\n组件策略：Element Plus + 自定义响应式 CSS；必要时用 @media 与 v-show/v-if 切换密度\n性能：按需加载路由/组件；图片懒加载；模块分包\n渐进改造计划\n基础设施\n整理 backend/ 与 frontend/ 目录与包管理文件\n加入基础 CI/CD 与 README\nAPI 契约固化\n输出 OpenAPI；前端 types 同步（可用 openapi-typescript 生成）\nUI 统一\n响应式断点与主题变量落地；标签面板在小屏优化点击态\n鉴权与用户态（若需要）\n登录/权限；前端路由守卫；后端 JWT\n生产部署\n选择 A 或 B 方案落地，并输出一键发布脚本（PowerShell）\n与现有代码的衔接\n保持现有端口与代理策略（前端 5174 -> 后端 8000）。\n标签面板已重构的 DOM 结构与样式继续沿用；后续只需适配后端的统一标签接口。\n严格执行“前端优先适配后端字段”的规则，减少后端转换层。\n下一步建议\n我可以为你补齐：\n后端 \nrequirements.txt\n 与前端 package.json 的最小集\n.github/workflows 的前后端构建流水线\nscripts/ 下 PowerShell 一键启动与端口清理脚本\n选定部署方案（A 无容器 / B 容器化），我据此生成对应配置与发布说明。\n总结\n\n当前即刻可切到前后端分离模式；路线清晰、变更代价低。\n先固化 API 与目录/脚手架，再做响应式与部署自动化，能快速达成本地/服务器/多端统一可用。",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "898839dad8a60979",
+              "label": "移动专版",
+              "content": "结论\n不建议一开始做“移动端专版”（单独代码或项目）。优先“同仓同路由的响应式适配”，按断点做差异 UI/交互。等到出现强需求（重交互、性能/场景明显不同）再做“移动专版子应用/子路由”。\n选择对比\n响应式同构（推荐起步）\n优点：一套代码、联调与部署简单、维护成本低、上线快\n代价：需要在布局/交互上做取舍（如复杂面板在小屏精简）\n移动端专版（适用于后期）\n优点：体验可完全按移动场景定制（极简操作、原生式手势、性能优化）\n代价：双代码流、双测试、双发布；成本与节奏都上升\n适配策略（立即可做）\n布局\nPC: 三栏（树/画布/详情）\nPad: 双栏（画布/详情），侧栏抽屉化\nPhone: 单栏栈式，顶部切页或底部 Tab\n组件与交互\n标签面板：Chip 点击区≥40px，行内换行；长文省略\n右键菜单在移动端变为长按/“更多”按钮\njsMind 手势：支持拖拽、双击/长按，缩放用双指或工具条\n性能\n路由按需加载\n大图/大数据懒加载\n低端机降级动画/阴影\n样式\nrem + CSS 变量；断点 <768(Phone)/768–1199(Pad)/≥1200(PC)\n组件密度跟随断点切换\n何时考虑“移动端专版”\n出现这些信号时再分流更划算：\n移动端交互流明显不同（如强表单/拍照/离线）\njsMind 在移动端需要完全不同的渲染内核或读写流程\n性能难以在同一代码里兼顾（渲染策略完全不同）\n产品需要原生能力（摄像头、文件系统、通知）且频繁\n可落地路线（渐进）\n阶段1：响应式同构（当前项目直接演进）\n断点适配 + 触控增强 + 路由按需 + PWA 可选\n阶段2：移动端“子路由专版”\n如 /m/* 采用精简布局与轻量组件，但复用同一代码仓/服务端\n阶段3：必要时抽为“子应用/微前端”\n仅当功能、团队、节奏完全分化\n和你现状对齐\n已有前后端分离、接口规范与导航结构，直接做响应式最划算\n标签面板已按行对齐，继续为小屏加大触控尺寸、减少阴影与动画即可\n下一步建议\n我可为前端加一版响应式断点样式和小屏导航抽屉；再给出移动端交互映射表（右键→长按、悬浮→点击）与性能开关清单。若你更偏向先做“/m”子路由样板，也可以先搭一个壳。\n总结\n\n先响应式，同仓同路由；等数据与交互证明“差异到需要分叉”时，再做移动专版子路由/子应用，整体成本与风险最低。",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "899089f922bd6ec4",
+              "label": "阶段性优化 🛠️",
+              "content": "标签: 工作区\n\n创建: 2025-08-11 20:09:22\n\n结论与建议\n基于当前代码结构，这是一个“纯前端单页应用＋少量离线脚本”的形态（无显式前端工程化与后端服务）。暂时不必急于做“前后端分离”重构；更高性价比的路线是先完成功能，同时进行“模块化分层改造”，为后续一次性迁移打好接口与边界。\n\n现状评估\n单页静态入口：\nindex.html\n 直接加载所有脚本与样式，无打包器、无路由、无构建流程。\n大而全控制器文件：\nmindmap-controller.js\n（~2,136行，G6版本）\njsmind-controller.js\n（~1,848行，jsMind版本）\n两套脑图实现并存，存在重复职责与潜在分叉维护风险。\n布局与交互耦合：\nscript.js\n 中 \nColumnManager\n 同时处理布局、交互回调、脑图容器 resize 等。\n持久化方式：主要依赖 localStorage；存在 \nquery_vector_store.py\n / \nstore_documents_to_chroma.py\n 的离线脚本，但未与页面形成统一的服务接口。\n依赖清单：有 \nrequirements.txt\n（chromadb、numpy），但无 package.json（无前端依赖与脚手架工具）。\nCI/CD与Git：未检测到 Git 仓库与CI配置（按您的项目要求，需要补齐）。\n是否需要现在前后端分离？\n不必现在就拆：当前以浏览器内存与本地存储为主，功能仍可在纯前端模式下迭代。拆分带来脚手架、部署、接口稳定性等额外成本，且短期收益不高。\n建议条件（出现以下任一，即值得启动前后端分离）：\n多人协作/账号体系/权限：需要用户、会话、共享与审核流。\n数据一致性与查询：需要将脑图、内容、标签等持久化到数据库（如 Neo4j/Chroma）并进行复杂查询/检索。\n跨端访问/分享/链接：需要生成可分享链接、历史版本、协同编辑。\n性能/安全考虑：前端大量数据、隐私内容、或需要服务端渲染/鉴权。\n对接外部系统：Webhook、企业登录、审计等。\n若以上尚可忍受，继续“完善功能后一次迁移”的策略是合理的。\n\n模块化问题与改造方向\n问题：\n控制器文件过大，DOM操作、状态管理、持久化、业务逻辑混杂。\nG6 与 jsMind 两套实现并存，缺少统一抽象层，导致调用方耦合具体库。\n工具栏、右键菜单、快捷键、标签面板等 UI 逻辑与核心数据/模型逻辑耦合。\n目标：在不引入后端的前提下，先完成“前端内部模块化分层”，给未来迁移保留稳定接口。\n推荐分层（先改目录和接口，不动功能）\nsrc/core/\nmindmap-model.js：节点/边/标签的数据结构、操作（增删改、查找、移动）与树的纯逻辑。\nevents.js：轻量事件总线/订阅发布。\nsrc/adapters/\nmindmap-adapter-jsmind.js：封装 jsMind 的渲染/交互，暴露统一接口（如 \nrender(tree)\n, select(nodeId), zoomToFit()）。\n若保留 G6，新增 mindmap-adapter-g6.js，同一接口实现，便于无缝切换。\nsrc/services/\npersistence-local.js：localStorage 持久化实现（读/写/版本）。\npersistence-api.js：未来为后端API预留的同名接口（当前可空实现/返回Promise.resolve）。\nmarkdown.js：marked 调用与安全渲染。\ntags.js：标签解析、分组、主题映射逻辑。\nsrc/ui/\ntoolbar.js、contextmenu.js、editor.js、layout.js（\nColumnManager\n 拆出）。\nsrc/app.js：组装根实例与依赖注入（选择 adapter、选择 persistence 实现等）。\nindex.html\n：切换为 type=\"module\" 加载 src/app.js。\n这样做的好处：\n\nUI 与核心数据操作解耦。\n渲染库可替换（jsMind/G6）不影响上层。\n持久化策略可替换（local → API）不影响调用方。\n为后续“API化/后端化”提供稳定接口与最小迁移面。\n渐进式实施清单（不打断当前功能）\n建立目录与入口：新增 src/ 与 src/app.js，\nindex.html\n 改为 type=\"module\" 引入。先把 \nColumnManager\n 挪到 src/ui/layout.js，不改其逻辑。\n定义统一接口：\nsrc/adapters/mindmap-adapter.js 中定义接口约定（仅签名与注释，不实现），当前由 mindmap-adapter-jsmind.js 实现并挂到 app.js。\nsrc/services/persistence.js 定义 \nload() / save()\n 接口；由 persistence-local.js 先实现。\n迁移低风险模块：\n将标签解析与渲染逻辑移入 src/services/tags.js，控制器仅调用服务。\n将 Markdown 渲染移入 src/services/markdown.js。\n控制器拆分：\n在不改现有行为的前提下，逐步把 \njsmind-controller.js\n 中的数据处理（非DOM）提取到 src/core/mindmap-model.js。\n保留 \nMindmapController\n 对外API以避免破坏现有调用点，但其内部转调至新模块。\n去重与清理：\n选择 jsMind 或 G6 其中一个为主渲染引擎。另一套保留为可选 adapter，减少重复大文件并行维护。\n预留后端接口层：\n在 src/services/persistence-api.js 写出空实现与 TODO（与 Neo4j / Chroma 计划适配的 REST/GraphQL 形状），便于将来一次性切换。\n何时切到“前后端分离”一次性迁移\n当上述模块化完成，且准备引入：\nNeo4j：图关系存储与查询（如节点关系视图、复杂依赖分析）。\nChroma/向量检索：跨节点内容搜索、语义检索。\n账户与协作：用户、会话共享、权限。\n那时只需：\n保持 persistence 接口不变，将实现从 local 切到 api。\n将 mindmap-model 的“变更事件”接到API调用（如保存/版本/审计）。\nUI 无需感知数据源变化，实现真正的“前后端分离”。\n配套事项（符合您的项目规范）\nGit仓库：建议尽快初始化，以便跟踪模块化重构过程。\nCI/CD：尽早加上最简工作流（lint + 构建/预览）。当前已有 \nrequirements.txt\n；建议补充 package.json 仅用于前端工具（如 eslint、prettier、可选 vite 本地预览）。不变更运行方式也可先只做 lint CI。\n前端适配原则：未来接入后端（Neo4j/Chroma）时，尽量让前端数据结构直接对齐后端模型，减少中间转换层。\n建议的下一步\n短期（本周）：不动大功能，完成目录搭建与最小接口（adapter/persistence）的抽象，先把“标签/Markdown/布局”三块迁到独立模块。\n中期：选择主渲染库（建议 jsMind），把 \nMindmapController\n 收敛为“胶水层”，其余逻辑进入 core/services/ui。\n迁移前检查清单：当需要上云或与 Neo4j/Chroma 打通时，再一次性切换 persistence 到后端API，新增鉴权与会话。\n如您认可，我可以先按上述“最小改造”创建 src/ 目录与骨架文件，并提交初始重构，无需改变任何现有功能与行为。\n\n——\n\n任务状态：已完成模块化与分离可行性评估，给出分层方案与渐进式改造清单。等待您的确认后执行最小改造落地",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "8990ac875ebf1122",
+                  "label": "明确脑图部分，jsmind是唯一的使用框架，不再考虑G6",
+                  "content": "创建: 2025-08-11 20:11:44\n\n",
+                  "expanded": true,
+                  "children": [
+                    {
+                      "id": "node-1754914923930-l87p",
+                      "label": "代码核查与行动计划",
+                      "content": "创建: 2025-08-11 20:21:26\n\n核查结论\n入口页仅使用 jsMind: \nindex.html\n 只引入了 jsMind 相关资源和 \njsmind-controller.js\n，未发现 G6 CDN 或 \nmindmap-controller.js\n 的引用。\n见 d:/AI-Projects/project_manager(neo4j+d3.jsECHART)/index.html 中的 <script src=\"https://cdn.jsdelivr.net/npm/jsmind/es6/jsmind.js\"></script>、<script src=\"jsmind-controller.js\"></script>。\nG6 实现仍在仓库中存在文件：d:/AI-Projects/project_manager(neo4j+d3.jsECHART)/mindmap-controller.js，包含大量 G6 标识，但当前未在 HTML 中被加载。\n页面主脚本不依赖 G6：d:/AI-Projects/project_manager(neo4j+d3.jsECHART)/script.js 仅负责多视图布局和热重载，无脑图实现依赖。\njsMind 控制器完整可用：d:/AI-Projects/project_manager(neo4j+d3.jsECHART)/jsmind-controller.js 已实现节点 CRUD、拖拽同步、持久化、详情联动、标签面板、会话全屏编辑等功能。\n建议改动\n为达成“仅使用 jsMind，弃用 G6 脑图实现”的目标，同时为后续模块化准备，建议分两步：\n\n最小停用与清理\n停用 G6 脑图文件：将 \nmindmap-controller.js\n 移至 deprecated/ 或 legacy/ 目录，并在文件顶部加注释“已废弃，不再被入口引用”。保留文件以便回溯。\n检索并移除潜在引用：\n已确认 \nindex.html\n 未引用；若将来有新页面，统一不再引入该文件。\n通过全局检索“mindmap-controller.js”与“G6”关键字，确认无其它入口或构建脚本引用（已检索，无引用）。\n在 README 或开发文档中声明：脑图实现统一使用 jsMind 与 \njsmind-controller.js\n，G6 仅可用于其他非脑图模块。\n渐进式模块化（保留功能兼容）\n建议目录结构（后续迭代实施）：\nsrc/core/：数据模型与转换，如 toJsMindTree()、fromJsMindTree()、查找与变更方法（\nfindNode()\n、syncFromMind() 等）。\nsrc/ui/：DOM 与事件绑定，如 \nbindDetailEvents()\n、\nwireContextMenu()\n、\nwireKeyboardShortcuts()\n。\nsrc/adapters/：渲染适配器，仅保留 jsMind 适配器（\ncreateMind()\n、\nrenderMindmap()\n、\nscheduleAutoFit()\n）。\nsrc/services/：持久化与导入导出（saveMindmapToStorage()、\nshowSavedMindIfAny()\n、文件导入导出逻辑）。\n抽离接口：先抽离持久化接口（localStorage），后续易于切换到后端 API。\n可执行事项（下一步）\n请确认是否需要我直接进行以下变更：\n\n文件移动：创建 deprecated/ 目录并将 \nmindmap-controller.js\n 移入，同时在文件头部添加“废弃说明”注释。\n补充开发说明：在 docs/ 新增一页“脑图实现演进说明”，声明仅用 jsMind。\n创建基础模块目录与占位文件：不改变当前运行逻辑，仅创建 src/core/, src/ui/, src/adapters/, src/services/ 与 README 占位，逐步迁移。\n若同意，我将按上述方案实施，并保持现有功能完全不变。\n\n当前状态小结\n当前页面运行已仅依赖 jsMind 与 \njsmind-controller.js\n，G6 实现文件仅残留在仓库未使用。\n建议先做“停用与清理”，随后按计划推进模块化抽离。",
+                      "expanded": true,
+                      "children": []
+                    },
+                    {
+                      "id": "89914b9d8e6e4eb9",
+                      "label": "执行",
+                      "content": "创建: 2025-08-11 20:22:14\n\n",
+                      "expanded": true,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "89916a122b37f038",
+                  "label": "暂时不用前后端分离",
+                  "content": "创建: 2025-08-11 20:24:16\n\n但是制定了后续的额计划\n",
+                  "expanded": true,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "897864694a6c2ff0",
+      "label": "列表",
+      "content": "创建: 2025-08-11 20:13:56\n\n",
+      "expanded": true,
+      "children": [
+        {
+          "id": "89786630e5340989",
+          "label": "各种标签的查询结果都可以放到列表",
+          "content": "创建: 2025-08-11 20:13:58\n\n",
+          "expanded": true,
+          "children": [
+            {
+              "id": "8978699ab0de7f3f",
+              "label": "跟进管理",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "89786addceaf4936",
+              "label": "部门总览",
+              "content": "",
+              "expanded": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "89786fee7df44f27",
+          "label": "各种标签的查询结果都可以放到列表",
+          "content": "关闭就是标签，打开就是实时查询的条件，对应的是列表项\n",
+          "expanded": true,
+          "children": []
+        },
+        {
+          "id": "8990d4af752aa5ec",
+          "label": "查询面板的设立",
+          "content": "创建: 2025-08-11 20:15:22\n\n",
+          "expanded": true,
+          "children": [
+            {
+              "id": "8990d7e11a6bc611",
+              "label": "标签，文本查询，状态查询",
+              "content": "创建: 2025-08-11 20:15:24\n\n",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "8990dc903914b62c",
+                  "label": "结合标签管理（已经自动化）",
+                  "content": "",
+                  "expanded": true,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "8990e2415cf32f9f",
+          "label": "查询结果投射到列表栏",
+          "content": "创建: 2025-08-11 20:15:22\n\n",
+          "expanded": true,
+          "children": [
+            {
+              "id": "8990ebc1e384b60c",
+              "label": "点击列表兰内的列表项，单独显示该节点为中心节点的脑图",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "8990f1aa5da11185",
+              "label": "处理脑图的呈现：根节点处理（动态根节点）",
+              "content": "创建: 2025-08-11 20:18:27\n\n",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "899115e6a58cf3af",
+              "label": "后端统计的查询条件",
+              "content": "",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "8991188d3e671663",
+                  "label": "时间区间内最热，最多，最有效，最无效",
+                  "content": "创建: 2025-08-11 20:18:59\n\n",
+                  "expanded": true,
+                  "children": []
+                },
+                {
+                  "id": "89911f11c9f2b584",
+                  "label": "分析行为和属性的变更",
+                  "content": "",
+                  "expanded": true,
+                  "children": []
+                },
+                {
+                  "id": "899121e23e357253",
+                  "label": "对变化的掌握是关系+ai的最擅长也是最应该做的 🔶",
+                  "content": "标签: 里程碑\n\n创建: 2025-08-11 20:18:59\n\n",
+                  "expanded": true,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "8990f94f51139a7e",
+          "label": "列表项可以拖拽以决定优先级",
+          "content": "",
+          "expanded": true,
+          "children": [
+            {
+              "id": "8990fd6c37af3716",
+              "label": "高级功能：动态调节节点任务（项目）的优先级",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "899101f30873a97d",
+              "label": "优先级的履历记录：便于AI以后的决策",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "8991060daa1360ab",
+              "label": "AI履历数据对于AI来说是十分重要的一个参数，这个在以前的是不被重视的",
+              "content": "",
+              "expanded": true,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "8977d4007ff37677",
+      "label": "autogen 工厂",
+      "content": "",
+      "expanded": true,
+      "children": [
+        {
+          "id": "89781b809821129b",
+          "label": "数据就是功能",
+          "content": "使用脑图保存配置数据，然后导入到生成和调试页面，调试好后，封装代码；",
+          "expanded": true,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "8978068776255f4f",
+      "label": "New Node",
+      "content": "",
+      "expanded": true,
+      "children": []
+    },
+    {
+      "id": "896e29c4f7952811",
+      "label": "标签管理",
+      "content": "111111111111111",
+      "expanded": true,
+      "children": [
+        {
+          "id": "896eb6912cbda07c",
+          "label": "分类",
+          "content": "",
+          "expanded": true,
+          "children": [
+            {
+              "id": "896eb9125e62d2fa",
+              "label": "项目",
+              "content": "111111111111111",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "896eb9ea74b9d62a",
+              "label": "笔记",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "896ebabc7e7fcf69",
+              "label": "任务",
+              "content": "",
+              "expanded": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "896eb7d24fadbc5c",
+          "label": "部门",
+          "content": "",
+          "expanded": true,
+          "children": [
+            {
+              "id": "896ec030d7fa0518",
+              "label": "软件软件",
+              "content": "标签: 软件\n\n",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "896ec2692922d0d6",
+              "label": "贝壳",
+              "content": "11",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "896ec33dee726be1",
+              "label": "内务",
+              "content": "1111111111111",
+              "expanded": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "8978298f85ce957e",
+          "label": "操作",
+          "content": "",
+          "expanded": true,
+          "children": [
+            {
+              "id": "89782dde5d8ad519",
+              "label": "完成",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "897914f37b41bd9d",
+              "label": "工作区",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "897a1a07ba87e35c",
+              "label": "疑难",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "897a24c51a905ccd",
+              "label": "里程碑",
+              "content": "",
+              "expanded": true,
+              "children": []
+            },
+            {
+              "id": "897a25c29559aab1",
+              "label": "收藏",
+              "content": "",
+              "expanded": true,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n2",
+      "label": "设计",
+      "content": "设计说明...",
+      "expanded": true,
+      "children": []
+    },
+    {
+      "id": "n3",
+      "label": "开发",
+      "content": "标签: 项目\n\n开发计划...111111111111",
+      "expanded": true,
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+﻿{
+    "id":  "tags_root",
+    "label":  "脑图工具补齐",
+    "content":  "# 根节点\n\n在此编写内容...",
+    "expanded":  true,
+    "attachments":  [
+
+                    ],
+    "children":  [
+                     {
+                         "id":  "group_category",
+                         "label":  "分类",
+                         "content":  "创建: 2025-09-16 14:07:40\n\n",
+                         "expanded":  true,
+                         "attachments":  [
+
+                                         ],
+                         "children":  [
+                                          {
+                                              "id":  "tag_project",
+                                              "label":  "项目",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          },
+                                          {
+                                              "id":  "tag_note",
+                                              "label":  "笔记",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          },
+                                          {
+                                              "id":  "tag_task",
+                                              "label":  "任务",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          },
+                                          {
+                                              "id":  "tag_software",
+                                              "label":  "软件软件",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          }
+                                      ]
+                     },
+                     {
+                         "id":  "group_department",
+                         "label":  "部门",
+                         "content":  "创建: 2025-09-16 14:07:37\n\n",
+                         "expanded":  true,
+                         "attachments":  [
+
+                                         ],
+                         "children":  [
+                                          {
+                                              "id":  "tag_beike",
+                                              "label":  "贝壳",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          },
+                                          {
+                                              "id":  "tag_internal",
+                                              "label":  "内务",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          }
+                                      ]
+                     },
+                     {
+                         "id":  "group_ops",
+                         "label":  "操作",
+                         "content":  "创建: 2025-09-15 23:23:29\n\n",
+                         "expanded":  true,
+                         "attachments":  [
+
+                                         ],
+                         "children":  [
+                                          {
+                                              "id":  "tag_done",
+                                              "label":  "完成",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          },
+                                          {
+                                              "id":  "tag_workspace",
+                                              "label":  "工作区",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          },
+                                          {
+                                              "id":  "tag_hard",
+                                              "label":  "疑难",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          },
+                                          {
+                                              "id":  "tag_milestone",
+                                              "label":  "里程碑",
+                                              "content":  "",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          },
+                                          {
+                                              "id":  "tag_star",
+                                              "label":  "收藏",
+                                              "content":  "创建: 2025-09-15 23:23:25\n\n",
+                                              "expanded":  true,
+                                              "attachments":  [
+
+                                                              ],
+                                              "children":  [
+
+                                                           ]
+                                          }
+                                      ]
+                     }
+                 ]
+}

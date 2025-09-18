@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Basic repository validation (PowerShell)
+        shell: pwsh
+        run: |
+          Write-Host "Validating repository layout..."
+          $hasIndex = Test-Path "index.html"
+          if (-not $hasIndex) { throw "index.html 缺失" }
+
+          $index = Get-Content -Raw "index.html"
+          if ($index -match "mindmap-controller.js") { throw "index.html 不应引用 mindmap-controller.js" }
+          if ($index -notmatch "jsmind-controller.js") { throw "index.html 必须引用 jsmind-controller.js" }
+
+          $hasReq = Test-Path "requirements.txt"
+          $hasPkg = Test-Path "package.json"
+          if (-not ($hasReq -or $hasPkg)) { throw "需要存在 requirements.txt 或 package.json 之一" }
+
+          Write-Host "Validation passed."

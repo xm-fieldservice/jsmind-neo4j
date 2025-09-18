@@ -1,0 +1,43 @@
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.code-workspace
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.env.*
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+.mypy_cache/
+.pytest_cache/
+
+# Local data artifacts
+/data/*.tmp
+/data/*.bak
+/data/*.cache
+
+# External dependencies (should not be committed)
+autogen_repo/
+
+# Others
+*.swp
+*.swo

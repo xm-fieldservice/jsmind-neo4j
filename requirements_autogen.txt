@@ -1,0 +1,33 @@
+# AutoGen 0.7.1 统一MD存储系统依赖
+# 核心AutoGen包
+autogen-agentchat>=0.7.1
+autogen-core>=0.7.1
+autogen-ext[chromadb,task-centric-memory]>=0.7.1
+
+# 向量数据库和嵌入
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# 数据处理
+pandas>=1.5.0
+numpy>=1.24.0
+
+# 异步支持
+asyncio-mqtt>=0.11.0
+
+# 配置和环境
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# 文件处理
+pathlib2>=2.3.0
+markdown>=3.4.0
+
+# 日志和调试
+loguru>=0.7.0
+
+# 可选：OpenAI API支持
+openai>=1.0.0
+
+# 可选：Azure OpenAI支持
+azure-openai>=1.0.0

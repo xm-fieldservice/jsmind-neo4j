@@ -1,0 +1,709 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理视图</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- 关系管理样式 -->
+    <link rel="stylesheet" href="relation_styles.css">
+    <!-- 项目列表样式 -->
+    <link rel="stylesheet" href="project_list_styles.css">
+    <!-- jsMind 样式与脚本（本地优先，CDN 兜底） -->
+    <link rel="stylesheet" href="vendor/jsmind/style/jsmind.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/jsmind/style/jsmind.css'">
+    <script>
+      (function(){
+        function load(src, cb){ var s=document.createElement('script'); s.src=src; s.defer=true; s.onload=function(){ cb&&cb(); }; s.onerror=function(){ cb&&cb(new Error('fail '+src)); }; document.head.appendChild(s); }
+        var local = ['vendor/jsmind/js/jsmind.js','vendor/jsmind/js/jsmind.draggable.js'];
+        var cdn   = ['https://cdn.jsdelivr.net/npm/jsmind/js/jsmind.js','https://cdn.jsdelivr.net/npm/jsmind/js/jsmind.draggable.js'];
+        var i=0; (function next(){ if(i>=local.length){
+            // 运行时校验 jsMind 是否可用，否则回退到 CDN
+            if (typeof window.jsMind === 'undefined'){ load(cdn[0], function(){ if (typeof window.jsMind==='undefined'){ console.error('jsMind 加载失败'); } }); }
+            return;
+          }
+          load(local[i], function(err){ if(err){ load(cdn[i], function(){ i++; next(); }); } else { i++; next(); } });
+        })();
+      })();
+    </script>
+    <!-- 封存拖拽插件：即使已加载 jsmind.draggable.js，也通过运行时打补丁彻底禁用所有拖拽相关行为 -->
+    <script>
+      (function(){
+        function whenReady(cb){ if (window.jsMind) { cb(); } else { setTimeout(function(){ whenReady(cb); }, 50); } }
+        whenReady(function(){
+          try{
+            // 1) 禁用 jsMind 实例上的启用拖拽方法
+            if (jsMind && jsMind.prototype){
+              jsMind.prototype.enable_draggable = function(){};
+              jsMind.prototype.enable_draggable_node = function(){};
+              jsMind.prototype.enable_dragen = function(){};
+              jsMind.prototype.disable_draggable = function(){};
+            }
+            // 2) 若拖拽插件已加载，重写其关键方法为 no-op
+            if (jsMind && jsMind.draggable && jsMind.draggable.prototype){
+              var noop = function(){};
+              var proto = jsMind.draggable.prototype;
+              ['dragstart','drag','dragend','magnet_shadow','_magnet_shadow','clear_lines'].forEach(function(k){
+                if (typeof proto[k] === 'function') proto[k] = noop;
+              });
+            }
+            // 3) 覆盖节点鼠标样式，避免误导为可拖拽
+            try{
+              var st = document.createElement('style');
+              st.id = 'jm-drag-disabled-style';
+              st.textContent = '.jmnode{cursor:default !important} .jsmind-inner{user-select:auto !important;-webkit-user-select:auto !important;}';
+              document.head.appendChild(st);
+            }catch(_){ }
+            console.log('[init] 拖拽功能已封存(禁用)');
+          }catch(e){ console.warn('封存拖拽插件失败', e); }
+        });
+      })();
+    </script>
+    <!-- Markdown 渲染与样式（本地优先，CDN 兜底） -->
+    <script>
+      (function(){
+        function load(src, cb){ var s=document.createElement('script'); s.src=src; s.defer=true; s.onload=function(){ cb&&cb(); }; s.onerror=function(){ cb&&cb(new Error('fail '+src)); }; document.head.appendChild(s); }
+        // 先尝试本地，再检测 window.marked，不存在则兜底到 CDN（即便本地文件存在但内容不完整也能回退）
+        load('vendor/marked/marked.min.js', function(){
+          if (typeof window.marked === 'undefined'){
+            load('https://cdn.jsdelivr.net/npm/marked/marked.min.js');
+          }
+        });
+      })();
+    </script>
+    <link rel="stylesheet" href="vendor/github-markdown/github-markdown.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown.min.css'">
+    <!-- 使用iconfont图标库（本地优先，CDN 兜底） -->
+    <link rel="stylesheet" href="vendor/iconfont/iconfont.css" onerror="this.onerror=null;this.href='https://at.alicdn.com/t/font_2616996_po7xxw0dged.css'">
+    
+</head>
+<body>
+    <!-- 顶部系统栏 -->
+    <div class="system-bar">
+        <div class="view-toggles">
+            <button class="view-toggle active" data-view="list">列表</button>
+            <button class="view-toggle" data-view="mindmap">脑图</button>
+            <button class="view-toggle" data-view="relation">关系</button>
+            <button class="view-toggle" data-view="detail">详情</button>
+        </div>
+    </div>
+    
+    <!-- 内容区容器 -->
+    <div class="content-container">
+        <!-- 列表栏 -->
+        <div class="column" id="list-column" data-column="list">
+            <div class="column-header">
+                <h3>列表栏</h3>
+            </div>
+            <div class="column-content">
+                <!-- 左侧选项卡：查询结果（单一选项卡） -->
+                <div class="tabs" id="list-tabs">
+                  <div class="tabs-nav" id="list-tabs-nav">
+                    <button class="tab-btn active" data-tab="results">查询结果</button>
+                  </div>
+                  <div class="tabs-content" id="list-tabs-content" style="height:100%;">
+                    <div class="tab-pane active" data-tab="results">
+                      <div class="list-container" style="display:flex;flex-direction:column;height:100%;min-height:0;">
+                        <!-- 项目统计信息 -->
+                        <div class="project-stats" id="project-stats">
+                          <div class="project-stats-grid">
+                            <div class="project-stats-item">
+                              <span class="project-stats-value" id="total-projects">0</span>
+                              <span class="project-stats-label">总项目</span>
+                            </div>
+                            <div class="project-stats-item">
+                              <span class="project-stats-value" id="storage-type">本地</span>
+                              <span class="project-stats-label">存储模式</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 项目列表头部 -->
+                        <div class="project-list-header">
+                          <span class="project-list-title">脑图项目</span>
+                          <span class="project-count" id="project-count">0 个项目</span>
+                        </div>
+                        
+                        <!-- 项目列表 -->
+                        <ul id="project-list" style="flex:1 1 auto;overflow:auto;min-height:0;"></ul>
+                        
+                        <!-- 查询结果列表（隐藏，仅在查询时显示） -->
+                        <ul id="query-results-list" style="flex:1 1 auto;overflow:auto;min-height:0;display:none;"></ul>
+                        <!-- 列表栏日志面板（默认折叠，仅标题栏） -->
+                        <div id="list-log-panel" data-collapsed="true" style="margin-top:auto;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
+                          <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
+                            <span style="font-size:12px;color:#6b7280;">列表日志</span>
+                            <span id="list-log-caret" aria-hidden="true" style="font-size:12px;color:#9ca3af;">▸</span>
+                          </button>
+                          <pre id="list-log-body" style="display:none;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
+                          <div id="list-log-controls" style="display:none;padding:4px 8px;background:#f8fafc;border-top:1px solid #e5e7eb;gap:8px;">
+                            <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
+                            <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 列表与脑图分割线 -->
+        <div class="column-divider" id="list-mindmap-divider">
+            <div class="divider-handle"></div>
+        </div>
+
+        <!-- 脑图栏 -->
+        <div class="column" id="mindmap-column" data-column="mindmap">
+            <div class="column-header">
+                <h3>脑图栏</h3>
+                <div class="mindmap-toolbar">
+                    <button id="mindmap-import-btn" class="mm-btn mm-wide mm-green" title="从本地文件导入脑图">读</button>
+                    <button id="mindmap-export-btn" class="mm-btn mm-wide mm-blue" title="导出脑图为本地文件">写</button>
+                    <button id="mindmap-new-btn" class="mm-btn mm-wide" title="新建一个空白脑图">新</button>
+                </div>
+            </div>
+            <div class="column-content">
+                <div id="mindmap-container" class="jsmind-mindmap-container">
+                    <!-- jsMind 将在此处渲染脑图 -->
+                </div>
+                
+                <!-- 全屏模式下的工具栏 -->
+                <div id="mindmap-fullscreen-toolbar" class="hidden">
+                    <div class="toolbar-group">
+                        <button data-action="add-child" title="添加子节点 (Tab)"><i class="iconfont icon-add-child"></i></button>
+                        <button data-action="add-sibling" title="添加同级节点 (Enter)"><i class="iconfont icon-add-sibling"></i></button>
+                        <button data-action="remove" title="删除节点 (Delete)"><i class="iconfont icon-delete"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button data-action="copy" title="复制 (Ctrl+C)"><i class="iconfont icon-copy"></i></button>
+                        <button data-action="cut" title="剪切 (Ctrl+X)"><i class="iconfont icon-cut"></i></button>
+                        <button data-action="paste" title="粘贴 (Ctrl+V)"><i class="iconfont icon-paste"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button data-action="zoom-in" title="放大"><i class="iconfont icon-zoom-in"></i></button>
+                        <button data-action="zoom-out" title="缩小"><i class="iconfont icon-zoom-out"></i></button>
+                        <button data-action="fit" title="适应屏幕"><i class="iconfont icon-fit"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button data-action="exit-fullscreen" title="退出全屏"><i class="iconfont icon-exit-fullscreen"></i></button>
+                    </div>
+                </div>
+                
+                <!-- 右键菜单 -->
+                <div id="mindmap-contextmenu" class="mindmap-contextmenu hidden">
+                    <ul>
+                        <li data-action="add-child">添加子节点 (Tab)</li>
+                        <li data-action="add-sibling">添加同级节点 (Enter)</li>
+                        <li data-action="edit">编辑节点 (F2)</li>
+                        <li class="divider"></li>
+                        <li data-action="copy-title">复制</li>
+                        <li data-action="cut">剪切 (Ctrl+X)</li>
+                        <li data-action="paste">粘贴 (Ctrl+V)</li>
+                        <li data-action="copy-subtree-json">复制子树为JSON</li>
+                        <li data-action="export-subtree-json">导出子树为JSON文件</li>
+                        <li data-action="import-children">导入为子节点</li>
+                        <li class="divider"></li>
+                        <li data-action="remove-from-list">从列表中移除（仅限根节点）</li>
+                        <li class="divider"></li>
+                        <li data-action="remove">删除节点 (Delete)</li>
+                    </ul>
+                </div>
+                
+                <!-- 节点编辑表单 -->
+                <div id="node-editor" class="node-editor hidden">
+                    <input type="text" id="node-editor-input">
+                    <div class="node-editor-actions">
+                        <button id="node-editor-save">保存</button>
+                        <button id="node-editor-cancel">取消</button>
+                    </div>
+                </div>
+                
+                <!-- 提示消息 -->
+                <div id="mindmap-toast" class="mindmap-toast hidden"></div>
+            </div>
+        </div>
+
+        <!-- 脑图与关系分割线 -->
+        <div class="column-divider" id="mindmap-relation-divider">
+            <div class="divider-handle"></div>
+        </div>
+        
+        <!-- 关系图栏 -->
+        <div class="column" id="relation-column" data-column="relation">
+            <div class="column-header">
+                <h3>关系图栏</h3>
+            </div>
+            <div class="column-content">
+                <div id="relation-container" style="display:flex;flex-direction:column;height:100%;">
+                    <!-- 关系工具栏 -->
+                    <div id="relation-toolbar" style="flex:0 0 auto;display:flex;gap:8px;align-items:center;padding:8px 0;flex-wrap:wrap;border-bottom:1px solid #eee;margin-bottom:8px;">
+                        <label>方向
+                            <select id="relation-direction" style="margin-left:4px;">
+                                <option value="all">全部</option>
+                                <option value="out">出边</option>
+                                <option value="in">入边</option>
+                            </select>
+                        </label>
+                        <label>类型
+                            <input id="relation-type-filter" type="text" placeholder="输入关系类型过滤，如 KNOWS" style="margin-left:4px;width:120px;" />
+                        </label>
+                        <button id="relation-refresh-btn">刷新</button>
+                        <button id="relation-sync-btn" title="将当前脑图数据同步到Neo4j数据库">同步到Neo4j</button>
+                        <span id="relation-status" style="font-size:12px;color:#888;margin-left:8px;">未加载</span>
+                    </div>
+                    
+                    <!-- 关系视图区域（分为两个部分：列表和可视化） -->
+                    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
+                        <!-- 关系列表区域 -->
+                        <div id="relation-list" style="flex:1;border:1px solid #eee;border-radius:6px;padding:8px;overflow:auto;margin-bottom:8px;">
+                            <div style="color:#888;">请选择左侧脑图中的一个节点以加载关系列表</div>
+                        </div>
+                        
+                        <!-- SVG可视化区域（预留） -->
+                        <div style="flex:0 0 200px;position:relative;border:1px solid #eee;border-radius:6px;overflow:hidden;">
+                            <svg id="relation-svg" width="100%" height="100%" style="position:absolute;top:0;left:0;">
+                                <g id="relation-root">
+                                    <circle cx="30%" cy="30%" r="20" fill="#2196F3"/>
+                                    <circle cx="70%" cy="30%" r="20" fill="#FF9800"/>
+                                    <circle cx="50%" cy="70%" r="20" fill="#9C27B0"/>
+                                    <line x1="30%" y1="30%" x2="70%" y2="30%" stroke="#666" stroke-width="2"/>
+                                    <line x1="30%" y1="30%" x2="50%" y2="70%" stroke="#666" stroke-width="2"/>
+                                    <line x1="70%" y1="30%" x2="50%" y2="70%" stroke="#666" stroke-width="2"/>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关系与详情分割线 -->
+        <div class="column-divider" id="relation-detail-divider">
+            <div class="divider-handle"></div>
+        </div>
+        
+        <!-- 节点详情栏 -->
+        <div class="column" id="detail-column" data-column="detail" data-queries-count="3">
+          <div class="column-header">
+            <h3>节点详情</h3>
+          </div>
+          <div class="column-content">
+                <!-- 选项卡容器：包含“详情”与若干“查询”页 -->
+                <div id="detail-tabs" class="tabs">
+                  <div class="tabs-nav" id="detail-tabs-nav">
+                    <!-- 按钮将由脚本根据 data-queries-count 构建 -->
+                  </div>
+                  <div class="tabs-content" id="detail-tabs-content">
+                    <!-- 面板将由脚本构建，现有 detail-container 将作为“详情”面板 -->
+                    <div id="detail-container">
+                      <!-- 1) 标题栏：标题可编辑 + 节点ID（小字虚化） -->
+                      <div class="detail-item">
+                        <h4>标题</h4>
+                        <input type="text" id="detail-title-input" placeholder="输入节点标题" style="width:100%;box-sizing:border-box;" />
+                        <div id="detail-node-id" style="font-size:12px;color:#888;margin-top:4px;">未选择节点</div>
+                      </div>
+
+                      <!-- 基本信息：仅状态（创建时间已包含在内容中，面板不再显示） -->
+                      <div class="detail-item">
+                        <h4>状态</h4>
+                        <p id="node-status">--</p>
+                      </div>
+
+                      <!-- 2) 内容栏：Markdown 编辑器 + 阅读器（失焦自动保存） -->
+                      <div class="detail-item">
+                        <h4>内容（Markdown）</h4>
+                        <textarea id="detail-content-editor" placeholder="在此编写内容..." style="width:100%;height:160px;box-sizing:border-box;"></textarea>
+                        <div style="margin-top:6px;display:flex;gap:8px;">
+                          <button id="detail-content-preview-toggle">预览</button>
+                        </div>
+                        <div id="detail-content-preview" class="markdown-body" style="margin-top:8px;display:none;">请选择一个节点查看详情</div>
+                        <!-- 兼容旧结构：仍保留渲染容器供已有逻辑使用 -->
+                        <div id="node-content" class="markdown-body" style="display:none;"></div>
+                      </div>
+
+                      <!-- 2.1) 附件区域：上传 + 列表（双击打开） -->
+                      <div class="detail-item">
+                        <h4>附件</h4>
+                        <div id="detail-attachments" class="attachments-panel" style="border:1px solid #eee;padding:8px;border-radius:6px;">
+                          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
+                            <button id="detail-attachments-upload">添加附件</button>
+                            <span style="font-size:12px;color:#888;">支持 doc、txt、md、pdf、图片、视频。小文件将持久化，大文件仅本次会话有效。</span>
+                          </div>
+                          <ul id="detail-attachments-list" style="list-style:none;padding-left:0;margin:0;display:flex;flex-direction:column;gap:6px;"></ul>
+                        </div>
+                      </div>
+
+                      <!-- 3) 标签区域：标签组（左） + 标签（右） -->
+                      <div class="detail-item">
+                        <h4>标签</h4>
+                        <div id="tag-panel" class="tag-panel">
+                          <div class="tag-groups" id="tag-groups"></div>
+                          <div class="tag-list" id="tag-list"></div>
+                        </div>
+                        <div id="tag-panel-empty" class="tag-panel-empty" style="display:none;">未在脑图中找到“标签管理”，将显示默认标签组。</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 脑图控制器 -->
+    <!-- 隐藏文件选择框：用于导入脑图 -->
+    <input type="file" id="fileInputMindmap" accept=".json,.mindmap.json" style="display:none" />
+    <!-- 隐藏文件选择框：用于附件上传（多选） -->
+    <input type="file" id="fileInputAttachment" multiple style="display:none" />
+    
+    <!-- AutoGen混合存储基座集成 -->
+    <script>
+      // AutoGen基座状态指示器
+      window.AutoGenStatus = {
+        initialized: false,
+        fallbackMode: false,
+        storageType: 'local', // 'local', 'hybrid', 'server'
+        lastSync: null
+      };
+      
+      // 添加状态指示器到页面
+      (function(){
+        const statusIndicator = document.createElement('div');
+        statusIndicator.id = 'autogen-status-indicator';
+        statusIndicator.style.cssText = `
+          position: fixed;
+          top: 10px;
+          right: 10px;
+          background: #f0f0f0;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          padding: 4px 8px;
+          font-size: 12px;
+          z-index: 10000;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        `;
+        statusIndicator.textContent = '存储: 初始化中...';
+        statusIndicator.title = '点击查看AutoGen存储状态';
+        document.body.appendChild(statusIndicator);
+        
+        // 点击显示详细状态
+        statusIndicator.addEventListener('click', function(){
+          const status = window.AutoGenStatus;
+          const details = `
+AutoGen混合存储状态:
+- 初始化: ${status.initialized ? '✓' : '✗'}
+- 存储模式: ${status.storageType}
+- 回退模式: ${status.fallbackMode ? '是' : '否'}
+- 最后同步: ${status.lastSync || '未同步'}
+- 前端功能: 完全兼容
+          `.trim();
+          alert(details);
+        });
+        
+        // 更新状态显示
+        window.updateAutoGenStatus = function(newStatus) {
+          Object.assign(window.AutoGenStatus, newStatus);
+          const indicator = document.getElementById('autogen-status-indicator');
+          if (indicator) {
+            const status = window.AutoGenStatus;
+            if (status.initialized) {
+              indicator.style.background = status.fallbackMode ? '#fff3cd' : '#d4edda';
+              indicator.style.borderColor = status.fallbackMode ? '#ffeaa7' : '#c3e6cb';
+              indicator.textContent = `存储: ${status.storageType}模式`;
+              try{ window.LogPanel && window.LogPanel.log(`存储初始化成功：mode=${status.storageType}, fallback=${status.fallbackMode?'yes':'no'}`); }catch(_){ }
+            } else {
+              indicator.style.background = '#f8d7da';
+              indicator.style.borderColor = '#f5c6cb';
+              indicator.textContent = '存储: 初始化失败';
+              try{ window.LogPanel && window.LogPanel.error('存储：初始化失败，已切换本地模式'); }catch(_){ }
+            }
+          }
+        };
+      })();
+    </script>
+    
+    <!-- AutoGen前端桥接器 -->
+    <script src="autogen_frontend_bridge.js?v=20250917"></script>
+    
+    <!-- MD底座解析器和管理器 -->
+    <script src="src/services/mdBaseParser.js?v=20250918"></script>
+    <script src="src/services/mdBaseManager.js?v=20250918"></script>
+    
+    <!-- 原有存储服务（保持兼容，已集成MD底座） -->
+    <script src="src/services/mindmapStorage.js?v=20250820"></script>
+    
+    <!-- MD自动同步服务 -->
+    <script src="src/services/mdAutoSync.js?v=20250918"></script>
+    
+    <!-- MD离线同步服务 -->
+    <script src="src/services/mdOfflineSync.js?v=20250918"></script>
+    
+    <!-- MD安全写入器（防误写机制） -->
+    <script src="src/services/mdSafeWriter.js?v=20250918"></script>
+    
+    <!-- MD安全管理面板 -->
+    <script src="src/components/mdSafetyPanel.js?v=20250918"></script>
+    
+    <!-- 智能localStorage管理器 -->
+    <script src="src/services/smartLocalStorage.js?v=20250918"></script>
+    
+    <!-- AutoGen存储适配器 -->
+    <script>
+      // AutoGen存储适配器 - 无缝集成到现有系统
+      (function(){
+        console.log('[AutoGen] 初始化存储适配器...');
+        
+        // 保存原有的MindmapStorage引用
+        const originalMindmapStorage = window.MindmapStorage;
+        
+        // 创建AutoGen增强的存储适配器
+        window.AutoGenStorageAdapter = {
+          // 原有接口保持不变
+          async saveMindmapToStorage(data) {
+            try {
+              // 1. 先尝试AutoGen存储
+              if (window.autoGenBridge && window.autoGenBridge.isInitialized) {
+                const success = await window.autoGenBridge.saveMindmap();
+                if (success.success) {
+                  console.log('[AutoGen] 数据已保存到混合存储');
+                  window.updateAutoGenStatus({ storageType: 'hybrid', lastSync: new Date().toLocaleTimeString() });
+                  return true;
+                }
+              }
+              
+              // 2. 回退到原有存储
+              if (originalMindmapStorage && originalMindmapStorage.saveMindmapToStorage) {
+                const result = await originalMindmapStorage.saveMindmapToStorage(data);
+                console.log('[AutoGen] 回退到本地存储');
+                window.updateAutoGenStatus({ storageType: 'local', fallbackMode: true });
+                return result;
+              }
+              
+              return false;
+            } catch (error) {
+              console.error('[AutoGen] 存储失败:', error);
+              window.updateAutoGenStatus({ storageType: 'local', fallbackMode: true });
+              return false;
+            }
+          },
+          
+          async loadMindmapFromStorage(id) {
+            try {
+              // 1. 先尝试AutoGen加载
+              if (window.autoGenBridge && window.autoGenBridge.isInitialized) {
+                const data = await window.autoGenBridge.loadProject(id);
+                if (data && data.id) {
+                  console.log('[AutoGen] 从混合存储加载数据');
+                  return data;
+                }
+              }
+              
+              // 2. 回退到原有存储
+              if (originalMindmapStorage && originalMindmapStorage.loadMindmapFromStorage) {
+                const result = await originalMindmapStorage.loadMindmapFromStorage(id);
+                console.log('[AutoGen] 从本地存储加载数据');
+                return result;
+              }
+              
+              return null;
+            } catch (error) {
+              console.error('[AutoGen] 加载失败:', error);
+              return null;
+            }
+          },
+          
+          async searchProjects(query) {
+            try {
+              // 1. 先尝试AutoGen智能搜索
+              if (window.autoGenBridge && window.autoGenBridge.isInitialized) {
+                const results = await window.autoGenBridge.searchProjects(query);
+                if (results && results.length > 0) {
+                  console.log('[AutoGen] 使用智能搜索');
+                  return results;
+                }
+              }
+              
+              // 2. 回退到原有搜索
+              if (originalMindmapStorage && originalMindmapStorage.searchProjects) {
+                return await originalMindmapStorage.searchProjects(query);
+              }
+              
+              return [];
+            } catch (error) {
+              console.error('[AutoGen] 搜索失败:', error);
+              return [];
+            }
+          },
+          
+          // 保持原有接口完全兼容
+          async getStatus() {
+            if (originalMindmapStorage && originalMindmapStorage.getStatus) {
+              return await originalMindmapStorage.getStatus();
+            }
+            return { nodes: 0, contents: 0, versions: 0 };
+          }
+        };
+        
+        // 无缝替换MindmapStorage，保持接口完全兼容
+        const enhancedStorage = Object.assign({}, originalMindmapStorage, window.AutoGenStorageAdapter);
+        window.MindmapStorage = enhancedStorage;
+        
+        // 监听AutoGen桥接器初始化
+        if (window.autoGenBridge) {
+          window.autoGenBridge.on('initialized', function(result) {
+            if (result.success) {
+              console.log('[AutoGen] 桥接器初始化成功，启用混合存储');
+              window.updateAutoGenStatus({ 
+                initialized: true, 
+                storageType: 'hybrid',
+                fallbackMode: false
+              });
+            } else {
+              console.log('[AutoGen] 桥接器初始化失败，使用本地存储');
+              window.updateAutoGenStatus({ 
+                initialized: false, 
+                storageType: 'local',
+                fallbackMode: true
+              });
+            }
+          });
+        }
+        
+        console.log('[AutoGen] 存储适配器初始化完成');
+      })();
+    </script>
+    
+    <!-- 统一日志面板工具：将运行/调试信息输出到左侧“列表日志”框 -->
+    <script>
+      (function(){
+        const pad = n => (n<10? '0':'') + n;
+        function ts(){ const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+        function ensureInit(){
+          const panel = document.getElementById('list-log-panel');
+          const header = document.getElementById('list-log-header');
+          const caret = document.getElementById('list-log-caret');
+          const body = document.getElementById('list-log-body');
+          const btnClear = document.getElementById('list-log-clear');
+          const btnCopy = document.getElementById('list-log-copy');
+          if (!panel || !header || !body) return false;
+          if (!header.__bound){
+            header.__bound = true;
+            header.addEventListener('click', function(){
+              const collapsed = panel.getAttribute('data-collapsed') !== 'false';
+              if (collapsed){
+                panel.setAttribute('data-collapsed','false');
+                body.style.display = 'block';
+                document.getElementById('list-log-controls').style.display = 'flex';
+                caret.textContent = '▾';
+              } else {
+                panel.setAttribute('data-collapsed','true');
+                body.style.display = 'none';
+                document.getElementById('list-log-controls').style.display = 'none';
+                caret.textContent = '▸';
+              }
+            });
+          }
+          btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
+          btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(body.textContent||''); alert('日志已复制'); }catch(_){ } }));
+          return true;
+        }
+        function append(level, message){
+          if (!ensureInit()) return;
+          const body = document.getElementById('list-log-body');
+          const line = `[${ts()}][${level}] ${message}`;
+          body.textContent += (body.textContent ? "\n" : "") + line;
+          body.scrollTop = body.scrollHeight;
+        }
+        const LogPanel = {
+          log: (m)=>append('INFO', String(m)),
+          warn: (m)=>append('WARN', String(m)),
+          error: (m)=>append('ERROR', String(m)),
+          json: (title, obj)=>append('INFO', `${title}: ${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`)
+        };
+        window.LogPanel = LogPanel;
+        // Tee console 输出到日志面板
+        ['log','info','warn','error'].forEach(fn=>{
+          const orig = console[fn].bind(console);
+          console[fn] = function(){ try{ LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); }catch(_){}; return orig.apply(console, arguments); };
+        });
+        // 全局错误捕获
+        window.addEventListener('error', e=>{ LogPanel.error(`WindowError: ${e.message}`); });
+        window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
+        // 初始一条
+        setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
+      })();
+    </script>
+    
+    <!-- 原有脑图控制器（保持不变） -->
+    <script src="jsmind-controller.js?v=20250820"></script>
+    
+    <!-- 关系管理前端 -->
+    <script src="relation_frontend.js?v=20250917"></script>
+    
+    <!-- 本地后端 API 基址配置（必须在注册管理器之前设置） -->
+    <script>
+      // 如需更换端口，请修改此处端口号
+      window.__REGISTRY_API_BASE = window.__REGISTRY_API_BASE || 'http://127.0.0.1:8081';
+      // 简易连通性检测：更新状态指示器
+      (function(){
+        try{
+          fetch(window.__REGISTRY_API_BASE + '/health', { method:'GET' })
+            .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)))
+            .then(()=>{ window.updateAutoGenStatus && window.updateAutoGenStatus({ initialized:true, storageType:'hybrid', fallbackMode:false }); window.LogPanel && window.LogPanel.log('后端健康检查通过'); })
+            .catch((err)=>{ window.updateAutoGenStatus && window.updateAutoGenStatus({ initialized:false, storageType:'local', fallbackMode:true }); window.LogPanel && window.LogPanel.warn('后端健康检查失败：' + (err&&err.message?err.message:String(err))); });
+        }catch(_){ /* ignore */ }
+      })();
+    </script>
+    
+    <!-- 新注册表模块（方案C） -->
+    <script src="infra/event_bus.js?v=20250917"></script>
+    <script src="registry/registry_state_machine.js?v=20250917"></script>
+    <script src="registry/registry_store.js?v=20250917"></script>
+    <script src="registry/registry_repository.js?v=20250917"></script>
+    <script src="registry/command_bus.js?v=20250917"></script>
+    <script src="registry/registry_view.js?v=20250917"></script>
+    <script src="registry/registry_bootstrap.js?v=20250917"></script>
+    
+    <!-- 统一调试面板 -->
+    <script src="src/debug/DebugPanel.js?v=20250918"></script>
+    <script src="debug-mindmap-naming.js?v=20250918"></script>
+    
+    <!-- 统一数据修复工具 -->
+    <script src="src/tools/dataRecovery.js?v=20250918"></script>
+    
+    <!-- MD存储测试脚本 -->
+    <script src="test_md_storage.js?v=20250917"></script>
+    
+    <!-- MD底座测试脚本 -->
+    <script src="test_md_base.js?v=20250918"></script>
+    
+    <!-- 主脚本（保持不变） -->
+    <script src="script.js?v=20250820"></script>
+    <!-- 简易状态脚本：查询 IndexedDB 计数并弹窗显示 -->
+    <script>
+      (function(){
+        const btn = document.getElementById('mindmap-idb-status-btn');
+        if (btn){
+          btn.addEventListener('click', async ()=>{
+            try{
+              if (!window.MindmapStorage || typeof window.MindmapStorage.getStatus !== 'function'){
+                alert('本地内容库适配器未加载或不支持 getStatus');
+                return;
+              }
+              const s = await window.MindmapStorage.getStatus();
+              alert(`IndexedDB 状态\nNodes: ${s.nodes}\nContents: ${s.contents}\nVersions: ${s.versions}`);
+            }catch(e){
+              alert('查询失败：' + (e && e.message ? e.message : String(e)));
+            }
+          });
+        }
+      })();
+    </script>
+    
+    <!-- Toast提示 -->
+    <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>
+</body>
+</html>
