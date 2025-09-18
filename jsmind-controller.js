@@ -4673,77 +4673,119 @@
         case 'add-sibling': this.addSiblingNode(nodeId); break;
         case 'edit': this.editNode(nodeId); break;
         case 'remove': this.removeNode(nodeId); break;
-        case 'copy-title': this.copyNode(nodeId); break;
-        case 'copy': this.copyNode(nodeId); break;
-        case 'cut': this.cutNode(nodeId); break;
+        case 'copy-title': this.copyNodeTitle(nodeId); break;
+        case 'copy-full': this.copyNodeFull(nodeId); break;
         case 'paste': this.pasteNode(nodeId, true); break; // 兼容菜单/工具栏使用的通用 paste
-        case 'paste-child': this.pasteNode(nodeId, true); break;
-        case 'paste-sibling': this.pasteNode(nodeId, false); break;
-        case 'copy-subtree-json': this.copySubtreeJSON(nodeId); break;
-        case 'export-subtree-json': this.exportSubtreeJSON(nodeId); break;
-        case 'import-children': this.openImportChildrenDialog(nodeId); break;
-        case 'collapse-toggle': this.collapseExpandNode(nodeId); break;
         case 'remove-from-list': this._removeCurrentMindFromProjectList(); break;
         default: break;
       }
     }
 
+    // 复制节点标题（仅标题，不包含内容和时间戳）
     copyNodeTitle(nodeId){
       try{
         const node = this.findNode(nodeId);
         if (!node){ this.showToast('未找到节点', 'error'); return; }
         
-        // 获取标题和内容
-        const title = (node.label || node.topic || '').toString();
-        const content = (node.content || '').toString();
+        // 仅获取标题，清理时间戳
+        let title = (node.label || node.topic || '').toString();
         
-        // 合并标题和内容，用换行分隔
+        // 移除时间戳（格式：创建: 2025-09-18 17:34:13）
+        title = this._removeTimestamp(title);
+        
+        this._copyToClipboard(title, '已复制标题');
+      }catch(e){
+        console.warn('copyNodeTitle异常:', e);
+        this.showToast('复制失败', 'error');
+      }
+    }
+
+    // 复制节点标题+内容（不包含时间戳）
+    copyNodeFull(nodeId){
+      try{
+        const node = this.findNode(nodeId);
+        if (!node){ this.showToast('未找到节点', 'error'); return; }
+        
+        // 获取标题和内容，清理时间戳
+        let title = (node.label || node.topic || '').toString();
+        let content = (node.content || '').toString();
+        
+        // 移除标题中的时间戳
+        title = this._removeTimestamp(title);
+        
+        // 移除内容中的时间戳
+        content = this._removeTimestamp(content);
+        
+        // 合并标题和内容
         let combinedText = title;
         if (content && content.trim()) {
           combinedText += '\n\n' + content;
         }
         
-        // 调试日志
-        this._logToPanel('[DEBUG] copyNodeTitle - 标题:', title);
-        this._logToPanel('[DEBUG] copyNodeTitle - 内容:', content);
-        this._logToPanel('[DEBUG] copyNodeTitle - 合并文本:', combinedText);
-        
-        const doToastOk = ()=> {
-          this._logToPanel('[DEBUG] copyNodeTitle - 复制成功');
-          this.showToast('已复制节点内容');
-        };
-        const doToastErr = ()=> {
-          this._logToPanel('[DEBUG] copyNodeTitle - 复制失败');
-          this.showToast('复制失败', 'error');
-        };
-        
-        // 优先 Clipboard API
-        if (navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(combinedText).then(doToastOk).catch(()=>{
-            // 回退
-            try{
-              const ta = document.createElement('textarea');
-              ta.style.position = 'fixed'; ta.style.left = '-9999px';
-              ta.value = combinedText; document.body.appendChild(ta); ta.select();
-              const ok = document.execCommand && document.execCommand('copy');
-              document.body.removeChild(ta);
-              ok ? doToastOk() : doToastErr();
-            }catch(_){ doToastErr(); }
-          });
-        }else{
-          // 直接回退
-          try{
-            const ta = document.createElement('textarea');
-            ta.style.position = 'fixed'; ta.style.left = '-9999px';
-            ta.value = combinedText; document.body.appendChild(ta); ta.select();
-            const ok = document.execCommand && document.execCommand('copy');
-            document.body.removeChild(ta);
-            ok ? doToastOk() : doToastErr();
-          }catch(_){ doToastErr(); }
-        }
+        this._copyToClipboard(combinedText, '已复制标题+内容');
       }catch(e){
-        console.warn('copyNodeTitle异常:', e);
+        console.warn('copyNodeFull异常:', e);
         this.showToast('复制失败', 'error');
+      }
+    }
+
+    // 移除文本中的时间戳
+    _removeTimestamp(text){
+      if (!text) return '';
+      
+      // 匹配各种时间戳格式
+      const timestampPatterns = [
+        /创建:\s*\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/g,
+        /修改:\s*\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/g,
+        /更新:\s*\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/g,
+        /时间:\s*\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/g,
+        /\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/g  // 纯时间戳
+      ];
+      
+      let cleanText = text;
+      timestampPatterns.forEach(pattern => {
+        cleanText = cleanText.replace(pattern, '');
+      });
+      
+      // 清理多余的空行和空格
+      return cleanText.replace(/\n\s*\n\s*\n/g, '\n\n').trim();
+    }
+
+    // 统一的复制到剪贴板方法
+    _copyToClipboard(text, successMessage){
+      const doToastOk = ()=> this.showToast(successMessage);
+      const doToastErr = ()=> this.showToast('复制失败', 'error');
+      
+      // 优先使用 Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(doToastOk).catch(()=>{
+          // 回退到 execCommand
+          this._fallbackCopy(text, doToastOk, doToastErr);
+        });
+      } else {
+        // 直接使用回退方法
+        this._fallbackCopy(text, doToastOk, doToastErr);
+      }
+    }
+
+    // 回退复制方法
+    _fallbackCopy(text, onSuccess, onError){
+      try{
+        const ta = document.createElement('textarea');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        ta.style.top = '-9999px';
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, 99999); // 移动端兼容
+        
+        const success = document.execCommand && document.execCommand('copy');
+        document.body.removeChild(ta);
+        
+        success ? onSuccess() : onError();
+      }catch(_){
+        onError();
       }
     }
 
