@@ -1,7 +1,4 @@
-
-
 <!DOCTYPE html>
-
 
 <html lang="zh-CN">
 <head>
@@ -571,6 +568,21 @@ AutoGen混合存储状态:
         
         console.log('[AutoGen] 存储适配器初始化完成');
       })();
+    </script>
+    
+    <!-- 引入实时MD同步器 -->
+    <script src="src/services/realtimeMDSyncer.js"></script>
+    
+    <script>
+      // 在DOM完全加载后初始化
+      window.addEventListener('load', () => {
+        if (window.RealtimeMDSyncer) {
+          window.realtimeMDSyncer = new window.RealtimeMDSyncer();
+          console.log('[实时MD] 同步器已激活');
+        } else {
+          console.error('[实时MD] 同步器未定义');
+        }
+      });
     </script>
     
     <!-- 统一日志面板工具：将运行/调试信息输出到左侧“列表日志”框 -->
