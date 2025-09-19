@@ -1,7 +1,8 @@
 // 引导新注册表模块（方案C）
 ;(function(global){
   // 立即设置开关，防止旧管理器在脚本解析阶段实例化
-  global.__USE_NEW_REGISTRY__ = true;
+  // 已禁用新注册表机制，恢复原始localStorage加载
+  global.__USE_NEW_REGISTRY__ = false;
   function boot(){
     try{
       // 已在顶层设置开关

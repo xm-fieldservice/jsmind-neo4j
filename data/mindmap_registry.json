@@ -5,7 +5,7 @@
       "project_id": "root-1758256084936-b8",
       "name": "服务器",
       "created_at": "2025-09-19T04:28:04.957Z",
-      "last_modified": "2025-09-19T06:16:53.031Z",
+      "last_modified": "2025-09-19T06:36:50.231Z",
       "source": "new",
       "payload": {
         "format": "node_tree",
@@ -459,6 +459,14 @@
                           "expanded": true,
                           "attachments": [],
                           "children": []
+                        },
+                        {
+                          "id": "960ac5742d2daa24",
+                          "label": "6",
+                          "content": "创建: 2025-09-19 11:24:18\n\n1111111111111",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": []
                         }
                       ]
                     },
@@ -742,7 +750,7 @@
   ],
   "metadata": {
     "total_projects": 3,
-    "last_updated": "2025-09-19T06:16:53.032Z",
+    "last_updated": "2025-09-19T06:36:50.234Z",
     "storage_type": "unified_md"
   }
 }

@@ -132,6 +132,12 @@
                         
                         <!-- 查询结果列表（隐藏，仅在查询时显示） -->
                         <ul id="query-results-list" style="flex:1 1 auto;overflow:auto;min-height:0;display:none;"></ul>
+                        <!-- 日志控制按钮（框外） -->
+                        <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;">
+                          <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
+                          <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
+                        </div>
+                        
                         <!-- 列表栏日志面板（默认折叠，仅标题栏） -->
                         <div id="list-log-panel" data-collapsed="true" style="margin-top:auto;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
                           <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
@@ -139,10 +145,6 @@
                             <span id="list-log-caret" aria-hidden="true" style="font-size:12px;color:#9ca3af;">▸</span>
                           </button>
                           <pre id="list-log-body" style="display:none;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
-                          <div id="list-log-controls" style="display:none;padding:4px 8px;background:#f8fafc;border-top:1px solid #e5e7eb;gap:8px;">
-                            <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
-                            <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -384,12 +386,10 @@
               if (collapsed){
                 panel.setAttribute('data-collapsed','false');
                 body.style.display = 'block';
-                document.getElementById('list-log-controls').style.display = 'flex';
                 caret.textContent = '▾';
               } else {
                 panel.setAttribute('data-collapsed','true');
                 body.style.display = 'none';
-                document.getElementById('list-log-controls').style.display = 'none';
                 caret.textContent = '▸';
               }
             });

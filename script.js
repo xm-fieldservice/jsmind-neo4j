@@ -30,12 +30,13 @@
                     }catch(_){ }
 
     // 监听：jsMind 内联编辑结束（blur）后，同步根标题到目录名称
-    try{
-        document.addEventListener('blur', (e)=>{
-            // 捕获阶段监听所有 blur，减少对 jsMind 内部实现的耦合
-            setTimeout(()=>{ try{ syncActiveCardNameFromRoot(); }catch(_){ } }, 30);
-        }, true);
-    }catch(_){ }
+    // 已禁用：自动同步机制容易误触发，导致未授权改名
+    // try{
+    //     document.addEventListener('blur', (e)=>{
+    //         // 捕获阶段监听所有 blur，减少对 jsMind 内部实现的耦合
+    //         setTimeout(()=>{ try{ syncActiveCardNameFromRoot(); }catch(_){ } }, 30);
+    //     }, true);
+    // }catch(_){ }
                 }
                 return (i >= 0 && i < list.length) ? i : -1;
             }catch(_){ return -1; }
@@ -1555,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 1. 保存当前脑图到per-mind键和目录payload
                     if (window.mindmapController && window.mindmapController.mind) {
                         window.mindmapController.saveMindmapToStorage();
-                        try{ syncActiveCardNameFromRoot(); }catch(_){ }
+                        // 已禁用自动同步：try{ syncActiveCardNameFromRoot(); }catch(_){ }
                         try { logList('saved current mind to storage'); }catch(_){ }
                         // 同时更新当前激活项目的payload
                         saveCurrentMindToActiveCard();
