@@ -258,16 +258,21 @@
                     <!-- 输入框（下半部分） -->
                     <div class="notes-input">
                         <div class="notes-input-header">
-                            <span>添加笔记</span>
+                            <span>智能体输入</span>
+                            <div class="agent-selector">
+                                <button id="agent-select-btn" class="notes-btn" title="选择智能体">🤖 选择智能体</button>
+                                <span id="agent-status" class="agent-status">未选择</span>
+                            </div>
                         </div>
                         <div class="notes-input-area">
                             <textarea 
                                 id="notes-input-text" 
                                 class="notes-input-editor" 
-                                placeholder="在这里输入新的笔记内容..."
+                                placeholder="在这里输入智能体的问题或指令..."
                                 rows="4"></textarea>
                             <div class="notes-input-actions">
-                                <button id="notes-add-btn" class="notes-btn notes-btn-primary">添加笔记</button>
+                                <button id="notes-send-btn" class="notes-btn notes-btn-primary">发送给智能体</button>
+                                <button id="notes-add-btn" class="notes-btn">添加笔记</button>
                                 <button id="notes-clear-input-btn" class="notes-btn">清空输入</button>
                             </div>
                         </div>
@@ -404,6 +409,8 @@
     <input type="file" id="fileInputMindmap" accept=".json,.mindmap.json" style="display:none" />
     <!-- 隐藏文件选择框：用于附件上传（多选） -->
     <input type="file" id="fileInputAttachment" multiple style="display:none" />
+    <!-- 隐藏文件选择框：用于选择智能体文件 -->
+    <input type="file" id="fileInputAgent" accept=".agt,.team,.json" style="display:none" />
     
     
     
@@ -509,6 +516,7 @@
         // 笔记栏功能
         window.addEventListener('DOMContentLoaded', function() {
             let notes = JSON.parse(localStorage.getItem('notes_data') || '[]');
+            let selectedAgent = null;
             
             function renderNotes() {
                 const display = document.getElementById('notes-display');
@@ -521,6 +529,7 @@
                         <div class="notes-item">
                             <div class="notes-item-time">${new Date(note.time).toLocaleString()}</div>
                             <div class="notes-item-content">${note.content}</div>
+                            ${note.type ? `<div class="notes-item-type">[${note.type}]</div>` : ''}
                         </div>
                     `).join('');
                 }
@@ -532,21 +541,181 @@
                 localStorage.setItem('notes_data', JSON.stringify(notes));
             }
             
+            function addNote(content, type = 'note') {
+                notes.unshift({
+                    id: Date.now(),
+                    content: content,
+                    time: Date.now(),
+                    type: type
+                });
+                renderNotes();
+                saveNotes();
+            }
+            
+            function updateAgentStatus(status, text) {
+                const statusEl = document.getElementById('agent-status');
+                statusEl.className = `agent-status ${status}`;
+                statusEl.textContent = text;
+            }
+            
+            // Agent API调用函数 - 调用外部脚本，不使用自定义运行机制
+            async function callAgentAPI(agent, userInput) {
+                try {
+                    // 调用后端API，后端会使用外部脚本运行
+                    const response = await fetch('http://127.0.0.1:8081/api/agent/run', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            agent_config: agent.data,
+                            user_input: userInput,
+                            agent_type: detectAgentType(agent.data)
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        return {
+                            success: true,
+                            result: result.response || result.output || '智能体响应为空'
+                        };
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                } catch (networkError) {
+                    // 网络错误时，尝试使用Python脚本作为备选方案
+                    console.warn('后端API不可用，尝试备选方案:', networkError.message);
+                    
+                    try {
+                        // 保存临时配置文件
+                        const tempConfig = {
+                            timestamp: Date.now(),
+                            config: agent.data,
+                            user_input: userInput
+                        };
+                        
+                        // 使用localStorage作为临时存储
+                        localStorage.setItem('temp_agent_request', JSON.stringify(tempConfig));
+                        
+                        // 返回指导信息
+                        return {
+                            success: false,
+                            error: `后端服务不可用。请确保：
+1. 后端服务正在运行 (端口8081)
+2. 环境变量已正确配置
+3. AutoGen模块已安装
+
+临时配置已保存到localStorage，可以手动处理。`
+                        };
+                        
+                    } catch (fallbackError) {
+                        return {
+                            success: false,
+                            error: `Agent调用失败: ${networkError.message}`
+                        };
+                    }
+                }
+            }
+            
+            // 检测Agent类型
+            function detectAgentType(agentData) {
+                if (!agentData) return 'agent';
+                
+                // 检测Team特征
+                if (agentData.members || agentData.participants) {
+                    return 'team';
+                }
+                
+                if (agentData.config) {
+                    if (agentData.config.participants || agentData.config.members) {
+                        return 'team';
+                    }
+                }
+                
+                // 默认为agent
+                return 'agent';
+            }
+            
+            // 智能体选择
+            document.getElementById('agent-select-btn')?.addEventListener('click', function() {
+                document.getElementById('fileInputAgent').click();
+            });
+            
+            // 文件选择处理
+            document.getElementById('fileInputAgent')?.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        try {
+                            const agentData = JSON.parse(event.target.result);
+                            selectedAgent = {
+                                name: file.name,
+                                path: file.name,
+                                data: agentData
+                            };
+                            updateAgentStatus('selected', `已选择: ${file.name}`);
+                            addNote(`智能体已选择: ${file.name}`, 'system');
+                        } catch (error) {
+                            alert('智能体文件格式错误: ' + error.message);
+                            updateAgentStatus('', '选择失败');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+            
+            // 发送给智能体
+            document.getElementById('notes-send-btn')?.addEventListener('click', async function() {
+                const input = document.getElementById('notes-input-text');
+                const content = input.value.trim();
+                
+                if (!selectedAgent) {
+                    alert('请先选择一个智能体');
+                    return;
+                }
+                
+                if (!content) {
+                    alert('请输入要发送给智能体的内容');
+                    return;
+                }
+                
+                // 添加用户输入到笔记
+                addNote(`[用户] ${content}`, 'user');
+                
+                // 开始处理
+                updateAgentStatus('processing', '处理中...');
+                
+                try {
+                    // 调用后端API运行Agent
+                    const response = await callAgentAPI(selectedAgent, content);
+                    
+                    if (response.success) {
+                        addNote(`[${selectedAgent.name}] ${response.result}`, 'agent');
+                        updateAgentStatus('selected', `已选择: ${selectedAgent.name}`);
+                    } else {
+                        addNote(`[错误] ${response.error}`, 'system');
+                        updateAgentStatus('selected', `已选择: ${selectedAgent.name} (上次调用失败)`);
+                    }
+                    
+                    input.value = '';
+                    
+                } catch (error) {
+                    addNote(`[系统错误] Agent调用失败: ${error.message}`, 'system');
+                    updateAgentStatus('selected', `已选择: ${selectedAgent.name} (连接失败)`);
+                }
+            });
+            
             // 添加笔记
             document.getElementById('notes-add-btn')?.addEventListener('click', function() {
                 const input = document.getElementById('notes-input-text');
                 const content = input.value.trim();
                 
                 if (content) {
-                    notes.unshift({
-                        id: Date.now(),
-                        content: content,
-                        time: Date.now()
-                    });
-                    
+                    addNote(content, 'note');
                     input.value = '';
-                    renderNotes();
-                    saveNotes();
                 }
             });
             
@@ -570,10 +739,14 @@
                 alert('笔记已保存');
             });
             
-            // 回车添加笔记
+            // 回车发送给智能体
             document.getElementById('notes-input-text')?.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && e.ctrlKey) {
-                    document.getElementById('notes-add-btn').click();
+                    if (selectedAgent) {
+                        document.getElementById('notes-send-btn').click();
+                    } else {
+                        document.getElementById('notes-add-btn').click();
+                    }
                 }
             });
             

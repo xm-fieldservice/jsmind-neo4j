@@ -311,11 +311,11 @@ const saveCurrentMindToActiveCard = ()=>{
 
 /**
  * 多视图布局管理器
- * 负责管理四个视图（列表、脑图、关系、详情）的显示/隐藏
+ * 负责管理五个视图（列表、脑图、笔记、关系、详情）的显示/隐藏
  */
 class ColumnManager {
     constructor() {
-        this.views = ['list', 'mindmap', 'relation', 'detail'];
+        this.views = ['list', 'mindmap', 'notes', 'relation', 'detail'];
         // 默认显示 列表 + 脑图 + 详情
         // 与 updateLayout 中的固定宽度规则（列表1/7、详情1/5）配合，打开页面即呈现目标布局
         this.activeViews = ['list', 'mindmap', 'detail'];

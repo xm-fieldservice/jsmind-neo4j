@@ -2,10 +2,145 @@
   "version": "1.0",
   "projects": [
     {
+      "project_id": "root-1758268230907-7vq1",
+      "name": "笔记页面",
+      "created_at": "2025-09-19T07:50:30.914Z",
+      "last_modified": "2025-09-19T09:44:50.516Z",
+      "source": "new",
+      "payload": {
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758268230907-7vq1",
+          "label": "笔记页面",
+          "content": "作为标准组件的开发标准\n",
+          "expanded": true,
+          "attachments": [],
+          "children": [
+            {
+              "id": "n3",
+              "label": "输入框",
+              "content": "开发计划...",
+              "expanded": true,
+              "attachments": [],
+              "children": [
+                {
+                  "id": "96148c927773fa60",
+                  "label": "回车发送",
+                  "content": "创建: 2025-09-19 17:23:18\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                },
+                {
+                  "id": "node-1758273940397-irt0",
+                  "label": "alt + 回车发送给智能体",
+                  "content": "创建: 2025-09-19 17:25:40\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                },
+                {
+                  "id": "9614be1d3b1d0ab4",
+                  "label": "shift + 回车：直接记入笔记",
+                  "content": "创建: 2025-09-19 17:26:46\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "9614cc3bbbce331a",
+              "label": "输入按键",
+              "content": "创建: 2025-09-19 17:27:43\n\n",
+              "expanded": true,
+              "attachments": [],
+              "children": [
+                {
+                  "id": "9614ce737e91a66a",
+                  "label": "添加附件",
+                  "content": "创建: 2025-09-19 17:27:42\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "961490aa0661846b",
+              "label": "输出框",
+              "content": "创建: 2025-09-19 17:23:34\n\n",
+              "expanded": true,
+              "attachments": [],
+              "children": [
+                {
+                  "id": "9614d2d9126e6e8e",
+                  "label": "MD阅读器",
+                  "content": "创建: 2025-09-19 17:28:48\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                },
+                {
+                  "id": "9614f58ac32358c6",
+                  "label": "New Node",
+                  "content": "",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                },
+                {
+                  "id": "9614d4d4d4cb8910",
+                  "label": "笔记内容标题栏右侧（添加”复制“按键",
+                  "content": "创建: 2025-09-19 17:28:27\n全部复制输出框内的内容到剪贴板\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                },
+                {
+                  "id": "9614e38214a87c44",
+                  "label": "笔记内容标题栏右侧：”处理“按键",
+                  "content": "创建: 2025-09-19 17:28:27\n将输出栏的内容使用team处理\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "961496e1a6786f4e",
+              "label": "智能体",
+              "content": "创建: 2025-09-19 17:23:50\n\n",
+              "expanded": true,
+              "attachments": [],
+              "children": [
+                {
+                  "id": "node-1758273834249-2m7v",
+                  "label": "通用脚本",
+                  "content": "设计说是的，这个脚本已经完全兼容Agent和Team！\n\n✅ 自动识别: 根据component_type字段自动识别\n✅ 统一接口: 相同的命令行参数和API接口\n✅ 原生支持: 严格使用AutoGen 0.7.1原生方法\n✅ 测试验证: Agent和Team都测试成功\n✅ 笔记栏集成: 后端API透明支持两种类型\n一个脚本，两种模式，完全兼容！🚀明...\n\n---\n\n### 通用脚本\n2025-09-19 17:21:00\n\n# -*- coding: utf-8 -*-\n\"\"\"\n通用智能体运行脚本 - 严格遵循AutoGen 0.7.1本地知识库规范\n支持Agent和Team配置\n参照: autogen_repo/python/samples/agentchat_chainlit/app_team.py\n\"\"\"\nfrom __future__ import annotations\n\nimport argparse\nimport json\nimport os\nimport sys\nimport traceback\nimport io\nimport asyncio\nfrom pathlib import Path\nfrom typing import Dict, Any, Optional, List\n\n# 设置UTF-8输出\nsys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')\n\n# 项目根目录\nROOT = Path(__file__).resolve().parent\nif str(ROOT) not in sys.path:\n    sys.path.insert(0, str(ROOT))\n\n# 自动加载.env文件\ndef load_env_file():\n    env_file = ROOT / \".env\"\n    if env_file.exists():\n        try:\n            with open(env_file, 'r', encoding='utf-8') as f:\n                for line in f:\n                    line = line.strip()\n                    if line and not line.startswith('#') and '=' in line:\n                        key, value = line.split('=', 1)\n                        key = key.strip()\n                        value = value.strip().strip('\"').strip(\"'\")\n                        if key and not os.environ.get(key):\n                            os.environ[key] = value\n        except Exception as e:\n            print(f\"[警告] .env文件加载失败: {e}\")\n\n# 加载环境变量\nload_env_file()\n\n# 导入AutoGen 0.7.1原生模块 - 严格按照本地知识库规范\ntry:\n    from autogen_agentchat.agents import AssistantAgent\n    from autogen_agentchat.teams import RoundRobinGroupChat\n    from autogen_agentchat.ui import Console\n    from autogen_agentchat.messages import TextMessage\n    from autogen_ext.models.openai import OpenAIChatCompletionClient\n    print(\"[导入] 使用AutoGen 0.7.1原生模块\")\nexcept ImportError as e:\n    print(f\"错误: 无法导入AutoGen原生模块: {e}\")\n    print(\"请确保已安装AutoGen 0.7.1:\")\n    print(\"  pip install autogen-agentchat autogen-ext\")\n    sys.exit(1)\n\nclass UniversalRunner:\n    \"\"\"通用运行器 - 支持Agent和Team - 严格遵循本地知识库规范\"\"\"\n    \n    def __init__(self, config_path: str, verbose: bool = False):\n        self.config_path = Path(config_path)\n        self.verbose = verbose\n        self.config = None\n        self.component_type = None\n        self.agent = None\n        self.team = None\n        self.clients = []  # 存储所有model clients用于清理\n        \n        self._load_config()\n        self._create_component()\n    \n    def _load_config(self):\n        \"\"\"加载配置文件\"\"\"\n        if not self.config_path.exists():\n            raise FileNotFoundError(f\"配置文件不存在: {self.config_path}\")\n        \n        try:\n            with self.config_path.open('r', encoding='utf-8') as f:\n                self.config = json.load(f)\n            \n            self.component_type = self.config.get('component_type', 'agent')\n            \n            if self.verbose:\n                print(f\"[配置] 已加载: {self.config_path}\")\n                print(f\"[配置] 组件类型: {self.component_type}\")\n                \n        except Exception as e:\n            raise ValueError(f\"配置文件格式错误: {e}\")\n    \n    def _create_model_client(self, model_config: Dict[str, Any]) -> OpenAIChatCompletionClient:\n        \"\"\"创建模型客户端 - 严格按照本地知识库规范\"\"\"\n        mc_config = model_config.get('config', {})\n        \n        model = mc_config.get('model', 'gpt-3.5-turbo')\n        base_url = mc_config.get('base_url')\n        api_key_env = mc_config.get('api_key_env', 'OPENAI_API_KEY')\n        \n        # 获取API密钥\n        api_key = os.getenv(api_key_env)\n        if not api_key:\n            raise ValueError(f\"环境变量 {api_key_env} 未设置\")\n        \n        if self.verbose:\n            print(f\"[模型] 模型: {model}\")\n            print(f\"[模型] API地址: {base_url}\")\n            print(f\"[模型] API密钥环境变量: {api_key_env}\")\n        \n        # 构建客户端参数\n        client_params = {\n            'model': model,\n            'api_key': api_key\n        }\n        \n        if base_url:\n            client_params['base_url'] = base_url\n        \n        # 添加其他配置参数\n        for key, value in mc_config.items():\n            if key not in ['model', 'base_url', 'api_key', 'api_key_env']:\n                client_params[key] = value\n        \n        client = OpenAIChatCompletionClient(**client_params)\n        self.clients.append(client)  # 记录用于清理\n        return client\n    \n    def _create_agent(self, agent_config: Dict[str, Any]) -> AssistantAgent:\n        \"\"\"创建单个Agent - 严格按照本地知识库规范\"\"\"\n        name = agent_config.get('name', 'Assistant')\n        system_message = agent_config.get('system_message', 'You are a helpful assistant.')\n        \n        # 创建模型客户端\n        model_client_config = agent_config.get('model_client', {})\n        model_client = self._create_model_client(model_client_config)\n        \n        # 创建Agent\n        agent = AssistantAgent(\n            name=name,\n            model_client=model_client,\n            system_message=system_message\n        )\n        \n        if self.verbose:\n            print(f\"[Agent] 创建成功: {name}\")\n        \n        return agent\n    \n    def _create_component(self):\n        \"\"\"创建组件 - Agent或Team\"\"\"\n        try:\n            if self.component_type == 'agent':\n                self._create_agent_component()\n            elif self.component_type == 'team':\n                self._create_team_component()\n            else:\n                raise ValueError(f\"不支持的组件类型: {self.component_type}\")\n                \n        except Exception as e:\n            raise RuntimeError(f\"创建组件失败: {e}\")\n    \n    def _create_agent_component(self):\n        \"\"\"创建Agent组件\"\"\"\n        # 提取Agent配置\n        if 'config' in self.config:\n            agent_config = self.config['config']\n        else:\n            agent_config = self.config\n        \n        self.agent = self._create_agent(agent_config)\n        \n        if self.verbose:\n            print(f\"[组件] Agent组件创建成功\")\n    \n    def _create_team_component(self):\n        \"\"\"创建Team组件 - 严格按照本地知识库规范\"\"\"\n        team_config = self.config.get('config', {})\n        participants_config = team_config.get('participants', [])\n        \n        if not participants_config:\n            raise ValueError(\"Team配置中缺少participants\")\n        \n        # 创建所有参与者\n        participants = []\n        for participant_config in participants_config:\n            if participant_config.get('component_type') == 'agent':\n                agent_config = participant_config.get('config', {})\n                agent = self._create_agent(agent_config)\n                participants.append(agent)\n            else:\n                raise ValueError(f\"不支持的参与者类型: {participant_config.get('component_type')}\")\n        \n        # 创建Team - 严格按照本地知识库规范\n        # 参照: samples/agentchat_chainlit/app_team.py\n        team_params = {\n            'participants': participants\n        }\n        \n        # 添加其他Team配置\n        max_turns = team_config.get('max_turns')\n        if max_turns is not None:\n            team_params['max_turns'] = max_turns\n        \n        # 创建RoundRobinGroupChat\n        self.team = RoundRobinGroupChat(**team_params)\n        \n        if self.verbose:\n            print(f\"[组件] Team组件创建成功，参与者数量: {len(participants)}\")\n    \n    async def run_once_async(self, user_input: str) -> str:\n        \"\"\"异步执行一次推理 - 使用AutoGen原生方法\"\"\"\n        try:\n            if self.verbose:\n                print(f\"\\n[用户] {user_input}\")\n            \n            result_messages = []\n            \n            if self.component_type == 'agent':\n                # Agent模式 - 严格按照本地知识库规范\n                async for message in self.agent.run_stream(task=user_input):\n                    if hasattr(message, 'content'):\n                        result_messages.append(str(message.content))\n                    else:\n                        result_messages.append(str(message))\n            \n            elif self.component_type == 'team':\n                # Team模式 - 严格按照本地知识库规范\n                # 参照: samples/agentchat_chainlit/app_team.py\n                task_message = TextMessage(content=user_input, source=\"user\")\n                \n                async for message in self.team.run_stream(task=[task_message]):\n                    if hasattr(message, 'content'):\n                        result_messages.append(str(message.content))\n                    else:\n                        result_messages.append(str(message))\n            \n            # 合并所有输出\n            result = '\\n'.join(result_messages) if result_messages else \"响应为空\"\n            \n            if self.verbose:\n                print(f\"[响应] {result}\")\n            \n            return result\n            \n        except Exception as e:\n            error_msg = f\"推理执行错误: {e}\"\n            if self.verbose:\n                print(f\"[错误] {error_msg}\")\n                print(traceback.format_exc())\n            return f\"执行出错: {error_msg}\"\n    \n    def run_once(self, user_input: str) -> str:\n        \"\"\"同步执行一次推理\"\"\"\n        try:\n            return asyncio.run(self.run_once_async(user_input))\n        except RuntimeError:\n            # 处理事件循环冲突\n            loop = asyncio.new_event_loop()\n            try:\n                return loop.run_until_complete(self.run_once_async(user_input))\n            finally:\n                loop.close()\n    \n    async def interactive_mode_async(self):\n        \"\"\"异步交互模式 - 严格按照本地知识库规范\"\"\"\n        component_name = \"智能体\"\n        if self.component_type == 'agent' and self.agent:\n            component_name = self.agent.name\n        elif self.component_type == 'team':\n            component_name = \"团队\"\n        \n        print(f\"开始与 {component_name} 的交互对话，输入 '退出' 结束对话\")\n        \n        round_count = 0\n        while True:\n            round_count += 1\n            try:\n                user_input = input(f\"\\n[第{round_count}轮] 用户: \")\n                if user_input.lower() in (\"退出\", \"exit\", \"quit\", \":quit\"):\n                    print(\"对话已结束。\")\n                    break\n                \n                print(\"思考中...\")\n                \n                if self.component_type == 'agent':\n                    # Agent交互模式\n                    await Console(self.agent.run_stream(task=user_input))\n                elif self.component_type == 'team':\n                    # Team交互模式 - 严格按照本地知识库规范\n                    task_message = TextMessage(content=user_input, source=\"user\")\n                    await Console(self.team.run_stream(task=[task_message]))\n                \n            except KeyboardInterrupt:\n                print(\"\\n对话被用户中断。\")\n                break\n            except Exception as e:\n                print(f\"[错误] 对话轮次 {round_count} 出现错误: {e}\")\n                if self.verbose:\n                    print(traceback.format_exc())\n    \n    def interactive_mode(self):\n        \"\"\"交互模式\"\"\"\n        try:\n            asyncio.run(self.interactive_mode_async())\n        except RuntimeError:\n            loop = asyncio.new_event_loop()\n            try:\n                loop.run_until_complete(self.interactive_mode_async())\n            finally:\n                loop.close()\n    \n    async def cleanup(self):\n        \"\"\"清理资源 - 严格按照本地知识库规范\"\"\"\n        for client in self.clients:\n            try:\n                await client.close()\n                if self.verbose:\n                    print(\"[清理] 模型客户端已关闭\")\n            except Exception as e:\n                if self.verbose:\n                    print(f\"[警告] 清理资源时出错: {e}\")\n\ndef main():\n    \"\"\"主函数\"\"\"\n    parser = argparse.ArgumentParser(\n        description=\"通用智能体运行脚本（AutoGen 0.7.1原生方法，支持Agent和Team）\",\n        formatter_class=argparse.RawDescriptionHelpFormatter\n    )\n    parser.add_argument(\"-c\", \"--config\", required=True, help=\"智能体/团队配置文件路径\")\n    parser.add_argument(\"-i\", \"--input\", help=\"用户输入内容（非交互模式）\")\n    parser.add_argument(\"--interactive\", action=\"store_true\", help=\"启用交互式对话模式\")\n    parser.add_argument(\"-v\", \"--verbose\", action=\"store_true\", help=\"详细输出模式\")\n    \n    args = parser.parse_args()\n    \n    runner = None\n    try:\n        # 创建运行器\n        runner = UniversalRunner(args.config, verbose=args.verbose)\n        \n        # 选择运行模式\n        if args.interactive:\n            runner.interactive_mode()\n        elif args.input:\n            response = runner.run_once(args.input)\n            if not args.verbose:\n                print(response)\n        else:\n            parser.print_help()\n            \n    except Exception as e:\n        print(f\"错误: {e}\")\n        if args.verbose:\n            print(traceback.format_exc())\n        sys.exit(1)\n    finally:\n        # 清理资源\n        if runner and runner.clients:\n            try:\n                asyncio.run(runner.cleanup())\n            except:\n                pass\n\nif __name__ == \"__main__\":\n    main()\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                },
+                {
+                  "id": "9615b12295d90c84",
+                  "label": "参数传递，外部启动",
+                  "content": "创建: 2025-09-19 17:43:07\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
       "project_id": "root-1758256084936-b8",
       "name": "脑图优化",
       "created_at": "2025-09-19T04:28:04.957Z",
-      "last_modified": "2025-09-19T07:34:31.548Z",
+      "last_modified": "2025-09-19T09:48:36.285Z",
       "source": "new",
       "payload": {
         "format": "node_tree",
@@ -18,7 +153,7 @@
           "children": [
             {
               "id": "n3",
-              "label": "开发",
+              "label": "2",
               "content": "开发计划...",
               "expanded": true,
               "attachments": [],
@@ -271,7 +406,7 @@
               "id": "95a97ebec727082a",
               "label": "实施MD公共底座前的评估和计划",
               "content": "创建: 2025-09-18 10:15:36\n\n我来分析当前状态并制定MD底座集成计划。\n\n\n\n\n\n\n\n\n\n\n\n基于对当前代码的分析，我来制定MD底座集成计划：\n\n## 1. 当前状态分析\n\n### 现有存储架构\n- **前端存储**：[src/services/mindmapStorage.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/src/services/mindmapStorage.js:0:0-0:0) - localStorage + IndexedDB双重存储\n- **后端存储**：[hybrid_storage_architecture.py](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/hybrid_storage_architecture.py:0:0-0:0) - 冷热数据分层架构\n- **MD底座**：[data/unified_mindmap_storage.md](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/unified_mindmap_storage.md:0:0-0:0) - 已有统一MD文档框架\n- **持久化方式**：JSON格式存储在localStorage，镜像到IndexedDB\n\n### 当前问题\n1. 脑图数据与MD底座未打通\n2. 缺少双向读写解析机制\n3. 服务器同步接口未实现\n4. 数据格式转换逻辑缺失\n\n## 2. MD底座集成实施计划\n\n## 3. 立即开始实施（P0优先级）\n\n让我先创建MD解析器的核心功能：\n\n现在集成到现有的存储服务中：\n\n我需要在现有的存储服务中集成MD底座功能。让我直接修改 [mindmapStorage.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/src/services/mindmapStorage.js:0:0-0:0) 来添加MD底座支持：\n\n现在添加MD底座的加载支持：\n\n现在在 [index.html](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:0:0-0:0) 中引入MD底座相关脚本：\n\n现在让我们创建一个测试脚本来验证MD底座功能：\n\n现在让我们创建后端MD同步API：\n\n让我先查看 backend_server.py 的内容：\n\n\n\n现在我找到了正确的位置，让我添加MD底座同步API：\n\n\n\n现在让我们创建一个完整的MD底座集成计划总结文档：\n\n## 总结\n\n我已经完成了MD底座集成的完整实施，回答你的三个问题：\n\n### 1. 当前状态\n\n- ✅ **MD解析器**：实现脑图JSON与Markdown的双向无损转换\n- ✅ **MD底座管理器**：统一管理MD文档的读写和同步\n- ✅ **存储服务集成**：在现有localStorage/IndexedDB基础上增加MD底座写入\n- ✅ **后端同步API**：支持本地与服务器MD文档的哈希校验、下载、上传\n- ✅ **测试验证**：完整的测试套件验证所有功能\n\n### 2. MD底座实施完成\n\n**核心功能**：\n- **双向读写**：脑图数据自动写入MD底座，支持从MD恢复\n- **解析引擎**：JSON ↔ MD格式的完整转换，保留层级关系\n- **同步机制**：本地与服务器MD文档的智能同步和冲突解决\n- **数据分层**：基于访问频率的hot/warm/cold/archive分类\n\n**关键特性**：\n- 完全不改动现有持久化（localStorage + IndexedDB保持不变）\n- 异步写入不阻塞UI交互\n- 多重备份保证数据安全\n- 支持增量更新和版本管理\n\n### 3. 符合你的要求\n\n- ✅ **不改动当前持久化方式**：现有localStorage和IndexedDB机制完全保留\n- ✅ **实现双向读写**：脑图自动写入MD，支持从MD恢复项目\n- ✅ **解析和恢复**：完整的MD格式解析和脑图数据恢复\n- ✅ **服务器同步准备**：完整的API接口支持未来同步需求\n- ✅ **冷热数据分层**：基于AI应用大数据需求的智能分层存储\n\n现在你可以：\n1. **继续正常使用**：所有现有功能完全兼容\n2. **点击\"恢复四图\"**：一键恢复你的四个目标项目\n3. **自动MD备份**：每次保存脑图都会自动写入MD底座\n4. **测试验证**：访问 `?test-md-base` 运行完整测试套件\n\nMD底座已经就绪，为你的AI应用和大数据处理需求提供了坚实的存储基础！🚀",
-              "expanded": true,
+              "expanded": false,
               "attachments": [],
               "children": [
                 {
@@ -530,7 +665,7 @@
       "project_id": "root-1758162473753-fdq4",
       "name": "标签标记",
       "created_at": "2025-09-18T02:27:53.757Z",
-      "last_modified": "2025-09-19T05:38:57.088Z",
+      "last_modified": "2025-09-19T09:54:48.431Z",
       "source": "new",
       "payload": {
         "format": "node_tree",
@@ -599,7 +734,7 @@
                     {
                       "id": "95aa78a75514d31d",
                       "label": "成果",
-                      "content": "",
+                      "content": "创建: 2025-09-19 17:54:47\n\n",
                       "expanded": true,
                       "attachments": [],
                       "children": []
@@ -607,7 +742,7 @@
                     {
                       "id": "95aa7a84ff166e55",
                       "label": "节点",
-                      "content": "",
+                      "content": "创建: 2025-09-19 17:54:48\n\n",
                       "expanded": true,
                       "attachments": [],
                       "children": []
@@ -623,8 +758,57 @@
                   ]
                 },
                 {
+                  "id": "961604575302b9a4",
+                  "label": "工作管理",
+                  "content": "创建: 2025-09-19 17:54:00\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": [
+                    {
+                      "id": "96160aaf0635b87a",
+                      "label": "目标管理",
+                      "content": "创建: 2025-09-19 17:51:50\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "96160b84763c5966",
+                      "label": "计划",
+                      "content": "创建: 2025-09-19 17:51:46\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "96160c0a0907bf32",
+                      "label": "规划",
+                      "content": "创建: 2025-09-19 17:51:47\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "96160da1ea00ecca",
+                      "label": "项目管理",
+                      "content": "创建: 2025-09-19 17:51:47\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "96160f415e17ea9a",
+                      "label": "任务",
+                      "content": "创建: 2025-09-19 17:51:48\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    }
+                  ]
+                },
+                {
                   "id": "95aa6f74e2bbdd71",
-                  "label": "项目名称",
+                  "label": "部门",
                   "content": "创建: 2025-09-18 10:28:44\n\n",
                   "expanded": true,
                   "attachments": [],
@@ -749,8 +933,8 @@
     }
   ],
   "metadata": {
-    "total_projects": 3,
-    "last_updated": "2025-09-19T07:34:31.549Z",
+    "total_projects": 4,
+    "last_updated": "2025-09-19T09:54:48.433Z",
     "storage_type": "unified_md"
   }
 }
