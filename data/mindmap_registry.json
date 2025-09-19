@@ -2,236 +2,15 @@
   "version": "1.0",
   "projects": [
     {
-      "project_id": "root-1758162473753-fdq4",
-      "name": "标签标记",
-      "created_at": "2025-09-18T02:27:53.757Z",
-      "last_modified": "2025-09-18T09:38:45.193Z",
-      "source": "new",
-      "payload": {
-        "format": "node_tree",
-        "data": {
-          "id": "root-1758162473753-fdq4",
-          "label": "标签标记",
-          "content": "# 根节点\n\n在此编写内容...",
-          "expanded": true,
-          "attachments": [],
-          "children": [
-            {
-              "id": "n1",
-              "label": "面板标签",
-              "content": "需求说明...",
-              "expanded": true,
-              "attachments": [],
-              "children": [
-                {
-                  "id": "95aa6999eee48525",
-                  "label": "状态",
-                  "content": "创建: 2025-09-18 10:28:25\n\n",
-                  "expanded": true,
-                  "attachments": [],
-                  "children": [
-                    {
-                      "id": "95aa7464c33b190a",
-                      "label": "完成",
-                      "content": "",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    },
-                    {
-                      "id": "95aa7536de4c835f",
-                      "label": "中断",
-                      "content": "",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    },
-                    {
-                      "id": "95aa765fcb6ebdac",
-                      "label": "进行",
-                      "content": "",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "95aa6e08d4a43ed9",
-                  "label": "评价",
-                  "content": "创建: 2025-09-18 10:28:42\n\n",
-                  "expanded": true,
-                  "attachments": [],
-                  "children": [
-                    {
-                      "id": "95aa780b60a6556b",
-                      "label": "里程碑",
-                      "content": "",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    },
-                    {
-                      "id": "95aa78a75514d31d",
-                      "label": "成果",
-                      "content": "",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    },
-                    {
-                      "id": "95aa7a84ff166e55",
-                      "label": "节点",
-                      "content": "",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    },
-                    {
-                      "id": "95aa7cc025f133df",
-                      "label": "难点",
-                      "content": "创建: 2025-09-18 10:29:37\n\n",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "95aa6f74e2bbdd71",
-                  "label": "项目名称",
-                  "content": "创建: 2025-09-18 10:28:44\n\n",
-                  "expanded": true,
-                  "attachments": [],
-                  "children": [
-                    {
-                      "id": "95aa7fe4b3c09df2",
-                      "label": "生产管理",
-                      "content": "创建: 2025-09-18 10:30:17\n\n",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    },
-                    {
-                      "id": "95aa82050dc96977",
-                      "label": "内务管理",
-                      "content": "创建: 2025-09-18 10:30:03\n\n",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    },
-                    {
-                      "id": "95aa82df4af87769",
-                      "label": "项目管理",
-                      "content": "创建: 2025-09-18 10:30:04\n\n",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": "n2",
-              "label": "设计",
-              "content": "设计说明...",
-              "expanded": true,
-              "attachments": [],
-              "children": []
-            },
-            {
-              "id": "n3",
-              "label": "开发",
-              "content": "开发计划...",
-              "expanded": true,
-              "attachments": [],
-              "children": [
-                {
-                  "id": "95aef196dd81b0e3",
-                  "label": "落实当前的脑图和标签面板之间的同步关系",
-                  "content": "创建: 2025-09-18 11:47:44\n\n根据历史记忆，应该是与某个脑图文件“标签管理”内的节点同步。\n\n将这个同步机制封装成一个模块或者函数方法。",
-                  "expanded": true,
-                  "attachments": [],
-                  "children": [
-                    {
-                      "id": "95c304830625830e",
-                      "label": "由于整体的脑图建立在一个MD基座上，因此只要规定好同步的节点并标记就行了。",
-                      "content": "",
-                      "expanded": true,
-                      "attachments": [],
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "project_id": "root-1758161710833-6gka",
-      "name": "服务器",
-      "created_at": "2025-09-18T02:15:10.839Z",
-      "last_modified": "2025-09-18T09:21:09.610Z",
-      "source": "new",
-      "payload": {
-        "format": "node_tree",
-        "data": {
-          "id": "root-1758161710833-6gka",
-          "label": "服务器",
-          "content": "# 根节点\n\n在此编写内容...",
-          "expanded": true,
-          "attachments": [],
-          "children": [
-            {
-              "id": "n1",
-              "label": "核实和咨询",
-              "content": "需求说明...",
-              "expanded": true,
-              "attachments": [],
-              "children": [
-                {
-                  "id": "95ab1b12ca3f8f5c",
-                  "label": "服务器版本的JSMind 是否支持平板和手机的操作",
-                  "content": "创建: 2025-09-18 10:40:37\n\n",
-                  "expanded": true,
-                  "attachments": [],
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "n2",
-              "label": "设计",
-              "content": "设计说明...",
-              "expanded": true,
-              "attachments": [],
-              "children": []
-            },
-            {
-              "id": "n3",
-              "label": "开发",
-              "content": "开发计划...",
-              "expanded": true,
-              "attachments": [],
-              "children": []
-            }
-          ]
-        }
-      }
-    },
-    {
-      "project_id": "root-1758123816896-ggeb",
+      "project_id": "root-1758256084936-b8",
       "name": "脑图的优化和改造",
-      "created_at": "2025-09-17T15:43:36.898Z",
-      "last_modified": "2025-09-18T16:15:21.859Z",
+      "created_at": "2025-09-19T04:28:04.957Z",
+      "last_modified": "2025-09-19T05:39:16.269Z",
       "source": "new",
       "payload": {
         "format": "node_tree",
         "data": {
-          "id": "root-1758123816896-ggeb",
+          "id": "root-1758256084936-b8",
           "label": "脑图的优化和改造",
           "content": "# 根节点\n\n在此编写内容...",
           "expanded": true,
@@ -270,7 +49,7 @@
                     {
                       "id": "95c1778e58560b80",
                       "label": "New Node",
-                      "content": "",
+                      "content": "创建: 2025-09-19 10:44:24\n\n",
                       "expanded": true,
                       "attachments": [],
                       "children": []
@@ -373,6 +152,14 @@
                       "id": "95c203f4e08fd9fa",
                       "label": "冲突的机制的说明，冗余机制的梳理和排除建议",
                       "content": "创建: 2025-09-18 17:20:52\n\n与脑图节点名字北非授权改写，涉及几个叠加和竞争机制？都分别是什么？都有什么作用？这些作用有哪些是必须的，有哪些本身就是和别的机制重复或者冗余的，或者是叠加的？目的是梳理作用找到清理或者简化冗余机制，甚至 重构机制（维持功能）的目的。\n\n\n---\n\n为确保分析准确，我将打开关键文件查看具体实现与行号，定位所有“改名相关”的叠加/竞争机制及其作用范围：\n- 查看 [mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0)：确认拦截保存、标题监测、加载期回写、屏蔽标志等\n- 查看 [registry/registry_repository.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:0:0-0:0)：确认 [upsertFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4) 与 [saveRegistry](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:26:2-38:4) 的名字写入逻辑\n- 辅助确认 [mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) 是否与 [jsmind-controller.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:0:0-0:0) 的保存调用形成“双写”竞态\n\n我会并行读取两个文件以加快定位。\n\n\n\n\n# 脑图“节点/项目名称被非授权改写”的叠加与竞争机制梳理\n\n结论先行：当前“名字被改”的根因不是单点故障，而是多条写入通道与多处“读后再写”的机制叠加，叠加在“ID判定不稳定”和“加载期解锁过早”的时序窗口内，导致把名称错误写入到其他项目上。下面分组逐项梳理其作用、必要性与冗余性，便于后续清理与重构。\n\n---\n\n## 一、上行写入路径（画布 → 注册表）（3条）\n\n- 1) 画布保存直连写仓\n  - 实现位置：[jsmind-controller.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:0:0-0:0) → [saveMindmapToStorage()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:463:10-490:11) 调 [window.Registry.repo.upsertFromMindmap(mindKey, name, this.data)](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4)（约 2434-2464 行）\n  - 关键点：`mindKey` 优先取 `window.__mindFullCache.meta.mind_id`，其次才是当前 root id（2418-2423行）\n  - 作用：每次保存，把“当前根标题”与 payload 写回注册表\n  - 风险/冗余：\n    - 风险高：加载/切换/快照风暴期间 `__mindFullCache` 可能指向上一张或下一张脑图，导致把 A 的名字写到 B 的项目（ID错位的直接诱因）\n    - 冗余中：本平台已另有“管理器回写”，形成双写竞态\n\n- 2) 旧管理器拦截保存后回写\n  - 实现位置：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) → [setupEventListeners()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:183:4-236:5) 中覆写 [MindmapController.prototype.saveMindmapToStorage](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:463:10-490:11)，保存后调用 [updateProjectFromMindmap(this.data.id, ...)](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:940:4-982:5)（206-228行）\n  - 作用：在每次画布保存后，再次将 name/payload 回写注册表（旧栈）\n  - 风险/冗余：\n    - 冗余高：与控制器的直连写仓重复，形成“双写”\n    - 时序风险：若解除抑制过早，容易把加载期的旧payload/旧label回写注册表\n\n- 3) 标题变化轮询/事件回写\n  - 实现位置：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) → [checkMindmapTitleChange()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:911:4-938:5) 每2秒 + `edit_node_end/update_node` 事件触发（889-938行）\n  - 作用：检测根标题变化，调用 [updateProjectFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:940:4-982:5) 回写\n  - 风险/冗余：\n    - 冗余高：与“保存触发回写”重复；在频繁编辑/切换下易叠加写入\n    - 时序风险：若加载期未完全抑制，会把“展示层修正名”反写为权威名\n\n必要性评估（上行组）：\n- 必须存在：一次、且只有一次权威回写通道（建议绑定“用户显式改名事件/保存事件”）\n- 可清理/合并：上面3条至少去掉2条，保留唯一入口；同时修正ID来源\n\n---\n\n## 二、下行覆盖/规范化（注册表 → 画布/payload）（3条）\n\n- 4) 加载注册表时，强制“name 覆盖 payload.data.label”\n  - 实现位置：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) → [loadProjectRegistry()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:118:4-179:5) 统一映射（131-140行）\n  - 作用：以注册表的 name 为准，回写到 payload 的 label，保持展示一致\n  - 风险/冗余：\n    - 叠加风险：一旦上行写错了“别的项目的 name”，此处会把“错误名字”反写进 payload，扩大影响面\n    - 冗余中：展示一致可在 UI 层做，不必改写 payload\n\n- 5) 加载到画布前，再用 `projectName` 覆盖根标题\n  - 实现位置：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) → [continueLoadProject()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:671:4-778:5)（708-711行）\n  - 作用：渲染前再次把根 label 设置为注册表 name\n  - 风险/冗余：\n    - 冗余高：与（4）重复；且再次把 name 推入画布数据，后续若触发保存，会成为上行的源\n\n- 6) 旧机制导入注册时，名称来自 payload.label 或参数 name\n  - 实现位置：[registerProject()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:238:4-294:5)（248-257行）\n  - 作用：将创建/导入的名称确定为初始 name\n  - 风险/冗余：低（初始化合理），但需与上面“加载时强制覆盖”解耦\n\n必要性评估（下行组）：\n- 必须存在：加载时“显示名一致”的决策，但不必更改 payload/数据层，UI 层即可达成\n- 可清理/合并：避免重复把 `name` 写回 `payload.data.label` 与 `dataToLoad.label`，减少“读后又写”的回路\n\n---\n\n## 三、时序与ID来源（2条）\n\n- 7) 加载期写入抑制与解锁窗口过短\n  - 实现位置：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) → 进入 LOADING 设置 `window.__REG_SYNC_SUPPRESS = true; window.__STORAGE_PAUSE = true;`（558-562行），READY 后 1000ms 解除（754行）\n  - 作用：防止“渲染即保存”等在加载时误写\n  - 风险/冗余：\n    - 风险中：1秒窗口在热重载/多次渲染/快照环境中偏短，解锁即遇事件风暴\n\n- 8) 保存时 ID 来源优先 `__mindFullCache`\n  - 实现位置：[jsmind-controller.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:0:0-0:0) → 2418-2423 行\n  - 作用：把快照中的 `meta.mind_id` 作为保存目标ID\n  - 风险高：快照是全局可变状态，极易滞后或串扰，导致把 A 的名写到 B\n\n必要性评估（时序/ID）：\n- 必须存在：加载期抑制，但需覆盖到“渲染稳定 + 选择稳定 + 快照稳定”的静默期\n- 必须修正：ID 必须来自“当前画布根 ID”（`this.mind.get_root().id || this.data.id`），彻底移除 `__mindFullCache` 作为保存目标\n\n---\n\n## 四、存储策略影响（1条）\n\n- 9) [SmartLocalStorage](cci:2://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/src/services/smartLocalStorage.js:7:2-399:3) 清理 per-mind 键（mm:{id}:data），增加对注册表的依赖\n  - 现象：日志可见多次清理缓存，刷新后更依赖注册表 name 驱动显示\n  - 风险：不是直接改名根因，但放大了错误名作为“单一来源”的传播\n\n必要性评估（存储）：\n- 必须存在：清理机制本身合理\n- 可优化：对 `mm:{id}:data` 设更温和策略（会话内保留），降低“错误名向下游传播”概率\n\n---\n\n## 总结：哪些必须、哪些冗余/叠加\n\n- 必须保留（原则）\n  - 仅保留“一处权威上行写入”通道，触发源应是“用户显式改名/保存事件”\n  - 加载期抑制写入，直至系统进入稳定状态（READY + 静默去抖）\n  - 保存目标 ID 必须取“当前画布根 ID”，不得依赖 `__mindFullCache`\n  - UI 可用注册表 name 展示一致性，但不应反写 payload/data\n\n- 明确冗余/应清理\n  - 双写：控制器直连 upsert + 旧管理器回写 + 轮询/事件回写（至少删到只剩一条）\n  - 双重下行覆盖：[loadProjectRegistry()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:118:4-179:5) 覆盖 payload.label 与 [continueLoadProject()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:671:4-778:5) 覆盖 dataToLoad.label（二选一，且推荐都不要写数据层，仅 UI 显示用）\n  - 使用 `__mindFullCache` 作为保存 ID 的优先来源（应删除）\n\n---\n\n## 可选重构路线（按推荐顺序）\n\n- 方案C（最优，架构清晰）：引入“唯一命令层”为写入入口\n  - 做法：以 `Registry.cmd` 为“唯一写侧”入口，控制器和管理器都只派发“Rename/SavePayload”命令，不直接写仓\n  - 改动点：\n    - ID 来源统一为“当前画布 root id”\n    - 命令层实装“加载期写屏障 + 静默去抖”（READY 后 1.5~2s 静默无渲染/快照事件才放行）\n    - 下行一致性仅限 UI 显示，不回写 payload.label\n  - 优点：职责清晰、竞态可控，后续扩展（冷热分层、AutoGen 桥接）容易\n  - 缺点：改动略大\n\n- 方案B（次优，改动适中）：以“管理器”为唯一写入方\n  - 做法：保留 [MindmapRegistryManager.updateProjectFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:940:4-982:5) 为唯一回写；控制器不再直接 [repo.upsertFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4)；停止轮询，仅基于“显式改名事件/保存事件”\n  - 同步措施：延长加载期屏蔽窗 + 去抖；移除 payload.label/name 的重复覆盖；ID 仅取当前 root\n  - 优点：集中写入逻辑在一个地方，容易追踪\n  - 缺点：仍与控制器耦合，但可控\n\n- 方案A（最小改动，快速止血）：控制器为唯一写入方\n  - 做法：修正 [saveMindmapToStorage()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:463:10-490:11) 的 `mindKey` 只取当前 root id；禁用旧管理器的保存拦截与标题轮询；保留下行仅作 UI 展示\n  - 优点：改动少、见效快\n  - 缺点：控制器承担过多职责，后续维护成本偏高\n\n推荐顺序：C > B > A（按长期可维护性与健壮性排序）。如需“先止血后重构”，可先落地 A，再推进 B/C。\n\n---\n\n## 不改代码的验证建议（用于佐证与定位）\n\n- 对比 ID 三选项（切换/保存窗口内）\n  - `mindmapController.mind.get_root().id`\n  - `mindmapController.data.id`\n  - `window.__mindFullCache?.meta?.mind_id`\n  - 若不一致，基本坐实“ID来源错位”是主因\n\n- 会话内临时置空快照ID来源\n  - 控制台：`window.__mindFullCache = null`\n  - 若改名现象显著减少，进一步佐证\n\n- 延长加载期屏蔽（验证时序窗口过短）\n  - 控制台：`window.__REG_SYNC_SUPPRESS = true; window.__STORAGE_PAUSE = true; setTimeout(()=>{ window.__STORAGE_PAUSE=false; window.__REG_SYNC_SUPPRESS=false; }, 4000);`\n  - 若明显缓解，证明 1s 窗口过短\n\n---\n\n## 关键代码引用（便于核查）\n\n- 上行写入（控制器直连）：`d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\jsmind-controller.js` → [saveMindmapToStorage()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:463:10-490:11) 2418-2464 行\n- 上行写入（旧管理器拦截）：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) 206-228 行\n- 标题变化轮询/事件回写：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) 889-938 行\n- 下行覆盖（注册表 name 覆盖 payload.label）：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) 131-140 行\n- 下行覆盖（加载到画布前覆盖 dataToLoad.label）：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) 708-711 行\n- 加载期抑制与解锁：[mindmap_registry_manager.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:0:0-0:0) 558-562 行（抑制），754 行（1s 延迟解除）\n- 注册表真实写入：[registry/registry_repository.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:0:0-0:0) → [upsertFromMindmap()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4) 76-92 行\n\n---\n\n如果你同意，我可以基于“先止血（方案A）/再优化（方案B/C）”的节奏给出一份精简重构清单与回归测试用例（仍“先不改代码”，只把任务拆解给你确认）。你也可以先按“不改代码”的验证建议跑一轮日志，我再根据结果制定最小变更集。\n\n---\n\n### 会话\n2025-09-18 17:29:01\n\n我需要重新审查代码，核实分析的准确性。让我仔细检查关键文件的具体实现：\n\n\n\n\n\n\n\n\n\n\n\n# 重新审查代码后的修正与补充\n\n经过重新审查，我发现了几个重要的**遗漏和不准确的地方**，需要修正：\n\n## 🔍 关键发现：当前运行的是新注册表架构（方案C）\n\n**重大遗漏**：当前系统实际上已经启用了新注册表机制（`__USE_NEW_REGISTRY__ = true`），这意味着：\n\n1. **旧管理器 [MindmapRegistryManager](cci:2://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/mindmap_registry_manager.js:5:0-1007:1) 实际上没有实例化**（1011-1015行的条件判断）\n2. **新架构的 [Registry.repo.upsertFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4) 是实际在工作的写入通道**\n3. **我之前分析的\"旧管理器拦截保存\"（机制2）实际上没有生效**\n\n## 📋 修正后的机制梳理\n\n### 一、实际生效的上行写入路径（画布 → 注册表）\n\n**✅ 唯一实际生效的上行写入**：\n- **控制器直连新仓库**：[jsmind-controller.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:0:0-0:0) → [saveMindmapToStorage()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:463:10-490:11) 调用 [window.Registry.repo.upsertFromMindmap(mindKey, name, this.data)](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4)（2435-2437行 和 2460-2462行）\n- **ID来源问题依然存在**：`mindKey` 优先取 `window.__mindFullCache.meta.mind_id`（2418-2423行）\n- **双重调用**：在同一个 [saveMindmapToStorage()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:463:10-490:11) 方法中有两处相同的 [upsertFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4) 调用（2437行 和 2462行），这是真正的\"双写\"\n\n**❌ 实际未生效的机制**：\n- ~~旧管理器拦截保存后回写~~（因为 `__USE_NEW_REGISTRY__ = true`，旧管理器未实例化）\n- ~~标题变化轮询/事件回写~~（同上）\n\n### 二、实际生效的下行覆盖路径\n\n**❌ 实际未生效的机制**：\n- ~~加载注册表时强制\"name 覆盖 payload.data.label\"~~（旧管理器未运行）\n- ~~加载到画布前用 `projectName` 覆盖根标题~~（旧管理器未运行）\n\n**✅ 可能生效的机制**：\n- 新架构的 `RegistryView` 可能有类似的下行覆盖逻辑（需要进一步检查 [registry_view.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_view.js:0:0-0:0)）\n\n### 三、核心问题重新定位\n\n**真正的双写竞态**：\n```javascript\n// jsmind-controller.js 的 saveMindmapToStorage() 中\n// 第一次调用（2435-2437行）\nif (window.Registry && window.Registry.repo && typeof window.Registry.repo.upsertFromMindmap === 'function'){\n  const name = (this.data && (this.data.label || this.data.topic)) || '未命名项目';\n  Promise.resolve(window.Registry.repo.upsertFromMindmap(String(mindKey), name, this.data)).catch(function(e){ console.warn('[MindmapController] upsertFromMindmap失败', e); });\n}\n\n// 第二次调用（2460-2462行）- 完全相同的逻辑\nif (window.Registry && window.Registry.repo && typeof window.Registry.repo.upsertFromMindmap === 'function'){\n  const name = (this.data && (this.data.label || this.data.topic)) || '未命名项目';\n  Promise.resolve(window.Registry.repo.upsertFromMindmap(String(mindKey), name, this.data)).catch(function(e){ console.warn('[MindmapController] upsertFromMindmap失败', e); });\n}\n```\n\n## 📊 修正后的根因分析\n\n### 主要根因（按影响程度排序）\n\n1. **同一保存方法内的重复调用**（新发现）\n   - 位置：[jsmind-controller.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:0:0-0:0) 2435-2437行 和 2460-2462行\n   - 影响：每次保存触发两次相同的 [upsertFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4) 调用\n   - 风险：在 `mindKey` 不稳定的情况下，可能两次调用使用不同的ID\n\n2. **ID来源不稳定**（确认）\n   - `mindKey` 优先使用 `window.__mindFullCache.meta.mind_id`\n   - 在多项目切换/渲染过程中容易指向错误的项目ID\n\n3. **时序控制不足**（确认）\n   - 新架构可能没有实现加载期写入抑制\n   - 需要检查新架构的状态管理机制\n\n## 🔧 修正后的解决方案\n\n### 立即止血方案（最小改动）\n\n1. **消除重复调用**：删除 [saveMindmapToStorage()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:463:10-490:11) 中的一处 [upsertFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4) 调用\n2. **修正ID来源**：将 `mindKey` 的获取逻辑改为仅使用当前画布根ID\n3. **检查新架构的状态管理**：确认 `Registry.fsm` 是否有加载期写入控制\n\n### 需要进一步检查的文件\n\n## 📋 最终修正总结\n\n### 之前分析的不准确之处：\n\n1. **❌ 错误**：认为旧管理器的\"拦截保存\"和\"标题轮询\"机制在运行\n   - **✅ 实际**：由于 `__USE_NEW_REGISTRY__ = true`，旧管理器完全没有实例化\n\n2. **❌ 错误**：认为存在3条上行写入路径\n   - **✅ 实际**：只有1条路径，但在该路径内有重复调用（真正的双写）\n\n3. **❌ 错误**：认为存在旧管理器的下行覆盖机制\n   - **✅ 实际**：下行覆盖需要检查新架构的 `RegistryView`，但从代码看主要是纯展示\n\n### 核心问题重新定位：\n\n1. **主因**：[saveMindmapToStorage()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/index.html:463:10-490:11) 内部的重复 [upsertFromMindmap](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:74:2-91:4) 调用\n2. **次因**：`mindKey` 使用 `__mindFullCache` 作为优先ID来源\n3. **辅因**：新架构可能缺少加载期写入控制机制\n\n### 最简修复方案：\n\n1. 删除 [jsmind-controller.js](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:0:0-0:0) 中 2460-2462行的重复调用\n2. 修改 `mindKey` 获取逻辑，仅使用 `this.mind.get_root().id || this.data.id`\n3. 检查并实现新架构的状态控制机制\n\n**感谢你的提醒，这次重新审查发现了关键的架构差异，大大简化了问题的复杂度。**",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "9607bda2a268aba8",
+                      "label": "New Node",
+                      "content": "创建: 2025-09-19 13:39:16\n\n",
                       "expanded": true,
                       "attachments": [],
                       "children": []
@@ -680,8 +467,24 @@
                           "expanded": true,
                           "attachments": [],
                           "children": []
+                        },
+                        {
+                          "id": "95fcc96d32561027",
+                          "label": "6",
+                          "content": "创建: 2025-09-19 11:24:18\n\n",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": []
                         }
                       ]
+                    },
+                    {
+                      "id": "95fffe193d25ca7a",
+                      "label": "修复同步机制，localstorage不能智能管理的嗯提",
+                      "content": "创建: 2025-09-19 11:24:19\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
                     }
                   ]
                 },
@@ -710,6 +513,243 @@
                   "children": []
                 }
               ]
+            },
+            {
+              "id": "test-node-1758249593898",
+              "label": "测试节点 - cqkpr",
+              "content": "🧪 测试内容 - 10:39:48",
+              "expanded": true,
+              "attachments": [],
+              "children": []
+            },
+            {
+              "id": "test-node-1758252563364",
+              "label": "测试节点 - sw3u2",
+              "content": "🧪 测试内容 - 11:29:18",
+              "expanded": true,
+              "attachments": [],
+              "children": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "project_id": "root-1758162473753-fdq4",
+      "name": "标签标记",
+      "created_at": "2025-09-18T02:27:53.757Z",
+      "last_modified": "2025-09-19T05:38:57.088Z",
+      "source": "new",
+      "payload": {
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758162473753-fdq4",
+          "label": "标签标记",
+          "content": "# 根节点\n\n在此编写内容...",
+          "expanded": true,
+          "attachments": [],
+          "children": [
+            {
+              "id": "n1",
+              "label": "面板标签",
+              "content": "需求说明...",
+              "expanded": true,
+              "attachments": [],
+              "children": [
+                {
+                  "id": "95aa6999eee48525",
+                  "label": "状态",
+                  "content": "创建: 2025-09-18 10:28:25\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": [
+                    {
+                      "id": "95aa7464c33b190a",
+                      "label": "完成",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "95aa7536de4c835f",
+                      "label": "中断",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "95aa765fcb6ebdac",
+                      "label": "进行",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "95aa6e08d4a43ed9",
+                  "label": "评价",
+                  "content": "创建: 2025-09-18 10:28:42\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": [
+                    {
+                      "id": "95aa780b60a6556b",
+                      "label": "里程碑",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "95aa78a75514d31d",
+                      "label": "成果",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "95aa7a84ff166e55",
+                      "label": "节点",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "95aa7cc025f133df",
+                      "label": "难点",
+                      "content": "创建: 2025-09-18 10:29:37\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "95aa6f74e2bbdd71",
+                  "label": "项目名称",
+                  "content": "创建: 2025-09-18 10:28:44\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": [
+                    {
+                      "id": "95aa7fe4b3c09df2",
+                      "label": "生产管理",
+                      "content": "创建: 2025-09-18 10:30:17\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "95aa82050dc96977",
+                      "label": "内务管理",
+                      "content": "创建: 2025-09-18 10:30:03\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "95aa82df4af87769",
+                      "label": "项目管理",
+                      "content": "创建: 2025-09-18 10:30:04\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "n2",
+              "label": "设计",
+              "content": "设计说明...",
+              "expanded": true,
+              "attachments": [],
+              "children": []
+            },
+            {
+              "id": "n3",
+              "label": "开发",
+              "content": "开发计划...",
+              "expanded": true,
+              "attachments": [],
+              "children": [
+                {
+                  "id": "95aef196dd81b0e3",
+                  "label": "落实当前的脑图和标签面板之间的同步关系",
+                  "content": "创建: 2025-09-18 11:47:44\n\n根据历史记忆，应该是与某个脑图文件“标签管理”内的节点同步。\n\n将这个同步机制封装成一个模块或者函数方法。",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": [
+                    {
+                      "id": "95c304830625830e",
+                      "label": "由于整体的脑图建立在一个MD基座上，因此只要规定好同步的节点并标记就行了。",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "project_id": "root-1758161710833-6gka",
+      "name": "服务器",
+      "created_at": "2025-09-18T02:15:10.839Z",
+      "last_modified": "2025-09-18T09:21:09.610Z",
+      "source": "new",
+      "payload": {
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758161710833-6gka",
+          "label": "服务器",
+          "content": "# 根节点\n\n在此编写内容...",
+          "expanded": true,
+          "attachments": [],
+          "children": [
+            {
+              "id": "n1",
+              "label": "核实和咨询",
+              "content": "需求说明...",
+              "expanded": true,
+              "attachments": [],
+              "children": [
+                {
+                  "id": "95ab1b12ca3f8f5c",
+                  "label": "服务器版本的JSMind 是否支持平板和手机的操作",
+                  "content": "创建: 2025-09-18 10:40:37\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "n2",
+              "label": "设计",
+              "content": "设计说明...",
+              "expanded": true,
+              "attachments": [],
+              "children": []
+            },
+            {
+              "id": "n3",
+              "label": "开发",
+              "content": "开发计划...",
+              "expanded": true,
+              "attachments": [],
+              "children": []
             }
           ]
         }
@@ -718,7 +758,7 @@
   ],
   "metadata": {
     "total_projects": 3,
-    "last_updated": "2025-09-18T16:15:21.860Z",
+    "last_updated": "2025-09-19T05:39:16.270Z",
     "storage_type": "unified_md"
   }
 }

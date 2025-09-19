@@ -363,32 +363,7 @@
 
     async _saveMDToFile(content) {
       try {
-        // 在浏览器环境中，我们无法直接写文件
-        // 这里可以触发下载或发送到服务器
-        
-        // 若显式指定仅本地模式，则跳过服务端写盘
-        try{
-          if (typeof window !== 'undefined' && (window.MD_WRITE_MODE === 'local')){
-            // 仅做 localStorage 备份，不访问后端
-            try {
-              localStorage.setItem('md_base_backup', content);
-              localStorage.setItem('md_base_backup_timestamp', Date.now().toString());
-              console.log('[MDBase] 已备份到localStorage (local-only 模式)');
-              return true;
-            } catch (e) {
-              console.warn('[MDBase] local-only备份失败:', e);
-              return false;
-            }
-          }
-        }catch(_){ }
-
-        // 方案1: 触发下载
-        if (typeof window !== 'undefined' && window.location.protocol === 'file:') {
-          console.log('[MDBase] file://协议下无法保存文件');
-          return false;
-        }
-
-        // 方案2: 发送到服务器（如果可用）
+        // 优先尝试服务器保存MD文档
         try {
           const response = await fetch((this.API_BASE || '') + '/api/md-base/save', {
             method: 'POST',
@@ -397,14 +372,17 @@
           });
           
           if (response.ok) {
-            console.log('[MDBase] 已保存到服务器');
+            console.log('[MDBase] 已保存MD文档到服务器');
+            // 同时做localStorage备份
+            localStorage.setItem('md_base_backup', content);
+            localStorage.setItem('md_base_backup_timestamp', Date.now().toString());
             return true;
           }
         } catch (e) {
-          // 服务器不可用，使用localStorage作为备份
+          console.warn('[MDBase] 服务器保存失败，使用localStorage备份:', e.message);
         }
 
-        // 方案3: 存储到localStorage作为备份
+        // 服务器不可用时，localStorage备份（确保数据不丢失）
         try {
           localStorage.setItem('md_base_backup', content);
           localStorage.setItem('md_base_backup_timestamp', Date.now().toString());
