@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="relation_styles.css">
     <!-- 项目列表样式 -->
     <link rel="stylesheet" href="project_list_styles.css">
+    <!-- 工作区样式 -->
+    <link rel="stylesheet" href="workspace_styles.css">
     <!-- jsMind 样式与脚本（本地优先，CDN 兜底） -->
     <link rel="stylesheet" href="vendor/jsmind/style/jsmind.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/jsmind/style/jsmind.css'">
     <script>
@@ -84,7 +86,8 @@
     <!-- 顶部系统栏 -->
     <div class="system-bar">
         <div class="view-toggles">
-            <button class="view-toggle active" data-view="list">列表</button>
+            <button class="view-toggle active" data-view="workspace">工作区</button>
+            <button class="view-toggle" data-view="list">列表</button>
             <button class="view-toggle" data-view="mindmap">脑图</button>
             <button class="view-toggle" data-view="notes">笔记</button>
             <button class="view-toggle" data-view="relation">关系</button>
@@ -94,6 +97,97 @@
     
     <!-- 内容区容器 -->
     <div class="content-container">
+        <!-- 工作区栏 -->
+        <div class="column" id="workspace-column" data-column="workspace">
+            <div class="column-header">
+                <h3>工作区</h3>
+                <div class="workspace-toolbar">
+                    <button id="workspace-refresh-btn" class="workspace-btn" title="刷新工作区">🔄</button>
+                    <button id="workspace-settings-btn" class="workspace-btn" title="工作区设置">⚙️</button>
+                </div>
+            </div>
+            <div class="column-content">
+                <div class="workspace-container">
+                    <!-- 当前工作区信息 -->
+                    <div class="workspace-section">
+                        <h4>📁 当前工作区</h4>
+                        <div class="workspace-info">
+                            <div class="workspace-item">
+                                <span class="workspace-label">路径:</span>
+                                <span class="workspace-value" id="workspace-path">未设置</span>
+                            </div>
+                            <div class="workspace-item">
+                                <span class="workspace-label">项目:</span>
+                                <span class="workspace-value" id="workspace-project">项目管理器</span>
+                            </div>
+                            <div class="workspace-item">
+                                <span class="workspace-label">状态:</span>
+                                <span class="workspace-value workspace-status" id="workspace-status">正常</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 快速操作 -->
+                    <div class="workspace-section">
+                        <h4>⚡ 快速操作</h4>
+                        <div class="workspace-actions">
+                            <button class="workspace-action-btn" onclick="openWorkspaceFolder()">
+                                📂 打开工作区文件夹
+                            </button>
+                            <button class="workspace-action-btn" onclick="switchWorkspace()">
+                                🔄 切换工作区
+                            </button>
+                            <button class="workspace-action-btn" onclick="createNewProject()">
+                                ➕ 新建项目
+                            </button>
+                            <button class="workspace-action-btn" onclick="importProject()">
+                                📥 导入项目
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 最近项目 -->
+                    <div class="workspace-section">
+                        <h4>📋 最近项目</h4>
+                        <div class="recent-projects" id="recent-projects">
+                            <div class="recent-project-item">
+                                <div class="project-icon">🧠</div>
+                                <div class="project-info">
+                                    <div class="project-name">当前脑图项目</div>
+                                    <div class="project-path">本地存储</div>
+                                    <div class="project-time">刚刚访问</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 工作区统计 -->
+                    <div class="workspace-section">
+                        <h4>📊 工作区统计</h4>
+                        <div class="workspace-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="total-nodes">0</span>
+                                <span class="stat-label">节点总数</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="total-projects">0</span>
+                                <span class="stat-label">项目数量</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="storage-size">0KB</span>
+                                <span class="stat-label">存储大小</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工作区与列表分割线 -->
+        <div class="column-divider" id="workspace-list-divider">
+            <div class="divider-handle"></div>
+        </div>
+
         <!-- 列表栏 -->
         <div class="column" id="list-column" data-column="list">
             <div class="column-header">
@@ -752,6 +846,144 @@
             
             // 初始化显示
             renderNotes();
+        });
+    </script>
+    
+    <!-- 工作区功能 -->
+    <script>
+        // 工作区功能
+        window.addEventListener('DOMContentLoaded', function() {
+            // 工作区操作函数
+            window.openWorkspaceFolder = function() {
+                alert('打开工作区文件夹功能（需要桌面应用支持）');
+            };
+            
+            window.switchWorkspace = function() {
+                const newPath = prompt('请输入新的工作区路径:');
+                if (newPath) {
+                    document.getElementById('workspace-path').textContent = newPath;
+                    updateWorkspaceStats();
+                }
+            };
+            
+            window.createNewProject = function() {
+                const projectName = prompt('请输入新项目名称:');
+                if (projectName) {
+                    // 这里可以调用脑图控制器创建新项目
+                    if (window.mindmapController) {
+                        window.mindmapController.createNewMindmap(projectName);
+                    }
+                    updateRecentProjects();
+                }
+            };
+            
+            window.importProject = function() {
+                // 触发文件选择
+                document.getElementById('fileInputMindmap').click();
+            };
+            
+            // 更新工作区统计信息
+            function updateWorkspaceStats() {
+                try {
+                    // 获取节点总数
+                    if (window.mindmapController && window.mindmapController.mind) {
+                        const nodeCount = Object.keys(window.mindmapController.mind.data.data).length;
+                        document.getElementById('total-nodes').textContent = nodeCount;
+                    }
+                    
+                    // 获取项目数量
+                    const projectList = document.getElementById('project-list');
+                    if (projectList) {
+                        const projectCount = projectList.children.length;
+                        document.getElementById('total-projects').textContent = projectCount;
+                    }
+                    
+                    // 估算存储大小
+                    let storageSize = 0;
+                    try {
+                        const mindmapData = localStorage.getItem('mindmap_data');
+                        const notesData = localStorage.getItem('notes_data');
+                        if (mindmapData) storageSize += mindmapData.length;
+                        if (notesData) storageSize += notesData.length;
+                        
+                        const sizeText = storageSize > 1024 ? 
+                            Math.round(storageSize / 1024) + 'KB' : 
+                            storageSize + 'B';
+                        document.getElementById('storage-size').textContent = sizeText;
+                    } catch (e) {
+                        document.getElementById('storage-size').textContent = '未知';
+                    }
+                } catch (e) {
+                    console.warn('更新工作区统计失败:', e);
+                }
+            }
+            
+            // 更新最近项目列表
+            function updateRecentProjects() {
+                const container = document.getElementById('recent-projects');
+                const projectList = document.getElementById('project-list');
+                
+                if (projectList && projectList.children.length > 0) {
+                    let html = '';
+                    for (let i = 0; i < Math.min(3, projectList.children.length); i++) {
+                        const project = projectList.children[i];
+                        const projectName = project.textContent || '未命名项目';
+                        html += `
+                            <div class="recent-project-item">
+                                <div class="project-icon">🧠</div>
+                                <div class="project-info">
+                                    <div class="project-name">${projectName}</div>
+                                    <div class="project-path">本地存储</div>
+                                    <div class="project-time">最近访问</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div class="recent-project-item">
+                            <div class="project-icon">🧠</div>
+                            <div class="project-info">
+                                <div class="project-name">当前脑图项目</div>
+                                <div class="project-path">本地存储</div>
+                                <div class="project-time">刚刚访问</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // 工作区刷新按钮
+            document.getElementById('workspace-refresh-btn')?.addEventListener('click', function() {
+                updateWorkspaceStats();
+                updateRecentProjects();
+                document.getElementById('workspace-status').textContent = '已刷新';
+                setTimeout(() => {
+                    document.getElementById('workspace-status').textContent = '正常';
+                }, 2000);
+            });
+            
+            // 工作区设置按钮
+            document.getElementById('workspace-settings-btn')?.addEventListener('click', function() {
+                alert('工作区设置功能开发中...');
+            });
+            
+            // 初始化工作区信息
+            function initWorkspace() {
+                // 设置当前路径
+                document.getElementById('workspace-path').textContent = window.location.pathname.replace('/index.html', '') || '/';
+                
+                // 更新统计信息
+                updateWorkspaceStats();
+                updateRecentProjects();
+                
+                // 定期更新统计信息
+                setInterval(updateWorkspaceStats, 30000); // 每30秒更新一次
+            }
+            
+            // 延迟初始化，等待其他组件加载完成
+            setTimeout(initWorkspace, 1000);
         });
     </script>
     
