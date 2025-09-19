@@ -9,32 +9,6 @@
       this.rootId = null; // 根ID
       this.perMindStorageKey = null; // 根据根ID动态生成的存储键
 
-      // 冷启动：全局抑制保存与回写，直到项目加载完成
-      try {
-        if (typeof window !== 'undefined') {
-          if (window.__REG_SYNC_SUPPRESS === undefined) window.__REG_SYNC_SUPPRESS = true;
-          if (window.__STORAGE_PAUSE === undefined) window.__STORAGE_PAUSE = true;
-          // 轻量生命周期
-          if (!window.AppLifecycle) {
-            const STATE = { BOOTING: 'BOOTING', LOADING: 'LOADING', READY: 'READY' };
-            const lc = {
-              _state: STATE.BOOTING,
-              _pid: null,
-              setBooting(){ this._state = STATE.BOOTING; this._pid = null; },
-              setLoading(id){ this._state = STATE.LOADING; this._pid = id || null; },
-              setReady(id){ this._state = STATE.READY; this._pid = id || null; },
-              currentProjectId(){ return this._pid; },
-              isBootingOrLoading(){ return this._state !== STATE.READY; },
-              allowSave(dataId){
-                if (!dataId || dataId === 'root') return false;
-                if (this._state !== STATE.READY) return false;
-                return this._pid && String(this._pid) === String(dataId);
-              }
-            };
-            window.AppLifecycle = lc;
-          }
-        }
-      } catch(_) { /* ignore */ }
 
       this.data = this.loadMindmapFromStorage() || this.getDefaultData();
       this.mind = null; // jsMind 实例
@@ -82,8 +56,7 @@
       }catch(_){ /* ignore */ }
       this.bindDetailEvents();
       this.init();
-      // 已移除调试浮窗，避免遮挡与误触
-      try{ document.querySelectorAll('.debug-panel').forEach(el=> el.parentNode && el.parentNode.removeChild(el)); }catch(_){ }
+      
       // 启动定时快照
       try { this.startSnapshotScheduler(); } catch(_) { /* ignore */ }
     }
@@ -627,74 +600,30 @@
     // —— 初始化与渲染 ——
     init(){
       console.log('[MindmapController] 初始化开始');
-      this.ensureContainer();
-      // 提前绑定工具栏，避免 jsMind 未加载时按钮完全失效
-      try { this.wireToolbar(); } catch(_) { /* ignore */ }
-      this.ensureRootChildrenDirection();
-      this._waitContainerVisible(() => {
-        this.createMind();
-        // 新注册表架构下：首屏等待左侧选择再渲染，避免强刷时闪现历史/默认脑图
-        let skipInitial = false;
-        try { skipInitial = !!window.__USE_NEW_REGISTRY__; } catch(_) { skipInitial = false; }
-        if (!skipInitial) {
-          // 旧模式：优先从本地存储加载 jsMind 数据
-          const loaded = this.showSavedMindIfAny();
-          if (!loaded) {
-            // 无持久化数据时使用内部数据渲染
-            this.renderMindmap();
-          }
-        } else {
-          try { console.log('[MindmapController] 使用新注册表机制，跳过首屏本地恢复，等待选择后渲染'); }catch(_){ }
-        }
-        // 容器可见后主动适配一次，避免初始布局偏差
-        try { this.mind && this.mind.resize && this.mind.resize(); } catch(_) {}
-        this.observeContainerResize();
-        this.wireDragSync();
-        this.wireToolbar();
-        this.wireContextMenu();
-        this.wireKeyboardShortcuts();
-        this.wireBeforeUnload();
-        // 应用并持久化内容编辑器尺寸
-        this._applyEditorSizeFromStorage();
-        this.wireContentEditorResizePersistence();
-        // 初始化日志面板控制按钮
-        this._initLogPanelControls();
-        console.log('[MindmapController] 初始化完成');
-      });
-    }
-
-    ensureContainer(){
-      const el = document.getElementById(this.containerId);
-      if (!el) {
-        console.error('[jsMind] 容器不存在:', this.containerId);
+      
+      // 直接初始化，不等待容器可见性
+      this.createMind();
+      
+      // 加载数据并渲染
+      const loaded = this.showSavedMindIfAny();
+      if (!loaded) {
+        this.renderMindmap();
       }
+      
+      // 初始化其他组件
+      this.observeContainerResize();
+      this.wireDragSync();
+      this.wireToolbar();
+      this.wireContextMenu();
+      this.wireKeyboardShortcuts();
+      this.wireBeforeUnload();
+      this._applyEditorSizeFromStorage();
+      this.wireContentEditorResizePersistence();
+      this._initLogPanelControls();
+      
+      console.log('[MindmapController] 初始化完成');
     }
 
-    // 等待容器与祖先从 display:none 变为可见后再继续，避免 jsMind 进入兼容模式
-    _waitContainerVisible(cb, timeoutMs = 3000){
-      const el = (this.dom && this.dom.containerEl) ? this.dom.containerEl : document.getElementById(this.containerId);
-      const start = Date.now();
-      const isVisible = () => {
-        if (!el) return true;
-        const style = getComputedStyle(el);
-        if (style.display === 'none') return false;
-        let p = el.parentElement;
-        while (p){
-          const ps = getComputedStyle(p);
-          if (ps.display === 'none') return false;
-          p = p.parentElement;
-        }
-        return true;
-      };
-      const tick = () => {
-        if (isVisible() || (Date.now() - start) > timeoutMs) {
-          try { cb && cb(); } catch(_) {}
-        } else {
-          requestAnimationFrame(tick);
-        }
-      };
-      tick();
-    }
 
     // —— 持久化：加载并显示 ——
     showSavedMindIfAny(){
