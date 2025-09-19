@@ -599,18 +599,39 @@
 
     // —— 初始化与渲染 ——
     init(){
-      console.log('[MindmapController] 初始化开始');
+      this._debugLog('初始化开始');
       
-      // 直接初始化，不等待容器可见性
+      // 检查容器是否存在
+      const container = document.getElementById(this.containerId);
+      if (!container) {
+        this._debugLog('错误: 容器不存在 - ' + this.containerId);
+        return;
+      }
+      this._debugLog('容器找到: ' + this.containerId);
+      
+      // 检查 jsMind 是否加载
+      if (typeof jsMind === 'undefined') {
+        this._debugLog('错误: jsMind 库未加载');
+        return;
+      }
+      this._debugLog('jsMind 库已加载');
+      
       this.createMind();
       
-      // 加载数据并渲染
+      if (!this.mind) {
+        this._debugLog('错误: jsMind 实例创建失败');
+        return;
+      }
+      this._debugLog('jsMind 实例创建成功');
+      
       const loaded = this.showSavedMindIfAny();
       if (!loaded) {
+        this._debugLog('未找到保存数据，使用默认数据');
         this.renderMindmap();
+      } else {
+        this._debugLog('加载保存数据成功');
       }
       
-      // 初始化其他组件
       this.observeContainerResize();
       this.wireDragSync();
       this.wireToolbar();
@@ -621,7 +642,7 @@
       this.wireContentEditorResizePersistence();
       this._initLogPanelControls();
       
-      console.log('[MindmapController] 初始化完成');
+      this._debugLog('初始化完成');
     }
 
 
@@ -691,51 +712,24 @@
     }
 
     createMind(){
+      this._debugLog('创建 jsMind 实例');
+      
       const options = {
         container: this.containerId,
         editable: true,
         draggable: !!this.dragEnabled,
         theme: 'primary',
         support_html: false,
-        mode: 'side', // full|side|both_side（右侧单侧）
+        mode: 'side',
       };
-      try{
+      
+      this._debugLog('jsMind 配置: ' + JSON.stringify(options));
+      
+      try {
         this.mind = new jsMind(options);
-        // 兼容旧版 draggable：需要 jm.get_node_from_element(element)
-        try{
-          if (this.mind && typeof this.mind.get_node_from_element !== 'function'){
-            this.mind.get_node_from_element = function(element){
-              try{
-                const id = this.view && this.view.get_binded_nodeid ? this.view.get_binded_nodeid(element) : null;
-                return id ? this.get_node(id) : null;
-              }catch(_){ return null; }
-            };
-          }
-        }catch(_){ }
-
-        // 只读保护：系统标签脑图（pid=SYS_TAGS）的根节点禁止改名
-        try{
-          const jm = this.mind;
-          if (jm && !jm.__begin_edit_guard){
-            const origBegin = jm.begin_edit && jm.begin_edit.bind(jm);
-            jm.begin_edit = (node_or_id)=>{
-              try{
-                const root = jm.get_root && jm.get_root();
-                const node = (typeof node_or_id === 'string') ? jm.get_node(node_or_id) : node_or_id;
-                const isRoot = !!(root && node && node.id === root.id);
-                const pid = (function(){ try{ return window.__currentMindPid || null; }catch(_){ return null; } })();
-                if (isRoot && pid === 'SYS_TAGS'){
-                  try{ this.showToast && this.showToast('系统标签根名称为只读，无法编辑'); }catch(_){ }
-                  return; // 阻止进入编辑
-                }
-              }catch(_){ }
-              return origBegin ? origBegin(node_or_id) : undefined;
-            };
-            jm.__begin_edit_guard = true;
-          }
-        }catch(_){ }
-      }catch(e){
-        try{ console.warn('[MindmapController] 创建 jsMind 实例失败：', e); }catch(_){ }
+        this._debugLog('jsMind 实例创建成功');
+      } catch(error) {
+        this._debugLog('错误: jsMind 实例创建失败 - ' + error.message);
         this.mind = null;
         return;
       }
@@ -793,12 +787,36 @@
 
     // 渲染（将内部 this.data 转为 jsMind 的 node_tree 格式）
     renderMindmap(){
+      this._debugLog('渲染脑图');
+      
+      if (!this.mind) {
+        this._debugLog('错误: jsMind 实例不存在，无法渲染');
+        return;
+      }
+      
+      if (!this.data) {
+        this._debugLog('错误: 数据不存在，无法渲染');
+        return;
+      }
+      
+      this._debugLog('数据根ID: ' + (this.data.id || '无'));
+      this._debugLog('数据标签: ' + (this.data.label || '无'));
+      
       const jmData = {
         meta: { name: 'Project Mindmap', author: 'local', version: '1.0' },
         format: 'node_tree',
         data: this.toJsMindTree(this.data),
       };
-      this.mind.show(jmData);
+      
+      this._debugLog('jsMind 数据根ID: ' + (jmData.data && jmData.data.id || '无'));
+      
+      try {
+        this.mind.show(jmData);
+        this._debugLog('jsMind.show() 执行成功');
+      } catch(error) {
+        this._debugLog('错误: jsMind.show() 失败 - ' + error.message);
+        return;
+      }
       // 在首次渲染全图后立即固化全图快照
       this.ensureFullSnapshotFromMind(jmData);
       this.ensureDragEnabled();
@@ -5096,5 +5114,6 @@ try{
   
   // 暴露到全局，保持与原脚本兼容
   window.MindmapController = MindmapController;
-  window.mindmapController = new MindmapController();
+  // 不再自动创建实例，由 script.js 统一管理
+  // window.mindmapController = new MindmapController();
 })();

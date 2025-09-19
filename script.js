@@ -323,16 +323,28 @@ class ColumnManager {
     }
 
     init() {
-        // 初始化视图状态
+        // 防止重复初始化
+        if (this._initialized) {
+            console.log('[ColumnManager] 已初始化，跳过');
+            return;
+        }
+        this._initialized = true;
+        console.log('[ColumnManager] 开始初始化');
+        console.log('[ColumnManager] 默认激活视图:', this.activeViews);
+        
+        // 初始化视图状态：根据 activeViews 设置可见性
         this.views.forEach(view => {
             const column = document.getElementById(`${view}-column`);
             if (column) {
-                // 初始状态只显示列表视图
-                if (view === 'list') {
+                if (this.activeViews.includes(view)) {
                     column.classList.add('visible');
+                    console.log('[ColumnManager] 显示视图:', view);
                 } else {
                     column.classList.remove('visible');
+                    console.log('[ColumnManager] 隐藏视图:', view);
                 }
+            } else {
+                console.log('[ColumnManager] 警告: 找不到列:', view + '-column');
             }
         });
 
@@ -435,6 +447,8 @@ class ColumnManager {
      * 更新布局显示
      */
     updateLayout() {
+        console.log('[ColumnManager] 更新布局，活动视图:', this.activeViews);
+        
         // 隐藏所有列
         this.views.forEach(view => {
             const column = document.getElementById(`${view}-column`);
@@ -451,20 +465,28 @@ class ColumnManager {
             const column = document.getElementById(`${view}-column`);
             if (column) {
                 column.classList.add('visible');
+                console.log('[ColumnManager] updateLayout 显示视图:', view);
                 
                 // 如果是脑图视图被激活，确保脑图正确渲染并选中根节点
-                if (view === 'mindmap' && window.mindmapController) {
-                    // 等待DOM更新完成后执行
-                    setTimeout(() => {
-                        if (window.mindmapController.handleContainerResize) {
-                            window.mindmapController.handleContainerResize();
-                        } else {
-                            const container = document.getElementById('mindmap-container');
-                            if (container && window.mindmapController.mindmap) {
-                                window.mindmapController.mindmap.changeSize(container.clientWidth, container.clientHeight);
+                if (view === 'mindmap') {
+                    console.log('[ColumnManager] 脑图视图被激活');
+                    
+                    if (window.mindmapController) {
+                        console.log('[ColumnManager] MindmapController 存在，处理容器大小');
+                        // 等待DOM更新完成后执行
+                        setTimeout(() => {
+                            if (window.mindmapController.handleContainerResize) {
+                                window.mindmapController.handleContainerResize();
+                            } else {
+                                const container = document.getElementById('mindmap-container');
+                                if (container && window.mindmapController.mindmap) {
+                                    window.mindmapController.mindmap.changeSize(container.clientWidth, container.clientHeight);
+                                }
                             }
-                        }
-                    }, 100);
+                        }, 100);
+                    } else {
+                        console.log('[ColumnManager] MindmapController 不存在');
+                    }
                 }
             }
         });
@@ -818,9 +840,61 @@ class HotReload {
     }
 }
 
+// 等待所有脚本加载完成后再初始化
+function initializeWhenReady() {
+    console.log('[Init] 检查初始化条件');
+    
+    // 检查关键组件是否已加载
+    if (typeof jsMind === 'undefined') {
+        console.log('[Init] jsMind 未加载，等待...');
+        setTimeout(initializeWhenReady, 100);
+        return;
+    }
+    
+    if (typeof MindmapController === 'undefined') {
+        console.log('[Init] MindmapController 未加载，等待...');
+        setTimeout(initializeWhenReady, 100);
+        return;
+    }
+    
+    console.log('[Init] 所有组件已加载，开始初始化');
+    
+    // 初始化列管理器（防止重复创建）
+    if (!window.columnManager) {
+        console.log('[Init] 创建 ColumnManager');
+        try { 
+            window.columnManager = new ColumnManager(); 
+            console.log('[Init] ColumnManager 创建成功');
+        } catch(e) { 
+            console.error('[Init] ColumnManager 创建失败:', e);
+            // 即使 ColumnManager 失败，也要尝试创建 MindmapController
+            try {
+                new ColumnManager();
+            } catch(e2) {
+                console.error('[Init] ColumnManager 备用创建也失败:', e2);
+            }
+        }
+    } else {
+        console.log('[Init] ColumnManager 已存在，跳过创建');
+    }
+    
+    // 确保 MindmapController 被创建（独立于其他组件）
+    if (!window.mindmapController) {
+        console.log('[Init] 创建 MindmapController');
+        try {
+            window.mindmapController = new MindmapController();
+            console.log('[Init] MindmapController 创建成功');
+        } catch(e) {
+            console.error('[Init] MindmapController 创建失败:', e);
+        }
+    } else {
+        console.log('[Init] MindmapController 已存在');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 初始化列管理器
-    try { window.columnManager = new ColumnManager(); } catch(_) { new ColumnManager(); }
+    console.log('[DOMContentLoaded] 页面加载完成，等待组件加载');
+    initializeWhenReady();
     
     // 初始化热重载（2秒检查间隔）
     new HotReload(2000);

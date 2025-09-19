@@ -1802,7 +1802,7 @@
       "project_id": "root-1758256084936-b8",
       "name": "脑图优化",
       "created_at": "2025-09-19T04:28:04.957Z",
-      "last_modified": "2025-09-19T14:15:43.195Z",
+      "last_modified": "2025-09-19T15:28:15.975Z",
       "source": "new",
       "payload": {
         "format": "node_tree",
@@ -2319,6 +2319,23 @@
                       "expanded": true,
                       "attachments": [],
                       "children": []
+                    },
+                    {
+                      "id": "9625580850544817",
+                      "label": "简化脑图初始化的过程",
+                      "content": "创建: 2025-09-19 22:16:52\n\n## 🎯 您说得对！问题根源就是不断\"添加\"造成的混乱\n\n让我**直接修改**现有的 [init()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:626:4-663:5) 方法，移除容器可见性检测的复杂逻辑，简化为直接初始化：\n\n现在让我删除不再需要的复杂方法：\n\n现在让我删除构造函数中不必要的全局变量设置：\n\n现在让我删除构造函数中不必要的调试面板清理代码：\n\n## ✅ 完成！脑图初始化已简化\n\n### **🎯 修改总结**\n\n我**移除了**以下复杂机制：\n1. ❌ [_waitContainerVisible](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:672:4-696:5) - 容器可见性检测的复杂逻辑\n2. ❌ [ensureContainer](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:665:4-670:5) - 不必要的容器检查\n3. ❌ 全局状态管理 - `window.__REG_SYNC_SUPPRESS` 等全局变量\n4. ❌ 调试面板清理 - 不必要的DOM操作\n\n### **✅ 保留了核心功能**\n\n现在的 [init()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:599:4-624:5) 方法非常简洁：\n```javascript\ninit(){\n  console.log('[MindmapController] 初始化开始');\n  \n  // 直接初始化，不等待容器可见性\n  this.createMind();\n  \n  // 加载数据并渲染\n  const loaded = this.showSavedMindIfAny();\n  if (!loaded) {\n    this.renderMindmap();\n  }\n  \n  // 初始化其他组件\n  this.observeContainerResize();\n  this.wireDragSync();\n  this.wireToolbar();\n  this.wireContextMenu();\n  this.wireKeyboardShortcuts();\n  this.wireBeforeUnload();\n  this._applyEditorSizeFromStorage();\n  this.wireContentEditorResizePersistence();\n  this._initLogPanelControls();\n  \n  console.log('[MindmapController] 初始化完成');\n}\n```\n\n### **🚀 预期效果**\n\n- **立即初始化** - 不再等待容器可见性\n- **直接渲染** - 消除了初始化延迟\n- **简化流程** - 减少了出错的可能性\n- **提高可靠性** - 移除了可能导致死循环的逻辑\n\n现在脑图应该能够正常加载了！刷新页面试试看。",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": [
+                        {
+                          "id": "96279c7823ab9c15",
+                          "label": "脑图不能加载：",
+                          "content": "创建: 2025-09-19 22:56:23\n\n修复完成！\n🎯 问题根源与解决方案\n问题根源：脑图视图的 HTML 按钮状态与 JavaScript 默认激活状态不匹配，导致脑图容器可能被隐藏。\n\n解决方案：\n\n✅ 修复了代码冗余 - 简化了初始化流程\n✅ 修正了视图状态 - HTML 中的按钮状态现在与 JavaScript 中的 activeViews = ['list', 'mindmap', 'detail'] 匹配\n🚀 现在的状态\n脑图按钮：默认激活 ✅\n脑图容器：应该可见 ✅\n初始化流程：已简化 ✅\n调试输出：会显示基本信息 ✅\n现在刷新页面，脑图应该能够正常加载并显示调试信息了！\n\n\n---\n\n\n找到并修复了隐藏脑图的机制！\n🎯 问题根源\n罪魁祸首：\nscript.js\n 中的 \nColumnManager.init()\n 方法强制只显示列表视图，忽略了 activeViews 配置！\n\njavascript\n// 原来的错误逻辑\nif (view === 'list') {\n    column.classList.add('visible');\n} else {\n    column.classList.remove('visible');  // ← 强制隐藏脑图！\n}\n🚀 修复方案\n现在改为根据 activeViews = ['list', 'mindmap', 'detail'] 来设置可见性：\n\njavascript\n// 修复后的正确逻辑\nif (this.activeViews.includes(view)) {\n    column.classList.add('visible');\n} else {\n    column.classList.remove('visible');\n}\n✅ 预期效果\n现在脑图视图应该：\n\n默认显示 - 因为在 activeViews 中\n正确初始化 - MindmapController 会被调用\n显示调试信息 - 在调试面板中可见\n刷新页面试试，脑图现在应该能正常加载了！\n\n\n---问题已解决！\n经过这次调试过程，我们成功解决了：\n\n缓存问题 - 通过更新版本号\n初始化顺序问题 - 通过等待机制\n组件依赖问题 - 通过独立初始化\n视图显示问题 - 通过修复 ColumnManager 逻辑",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": []
+                        }
+                      ]
                     }
                   ]
                 },
@@ -2333,7 +2350,7 @@
                 {
                   "id": "961958d985ece4fd",
                   "label": "如果是不得不使用HTTP保存MD",
-                  "content": "",
+                  "content": "创建: 2025-09-19 22:16:33\n\n",
                   "expanded": true,
                   "attachments": [],
                   "children": []
@@ -2641,7 +2658,7 @@
   ],
   "metadata": {
     "total_projects": 5,
-    "last_updated": "2025-09-19T14:15:43.197Z",
+    "last_updated": "2025-09-19T15:28:15.979Z",
     "storage_type": "unified_md"
   }
 }
