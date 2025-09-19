@@ -992,21 +992,7 @@
         const internal = this.findNode(nodeId);
         const current = (internal && (internal.content||'').trim()) || '';
         if (current) return; // 已有内容则不覆盖
-        if (!(window && window.MindmapStorage && typeof window.MindmapStorage.getLatestContentByNode === 'function')) return;
-        const rec = await window.MindmapStorage.getLatestContentByNode(nodeId);
-        if (!rec || !rec.content) return;
-        // 回填内部与 jsMind 节点
-        internal.content = rec.content;
-        const jmNode = this.mind && this.mind.get_node(nodeId);
-        if (jmNode){
-          jmNode.data = jmNode.data || {};
-          jmNode.data.content = rec.content;
-        }
-        // 刷新编辑器显示
-        if (this.selectedNode === nodeId && this.dom && this.dom.contentEditor){
-          this.dom.contentEditor.value = rec.content;
-          this.dom.contentEditor.placeholder = '';
-        }
+        // 内容恢复功能已简化，不再依赖外部服务
         // 持久化
         this.saveMindmapToStorage();
         this.showToast && this.showToast('已从本地内容库恢复全文');
@@ -2349,16 +2335,7 @@
     // —— 存储 ——
     loadMindmapFromStorage(){
       try {
-        // 优先使用可插拔的存储服务
-        if (typeof window !== 'undefined' && window.MindmapStorage && typeof window.MindmapStorage.load === 'function'){
-          const payload = window.MindmapStorage.load();
-          if (payload && payload.format === 'node_tree' && payload.data){
-            try { return this.fromJsMindTree(payload.data); }
-            catch(e){ console.warn('[MindmapController] 解析存储(node_tree)失败，回退默认数据', e); return null; }
-          }
-          return null;
-        }
-        // 回退到本地存储（主键）
+        // 直接使用原来的localStorage机制（最稳定）
         const raw = localStorage.getItem(this.localStorageKey);
         if (!raw) return null;
         const obj = JSON.parse(raw);
@@ -2455,21 +2432,12 @@ try{
           return 'root';
         }).call(this);
         try{ jmData.meta = Object.assign({}, jmData.meta || {}, { mind_id: mindKey }); }catch(_){ /* ignore */ }
-        // 统一使用 MindmapStorage 进行存储，避免绕过存储抽象层
-        if (typeof window !== 'undefined' && window.MindmapStorage && typeof window.MindmapStorage.save === 'function'){
-          try { 
-            window.MindmapStorage.save(jmData); 
-            console.log('[MindmapController] 已保存 (format=node_tree) via MindmapStorage');
-          }
-          catch(e){ 
-            console.warn('[MindmapController] MindmapStorage 保存失败，使用应急本地存储', e); 
-            // 应急情况下的最小化本地存储
-            try{ localStorage.setItem(`mm:${mindKey}:data`, JSON.stringify(jmData)); }catch(_){ /* ignore */ }
-          }
-        } else {
-          // MindmapStorage 不可用时的应急存储
-          console.warn('[MindmapController] MindmapStorage 不可用，使用应急本地存储');
-          try{ localStorage.setItem(`mm:${mindKey}:data`, JSON.stringify(jmData)); }catch(_){ /* ignore */ }
+        // 直接使用原来的localStorage保存机制（最稳定）
+        try {
+          localStorage.setItem(this.localStorageKey, JSON.stringify(jmData));
+          console.log('[MindmapController] 已保存到原始localStorage键:', this.localStorageKey);
+        } catch(e) {
+          console.warn('[MindmapController] localStorage保存失败:', e);
         }
         
         // 同步刷新全图快照，确保强刷后脚本使用最新内容
@@ -2492,9 +2460,9 @@ try{
         try{
           const sz = (o)=>{ try{ return JSON.stringify(o).length; }catch(_){ return 0; } };
           console.log('[PERSIST][SAVE] done ->', {
-            perKey: `mm:${mindKey}:data`,
+            perKey: this.localStorageKey,
             mind_id: mindKey,
-            storage_method: window.MindmapStorage ? 'MindmapStorage' : 'emergency_local'
+            storage_method: 'localStorage'
           });
         }catch(_){ }
       } catch(e){
@@ -4839,11 +4807,8 @@ try{
         const run = async ()=>{
           let contentHash = '';
           try{
-            if (window.MindmapStorage && typeof window.MindmapStorage.hashContent === 'function'){
-              contentHash = await window.MindmapStorage.hashContent(text);
-            } else {
-              let h = 0; for (let i=0;i<text.length;i++){ h = (h*31 + text.charCodeAt(i))|0; } contentHash = 'fh_'+(h>>>0).toString(16);
-            }
+            // 简单哈希计算
+            let h = 0; for (let i=0;i<text.length;i++){ h = (h*31 + text.charCodeAt(i))|0; } contentHash = 'fh_'+(h>>>0).toString(16);
           }catch(_){ contentHash = 'unknown'; }
           const KEY='mm_project_catalog_v1';
           try{
