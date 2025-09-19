@@ -130,7 +130,7 @@ class DataRecoveryTool {
     isLocalStorageHealthy() {
         try {
             // 检查关键存储项
-            const keys = ['mindmap_data_v2', '__mind_full_cache_v1'];
+            const keys = ['mindmap_data_v1', '__mind_full_cache_v1'];
             return keys.some(key => localStorage.getItem(key) !== null);
         } catch {
             return false;
@@ -199,7 +199,6 @@ class DataRecoveryTool {
             
             // 尝试从备份恢复
             const backupKeys = [
-                'mindmap_data_v2',
                 'mindmap_data_v1', 
                 '__mind_full_cache_v1'
             ];
@@ -388,7 +387,7 @@ class DataRecoveryTool {
             }
 
             // 备份关键localStorage项
-            const keysTBackup = ['mindmap_data_v2', '__mind_full_cache_v1'];
+            const keysTBackup = ['mindmap_data_v1', '__mind_full_cache_v1'];
             for (const key of keysTBackup) {
                 const value = localStorage.getItem(key);
                 if (value) {

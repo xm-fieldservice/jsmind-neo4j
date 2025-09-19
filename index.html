@@ -86,6 +86,7 @@
         <div class="view-toggles">
             <button class="view-toggle active" data-view="list">列表</button>
             <button class="view-toggle" data-view="mindmap">脑图</button>
+            <button class="view-toggle" data-view="notes">笔记</button>
             <button class="view-toggle" data-view="relation">关系</button>
             <button class="view-toggle" data-view="detail">详情</button>
         </div>
@@ -134,6 +135,7 @@
                         <ul id="query-results-list" style="flex:1 1 auto;overflow:auto;min-height:0;display:none;"></ul>
                         <!-- 日志控制按钮（框外） -->
                         <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;">
+                          <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;" title="测试MD文档保存">MD保存</button>
                           <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
                           <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
                         </div>
@@ -226,8 +228,56 @@
             </div>
         </div>
 
-        <!-- 脑图与关系分割线 -->
-        <div class="column-divider" id="mindmap-relation-divider">
+        <!-- 脑图与笔记分割线 -->
+        <div class="column-divider" id="mindmap-notes-divider">
+            <div class="divider-handle"></div>
+        </div>
+        
+        <!-- 笔记栏 -->
+        <div class="column" id="notes-column" data-column="notes">
+            <div class="column-header">
+                <h3>笔记栏</h3>
+                <div class="notes-toolbar">
+                    <button id="notes-save-btn" class="notes-btn" title="保存笔记">💾</button>
+                    <button id="notes-clear-btn" class="notes-btn" title="清空笔记">🗑️</button>
+                </div>
+            </div>
+            <div class="column-content">
+                <div class="notes-container">
+                    <!-- 输出框（上半部分） -->
+                    <div class="notes-output">
+                        <div class="notes-output-header">
+                            <span>笔记内容</span>
+                            <span class="notes-count">0 条笔记</span>
+                        </div>
+                        <div class="notes-display" id="notes-display">
+                            <div class="notes-empty">暂无笔记，在下方输入框中添加笔记</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 输入框（下半部分） -->
+                    <div class="notes-input">
+                        <div class="notes-input-header">
+                            <span>添加笔记</span>
+                        </div>
+                        <div class="notes-input-area">
+                            <textarea 
+                                id="notes-input-text" 
+                                class="notes-input-editor" 
+                                placeholder="在这里输入新的笔记内容..."
+                                rows="4"></textarea>
+                            <div class="notes-input-actions">
+                                <button id="notes-add-btn" class="notes-btn notes-btn-primary">添加笔记</button>
+                                <button id="notes-clear-input-btn" class="notes-btn">清空输入</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 笔记与关系分割线 -->
+        <div class="column-divider" id="notes-relation-divider">
             <div class="divider-handle"></div>
         </div>
         
@@ -237,12 +287,17 @@
                 <h3>关系图栏</h3>
             </div>
             <div class="column-content">
-                <div id="relation-container" style="display:flex;flex-direction:column;height:100%;">
-                    <!-- 关系工具栏 -->
-                    <div id="relation-toolbar" style="flex:0 0 auto;display:flex;gap:8px;align-items:center;padding:8px 0;flex-wrap:wrap;border-bottom:1px solid #eee;margin-bottom:8px;">
-                        <label>方向
-                            <select id="relation-direction" style="margin-left:4px;">
-                                <option value="all">全部</option>
+                <div class="relation-container">
+                    <!-- 关系管理工具栏 -->
+                    <div class="relation-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+                        <label style="font-size:12px;">节点
+                            <select id="relation-node-filter" style="margin-left:4px;width:100px;">
+                                <option value="">全部</option>
+                            </select>
+                        </label>
+                        <label style="font-size:12px;">方向
+                            <select id="relation-direction-filter" style="margin-left:4px;width:60px;">
+                                <option value="">全部</option>
                                 <option value="out">出边</option>
                                 <option value="in">入边</option>
                             </select>
@@ -264,16 +319,7 @@
                         
                         <!-- SVG可视化区域（预留） -->
                         <div style="flex:0 0 200px;position:relative;border:1px solid #eee;border-radius:6px;overflow:hidden;">
-                            <svg id="relation-svg" width="100%" height="100%" style="position:absolute;top:0;left:0;">
-                                <g id="relation-root">
-                                    <circle cx="30%" cy="30%" r="20" fill="#2196F3"/>
-                                    <circle cx="70%" cy="30%" r="20" fill="#FF9800"/>
-                                    <circle cx="50%" cy="70%" r="20" fill="#9C27B0"/>
-                                    <line x1="30%" y1="30%" x2="70%" y2="30%" stroke="#666" stroke-width="2"/>
-                                    <line x1="30%" y1="30%" x2="50%" y2="70%" stroke="#666" stroke-width="2"/>
-                                    <line x1="70%" y1="30%" x2="50%" y2="70%" stroke="#666" stroke-width="2"/>
-                                </g>
-                            </svg>
+                            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ccc;font-size:14px;">关系可视化区域</div>
                         </div>
                     </div>
                 </div>
@@ -287,77 +333,77 @@
         
         <!-- 节点详情栏 -->
         <div class="column" id="detail-column" data-column="detail" data-queries-count="3">
-          <div class="column-header">
-            <h3>节点详情</h3>
-          </div>
-          <div class="column-content">
-                <!-- 选项卡容器：包含“详情”与若干“查询”页 -->
-                <div id="detail-tabs" class="tabs">
-                  <div class="tabs-nav" id="detail-tabs-nav">
-                    <!-- 按钮将由脚本根据 data-queries-count 构建 -->
-                  </div>
-                  <div class="tabs-content" id="detail-tabs-content">
-                    <!-- 面板将由脚本构建，现有 detail-container 将作为“详情”面板 -->
-                    <div id="detail-container">
-                      <!-- 1) 标题栏：标题可编辑 + 节点ID（小字虚化） -->
-                      <div class="detail-item">
-                        <h4>标题</h4>
-                        <input type="text" id="detail-title-input" placeholder="输入节点标题" style="width:100%;box-sizing:border-box;" />
-                        <div id="detail-node-id" style="font-size:12px;color:#888;margin-top:4px;">未选择节点</div>
-                      </div>
-
-                      <!-- 基本信息：仅状态（创建时间已包含在内容中，面板不再显示） -->
-                      <div class="detail-item">
-                        <h4>状态</h4>
-                        <p id="node-status">--</p>
-                      </div>
-
-                      <!-- 2) 内容栏：Markdown 编辑器 + 阅读器（失焦自动保存） -->
-                      <div class="detail-item">
-                        <h4>内容（Markdown）</h4>
-                        <textarea id="detail-content-editor" placeholder="在此编写内容..." style="width:100%;height:160px;box-sizing:border-box;"></textarea>
-                        <div style="margin-top:6px;display:flex;gap:8px;">
-                          <button id="detail-content-preview-toggle">预览</button>
-                        </div>
-                        <div id="detail-content-preview" class="markdown-body" style="margin-top:8px;display:none;">请选择一个节点查看详情</div>
-                        <!-- 兼容旧结构：仍保留渲染容器供已有逻辑使用 -->
-                        <div id="node-content" class="markdown-body" style="display:none;"></div>
-                      </div>
-
-                      <!-- 2.1) 附件区域：上传 + 列表（双击打开） -->
-                      <div class="detail-item">
-                        <h4>附件</h4>
-                        <div id="detail-attachments" class="attachments-panel" style="border:1px solid #eee;padding:8px;border-radius:6px;">
-                          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
-                            <button id="detail-attachments-upload">添加附件</button>
-                            <span style="font-size:12px;color:#888;">支持 doc、txt、md、pdf、图片、视频。小文件将持久化，大文件仅本次会话有效。</span>
-                          </div>
-                          <ul id="detail-attachments-list" style="list-style:none;padding-left:0;margin:0;display:flex;flex-direction:column;gap:6px;"></ul>
-                        </div>
-                      </div>
-
-                      <!-- 3) 标签区域：标签组（左） + 标签（右） -->
-                      <div class="detail-item">
-                        <h4>标签</h4>
-                        <div id="tag-panel" class="tag-panel">
-                          <div class="tag-groups" id="tag-groups"></div>
-                          <div class="tag-list" id="tag-list"></div>
-                        </div>
-                        <div id="tag-panel-empty" class="tag-panel-empty" style="display:none;">未在脑图中找到“标签管理”，将显示默认标签组。</div>
-                      </div>
+            <div class="column-header">
+                <h3>节点详情</h3>
+            </div>
+            <div class="column-content">
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-button active" data-tab="basic">基本</button>
+                        <button class="tab-button" data-tab="content">内容</button>
+                        <button class="tab-button" data-tab="tags">标签</button>
+                        <button class="tab-button" data-tab="attachments">附件</button>
                     </div>
-                  </div>
+                    <div class="tabs-content" id="detail-tabs-content">
+                        <!-- 面板将由脚本构建，现有detail-container保持兼容 -->
+                        <div id="detail-container">
+                            <!-- 1) 标题栏：标题可编辑 + 节点ID，始终显示 -->
+                            <div class="detail-item">
+                              <h4>标题</h4>
+                              <input type="text" id="detail-title-input" placeholder="节点标题" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;" />
+                              <div id="detail-node-id" style="font-size:12px;color:#888;margin-top:4px;">节点ID: 未选择</div>
+                            </div>
+
+                            <!-- 基本信息：仅状态（创建时间已移除） -->
+                            <div class="detail-item">
+                              <h4>状态</h4>
+                              <div id="detail-status" style="font-size:13px;color:#666;">未选择节点</div>
+                            </div>
+
+                            <!-- 2) 内容编辑器：可调整大小的文本域 -->
+                            <div class="detail-item">
+                              <h4>内容 <span style="font-size:11px;color:#999;">(支持Markdown)</span></h4>
+                              <textarea id="detail-content-editor" placeholder="在此编辑节点内容，支持Markdown语法..." style="width:100%;min-height:200px;padding:8px;border:1px solid #ddd;border-radius:4px;font-family:monospace;font-size:13px;line-height:1.4;resize:vertical;box-sizing:border-box;"></textarea>
+                            </div>
+
+                            <!-- 3) 附件管理 -->
+                            <div class="detail-item">
+                              <h4>附件 <button id="detail-add-attachment" style="margin-left:8px;padding:2px 8px;font-size:11px;background:#4CAF50;color:white;border:none;border-radius:3px;cursor:pointer;">添加</button></h4>
+                              <div id="detail-attachment-list" style="max-height:120px;overflow-y:auto;border:1px solid #eee;border-radius:4px;padding:4px;">
+                                <div style="color:#999;font-size:12px;padding:8px;">暂无附件</div>
+                              </div>
+                            </div>
+
+                            <!-- 4) 标签管理：当前节点标签 + 标签面板 -->
+                            <div class="detail-item">
+                              <h4>当前标签</h4>
+                              <div id="detail-active-tags" style="margin-bottom:8px;min-height:24px;border:1px solid #eee;border-radius:4px;padding:4px;">
+                                <span style="color:#999;font-size:12px;">暂无标签</span>
+                              </div>
+                              <div style="margin-bottom:8px;">
+                                <input type="text" id="detail-tag-input" placeholder="添加标签..." style="width:calc(100% - 60px);padding:4px;border:1px solid #ddd;border-radius:3px;font-size:12px;" />
+                                <button id="detail-add-tag" style="width:50px;padding:4px;margin-left:4px;background:#2196F3;color:white;border:none;border-radius:3px;cursor:pointer;font-size:11px;">添加</button>
+                              </div>
+                              <div class="tag-panel-container">
+                                <div id="tag-panel" class="tag-panel">
+                                  <div class="tag-groups" id="tag-groups"></div>
+                                  <div class="tag-list" id="tag-list"></div>
+                                </div>
+                                <div id="tag-panel-empty" class="tag-panel-empty" style="display:none;">未在脑图中找到"标签管理"，将显示默认标签组。</div>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 脑图控制器 -->
+    <!-- 脚本区域 -->
     <!-- 隐藏文件选择框：用于导入脑图 -->
     <input type="file" id="fileInputMindmap" accept=".json,.mindmap.json" style="display:none" />
     <!-- 隐藏文件选择框：用于附件上传（多选） -->
     <input type="file" id="fileInputAttachment" multiple style="display:none" />
-    
     
     
     
@@ -396,6 +442,33 @@
           }
           btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
           btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(body.textContent||''); alert('日志已复制'); }catch(_){ } }));
+          
+          // MD保存测试按钮
+          const btnMDTest = document.getElementById('test-md-save');
+          btnMDTest && !btnMDTest.__bound && (btnMDTest.__bound = true, btnMDTest.addEventListener('click', async ()=>{ 
+            try{ 
+              window.LogPanel && window.LogPanel.log('开始测试MD文档保存...');
+              if (window.mindmapController && window.mindmapController.mind) {
+                // 触发保存，这会自动调用MD保存
+                window.mindmapController.saveMindmapToStorage();
+                window.LogPanel && window.LogPanel.log('✓ 已触发MD文档保存');
+                
+                // 检查localStorage备份
+                setTimeout(() => {
+                  const backup = localStorage.getItem('md_document_backup');
+                  if (backup) {
+                    const data = JSON.parse(backup);
+                    const time = new Date(data.timestamp).toLocaleTimeString();
+                    window.LogPanel && window.LogPanel.log(`✓ MD文档备份已更新 (${time})`);
+                  }
+                }, 1000);
+              } else {
+                window.LogPanel && window.LogPanel.warn('⚠ 脑图控制器未初始化');
+              }
+            }catch(e){ 
+              window.LogPanel && window.LogPanel.error('✗ MD保存测试失败: ' + e.message); 
+            } 
+          }));
           return true;
         }
         function append(level, message){
@@ -430,6 +503,84 @@
     
     <!-- 关系管理前端 -->
     <script src="relation_frontend.js?v=20250917"></script>
+    
+    <!-- 笔记栏功能 -->
+    <script>
+        // 笔记栏功能
+        window.addEventListener('DOMContentLoaded', function() {
+            let notes = JSON.parse(localStorage.getItem('notes_data') || '[]');
+            
+            function renderNotes() {
+                const display = document.getElementById('notes-display');
+                const count = document.querySelector('.notes-count');
+                
+                if (notes.length === 0) {
+                    display.innerHTML = '<div class="notes-empty">暂无笔记，在下方输入框中添加笔记</div>';
+                } else {
+                    display.innerHTML = notes.map(note => `
+                        <div class="notes-item">
+                            <div class="notes-item-time">${new Date(note.time).toLocaleString()}</div>
+                            <div class="notes-item-content">${note.content}</div>
+                        </div>
+                    `).join('');
+                }
+                
+                count.textContent = `${notes.length} 条笔记`;
+            }
+            
+            function saveNotes() {
+                localStorage.setItem('notes_data', JSON.stringify(notes));
+            }
+            
+            // 添加笔记
+            document.getElementById('notes-add-btn')?.addEventListener('click', function() {
+                const input = document.getElementById('notes-input-text');
+                const content = input.value.trim();
+                
+                if (content) {
+                    notes.unshift({
+                        id: Date.now(),
+                        content: content,
+                        time: Date.now()
+                    });
+                    
+                    input.value = '';
+                    renderNotes();
+                    saveNotes();
+                }
+            });
+            
+            // 清空输入
+            document.getElementById('notes-clear-input-btn')?.addEventListener('click', function() {
+                document.getElementById('notes-input-text').value = '';
+            });
+            
+            // 清空所有笔记
+            document.getElementById('notes-clear-btn')?.addEventListener('click', function() {
+                if (confirm('确定要清空所有笔记吗？')) {
+                    notes = [];
+                    renderNotes();
+                    saveNotes();
+                }
+            });
+            
+            // 保存笔记
+            document.getElementById('notes-save-btn')?.addEventListener('click', function() {
+                saveNotes();
+                alert('笔记已保存');
+            });
+            
+            // 回车添加笔记
+            document.getElementById('notes-input-text')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    document.getElementById('notes-add-btn').click();
+                }
+            });
+            
+            // 初始化显示
+            renderNotes();
+        });
+    </script>
     
     <!-- 本地后端 API 基址配置（必须在注册管理器之前设置） -->
     <script>

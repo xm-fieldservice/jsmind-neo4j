@@ -2440,6 +2440,11 @@ try{
           console.warn('[MindmapController] localStorage保存失败:', e);
         }
         
+        // 简单的MD文档保存（异步，不阻塞localStorage保存）
+        this._saveToMDDocument(jmData).catch(e => {
+          console.warn('[MindmapController] MD文档保存失败:', e.message);
+        });
+        
         // 同步刷新全图快照，确保强刷后脚本使用最新内容
         try{ this.ensureFullSnapshotFromMind(jmData); }catch(_){ }
         
@@ -2471,6 +2476,83 @@ try{
         try{ window.__SAVE_INTENT = null; }catch(_){ }
         try{ window.__SAVE_SOURCE = null; }catch(_){ }
       }
+    }
+
+    // 简单的MD文档保存方法
+    async _saveToMDDocument(jmData) {
+      try {
+        const projectData = {
+          id: (jmData.data && jmData.data.id) || 'default',
+          name: (jmData.data && (jmData.data.label || jmData.data.topic)) || '未命名项目',
+          data: jmData.data,
+          format: jmData.format || 'node_tree',
+          updatedAt: new Date().toISOString(),
+          timestamp: Date.now()
+        };
+
+        // 构造MD内容
+        const mdContent = this._generateMDContent(projectData);
+        
+        // 尝试通过服务器保存
+        const response = await fetch('http://127.0.0.1:8081/api/md-base/save', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            content: mdContent,
+            project: projectData
+          })
+        });
+
+        if (response.ok) {
+          console.log('[MindmapController] MD文档已保存到服务器');
+          return true;
+        } else {
+          throw new Error(`服务器响应错误: ${response.status}`);
+        }
+      } catch (error) {
+        // 服务器不可用时，尝试localStorage备份
+        try {
+          localStorage.setItem('md_document_backup', JSON.stringify({
+            content: this._generateMDContent({
+              id: (jmData.data && jmData.data.id) || 'default',
+              name: (jmData.data && (jmData.data.label || jmData.data.topic)) || '未命名项目',
+              data: jmData.data,
+              format: jmData.format || 'node_tree',
+              updatedAt: new Date().toISOString(),
+              timestamp: Date.now()
+            }),
+            timestamp: Date.now()
+          }));
+          console.log('[MindmapController] MD文档已备份到localStorage');
+        } catch (backupError) {
+          console.warn('[MindmapController] MD文档备份也失败:', backupError.message);
+        }
+        throw error;
+      }
+    }
+
+    // 生成MD文档内容
+    _generateMDContent(projectData) {
+      const timestamp = new Date(projectData.updatedAt).toLocaleString('zh-CN');
+      
+      return `# 脑图项目：${projectData.name}
+
+## 项目信息
+- **项目ID**: ${projectData.id}
+- **最后更新**: ${timestamp}
+- **数据格式**: ${projectData.format}
+
+## 脑图数据
+\`\`\`json
+${JSON.stringify(projectData.data, null, 2)}
+\`\`\`
+
+---
+*自动保存于 ${timestamp}*
+`;
     }
     
     // 从jsMind同步数据到内部数据结构

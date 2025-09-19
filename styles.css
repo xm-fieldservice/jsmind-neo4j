@@ -543,6 +543,238 @@ body {
     background-color: white;
 }
 
+/* 笔记栏样式 */
+.notes-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.notes-btn {
+    background: transparent;
+    border: 1px solid #ddd;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.notes-btn:hover {
+    background: #f0f0f0;
+    border-color: #bbb;
+}
+
+.notes-btn-primary {
+    background: #2196F3;
+    color: white;
+    border-color: #2196F3;
+}
+
+.notes-btn-primary:hover {
+    background: #1976D2;
+    border-color: #1976D2;
+}
+
+.notes-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 16px;
+}
+
+/* 输出框（上半部分） */
+.notes-output {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.notes-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.notes-count {
+    color: #666;
+    font-size: 11px;
+}
+
+.notes-display {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    background: white;
+}
+
+.notes-empty {
+    color: #999;
+    font-size: 13px;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+.notes-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.notes-item:last-child {
+    border-bottom: none;
+}
+
+.notes-item-time {
+    color: #999;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.notes-item-content {
+    color: #333;
+    white-space: pre-wrap;
+}
+
+/* 输入框（下半部分） */
+.notes-input {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.notes-input-header {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.notes-input-area {
+    padding: 12px;
+    background: white;
+}
+
+.notes-input-editor {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    resize: vertical;
+    margin-bottom: 8px;
+}
+
+.notes-input-editor:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.notes-input-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* 节点详情栏样式 */
+.tabs-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.tabs-header {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    background: #f8f9fa;
+    margin-bottom: 16px;
+}
+
+.tab-button {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+    color: #333;
+    background: rgba(0,0,0,0.05);
+}
+
+.tab-button.active {
+    color: #2196F3;
+    border-bottom-color: #2196F3;
+    background: rgba(33, 150, 243, 0.1);
+}
+
+.tabs-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+#detail-container {
+    padding: 0;
+}
+
+.detail-item {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+}
+
+.tag-panel-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+.tag-panel {
+    padding: 8px;
+}
+
+.tag-panel-empty {
+    padding: 16px;
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    font-style: italic;
+}
+
 /* 拖拽时的全局覆盖层，防止选择文本 */
 .resize-overlay {
     position: fixed;

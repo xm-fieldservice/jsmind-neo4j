@@ -3,15 +3,15 @@
   "projects": [
     {
       "project_id": "root-1758256084936-b8",
-      "name": "服务器",
+      "name": "脑图优化",
       "created_at": "2025-09-19T04:28:04.957Z",
-      "last_modified": "2025-09-19T06:36:50.231Z",
+      "last_modified": "2025-09-19T07:34:31.548Z",
       "source": "new",
       "payload": {
         "format": "node_tree",
         "data": {
           "id": "root-1758256084936-b8",
-          "label": "服务器",
+          "label": "脑图优化",
           "content": "# 根节点\n\n在此编写内容...",
           "expanded": true,
           "attachments": [],
@@ -461,9 +461,9 @@
                           "children": []
                         },
                         {
-                          "id": "960ac5742d2daa24",
-                          "label": "6",
-                          "content": "创建: 2025-09-19 11:24:18\n\n1111111111111",
+                          "id": "960c2800404fb272",
+                          "label": "New Node",
+                          "content": "",
                           "expanded": true,
                           "attachments": [],
                           "children": []
@@ -750,7 +750,7 @@
   ],
   "metadata": {
     "total_projects": 3,
-    "last_updated": "2025-09-19T06:36:50.234Z",
+    "last_updated": "2025-09-19T07:34:31.549Z",
     "storage_type": "unified_md"
   }
 }
