@@ -226,7 +226,7 @@
       "project_id": "root-1758123816896-ggeb",
       "name": "脑图的优化和改造",
       "created_at": "2025-09-17T15:43:36.898Z",
-      "last_modified": "2025-09-18T15:06:33.729Z",
+      "last_modified": "2025-09-18T16:15:21.859Z",
       "source": "new",
       "payload": {
         "format": "node_tree",
@@ -656,6 +656,30 @@
                           "expanded": true,
                           "attachments": [],
                           "children": []
+                        },
+                        {
+                          "id": "95d6e154513ebcb5",
+                          "label": "测试：间接直写是否实现",
+                          "content": "创建: 2025-09-18 23:25:43\n\n",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": []
+                        },
+                        {
+                          "id": "95d8af98d5e0c119",
+                          "label": "1",
+                          "content": "创建: 2025-09-18 23:56:55\n\n",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": []
+                        },
+                        {
+                          "id": "95d9a9ba4e4b9f94",
+                          "label": "3",
+                          "content": "创建: 2025-09-19 00:14:29\n\n",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": []
                         }
                       ]
                     }
@@ -694,7 +718,7 @@
   ],
   "metadata": {
     "total_projects": 3,
-    "last_updated": "2025-09-18T15:06:33.732Z",
+    "last_updated": "2025-09-18T16:15:21.860Z",
     "storage_type": "unified_md"
   }
 }

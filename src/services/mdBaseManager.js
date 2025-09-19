@@ -14,6 +14,11 @@
         lastModified: null,
         projects: new Map()
       };
+      // 统一后端API前缀：优先使用显式配置，其次根据前端端口推断
+      const DEFAULT_BACKEND = (typeof window !== 'undefined' && window.location && window.location.port === '8082')
+        ? 'http://127.0.0.1:8081'
+        : '';
+      this.API_BASE = (typeof window !== 'undefined' && window.MD_SERVER_BASE) || DEFAULT_BACKEND;
     }
 
     /**
@@ -71,30 +76,71 @@
      */
     async writeMindmapToMD(projectData) {
       try {
-        // 确保已加载MD底座
-        if (!this.cache.content) {
-          await this.loadMDBase();
+        const mode = (typeof window!=='undefined' && window.MD_WRITE_MODE) || 'server';
+        let updatedContent = '';
+
+        if (mode === 'direct') {
+          // 直写：不依赖本地缓存，先取服务器版本，更新后立即保存
+          const baseContent = await this._loadServerMD();
+          const next = this.parser.updateMDSection(
+            baseContent || this._createDefaultMDBase(),
+            projectData.id,
+            projectData
+          );
+          const saved = await this._saveMDToFile(next);
+          if (!saved) throw new Error('direct save failed');
+          // 保存成功后再同步缓存
+          this.cache.content = next;
+          this.cache.projects.set(projectData.id, projectData);
+          updatedContent = next;
+        } else {
+          // 非直写：先仅更新缓存
+          updatedContent = await this.applyProjectToCache(projectData);
+          // 再进行持久化（按当前模式决定是后端写盘还是本地备份）
+          await this._saveMDToFile(updatedContent);
         }
-
-        // 更新MD内容
-        const updatedContent = this.parser.updateMDSection(
-          this.cache.content, 
-          projectData.id, 
-          projectData
-        );
-
-        // 更新缓存
-        this.cache.content = updatedContent;
-        this.cache.projects.set(projectData.id, projectData);
-
-        // 写入文件（如果在支持的环境中）
-        await this._saveMDToFile(updatedContent);
-
-        console.log(`[MDBase] 已写入项目: ${projectData.id}`);
+        console.log(`[MDBase] 已写入项目: ${projectData.id} (mode=${mode})`);
         return true;
       } catch (error) {
         console.error('[MDBase] 写入MD底座失败:', error);
         return false;
+      }
+    }
+
+    /**
+     * 仅将项目数据应用到 MD 缓存（不触发写盘）——用于毫秒级实时同步
+     */
+    async applyProjectToCache(projectData){
+      // 确保已加载MD底座
+      if (!this.cache.content) {
+        await this.loadMDBase();
+      }
+      // 更新MD内容片段
+      const updatedContent = this.parser.updateMDSection(
+        this.cache.content,
+        projectData.id,
+        projectData
+      );
+      // 更新缓存
+      this.cache.content = updatedContent;
+      this.cache.projects.set(projectData.id, projectData);
+      return updatedContent;
+    }
+
+    /**
+     * 从后端加载最新的MD全文（若不可用则返回缓存或默认内容）
+     */
+    async _loadServerMD(){
+      try{
+        const API_BASE = this.API_BASE || '';
+        if (!API_BASE) return this.cache.content || this._createDefaultMDBase();
+        const resp = await fetch(API_BASE + '/api/md-base/download', { method: 'GET', cache: 'no-store' });
+        if (!resp.ok) throw new Error('download failed: ' + resp.status);
+        const text = await resp.text();
+        return text;
+      }catch(e){
+        console.warn('[MDBase] 拉取服务器MD失败，使用缓存/默认', e);
+        return this.cache.content || this._createDefaultMDBase();
       }
     }
 
@@ -185,7 +231,7 @@
         // 获取服务器MD哈希（如果服务器可用）
         let serverHash = null;
         try {
-          const response = await fetch('/api/md-base/hash', {
+          const response = await fetch((this.API_BASE || '') + '/api/md-base/hash', {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
           });
@@ -234,7 +280,7 @@
         }
 
         // 下载服务器版本
-        const serverResponse = await fetch('/api/md-base/download');
+        const serverResponse = await fetch((this.API_BASE || '') + '/api/md-base/download');
         if (!serverResponse.ok) {
           throw new Error('下载服务器MD失败');
         }
@@ -245,7 +291,7 @@
         const mergedContent = await this._mergeContent(this.cache.content, serverContent);
         
         // 上传合并后的内容
-        const uploadResponse = await fetch('/api/md-base/upload', {
+        const uploadResponse = await fetch((this.API_BASE || '') + '/api/md-base/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain' },
           body: mergedContent
@@ -320,6 +366,22 @@
         // 在浏览器环境中，我们无法直接写文件
         // 这里可以触发下载或发送到服务器
         
+        // 若显式指定仅本地模式，则跳过服务端写盘
+        try{
+          if (typeof window !== 'undefined' && (window.MD_WRITE_MODE === 'local')){
+            // 仅做 localStorage 备份，不访问后端
+            try {
+              localStorage.setItem('md_base_backup', content);
+              localStorage.setItem('md_base_backup_timestamp', Date.now().toString());
+              console.log('[MDBase] 已备份到localStorage (local-only 模式)');
+              return true;
+            } catch (e) {
+              console.warn('[MDBase] local-only备份失败:', e);
+              return false;
+            }
+          }
+        }catch(_){ }
+
         // 方案1: 触发下载
         if (typeof window !== 'undefined' && window.location.protocol === 'file:') {
           console.log('[MDBase] file://协议下无法保存文件');
@@ -328,7 +390,7 @@
 
         // 方案2: 发送到服务器（如果可用）
         try {
-          const response = await fetch('/api/md-base/save', {
+          const response = await fetch((this.API_BASE || '') + '/api/md-base/save', {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
             body: content

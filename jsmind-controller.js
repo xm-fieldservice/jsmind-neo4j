@@ -2388,6 +2388,41 @@
 
     saveMindmapToStorage(){
   try {
+// —— 授权闸门（人为/白名单） ——
+try{
+  const policy = (typeof window!=='undefined' && window.INPUT_POLICY) || 'human_or_whitelist';
+  if (policy === 'human_or_whitelist'){
+    const ttl = (typeof window!=='undefined' && Number(window.HUMAN_INPUT_TTL_MS)) || 1500;
+    const lastTs = (typeof window!=='undefined' && Number(window.__HUMAN_TS)) || 0;
+    const humanRecent = lastTs > 0 && (Date.now() - lastTs <= ttl);
+    let allowed = humanRecent;
+    if (!allowed){
+      const src = (typeof window!=='undefined' && (window.__SAVE_SOURCE || 'unknown')) || 'unknown';
+      // 白名单：localStorage持久化的来源集合
+      let wl = (typeof window!=='undefined' && window.SAVE_WHITELIST);
+      if (!(wl instanceof Set)){
+        try{ const raw=localStorage.getItem('save_whitelist'); wl = new Set(Array.isArray(JSON.parse(raw))? JSON.parse(raw): []); window.SAVE_WHITELIST = wl; }catch(_){ wl = new Set(); window.SAVE_WHITELIST = wl; }
+      }
+      if (wl.has(src)){
+        allowed = true;
+      } else {
+        // 明示交互：是否放行本次保存
+        if (typeof window!=='undefined' && typeof window.confirm==='function'){
+          const once = window.confirm(`检测到非直接人为的保存请求（来源: ${src}）。是否允许本次保存？`);
+          if (once){
+            allowed = true;
+            const remember = window.confirm('是否将该来源加入白名单，以后自动放行？');
+            if (remember){
+              try{ wl.add(src); localStorage.setItem('save_whitelist', JSON.stringify(Array.from(wl))); }catch(_){ }
+            }
+          }
+        }
+      }
+    }
+    if (!allowed){ return; }
+    try{ window.__SAVE_INTENT = 'human'; }catch(_){ }
+  }
+}catch(_){ /* 忽略授权判定异常，避免影响保存 */ }
     // 全局保存守卫：冷启动/加载中/非当前项目/默认root 一律拒绝
     try{
       if (typeof window !== 'undefined'){
@@ -2464,6 +2499,9 @@
         }catch(_){ }
       } catch(e){
         console.error('[MindmapController] 保存到存储失败', e);
+      } finally {
+        try{ window.__SAVE_INTENT = null; }catch(_){ }
+        try{ window.__SAVE_SOURCE = null; }catch(_){ }
       }
     }
     
@@ -3868,16 +3906,18 @@
     }
 
     removeNode(nodeId){
-      if (nodeId === this.data.id){ this.showToast('根节点不可删除'); return; }
-      const parent = this.findParentNode(nodeId);
-      if (!parent) return;
-      const idx = parent.children.findIndex(c=>c.id===nodeId);
-      if (idx>=0) parent.children.splice(idx,1);
-      this.mind.remove_node(nodeId);
-      this.saveMindmapToStorage();
-      this.setSelectedNode(parent.id);
-      this.showToast('节点已删除');
-    }
+  if (nodeId === this.data.id){ this.showToast('根节点不可删除'); return; }
+  const parent = this.findParentNode(nodeId);
+  if (!parent) return;
+  const idx = parent.children.findIndex(c=>c.id===nodeId);
+  if (idx>=0) parent.children.splice(idx,1);
+  this.mind.remove_node(nodeId);
+  // 标记本次为“删除”操作，用于 MD 同步策略 delete_only
+  try{ window.__MD_SYNC_OP = 'delete'; }catch(_){ }
+  this.saveMindmapToStorage();
+  this.setSelectedNode(parent.id);
+  this.showToast('节点已删除');
+}
 
     // —— 调试日志输出到页面 ——
     _logToPanel(title, content) {
@@ -4654,7 +4694,9 @@
         const btn = e.target.closest('button,[data-action]');
         if (!btn) return;
         const action = btn.getAttribute('data-action');
-        const targetId = menu.dataset.targetId || this.selectedNode || (this.mind.get_root() && this.mind.get_root().id);
+        const targetId = menu.dataset.targetId || this.selectedNode || (function(){
+          try{ const r = (this.mind && this.mind.get_root && this.mind.get_root()); return r && r.id; }catch(_){ return null; }
+        }).call(this);
         this.handleContextMenuAction(action, targetId);
         hideMenu();
       });
@@ -4929,7 +4971,9 @@
       };
       container.addEventListener('keydown', (e)=>{
         if (isEditingInput(document.activeElement)) return;
-        const currentId = this.selectedNode || (this.mind.get_root() && this.mind.get_root().id);
+        const currentId = this.selectedNode || (function(){
+          try{ const r = (this.mind && this.mind.get_root && this.mind.get_root()); return r && r.id; }catch(_){ return null; }
+        }).call(this);
         if (!currentId) return;
         // Ctrl/Cmd 组合
         const ctrl = e.ctrlKey || e.metaKey;

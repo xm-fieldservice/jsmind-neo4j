@@ -6,6 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>项目管理视图</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+      // 仅同步到MD底座缓存 + 本地备份，不进行后端写库
+      window.MD_WRITE_MODE = 'local';
+      // MD 同步策略：允许所有授权的人为操作触发（授权判定由 INPUT_POLICY 控制）
+      window.MD_SYNC_POLICY = 'all'; // values: 'delete_only' | 'all'
+
+      // 人为输入策略与白名单（极简）：
+      // - INPUT_POLICY: 'human_or_whitelist' 表示仅放行“最近一次人为输入触发”或已加入白名单的程序保存
+      // - 通过全局事件在捕获阶段记录最近的人为输入时间戳
+      // - SAVE_WHITELIST: 允许放行的程序来源标识（简化为字符串集合），存于 localStorage 以持久化
+      window.INPUT_POLICY = 'human_or_whitelist';
+      window.HUMAN_INPUT_TTL_MS = 1500;
+      try{
+        const rawWL = localStorage.getItem('save_whitelist');
+        window.SAVE_WHITELIST = Array.isArray(JSON.parse(rawWL)) ? new Set(JSON.parse(rawWL)) : new Set();
+      }catch(_){ window.SAVE_WHITELIST = new Set(); }
+      (function(){
+        function markHuman(){ window.__HUMAN_TS = Date.now(); }
+        window.addEventListener('keydown', markHuman, {capture:true});
+        window.addEventListener('mousedown', markHuman, {capture:true});
+        window.addEventListener('touchstart', markHuman, {capture:true});
+      })();
+    </script>
     <!-- 关系管理样式 -->
     <link rel="stylesheet" href="relation_styles.css">
     <!-- 项目列表样式 -->
@@ -429,17 +452,27 @@ AutoGen混合存储状态:
     <!-- 原有存储服务（保持兼容，已集成MD底座） -->
     <script src="src/services/mindmapStorage.js?v=20250820"></script>
     
-    <!-- MD自动同步服务 -->
-    <script src="src/services/mdAutoSync.js?v=20250918"></script>
     
-    <!-- MD离线同步服务 -->
-    <script src="src/services/mdOfflineSync.js?v=20250918"></script>
     
-    <!-- MD安全写入器（防误写机制） -->
-    <script src="src/services/mdSafeWriter.js?v=20250918"></script>
-    
-    <!-- MD安全管理面板 -->
-    <script src="src/components/mdSafetyPanel.js?v=20250918"></script>
+    <!-- 实时MD同步器（确保在 mdBaseManager 与 mindmapStorage 之后加载） -->
+    <script src="src/services/realtimeMDSyncer.js?v=20250918"></script>
+    <script>
+      // 关闭保存守卫，允许保存与注册表同步
+      window.__STORAGE_PAUSE = false;
+      window.__REG_SYNC_SUPPRESS = false;
+      
+      // 等待页面与依赖加载完成后再初始化同步器
+      window.addEventListener('load', function(){
+        try{
+          if (window.RealtimeMDSyncer) {
+            window.realtimeMDSyncer = new window.RealtimeMDSyncer();
+            console.log('[实时MD] 同步器已激活');
+          } else {
+            console.error('[实时MD] 同步器未定义');
+          }
+        }catch(e){ console.error('[实时MD] 初始化失败', e); }
+      });
+    </script>
     
     <!-- 智能localStorage管理器 -->
     <script src="src/services/smartLocalStorage.js?v=20250918"></script>
@@ -570,20 +603,7 @@ AutoGen混合存储状态:
       })();
     </script>
     
-    <!-- 引入实时MD同步器 -->
-    <script src="src/services/realtimeMDSyncer.js"></script>
     
-    <script>
-      // 在DOM完全加载后初始化
-      window.addEventListener('load', () => {
-        if (window.RealtimeMDSyncer) {
-          window.realtimeMDSyncer = new window.RealtimeMDSyncer();
-          console.log('[实时MD] 同步器已激活');
-        } else {
-          console.error('[实时MD] 同步器未定义');
-        }
-      });
-    </script>
     
     <!-- 统一日志面板工具：将运行/调试信息输出到左侧“列表日志”框 -->
     <script>
