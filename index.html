@@ -543,32 +543,6 @@
           btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
           btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(body.textContent||''); alert('日志已复制'); }catch(_){ } }));
           
-          // MD保存测试按钮
-          const btnMDTest = document.getElementById('test-md-save');
-          btnMDTest && !btnMDTest.__bound && (btnMDTest.__bound = true, btnMDTest.addEventListener('click', async ()=>{ 
-            try{ 
-              window.LogPanel && window.LogPanel.log('开始测试MD文档保存...');
-              if (window.mindmapController && window.mindmapController.mind) {
-                // 触发保存，这会自动调用MD保存
-                window.mindmapController.saveMindmapToStorage();
-                window.LogPanel && window.LogPanel.log('✓ 已触发MD文档保存');
-                
-                // 检查localStorage备份
-                setTimeout(() => {
-                  const backup = localStorage.getItem('md_document_backup');
-                  if (backup) {
-                    const data = JSON.parse(backup);
-                    const time = new Date(data.timestamp).toLocaleTimeString();
-                    window.LogPanel && window.LogPanel.log(`✓ MD文档备份已更新 (${time})`);
-                  }
-                }, 1000);
-              } else {
-                window.LogPanel && window.LogPanel.warn('⚠ 脑图控制器未初始化');
-              }
-            }catch(e){ 
-              window.LogPanel && window.LogPanel.error('✗ MD保存测试失败: ' + e.message); 
-            } 
-          }));
           return true;
         }
         function append(level, message){
@@ -595,8 +569,16 @@
         window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
         // 初始一条
         setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
+        
+        // 清理逻辑已移至StorageService，避免重复执行
       })();
     </script>
+    
+    <!-- 统一存储服务 -->
+    <script src="src/services/StorageService.js?v=20250919"></script>
+    
+    <!-- MD转换工具 -->
+    <script src="src/services/MDToMindmap.js?v=20250919"></script>
     
     <!-- 原有脑图控制器（保持不变） -->
     <script src="jsmind-controller.js?v=20250820"></script>

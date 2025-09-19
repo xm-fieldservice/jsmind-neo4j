@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>MD转脑图测试</title>
+</head>
+<body>
+    <h1>MD转脑图测试</h1>
+    <button onclick="testConversion()">测试转换</button>
+    <div id="result"></div>
+
+    <script>
+        async function testConversion() {
+            try {
+                // 模拟MD内容
+                const mdContent = `# 脑图项目：测试项目
+
+## 项目信息
+- **项目ID**: test-root
+- **最后更新**: 2025/9/19 20:38
+- **数据格式**: node_tree
+
+## 脑图数据
+\`\`\`json
+{"format":"node_tree","data":{"id":"test-root","label":"测试项目","children":[{"id":"child1","label":"子节点1","content":"内容1"},{"id":"child2","label":"子节点2","content":"内容2"}]}}
+\`\`\`
+
+---
+*生成于 2025/9/19 20:38*`;
+
+                const data = window.MDToMindmapConverter.extractMindmapFromMD(mdContent);
+                
+                if (data) {
+                    document.getElementById('result').innerHTML = `
+                        <h3>转换成功</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    document.getElementById('result').innerHTML = '<h3>转换失败</h3>';
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<h3>错误: ${error.message}</h3>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>真实MD转脑图测试</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        textarea { width: 100%; height: 200px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+        .result { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        pre { background: #f8f8f8; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>真实MD转脑图测试</h1>
+        
+        <h3>示例MD文档：</h3>
+        <textarea id="mdInput" placeholder="粘贴Markdown文档..."># 项目管理系统
+
+## 用户管理
+用户注册、登录、权限控制功能
+
+### 注册功能
+- 邮箱验证
+- 手机验证
+- 第三方登录
+
+### 登录功能
+- 密码登录
+- 验证码登录
+- 记住密码
+
+## 项目管理
+项目创建、编辑、删除功能
+
+### 项目创建
+1. 填写基本信息
+2. 设置权限
+3. 邀请成员
+
+### 项目编辑
+- 修改信息
+- 调整权限
+- 更新状态</textarea>
+        
+        <button onclick="testConversion()">转换测试</button>
+        <button onclick="loadSample()">加载示例</button>
+        
+        <div class="result">
+            <h3>转换结果：</h3>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script src="src/services/RealMDToMindmap.js"></script>
+    <script>
+        function testConversion() {
+            const mdText = document.getElementById('mdInput').value;
+            if (!mdText.trim()) {
+                document.getElementById('result').innerHTML = '<p>请输入Markdown内容</p>';
+                return;
+            }
+            
+            try {
+                const data = window.RealMDToMindmap.convert(mdText);
+                document.getElementById('result').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<p style="color: red;">错误: ${error.message}</p>`;
+            }
+        }
+
+        function loadSample() {
+            document.getElementById('mdInput').value = window.RealMDToMindmap.getTestMD();
+            testConversion();
+        }
+
+        // 自动测试
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(loadSample, 1000);
+        });
+    </script>
+</body>
+</html>
