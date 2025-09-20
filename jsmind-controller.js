@@ -57,8 +57,56 @@
       this.bindDetailEvents();
       this.init();
       
+      // 绑定测试按钮
+      this.bindTestButtons();
+      
       // 启动定时快照
       try { this.startSnapshotScheduler(); } catch(_) { /* ignore */ }
+    }
+
+    // 绑定测试按钮
+    bindTestButtons(){
+      try{
+        const testBtn = document.getElementById('test-export-all-btn');
+        if (testBtn && !testBtn.dataset.mmWired){
+          testBtn.addEventListener('click', ()=>{
+            this.showToast('开始手动保存全部脑图（JSON格式）...');
+            this.exportAllMindmapsWithPicker();
+          });
+          testBtn.dataset.mmWired = '1';
+        }
+      }catch(e){
+        console.warn('绑定测试按钮失败:', e);
+      }
+    }
+
+    // Toast 提示方法
+    showToast(message, type = 'info'){
+      try{
+        // 使用日志面板显示消息
+        if (window.LogPanel){
+          if (type === 'error'){
+            window.LogPanel.error(`[Toast] ${message}`);
+          } else {
+            window.LogPanel.log(`[Toast] ${message}`);
+          }
+        }
+        
+        // 同时在控制台输出
+        if (type === 'error'){
+          console.error(`[MindmapController Toast] ${message}`);
+        } else {
+          console.log(`[MindmapController Toast] ${message}`);
+        }
+        
+        // 简单的页面提示（可选）
+        if (type === 'error'){
+          // 对于错误，使用 alert 确保用户看到
+          setTimeout(() => alert(`错误: ${message}`), 100);
+        }
+      }catch(e){
+        console.warn('showToast 失败:', e);
+      }
     }
 
     // 渲染（将内部 this.data 转为 jsMind 的 node_tree 格式）
@@ -4347,6 +4395,222 @@ try{
   }
 }
 
+    // 保存全部脑图为 JSON（目录选择优先，若不支持则逐个触发下载）
+    async exportAllMindmapsWithPicker(){
+      try{
+        // 收集全部脑图数据
+        const items = this.getAllMindmapsFromStorage();
+        
+        if (!items || items.length === 0){ 
+          this.showToast('没有可保存的脑图数据'); 
+          return; 
+        }
+
+        const sanitize = (s)=> String(s||'mindmap')
+          .replace(/[\\/:*?"<>|]/g,'_')
+          .replace(/\s+/g,'_')
+          .slice(0,60);
+
+        // 优先：目录选择（需要 Chromium + https/本地文件权限）
+        if (window.showDirectoryPicker){
+          try{
+            const dirHandle = await window.showDirectoryPicker({ mode:'readwrite' });
+            let okCount = 0;
+            
+            for (const it of items){
+              const id = (it.id || (it.data && it.data.data && it.data.data.id) || 'unknown');
+              const name = sanitize(it.name || (it.data && it.data.data && (it.data.data.topic || it.data.data.label)) || 'mindmap');
+              const fileName = `${name}_${id}.json`;
+
+              // 文件句柄并写入
+              const fileHandle = await dirHandle.getFileHandle(fileName, { create:true });
+              const writable = await fileHandle.createWritable();
+              const payload = (it.data && it.data.format) ? it.data : (it.data || {});
+              const json = JSON.stringify(payload, null, 2);
+              await writable.write(new Blob([json], {type:'application/json'}));
+              await writable.close();
+              okCount++;
+            }
+            
+            this.showToast(`已手动保存 ${okCount} 个脑图JSON文件到所选目录`);
+            
+            // 同时保存MD底座文件
+            await this.saveMDBaseToDirectory(dirHandle, items);
+            return;
+          }catch(err){
+            if (err && err.name === 'AbortError'){ 
+              this.showToast('已取消保存'); 
+              return; 
+            }
+            console.warn('[MindmapController] 目录保存失败，回退为下载', err);
+            // 继续走下载回退
+          }
+        }
+
+        // 回退：逐个下载 JSON 文件
+        let dlCount = 0;
+        for (const it of items){
+          const id = (it.id || (it.data && it.data.data && it.data.data.id) || 'unknown');
+          const name = sanitize(it.name || (it.data && it.data.data && (it.data.data.topic || it.data.data.label)) || 'mindmap');
+          const fileName = `${name}_${id}.json`;
+          const payload = (it.data && it.data.format) ? it.data : (it.data || {});
+          const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(a.href);
+          dlCount++;
+        }
+        
+        this.showToast(`已手动下载 ${dlCount} 个脑图JSON文件`);
+        
+        // 同时下载MD底座文件
+        this.downloadMDBase(items);
+        
+      }catch(e){
+        console.error('[MindmapController] 全部脑图导出失败:', e);
+        this.showToast('手动保存失败: ' + e.message, 'error');
+      }
+    }
+
+    // 获取所有脑图数据
+    getAllMindmapsFromStorage(){
+      const items = [];
+      
+      try{
+        this.showToast(`正在扫描localStorage中的脑图数据...`);
+        
+        // 从localStorage扫描所有脑图
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('mm:proj:') && key.endsWith(':data')) {
+            try {
+              const raw = localStorage.getItem(key);
+              if (raw) {
+                const data = JSON.parse(raw);
+                if (data && data.data && data.data.id) {
+                  const id = data.data.id;
+                  const name = data.data.topic || data.data.label || '未命名脑图';
+                  items.push({
+                    id: id,
+                    name: name,
+                    data: data,
+                    source: 'localStorage',
+                    key: key
+                  });
+                }
+              }
+            } catch(e) {
+              console.warn('解析脑图数据失败:', key, e);
+            }
+          }
+        }
+        
+        // 如果没有找到任何脑图，至少导出当前脑图
+        if (items.length === 0 && this.data && this.data.id) {
+          const jmData = this.mind?.get_data?.('node_tree');
+          if (jmData && jmData.data) {
+            items.push({
+              id: this.data.id,
+              name: this.data.label || this.data.topic || '当前脑图',
+              data: jmData,
+              source: 'current'
+            });
+          }
+        }
+        
+      }catch(e){
+        console.error('扫描脑图数据失败:', e);
+        this.showToast('扫描脑图数据失败: ' + e.message, 'error');
+      }
+      
+      this.showToast(`找到 ${items.length} 个脑图数据`);
+      return items;
+    }
+
+    // 保存MD底座到目录
+    async saveMDBaseToDirectory(dirHandle, items){
+      try{
+        const mdContent = this.generateMDBase(items);
+        const fileHandle = await dirHandle.getFileHandle('unified_mindmap_storage.md', { create:true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(new Blob([mdContent], {type:'text/markdown'}));
+        await writable.close();
+        console.log('[MindmapController] MD底座已保存到目录');
+      }catch(e){
+        console.warn('[MindmapController] 保存MD底座失败:', e);
+      }
+    }
+
+    // 下载MD底座文件
+    downloadMDBase(items){
+      try{
+        const mdContent = this.generateMDBase(items);
+        const blob = new Blob([mdContent], {type:'text/markdown'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'unified_mindmap_storage.md';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        console.log('[MindmapController] MD底座已下载');
+      }catch(e){
+        console.warn('[MindmapController] 下载MD底座失败:', e);
+      }
+    }
+
+    // 生成MD底座内容
+    generateMDBase(items){
+      const timestamp = new Date().toLocaleString();
+      let mdContent = `# 统一脑图存储底座\n\n`;
+      mdContent += `更新时间: ${timestamp}\n`;
+      mdContent += `脑图数量: ${items.length}\n\n`;
+      mdContent += `---\n\n`;
+      
+      items.forEach((item, index) => {
+        mdContent += `## ${index + 1}. ${item.name}\n\n`;
+        mdContent += `- **ID**: ${item.id}\n`;
+        mdContent += `- **来源**: ${item.source}\n`;
+        
+        if (item.data && item.data.data) {
+          const rootData = item.data.data;
+          mdContent += `- **根节点**: ${rootData.topic || rootData.label || '未命名'}\n`;
+          
+          // 递归生成脑图结构
+          if (rootData.children && rootData.children.length > 0) {
+            mdContent += `- **结构**:\n`;
+            mdContent += this.generateMDStructure(rootData, 2);
+          }
+        }
+        
+        mdContent += `\n---\n\n`;
+      });
+      
+      return mdContent;
+    }
+
+    // 递归生成MD结构
+    generateMDStructure(node, level = 0){
+      let result = '';
+      const indent = '  '.repeat(level);
+      
+      if (node.topic || node.label) {
+        result += `${indent}- ${node.topic || node.label}\n`;
+      }
+      
+      if (node.children && node.children.length > 0) {
+        node.children.forEach(child => {
+          result += this.generateMDStructure(child, level + 1);
+        });
+      }
+      
+      return result;
+    }
+
     // —— 适配/自适应 ——
     scheduleAutoFit(){
       // jsMind 没有内置 fitContent，可通过 resize + 适中缩放实现；此处先保留最小实现
@@ -4499,7 +4763,7 @@ try{
       const newBtn = document.getElementById('mindmap-new-btn');
       // 幂等绑定：避免重复 addEventListener
       if (expBtn && !expBtn.dataset.mmWired){
-        expBtn.addEventListener('click', ()=>this.exportMindmapWithPicker());
+        expBtn.addEventListener('click', ()=>this.exportAllMindmapsWithPicker());
         expBtn.dataset.mmWired = '1';
       }
       if (impBtn && !impBtn.dataset.mmWired){
