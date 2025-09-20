@@ -342,26 +342,77 @@ class RelationFrontend {
     }
     
     initializeRelationGraph() {
-        // 这里可以集成D3.js或其他图形库来渲染关系图
-        console.log('[关系管理] 初始化关系图');
+        console.log('[关系管理] 初始化D3.js关系图');
         
         const graphContainer = document.getElementById('relation-graph');
         if (graphContainer) {
-            // 简单的文本显示，实际应用中应该使用图形库
-            graphContainer.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 18px; margin-bottom: 10px;">关系图谱</div>
-                        <div>中心节点: ${this.getNodeLabel(this.currentNodeId)}</div>
-                        <div>关联节点: ${this.relationData.nodes.length - 1}个</div>
-                        <div>关系连接: ${this.relationData.edges.length}条</div>
-                        <div style="margin-top: 10px; font-size: 12px; color: #999;">
-                            数据来源: 服务器端向量库、图库、数据库
+            // 使用D3.js渲染关系图
+            if (typeof D3RelationGraph !== 'undefined') {
+                // 创建D3关系图实例
+                this.d3Graph = new D3RelationGraph('relation-graph', {
+                    width: graphContainer.clientWidth || 800,
+                    height: graphContainer.clientHeight || 600,
+                    nodeRadius: 25,
+                    linkDistance: 120,
+                    charge: -400
+                });
+                
+                // 转换数据格式为D3.js格式
+                const d3Data = this.convertToD3Format(this.relationData);
+                this.d3Graph.loadData(d3Data);
+                
+                // 保存全局引用以便调试
+                window.d3RelationGraph = this.d3Graph;
+                
+            } else {
+                // D3.js未加载时的降级显示
+                graphContainer.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 18px; margin-bottom: 10px;">⚠️ D3.js未加载</div>
+                            <div>中心节点: ${this.getNodeLabel(this.currentNodeId)}</div>
+                            <div>关联节点: ${this.relationData.nodes.length - 1}个</div>
+                            <div>关系连接: ${this.relationData.edges.length}条</div>
+                            <div style="margin-top: 10px; font-size: 12px; color: #999;">
+                                数据来源: 服务器端向量库、图库、数据库
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }
+    }
+    
+    /**
+     * 将关系数据转换为D3.js格式
+     */
+    convertToD3Format(relationData) {
+        console.log('[关系管理] 转换数据格式为D3.js');
+        
+        if (!relationData || !relationData.nodes || !relationData.edges) {
+            return { nodes: [], links: [] };
+        }
+        
+        // 转换节点数据
+        const nodes = relationData.nodes.map(node => ({
+            id: node.id,
+            label: node.label || node.name || node.id,
+            type: node.type || 'default',
+            description: node.description || '',
+            properties: node.properties || {}
+        }));
+        
+        // 转换连线数据
+        const links = relationData.edges.map(edge => ({
+            source: edge.from,
+            target: edge.to,
+            type: edge.type || 'default',
+            label: edge.label || edge.type || '',
+            value: edge.weight || 1,
+            properties: edge.properties || {}
+        }));
+        
+        return { nodes, links };
     }
     
     bindRelationEvents() {

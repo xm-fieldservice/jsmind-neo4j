@@ -6,10 +6,12 @@
 - 启动后端服务器（非阻塞）
 - 启动前端HTTP服务器（可选）
 - MD底座初始化同步
+- Neo4j + D3.js 关系图可视化集成
 - 健康检查与自动打开浏览器
 使用：
   python tools/start.py              # 仅启动后端
   python tools/start.py --full       # 启动后端+前端+打开浏览器
+  python tools/start.py --neo4j      # 启动Neo4j集成模式
   python tools/start.py --frontend   # 仅启动前端HTTP服务器
   python tools/start.py --port 8090  # 自定义后端端口
 """
@@ -167,6 +169,113 @@ def open_browser_delayed(url: str, delay: int = 2):
     return thread
 
 
+def check_neo4j_connection():
+    """检查Neo4j连接状态"""
+    print("[启动器] 🔍 检查Neo4j连接状态...")
+    try:
+        # 尝试导入Neo4j相关模块
+        sys.path.insert(0, str(project_root()))
+        from backend.app.database import get_neo4j_driver
+        
+        driver = get_neo4j_driver()
+        with driver.session() as session:
+            result = session.run("RETURN 1 as test")
+            if result.single():
+                print("[启动器] ✅ Neo4j连接正常")
+                return True
+    except ImportError as e:
+        print(f"[启动器] ❌ Neo4j模块导入失败: {e}")
+        print("[启动器] 💡 请确保已安装Neo4j依赖: pip install neo4j")
+    except Exception as e:
+        print(f"[启动器] ❌ Neo4j连接失败: {e}")
+        print("[启动器] 💡 请确保Neo4j服务已启动，配置信息正确")
+    return False
+
+
+def start_neo4j_backend():
+    """启动Neo4j集成后端服务器"""
+    print("[启动器] 🚀 启动Neo4j集成后端服务器...")
+    
+    root = project_root()
+    backend_dir = root / "backend"
+    
+    if not backend_dir.exists():
+        print(f"[启动器] ❌ 未找到backend目录: {backend_dir}")
+        return None
+    
+    # 检查后端依赖
+    requirements_file = backend_dir / "requirements.txt"
+    if requirements_file.exists():
+        print("[启动器] 📦 检查Neo4j后端依赖...")
+        try:
+            subprocess.run([
+                sys.executable, "-m", "pip", "install", "-r", str(requirements_file)
+            ], check=True, capture_output=True, cwd=str(root))
+            print("[启动器] ✅ Neo4j后端依赖检查完成")
+        except subprocess.CalledProcessError as e:
+            print(f"[启动器] ⚠️ 依赖安装警告: {e}")
+    
+    # 启动Neo4j后端服务
+    try:
+        cmd = [
+            sys.executable, "-m", "uvicorn", "backend.app.main:app",
+            "--host", "0.0.0.0", 
+            "--port", "8000", 
+            "--reload"
+        ]
+        
+        process = subprocess.Popen(cmd, cwd=str(root))
+        print("[启动器] ✅ Neo4j后端服务器已启动 (http://localhost:8000)")
+        print("[启动器] 📋 API文档: http://localhost:8000/docs")
+        
+        return process
+        
+    except Exception as e:
+        print(f"[启动器] ❌ Neo4j后端服务器启动失败: {e}")
+        return None
+
+
+def test_d3_neo4j_integration():
+    """测试D3.js与Neo4j集成"""
+    print("[启动器] 🧪 测试D3.js与Neo4j集成...")
+    
+    try:
+        import requests
+        
+        # 等待后端服务就绪
+        for i in range(15):
+            try:
+                response = requests.get("http://localhost:8000/health", timeout=5)
+                if response.status_code == 200:
+                    break
+            except:
+                pass
+            time.sleep(2)
+        else:
+            print("[启动器] ❌ Neo4j后端服务启动超时")
+            return False
+        
+        # 测试图形数据API
+        response = requests.get("http://localhost:8000/api/neo4j/graph-data", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            nodes_count = len(data.get('nodes', []))
+            links_count = len(data.get('links', []))
+            print(f"[启动器] ✅ D3.js图形数据API正常 (节点: {nodes_count}, 连线: {links_count})")
+            return True
+        else:
+            print(f"[启动器] ❌ 图形数据API错误: {response.status_code}")
+            
+    except ImportError:
+        print("[启动器] ⚠️ 未安装requests库，跳过集成测试")
+        print("[启动器] 💡 安装命令: pip install requests")
+        return True  # 不阻止启动
+    except Exception as e:
+        print(f"[启动器] ❌ 集成测试失败: {e}")
+    
+    return False
+
+
 def open_frontend():
     index = project_root() / 'index.html'
     if index.exists():
@@ -181,6 +290,7 @@ def main():
     parser.add_argument('--port', type=int, default=DEFAULT_BACKEND_PORT, help='后端端口（默认 8081）')
     parser.add_argument('--frontend-port', type=int, default=DEFAULT_FRONTEND_PORT, help='前端端口（默认 8082）')
     parser.add_argument('--full', action='store_true', help='启动完整系统（后端+前端+浏览器）')
+    parser.add_argument('--neo4j', action='store_true', help='启动Neo4j+D3.js集成模式')
     parser.add_argument('--frontend', action='store_true', help='仅启动前端HTTP服务器')
     parser.add_argument('--no-browser', action='store_true', help='不自动打开浏览器')
     args = parser.parse_args()
@@ -206,7 +316,69 @@ def main():
     print(f"[启动器] 项目根目录: {project_root()}")
     
     # 根据参数决定启动模式
-    if args.frontend:
+    if args.neo4j:
+        # Neo4j + D3.js 集成模式
+        print("[启动器] 🎯 启动Neo4j + D3.js集成模式")
+        print("="*60)
+        
+        # 检查Neo4j连接
+        if not check_neo4j_connection():
+            print("[启动器] ❌ Neo4j连接检查失败，请检查配置后重试")
+            print("[启动器] 💡 配置文件: neo4j_config_template.env -> .env")
+            sys.exit(1)
+        
+        # 清理端口
+        kill_port(8000)  # Neo4j后端端口
+        kill_port(args.frontend_port)  # 前端端口
+        
+        # 启动Neo4j后端
+        neo4j_backend = start_neo4j_backend()
+        if not neo4j_backend:
+            print("[启动器] ❌ Neo4j后端启动失败，退出")
+            sys.exit(1)
+        
+        # 启动前端服务器
+        frontend_process = start_frontend_server(args.frontend_port)
+        
+        # 测试集成
+        time.sleep(3)  # 给服务一点时间完全启动
+        integration_success = test_d3_neo4j_integration()
+        
+        # 打印状态信息
+        print("\n" + "="*60)
+        print("[启动器] 🎯 Neo4j + D3.js 集成服务状态")
+        print("="*60)
+        print(f"[启动器] 🔗 前端地址: http://localhost:{args.frontend_port}")
+        print("[启动器] 🔗 Neo4j后端API: http://localhost:8000")
+        print("[启动器] 📋 API文档: http://localhost:8000/docs")
+        print("[启动器] 🎨 D3.js关系图: 在前端页面的关系管理模块中查看")
+        print("="*60)
+        
+        if integration_success:
+            print("[启动器] ✅ Neo4j + D3.js 集成测试通过")
+        else:
+            print("[启动器] ⚠️ 集成测试未完全通过，但服务已启动")
+        
+        # 自动打开浏览器
+        frontend_url = f"http://localhost:{args.frontend_port}/index.html"
+        if not args.no_browser:
+            open_browser_delayed(frontend_url, delay=3)
+        
+        print(f"[启动器] Neo4j后端 PID={neo4j_backend.pid}, 前端 PID={frontend_process.pid}")
+        print("[启动器] 按 Ctrl+C 停止所有服务")
+        
+        try:
+            # 等待任一进程结束
+            while neo4j_backend.poll() is None and frontend_process.poll() is None:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\n[启动器] 🛑 正在停止Neo4j集成服务...")
+            neo4j_backend.terminate()
+            frontend_process.terminate()
+        
+        return
+    
+    elif args.frontend:
         # 仅启动前端模式
         print(f"[启动器] 仅启动前端HTTP服务器模式")
         print(f"[启动器] 前端端口: {args.frontend_port}")
@@ -257,6 +429,13 @@ def main():
         print(f"[启动器] 启动完整系统模式（后端+前端+浏览器）")
         print(f"[启动器] 前端端口: {args.frontend_port}")
         
+        # 检查是否支持Neo4j功能
+        neo4j_available = check_neo4j_connection()
+        if neo4j_available:
+            print("[启动器] ✅ 检测到Neo4j支持，D3.js关系图功能可用")
+        else:
+            print("[启动器] ⚠️ Neo4j不可用，关系图功能将降级运行")
+        
         kill_port(args.frontend_port)
         frontend_process = start_frontend_server(args.frontend_port)
         
@@ -267,8 +446,11 @@ def main():
         print(f"[启动器] 完整系统运行中:")
         print(f"[启动器] - 后端: http://127.0.0.1:{args.port}")
         print(f"[启动器] - 前端: {frontend_url}")
+        if neo4j_available:
+            print(f"[启动器] - Neo4j功能: 可用 (关系图可视化)")
         print(f"[启动器] 后端 PID={backend.pid}, 前端 PID={frontend_process.pid}")
         print(f"[启动器] 按 Ctrl+C 停止所有服务")
+        print(f"[启动器] 💡 如需专门的Neo4j模式，请使用: python tools/start.py --neo4j")
         
         try:
             # 等待任一进程结束
