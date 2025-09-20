@@ -392,7 +392,8 @@
                 <div class="relation-container">
                     <!-- 关系管理工具栏 -->
                     <div class="relation-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
-                        <button id="relation-test-btn" style="background:#4CAF50;color:white;border:none;padding:5px 10px;border-radius:3px;">🧪 测试关系图</button>
+                        <button id="relation-test-btn" style="background:#4CAF50;color:white;border:none;padding:5px 10px;border-radius:3px;">🧪 模拟数据</button>
+                        <button id="relation-real-test-btn" style="background:#2196F3;color:white;border:none;padding:5px 10px;border-radius:3px;">📊 真实数据</button>
                         <button id="relation-refresh-btn">刷新</button>
                         <button id="relation-sync-btn" title="将当前脑图数据同步到Neo4j数据库">同步到Neo4j</button>
                         <span id="relation-status" style="font-size:12px;color:#888;margin-left:8px;">未激活</span>
@@ -1022,6 +1023,12 @@
     
     <!-- 统一存储管理系统 -->
     <script src="src/storage/UnifiedStorageManager.js"></script>
+    
+    <!-- 脑图关系提取器 -->
+    <script src="src/relations/MindmapRelationExtractor.js"></script>
+    
+    <!-- 关系数据管理器 -->
+    <script src="src/relations/RelationDataManager.js"></script>
     
     <!-- D3.js关系图可视化组件 -->
     <script src="src/visualization/D3RelationGraph.js"></script>

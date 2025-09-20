@@ -20,6 +20,9 @@ class RelationFrontend {
         // 统一存储管理器引用（延迟初始化）
         this.storage = null;
         
+        // 关系数据管理器
+        this.dataManager = null;
+        
         this.initializeUI();
     }
     
@@ -46,6 +49,14 @@ class RelationFrontend {
             console.log('[关系管理] ✅ 统一存储系统已连接');
         } else {
             console.warn('[关系管理] ⚠️ 统一存储系统未找到，使用降级模式');
+        }
+        
+        // 初始化关系数据管理器
+        if (window.RelationDataManager) {
+            this.dataManager = new RelationDataManager(this.storage);
+            console.log('[关系管理] ✅ 关系数据管理器已初始化');
+        } else {
+            console.error('[关系管理] ❌ 关系数据管理器未找到');
         }
     }
     
@@ -244,33 +255,29 @@ class RelationFrontend {
         this.showLoadingState();
         
         try {
-            // 1. 优先从统一存储系统加载缓存数据
             let relationData = null;
-            if (this.storage) {
-                relationData = await this.storage.loadRelationData(nodeId);
-            }
             
-            if (!relationData) {
-                // 2. 缓存未命中，生成关系数据
+            if (this.dataManager) {
+                // 使用关系数据管理器获取数据
+                relationData = await this.dataManager.getRelationData(nodeId, {
+                    maxDepth: 3,
+                    includeSemanticRelations: true,
+                    dataSource: 'auto'
+                });
+            } else {
+                // 降级到原有方法
                 relationData = await this.generateRelationData(nodeId);
-                
-                // 3. 保存到统一存储系统
-                if (relationData && this.storage) {
-                    await this.storage.saveRelationData(nodeId, relationData);
-                }
             }
             
-            // 4. 处理关系数据
-            if (relationData) {
+            // 处理关系数据
+            if (relationData && relationData.nodes.length > 0) {
                 this.processRelationData(relationData);
-                
-                // 5. 渲染到D3.js图形和列表
                 this.renderRelationView();
                 
-                // 6. 更新状态指示器
-                this.updateRelationStatus(`已加载 ${this.relationData.nodes.length} 个节点`);
+                const stats = relationData.metadata;
+                this.updateRelationStatus(`✅ 已加载 ${stats.total_nodes} 节点, ${stats.total_links} 关系 (来源: ${stats.source})`);
             } else {
-                this.showErrorMessage('无法生成关系数据');
+                this.showErrorMessage('无法获取关系数据');
             }
             
         } catch (error) {
@@ -586,11 +593,19 @@ class RelationFrontend {
      * 设置工具栏监听器
      */
     setupToolbarListeners() {
-        // 测试按钮
+        // 模拟数据测试按钮
         const testBtn = document.getElementById('relation-test-btn');
         if (testBtn) {
             testBtn.addEventListener('click', () => {
                 this.testRelationVisualization();
+            });
+        }
+        
+        // 真实数据测试按钮
+        const realTestBtn = document.getElementById('relation-real-test-btn');
+        if (realTestBtn) {
+            realTestBtn.addEventListener('click', () => {
+                this.testRealDataVisualization();
             });
         }
         
@@ -614,10 +629,10 @@ class RelationFrontend {
     }
     
     /**
-     * 测试关系图可视化
+     * 测试关系图可视化（模拟数据）
      */
     testRelationVisualization() {
-        console.log('[关系管理] 🧪 开始测试关系图可视化');
+        console.log('[关系管理] 🧪 开始测试关系图可视化（模拟数据）');
         
         // 强制激活关系视图
         this.onRelationViewActivated();
@@ -631,9 +646,86 @@ class RelationFrontend {
         this.processRelationData(mockData);
         this.renderRelationView();
         
-        this.updateRelationStatus('✅ 测试数据已加载');
+        this.updateRelationStatus('✅ 模拟数据已加载');
         
-        console.log('[关系管理] 🎉 测试关系图可视化完成');
+        console.log('[关系管理] 🎉 模拟数据测试完成');
+    }
+    
+    /**
+     * 测试真实数据可视化
+     */
+    async testRealDataVisualization() {
+        console.log('[关系管理] 📊 开始测试真实数据可视化');
+        
+        // 强制激活关系视图
+        this.onRelationViewActivated();
+        
+        try {
+            // 获取当前脑图的根节点
+            const rootNodeId = await this.getRootNodeId();
+            if (!rootNodeId) {
+                throw new Error('无法获取脑图根节点ID');
+            }
+            
+            this.currentNodeId = rootNodeId;
+            this.updateRelationStatus('🔄 正在从脑图提取关系数据...');
+            
+            // 使用数据管理器获取真实数据
+            if (this.dataManager) {
+                const relationData = await this.dataManager.getRelationData(rootNodeId, {
+                    maxDepth: 3,
+                    includeSemanticRelations: true,
+                    dataSource: 'mindmap_extraction'
+                });
+                
+                if (relationData && relationData.nodes.length > 0) {
+                    this.processRelationData(relationData);
+                    this.renderRelationView();
+                    
+                    const stats = relationData.metadata;
+                    this.updateRelationStatus(`✅ 真实数据已加载: ${stats.total_nodes} 节点, ${stats.total_links} 关系`);
+                    
+                    console.log('[关系管理] 🎉 真实数据测试完成', stats);
+                } else {
+                    throw new Error('未能提取到有效的关系数据');
+                }
+            } else {
+                throw new Error('关系数据管理器未初始化');
+            }
+            
+        } catch (error) {
+            console.error('[关系管理] 真实数据测试失败:', error);
+            this.updateRelationStatus('❌ 真实数据加载失败');
+            this.showErrorMessage(`真实数据测试失败: ${error.message}`);
+        }
+    }
+    
+    /**
+     * 获取脑图根节点ID
+     */
+    async getRootNodeId() {
+        try {
+            // 尝试从jsMind获取
+            if (window.jm && window.jm.get_data) {
+                const data = window.jm.get_data();
+                if (data && data.data && data.data.id) {
+                    return data.data.id;
+                }
+            }
+            
+            // 尝试从统一存储获取
+            if (this.storage) {
+                const appState = this.storage.loadAppState('mindmap_editor');
+                if (appState.last_edited_mindmap) {
+                    return appState.last_edited_mindmap;
+                }
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('[关系管理] 获取根节点ID失败:', error);
+            return null;
+        }
     }
     
     /**
