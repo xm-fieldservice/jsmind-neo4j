@@ -49,8 +49,8 @@
       // 收集全部脑图
       let items = [];
       try{
-        if (window.AllMindmapsToMDExporter && typeof window.AllMindmapsToMDExporter.getAllMindmapsFromStorage === 'function'){
-          items = window.AllMindmapsToMDExporter.getAllMindmapsFromStorage();
+        if (window.mindmapController && typeof window.mindmapController.getAllMindmapsFromStorage === 'function'){
+          items = window.mindmapController.getAllMindmapsFromStorage();
         }
       }catch(_){ items = []; }
       if (!Array.isArray(items) || items.length===0){
@@ -139,8 +139,14 @@
 
   // 启动注入
   window.addEventListener('DOMContentLoaded', function(){
-    // 仅在存在 AllMindmapsToMDExporter 时启用
-    if (!window.AllMindmapsToMDExporter){ logWarn('依赖模块未加载，自动保存入口暂不启用'); return; }
-    setTimeout(injectToggle, 500);
+    // 等待 mindmapController 加载
+    const checkAndInject = () => {
+      if (window.mindmapController && typeof window.mindmapController.getAllMindmapsFromStorage === 'function'){
+        injectToggle();
+      } else {
+        setTimeout(checkAndInject, 1000);
+      }
+    };
+    setTimeout(checkAndInject, 500);
   });
 })();

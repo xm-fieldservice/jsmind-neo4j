@@ -70,7 +70,7 @@
         const testBtn = document.getElementById('test-export-all-btn');
         if (testBtn && !testBtn.dataset.mmWired){
           testBtn.addEventListener('click', ()=>{
-            this.showToast('开始手动保存全部脑图（JSON格式）...');
+            this.showToast('开始保存全部脑图（JSON格式）...');
             this.exportAllMindmapsWithPicker();
           });
           testBtn.dataset.mmWired = '1';
@@ -4395,7 +4395,39 @@ try{
   }
 }
 
-    // 保存全部脑图为 JSON（目录选择优先，若不支持则逐个触发下载）
+    // 使用本地保存文件选择器进行导出，若不支持则回退到下载
+    async exportMindmapWithPicker(){
+      try{
+        // 仅使用 File System Access API（Chromium 内核可用）
+        if (window.showSaveFilePicker){
+          const opts = {
+            suggestedName: this._suggestFileName(),
+            types: [
+              {
+                description: 'JSON 文件',
+                accept: { 'application/json': ['.json'] }
+              }
+            ]
+          };
+          const handle = await window.showSaveFilePicker(opts);
+          const writable = await handle.createWritable();
+          const content = JSON.stringify(this.data, null, 2);
+          await writable.write(new Blob([content], {type:'application/json'}));
+          await writable.close();
+          this.showToast('已保存到本地');
+          return;
+        } else {
+          this.showToast('当前浏览器不支持本地保存（File System Access API）');
+          return;
+        }
+      }catch(e){
+        console.warn('[MindmapController] 保存到本地失败', e);
+        this.showToast('保存失败：请检查浏览器权限或设置');
+        return;
+      }
+    }
+
+    // 保存全部脑图为单个JSON文件（使用文件选择器）
     async exportAllMindmapsWithPicker(){
       try{
         // 收集全部脑图数据
@@ -4406,73 +4438,51 @@ try{
           return; 
         }
 
-        const sanitize = (s)=> String(s||'mindmap')
-          .replace(/[\\/:*?"<>|]/g,'_')
-          .replace(/\s+/g,'_')
-          .slice(0,60);
+        // 构建包含所有脑图的数据结构
+        const allMindmapsData = {
+          export_time: new Date().toISOString(),
+          total_count: items.length,
+          mindmaps: items
+        };
 
-        // 优先：目录选择（需要 Chromium + https/本地文件权限）
-        if (window.showDirectoryPicker){
-          try{
-            const dirHandle = await window.showDirectoryPicker({ mode:'readwrite' });
-            let okCount = 0;
-            
-            for (const it of items){
-              const id = (it.id || (it.data && it.data.data && it.data.data.id) || 'unknown');
-              const name = sanitize(it.name || (it.data && it.data.data && (it.data.data.topic || it.data.data.label)) || 'mindmap');
-              const fileName = `${name}_${id}.json`;
-
-              // 文件句柄并写入
-              const fileHandle = await dirHandle.getFileHandle(fileName, { create:true });
-              const writable = await fileHandle.createWritable();
-              const payload = (it.data && it.data.format) ? it.data : (it.data || {});
-              const json = JSON.stringify(payload, null, 2);
-              await writable.write(new Blob([json], {type:'application/json'}));
-              await writable.close();
-              okCount++;
-            }
-            
-            this.showToast(`已手动保存 ${okCount} 个脑图JSON文件到所选目录`);
-            
-            // 同时保存MD底座文件
-            await this.saveMDBaseToDirectory(dirHandle, items);
-            return;
-          }catch(err){
-            if (err && err.name === 'AbortError'){ 
-              this.showToast('已取消保存'); 
-              return; 
-            }
-            console.warn('[MindmapController] 目录保存失败，回退为下载', err);
-            // 继续走下载回退
-          }
-        }
-
-        // 回退：逐个下载 JSON 文件
-        let dlCount = 0;
-        for (const it of items){
-          const id = (it.id || (it.data && it.data.data && it.data.data.id) || 'unknown');
-          const name = sanitize(it.name || (it.data && it.data.data && (it.data.data.topic || it.data.data.label)) || 'mindmap');
-          const fileName = `${name}_${id}.json`;
-          const payload = (it.data && it.data.format) ? it.data : (it.data || {});
-          const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+        // 使用 showSaveFilePicker 保存单个JSON文件
+        if (window.showSaveFilePicker){
+          const opts = {
+            suggestedName: `all_mindmaps_${new Date().toISOString().slice(0,10)}.json`,
+            types: [
+              {
+                description: 'JSON 文件',
+                accept: { 'application/json': ['.json'] }
+              }
+            ]
+          };
+          const handle = await window.showSaveFilePicker(opts);
+          const writable = await handle.createWritable();
+          const content = JSON.stringify(allMindmapsData, null, 2);
+          await writable.write(new Blob([content], {type:'application/json'}));
+          await writable.close();
+          this.showToast(`已保存 ${items.length} 个脑图到单个JSON文件`);
+          return;
+        } else {
+          // 回退：直接下载
+          const json = JSON.stringify(allMindmapsData, null, 2);
+          const blob = new Blob([json], {type:'application/json'});
+          const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = fileName;
-          document.body.appendChild(a);
+          a.href = url;
+          a.download = `all_mindmaps_${new Date().toISOString().slice(0,10)}.json`;
           a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(a.href);
-          dlCount++;
+          URL.revokeObjectURL(url);
+          this.showToast(`已下载包含 ${items.length} 个脑图的JSON文件`);
         }
-        
-        this.showToast(`已手动下载 ${dlCount} 个脑图JSON文件`);
-        
-        // 同时下载MD底座文件
-        this.downloadMDBase(items);
-        
+
       }catch(e){
+        if (e && e.name === 'AbortError'){ 
+          this.showToast('已取消保存'); 
+          return; 
+        }
         console.error('[MindmapController] 全部脑图导出失败:', e);
-        this.showToast('手动保存失败: ' + e.message, 'error');
+        this.showToast('保存失败: ' + e.message, 'error');
       }
     }
 

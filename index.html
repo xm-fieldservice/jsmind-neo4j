@@ -260,7 +260,7 @@
                 <h3>脑图栏</h3>
                 <div class="mindmap-toolbar">
                     <button id="mindmap-import-btn" class="mm-btn mm-wide mm-green" title="从本地文件导入脑图">读</button>
-                    <button id="mindmap-export-btn" class="mm-btn mm-wide mm-blue" title="手动保存全部脑图（JSON格式）">写</button>
+                    <button id="mindmap-export-btn" class="mm-btn mm-wide mm-blue" title="保存全部脑图到单个JSON文件 - 会弹出文件保存对话框">写</button>
                     <button id="mindmap-new-btn" class="mm-btn mm-wide" title="新建一个空白脑图">新</button>
                 </div>
             </div>
@@ -455,7 +455,10 @@
                       <div class="detail-item">
                         <h4>状态</h4>
                         <p id="node-status">--</p>
-                        <button id="test-export-all-btn" class="mm-btn" style="margin-top: 8px;" title="测试手动保存全部脑图功能">测试手动保存全部脑图</button>
+                        <button id="test-export-all-btn" class="mm-btn" style="margin-top: 8px;" title="测试保存全部脑图功能">测试保存全部脑图</button>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                          💡 提示：点击"写"按钮会弹出文件保存对话框，将所有脑图保存到一个JSON文件中。如果浏览器不支持会自动下载。
+                        </div>
                       </div>
 
                       <!-- 2) 内容栏：Markdown 编辑器 + 阅读器（失焦自动保存） -->
