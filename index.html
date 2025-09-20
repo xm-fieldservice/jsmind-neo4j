@@ -392,24 +392,10 @@
                 <div class="relation-container">
                     <!-- 关系管理工具栏 -->
                     <div class="relation-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
-                        <label style="font-size:12px;">节点
-                            <select id="relation-node-filter" style="margin-left:4px;width:100px;">
-                                <option value="">全部</option>
-                            </select>
-                        </label>
-                        <label style="font-size:12px;">方向
-                            <select id="relation-direction-filter" style="margin-left:4px;width:60px;">
-                                <option value="">全部</option>
-                                <option value="out">出边</option>
-                                <option value="in">入边</option>
-                            </select>
-                        </label>
-                        <label>类型
-                            <input id="relation-type-filter" type="text" placeholder="输入关系类型过滤，如 KNOWS" style="margin-left:4px;width:120px;" />
-                        </label>
+                        <button id="relation-test-btn" style="background:#4CAF50;color:white;border:none;padding:5px 10px;border-radius:3px;">🧪 测试关系图</button>
                         <button id="relation-refresh-btn">刷新</button>
                         <button id="relation-sync-btn" title="将当前脑图数据同步到Neo4j数据库">同步到Neo4j</button>
-                        <span id="relation-status" style="font-size:12px;color:#888;margin-left:8px;">未加载</span>
+                        <span id="relation-status" style="font-size:12px;color:#888;margin-left:8px;">未激活</span>
                     </div>
                     
                     <!-- 关系视图区域（分为两个部分：列表和可视化） -->
@@ -419,9 +405,13 @@
                             <div style="color:#888;">请选择左侧脑图中的一个节点以加载关系列表</div>
                         </div>
                         
-                        <!-- SVG可视化区域（预留） -->
-                        <div style="flex:0 0 200px;position:relative;border:1px solid #eee;border-radius:6px;overflow:hidden;">
-                            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ccc;font-size:14px;">关系可视化区域</div>
+                        <!-- D3.js关系图可视化区域 -->
+                        <div id="relation-d3-container" style="flex:1;min-height:300px;position:relative;border:1px solid #eee;border-radius:6px;overflow:hidden;">
+                            <div id="relation-d3-placeholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ccc;font-size:14px;text-align:center;">
+                                <div>🔗 关系图可视化</div>
+                                <div style="font-size:12px;margin-top:8px;">选择脑图节点查看关系</div>
+                            </div>
+                            <!-- D3.js SVG将在这里动态创建 -->
                         </div>
                     </div>
                 </div>
@@ -1030,8 +1020,41 @@
       })();
     </script>
     
+    <!-- 统一存储管理系统 -->
+    <script src="src/storage/UnifiedStorageManager.js"></script>
+    
     <!-- D3.js关系图可视化组件 -->
     <script src="src/visualization/D3RelationGraph.js"></script>
+    
+    <!-- 统一存储系统初始化检查 -->
+    <script>
+        // 确保统一存储系统正确初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('[系统] 检查统一存储系统状态...');
+            
+            if (window.UnifiedStorage) {
+                console.log('[系统] ✅ 统一存储系统已加载');
+                
+                // 显示存储统计信息
+                setTimeout(() => {
+                    try {
+                        const stats = window.UnifiedStorage.getStorageStats();
+                        console.log('[系统] 存储统计:', stats);
+                    } catch (error) {
+                        console.warn('[系统] 获取存储统计失败:', error);
+                    }
+                }, 1000);
+            } else {
+                console.error('[系统] ❌ 统一存储系统未加载');
+            }
+            
+            if (window.relationFrontend) {
+                console.log('[系统] ✅ 关系管理前端已加载');
+            } else {
+                console.error('[系统] ❌ 关系管理前端未加载');
+            }
+        });
+    </script>
     
     <!-- Toast提示 -->
     <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>

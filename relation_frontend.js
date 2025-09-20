@@ -1,6 +1,7 @@
 /**
  * 关系管理前端界面
- * 从服务器端向量库和图库获取关系数据并可视化
+ * 基于统一存储系统的关系数据管理和D3.js可视化
+ * 实现按需激活机制：点击关系按键时加载，切换时清理
  */
 
 class RelationFrontend {
@@ -13,6 +14,11 @@ class RelationFrontend {
         this.currentNodeId = null;
         this.relationTypes = ['semantic', 'structural', 'temporal', 'hierarchical'];
         this.isLoading = false;
+        this.isActive = false;
+        this.d3Graph = null;
+        
+        // 统一存储管理器引用（延迟初始化）
+        this.storage = null;
         
         this.initializeUI();
     }
@@ -20,26 +26,192 @@ class RelationFrontend {
     initializeUI() {
         console.log('[关系管理] 初始化前端界面');
         
-        // 监听视图切换到关系页面
-        const relationViewToggle = document.querySelector('[data-view="relation"]');
-        if (relationViewToggle) {
-            relationViewToggle.addEventListener('click', () => {
-                this.onRelationViewActivated();
-            });
-        }
-        
-        // 监听节点选择事件
-        this.setupNodeSelectionListener();
+        // 延迟初始化，等待其他系统加载完成
+        setTimeout(() => {
+            this.initializeStorage();
+            this.setupViewToggleListeners();
+            this.setupNodeSelectionListener();
+            this.setupToolbarListeners();
+            
+            console.log('[关系管理] 前端界面初始化完成');
+        }, 500);
     }
     
+    /**
+     * 初始化存储系统
+     */
+    initializeStorage() {
+        if (window.UnifiedStorage) {
+            this.storage = window.UnifiedStorage;
+            console.log('[关系管理] ✅ 统一存储系统已连接');
+        } else {
+            console.warn('[关系管理] ⚠️ 统一存储系统未找到，使用降级模式');
+        }
+    }
+    
+    /**
+     * 设置视图切换监听器 - 实现按需激活机制
+     */
+    setupViewToggleListeners() {
+        const viewToggles = document.querySelectorAll('.view-toggle');
+        
+        viewToggles.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                const viewType = e.target.getAttribute('data-view');
+                
+                if (viewType === 'relation') {
+                    // 激活关系视图
+                    this.onRelationViewActivated();
+                } else if (this.isActive) {
+                    // 切换到其他视图，清理关系视图
+                    this.onRelationViewDeactivated();
+                }
+            });
+        });
+    }
+    
+    /**
+     * 关系视图激活 - 按需加载数据和初始化D3.js
+     */
     onRelationViewActivated() {
         console.log('[关系管理] 关系视图被激活');
+        
+        if (this.isActive) {
+            return; // 已经激活，避免重复初始化
+        }
+        
+        this.isActive = true;
+        
+        // 初始化D3.js图形组件
+        this.initializeD3Graph();
+        
+        // 保存激活状态
+        if (this.storage) {
+            this.storage.saveAppState('relation_panel', {
+                activated_at: Date.now(),
+                last_node_id: this.currentNodeId
+            });
+        }
         
         // 检查当前选中的节点
         if (this.currentNodeId) {
             this.loadNodeRelations(this.currentNodeId);
         } else {
             this.showWelcomeMessage();
+        }
+        
+        // 更新状态指示器
+        this.updateRelationStatus('已激活');
+    }
+    
+    /**
+     * 关系视图清理 - 释放资源和保存状态
+     */
+    onRelationViewDeactivated() {
+        console.log('[关系管理] 关系视图被清理');
+        
+        if (!this.isActive) {
+            return; // 已经清理，避免重复操作
+        }
+        
+        // 保存当前状态
+        if (this.storage) {
+            this.storage.saveAppState('relation_panel', {
+                deactivated_at: Date.now(),
+                last_node_id: this.currentNodeId,
+                last_zoom: this.d3Graph?.getCurrentZoom ? this.d3Graph.getCurrentZoom() : 1.0,
+                last_position: this.d3Graph?.getCurrentCenter ? this.d3Graph.getCurrentCenter() : {x: 0, y: 0}
+            });
+        }
+        
+        // 清理D3.js图形组件
+        this.cleanupD3Graph();
+        
+        // 清理数据
+        this.relationData = {
+            nodes: [],
+            edges: [],
+            metadata: {}
+        };
+        
+        this.isActive = false;
+        
+        // 更新状态指示器
+        this.updateRelationStatus('未激活');
+    }
+    
+    /**
+     * 初始化D3.js图形组件
+     */
+    initializeD3Graph() {
+        const container = document.getElementById('relation-d3-container');
+        if (!container || this.d3Graph) {
+            return;
+        }
+        
+        try {
+            // 隐藏占位符
+            const placeholder = document.getElementById('relation-d3-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            
+            // 创建D3.js关系图实例
+            if (window.D3RelationGraph) {
+                this.d3Graph = new D3RelationGraph('relation-d3-container', {
+                    width: container.clientWidth,
+                    height: container.clientHeight,
+                    nodeRadius: 20,
+                    linkDistance: 80,
+                    charge: -300,
+                    enableZoom: true,
+                    enableDrag: true
+                });
+                
+                // 恢复之前的状态
+                if (this.storage) {
+                    const savedState = this.storage.loadAppState('relation_panel');
+                    if (savedState.last_zoom && this.d3Graph.setZoom) {
+                        this.d3Graph.setZoom(savedState.last_zoom);
+                    }
+                    if (savedState.last_position && this.d3Graph.setCenter) {
+                        this.d3Graph.setCenter(savedState.last_position);
+                    }
+                }
+                
+                console.log('[关系管理] D3.js图形组件初始化完成');
+            } else {
+                console.warn('[关系管理] D3RelationGraph类未找到');
+            }
+            
+        } catch (error) {
+            console.error('[关系管理] D3.js图形组件初始化失败:', error);
+            this.showErrorMessage('图形组件初始化失败');
+        }
+    }
+    
+    /**
+     * 清理D3.js图形组件
+     */
+    cleanupD3Graph() {
+        if (this.d3Graph) {
+            try {
+                if (this.d3Graph.destroy) {
+                    this.d3Graph.destroy();
+                }
+                this.d3Graph = null;
+                
+                // 显示占位符
+                const placeholder = document.getElementById('relation-d3-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = 'block';
+                }
+                
+                console.log('[关系管理] D3.js图形组件已清理');
+                
+            } catch (error) {
+                console.error('[关系管理] D3.js图形组件清理失败:', error);
+            }
         }
     }
     
@@ -52,8 +224,7 @@ class RelationFrontend {
                 console.log(`[关系管理] 节点选中: ${nodeId}`);
                 
                 // 如果当前在关系视图，立即加载关系
-                const relationColumn = document.getElementById('relation-column');
-                if (relationColumn && relationColumn.style.display !== 'none') {
+                if (this.isActive) {
                     this.loadNodeRelations(nodeId);
                 }
             }
@@ -63,26 +234,44 @@ class RelationFrontend {
     async loadNodeRelations(nodeId) {
         console.log(`[关系管理] 加载节点关系: ${nodeId}`);
         
-        if (this.isLoading) {
-            console.log('[关系管理] 正在加载中，跳过重复请求');
+        if (this.isLoading || !this.isActive) {
+            console.log('[关系管理] 正在加载中或视图未激活，跳过请求');
             return;
         }
         
+        this.currentNodeId = nodeId;
         this.isLoading = true;
         this.showLoadingState();
         
         try {
-            // 1. 从服务器获取关系数据
-            const relations = await this.fetchRelationsFromServer(nodeId);
+            // 1. 优先从统一存储系统加载缓存数据
+            let relationData = null;
+            if (this.storage) {
+                relationData = await this.storage.loadRelationData(nodeId);
+            }
             
-            // 2. 处理和缓存关系数据
-            this.processRelationData(relations);
+            if (!relationData) {
+                // 2. 缓存未命中，生成关系数据
+                relationData = await this.generateRelationData(nodeId);
+                
+                // 3. 保存到统一存储系统
+                if (relationData && this.storage) {
+                    await this.storage.saveRelationData(nodeId, relationData);
+                }
+            }
             
-            // 3. 渲染关系视图
-            this.renderRelationView();
-            
-            // 4. 更新状态指示器
-            this.updateRelationStatus(relations);
+            // 4. 处理关系数据
+            if (relationData) {
+                this.processRelationData(relationData);
+                
+                // 5. 渲染到D3.js图形和列表
+                this.renderRelationView();
+                
+                // 6. 更新状态指示器
+                this.updateRelationStatus(`已加载 ${this.relationData.nodes.length} 个节点`);
+            } else {
+                this.showErrorMessage('无法生成关系数据');
+            }
             
         } catch (error) {
             console.error('[关系管理] 加载关系失败:', error);
@@ -92,585 +281,444 @@ class RelationFrontend {
         }
     }
     
-    async fetchRelationsFromServer(nodeId) {
-        console.log(`[关系管理] 从服务器获取关系数据: ${nodeId}`);
+    /**
+     * 生成关系数据 - 支持多种数据源
+     */
+    async generateRelationData(nodeId) {
+        console.log(`[关系管理] 生成关系数据: ${nodeId}`);
         
         try {
-            // 1. 尝试通过AutoGen桥接器获取
-            if (window.autoGenBridge && window.autoGenBridge.isInitialized) {
-                const response = await this.callRelationAPI('get_all_relations', { node_id: nodeId });
-                if (response && response.success) {
-                    console.log('[关系管理] 从AutoGen服务器获取关系数据');
-                    return response.data;
-                }
+            // 1. 尝试从脑图数据提取层次关系
+            const mindmapRelations = await this.extractMindmapRelations(nodeId);
+            if (mindmapRelations) {
+                return mindmapRelations;
             }
             
-            // 2. 回退到模拟数据
-            console.log('[关系管理] 使用模拟关系数据');
+            // 2. 尝试从Neo4j获取关系数据
+            const neo4jRelations = await this.fetchNeo4jRelations(nodeId);
+            if (neo4jRelations) {
+                return neo4jRelations;
+            }
+            
+            // 3. 生成模拟关系数据用于演示
             return this.generateMockRelations(nodeId);
             
         } catch (error) {
-            console.error('[关系管理] 服务器请求失败:', error);
+            console.error('[关系管理] 生成关系数据失败:', error);
             return this.generateMockRelations(nodeId);
-        }
-    }
-    
-    async callRelationAPI(method, params) {
-        // 调用后端关系API
-        const response = await fetch('http://localhost:8081/relation/' + method, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(params)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`API调用失败: ${response.status}`);
-        }
-        
-        return await response.json();
-    }
-    
-    generateMockRelations(nodeId) {
-        // 生成模拟关系数据用于演示
-        return {
-            semantic: [
-                {
-                    source: nodeId,
-                    target: 'related_node_1',
-                    type: 'semantic',
-                    weight: 0.85,
-                    properties: { similarity: '语义相似', source: '向量库' }
-                },
-                {
-                    source: nodeId,
-                    target: 'related_node_2',
-                    type: 'semantic',
-                    weight: 0.72,
-                    properties: { similarity: '内容关联', source: '向量库' }
-                }
-            ],
-            structural: [
-                {
-                    source: nodeId,
-                    target: 'parent_node',
-                    type: 'structural',
-                    weight: 1.0,
-                    properties: { relation: '父子关系', source: '图库' }
-                },
-                {
-                    source: nodeId,
-                    target: 'sibling_node',
-                    type: 'structural',
-                    weight: 0.8,
-                    properties: { relation: '兄弟关系', source: '图库' }
-                }
-            ],
-            temporal: [
-                {
-                    source: nodeId,
-                    target: 'previous_version',
-                    type: 'temporal',
-                    weight: 0.9,
-                    properties: { time_diff: '1天前', source: '数据库' }
-                }
-            ]
-        };
-    }
-    
-    processRelationData(relations) {
-        console.log('[关系管理] 处理关系数据');
-        
-        // 构建节点和边的数据结构
-        const nodes = new Map();
-        const edges = [];
-        
-        // 添加中心节点
-        nodes.set(this.currentNodeId, {
-            id: this.currentNodeId,
-            label: this.getNodeLabel(this.currentNodeId),
-            type: 'center',
-            temperature: 'hot'
-        });
-        
-        // 处理各种类型的关系
-        for (const [relationType, relationList] of Object.entries(relations)) {
-            for (const relation of relationList) {
-                // 添加目标节点
-                if (!nodes.has(relation.target)) {
-                    nodes.set(relation.target, {
-                        id: relation.target,
-                        label: this.getNodeLabel(relation.target),
-                        type: 'related',
-                        temperature: this.inferNodeTemperature(relation)
-                    });
-                }
-                
-                // 添加关系边
-                edges.push({
-                    source: relation.source,
-                    target: relation.target,
-                    type: relation.type,
-                    weight: relation.weight,
-                    properties: relation.properties,
-                    color: this.getRelationColor(relation.type)
-                });
-            }
-        }
-        
-        this.relationData = {
-            nodes: Array.from(nodes.values()),
-            edges: edges,
-            metadata: {
-                centerNode: this.currentNodeId,
-                totalRelations: edges.length,
-                relationTypes: Object.keys(relations),
-                loadedAt: new Date().toISOString()
-            }
-        };
-        
-        console.log(`[关系管理] 处理完成: ${this.relationData.nodes.length}个节点, ${this.relationData.edges.length}条关系`);
-    }
-    
-    renderRelationView() {
-        console.log('[关系管理] 渲染关系视图');
-        
-        const relationColumn = document.getElementById('relation-column');
-        if (!relationColumn) {
-            console.error('[关系管理] 未找到关系视图容器');
-            return;
-        }
-        
-        // 清空现有内容
-        const columnContent = relationColumn.querySelector('.column-content');
-        if (columnContent) {
-            columnContent.innerHTML = this.generateRelationHTML();
-        }
-        
-        // 初始化关系图
-        this.initializeRelationGraph();
-        
-        // 绑定事件
-        this.bindRelationEvents();
-    }
-    
-    generateRelationHTML() {
-        return `
-            <div class="relation-container">
-                <!-- 关系统计 -->
-                <div class="relation-stats">
-                    <h4>关系分析 - ${this.getNodeLabel(this.currentNodeId)}</h4>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">总关系数</span>
-                            <span class="stat-value">${this.relationData.edges.length}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">关联节点</span>
-                            <span class="stat-value">${this.relationData.nodes.length - 1}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">数据源</span>
-                            <span class="stat-value">服务器端</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 关系类型过滤 -->
-                <div class="relation-filters">
-                    <h5>关系类型</h5>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-type="all">全部</button>
-                        <button class="filter-btn" data-type="semantic">语义关系</button>
-                        <button class="filter-btn" data-type="structural">结构关系</button>
-                        <button class="filter-btn" data-type="temporal">时间关系</button>
-                    </div>
-                </div>
-                
-                <!-- 关系图容器 -->
-                <div class="relation-graph-container">
-                    <div id="relation-graph" style="width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 4px;"></div>
-                </div>
-                
-                <!-- 关系详情列表 -->
-                <div class="relation-details">
-                    <h5>关系详情</h5>
-                    <div class="relation-list" id="relation-list">
-                        ${this.generateRelationListHTML()}
-                    </div>
-                </div>
-                
-                <!-- 数据源说明 -->
-                <div class="relation-source-info">
-                    <h5>数据源说明</h5>
-                    <ul>
-                        <li><strong>语义关系</strong>: 来自服务器向量库 (ChromaDB)</li>
-                        <li><strong>结构关系</strong>: 来自服务器图库 (Neo4j)</li>
-                        <li><strong>时间关系</strong>: 来自服务器数据库 (PostgreSQL)</li>
-                    </ul>
-                </div>
-                
-                <!-- 操作按钮 -->
-                <div class="relation-actions">
-                    <button id="refresh-relations" class="btn-primary">刷新关系</button>
-                    <button id="export-relations" class="btn-secondary">导出关系</button>
-                    <button id="inject-md" class="btn-secondary">注入MD到服务器</button>
-                </div>
-            </div>
-        `;
-    }
-    
-    generateRelationListHTML() {
-        return this.relationData.edges.map(edge => `
-            <div class="relation-item" data-type="${edge.type}">
-                <div class="relation-header">
-                    <span class="relation-type ${edge.type}">${this.getRelationTypeName(edge.type)}</span>
-                    <span class="relation-weight">${(edge.weight * 100).toFixed(1)}%</span>
-                </div>
-                <div class="relation-content">
-                    <span class="relation-target">${this.getNodeLabel(edge.target)}</span>
-                    <span class="relation-source">来源: ${edge.properties?.source || '未知'}</span>
-                </div>
-                <div class="relation-properties">
-                    ${Object.entries(edge.properties || {}).map(([key, value]) => 
-                        `<span class="property">${key}: ${value}</span>`
-                    ).join(' | ')}
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    initializeRelationGraph() {
-        console.log('[关系管理] 初始化D3.js关系图');
-        
-        const graphContainer = document.getElementById('relation-graph');
-        if (graphContainer) {
-            // 使用D3.js渲染关系图
-            if (typeof D3RelationGraph !== 'undefined') {
-                // 创建D3关系图实例
-                this.d3Graph = new D3RelationGraph('relation-graph', {
-                    width: graphContainer.clientWidth || 800,
-                    height: graphContainer.clientHeight || 600,
-                    nodeRadius: 25,
-                    linkDistance: 120,
-                    charge: -400
-                });
-                
-                // 转换数据格式为D3.js格式
-                const d3Data = this.convertToD3Format(this.relationData);
-                this.d3Graph.loadData(d3Data);
-                
-                // 保存全局引用以便调试
-                window.d3RelationGraph = this.d3Graph;
-                
-            } else {
-                // D3.js未加载时的降级显示
-                graphContainer.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 18px; margin-bottom: 10px;">⚠️ D3.js未加载</div>
-                            <div>中心节点: ${this.getNodeLabel(this.currentNodeId)}</div>
-                            <div>关联节点: ${this.relationData.nodes.length - 1}个</div>
-                            <div>关系连接: ${this.relationData.edges.length}条</div>
-                            <div style="margin-top: 10px; font-size: 12px; color: #999;">
-                                数据来源: 服务器端向量库、图库、数据库
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
         }
     }
     
     /**
-     * 将关系数据转换为D3.js格式
+     * 从脑图数据提取层次关系
      */
-    convertToD3Format(relationData) {
-        console.log('[关系管理] 转换数据格式为D3.js');
-        
-        if (!relationData || !relationData.nodes || !relationData.edges) {
-            return { nodes: [], links: [] };
+    async extractMindmapRelations(nodeId) {
+        try {
+            // 获取当前脑图数据
+            const mindmapData = await this.getCurrentMindmapData();
+            if (!mindmapData) {
+                return null;
+            }
+            
+            const nodes = [];
+            const links = [];
+            
+            // 递归提取节点和关系
+            const extractNodeRelations = (node, parentId = null) => {
+                // 添加当前节点
+                nodes.push({
+                    id: node.id,
+                    label: node.topic || node.id,
+                    type: this.getNodeType(node),
+                    level: this.getNodeLevel(node, mindmapData),
+                    properties: {
+                        expanded: node.expanded,
+                        direction: node.direction
+                    }
+                });
+                
+                // 添加父子关系
+                if (parentId) {
+                    links.push({
+                        source: parentId,
+                        target: node.id,
+                        type: 'contains',
+                        label: '包含',
+                        value: 1.0
+                    });
+                }
+                
+                // 递归处理子节点
+                if (node.children) {
+                    node.children.forEach(child => {
+                        extractNodeRelations(child, node.id);
+                    });
+                }
+            };
+            
+            // 从根节点开始提取
+            if (mindmapData.data) {
+                extractNodeRelations(mindmapData.data);
+            }
+            
+            // 过滤与当前节点相关的关系
+            const relatedNodes = this.getRelatedNodes(nodeId, nodes, links);
+            const relatedLinks = this.getRelatedLinks(nodeId, links);
+            
+            return {
+                hierarchical_relations: relatedLinks,
+                semantic_relations: [],
+                computed_layout: {},
+                nodes: relatedNodes,
+                links: relatedLinks,
+                metadata: {
+                    source: 'mindmap_extraction',
+                    extracted_at: new Date().toISOString(),
+                    total_nodes: relatedNodes.length,
+                    total_links: relatedLinks.length
+                }
+            };
+            
+        } catch (error) {
+            console.error('[关系管理] 脑图关系提取失败:', error);
+            return null;
         }
-        
-        // 转换节点数据
-        const nodes = relationData.nodes.map(node => ({
-            id: node.id,
-            label: node.label || node.name || node.id,
-            type: node.type || 'default',
-            description: node.description || '',
-            properties: node.properties || {}
-        }));
-        
-        // 转换连线数据
-        const links = relationData.edges.map(edge => ({
-            source: edge.from,
-            target: edge.to,
-            type: edge.type || 'default',
-            label: edge.label || edge.type || '',
-            value: edge.weight || 1,
-            properties: edge.properties || {}
-        }));
-        
-        return { nodes, links };
     }
     
-    bindRelationEvents() {
-        console.log('[关系管理] 绑定事件');
+    /**
+     * 从Neo4j获取关系数据
+     */
+    async fetchNeo4jRelations(nodeId) {
+        try {
+            const response = await fetch('/api/neo4j/graph-data?node_id=' + encodeURIComponent(nodeId));
+            if (response.ok) {
+                const data = await response.json();
+                console.log('[关系管理] 从Neo4j获取关系数据成功');
+                return {
+                    hierarchical_relations: [],
+                    semantic_relations: data.links || [],
+                    computed_layout: {},
+                    nodes: data.nodes || [],
+                    links: data.links || [],
+                    metadata: {
+                        source: 'neo4j',
+                        fetched_at: new Date().toISOString()
+                    }
+                };
+            }
+        } catch (error) {
+            console.warn('[关系管理] Neo4j关系数据获取失败:', error);
+        }
+        return null;
+    }
+    
+    /**
+     * 生成模拟关系数据用于演示
+     */
+    generateMockRelations(nodeId) {
+        console.log(`[关系管理] 生成模拟关系数据: ${nodeId}`);
         
-        // 关系类型过滤
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                
-                const filterType = e.target.dataset.type;
-                this.filterRelations(filterType);
-            });
+        const mockNodes = [
+            { id: nodeId, label: '当前节点', type: 'current' },
+            { id: 'related_1', label: '相关节点1', type: 'task' },
+            { id: 'related_2', label: '相关节点2', type: 'resource' },
+            { id: 'related_3', label: '相关节点3', type: 'milestone' }
+        ];
+        
+        const mockLinks = [
+            { source: nodeId, target: 'related_1', type: 'depends_on', label: '依赖', value: 0.8 },
+            { source: nodeId, target: 'related_2', type: 'uses', label: '使用', value: 0.6 },
+            { source: 'related_1', target: 'related_3', type: 'leads_to', label: '导向', value: 0.7 }
+        ];
+        
+        return {
+            hierarchical_relations: [],
+            semantic_relations: mockLinks,
+            computed_layout: {},
+            nodes: mockNodes,
+            links: mockLinks,
+            metadata: {
+                source: 'mock_data',
+                generated_at: new Date().toISOString(),
+                total_nodes: mockNodes.length,
+                total_links: mockLinks.length
+            }
+        };
+    }
+    
+    /**
+     * 处理关系数据
+     */
+    processRelationData(relationData) {
+        this.relationData = {
+            nodes: relationData.nodes || [],
+            edges: relationData.links || [],
+            metadata: relationData.metadata || {}
+        };
+        
+        console.log(`[关系管理] 处理关系数据完成: ${this.relationData.nodes.length} 节点, ${this.relationData.edges.length} 连线`);
+    }
+    
+    /**
+     * 渲染关系视图
+     */
+    renderRelationView() {
+        // 1. 渲染关系列表
+        this.renderRelationList();
+        
+        // 2. 渲染D3.js图形
+        this.renderD3Graph();
+    }
+    
+    /**
+     * 渲染关系列表
+     */
+    renderRelationList() {
+        const listContainer = document.getElementById('relation-list');
+        if (!listContainer) return;
+        
+        if (this.relationData.edges.length === 0) {
+            listContainer.innerHTML = '<div style="color:#888;">当前节点暂无关系数据</div>';
+            return;
+        }
+        
+        let html = '<div style="font-size:12px;margin-bottom:8px;">关系列表:</div>';
+        
+        this.relationData.edges.forEach(edge => {
+            html += `
+                <div style="padding:4px;border-bottom:1px solid #eee;font-size:12px;">
+                    <strong>${edge.source}</strong> 
+                    <span style="color:#666;">${edge.label || edge.type}</span> 
+                    <strong>${edge.target}</strong>
+                    ${edge.value ? `<span style="color:#999;">(${edge.value})</span>` : ''}
+                </div>
+            `;
         });
         
-        // 刷新关系
-        const refreshBtn = document.getElementById('refresh-relations');
+        listContainer.innerHTML = html;
+    }
+    
+    /**
+     * 渲染D3.js图形
+     */
+    renderD3Graph() {
+        if (!this.d3Graph) {
+            console.warn('[关系管理] D3.js图形组件未初始化');
+            return;
+        }
+        
+        try {
+            const graphData = {
+                nodes: this.relationData.nodes,
+                links: this.relationData.edges
+            };
+            
+            if (this.d3Graph.loadData) {
+                this.d3Graph.loadData(graphData);
+                console.log('[关系管理] D3.js图形渲染完成');
+            }
+            
+        } catch (error) {
+            console.error('[关系管理] D3.js图形渲染失败:', error);
+        }
+    }
+    
+    /**
+     * 显示加载状态
+     */
+    showLoadingState() {
+        this.updateRelationStatus('加载中...');
+        
+        const listContainer = document.getElementById('relation-list');
+        if (listContainer) {
+            listContainer.innerHTML = '<div style="color:#666;">🔄 正在加载关系数据...</div>';
+        }
+    }
+    
+    /**
+     * 显示欢迎消息
+     */
+    showWelcomeMessage() {
+        const listContainer = document.getElementById('relation-list');
+        if (listContainer) {
+            listContainer.innerHTML = `
+                <div style="text-align:center;color:#888;padding:20px;">
+                    <div style="font-size:16px;margin-bottom:10px;">🔗 关系图分析</div>
+                    <div>请在左侧脑图中选择一个节点</div>
+                    <div style="font-size:12px;margin-top:8px;">系统将自动分析并显示节点关系</div>
+                </div>
+            `;
+        }
+        
+        this.updateRelationStatus('等待节点选择');
+    }
+    
+    /**
+     * 显示错误消息
+     */
+    showErrorMessage(message) {
+        const listContainer = document.getElementById('relation-list');
+        if (listContainer) {
+            listContainer.innerHTML = `
+                <div style="text-align:center;color:#f44336;padding:20px;">
+                    <div style="font-size:16px;margin-bottom:10px;">❌ 加载失败</div>
+                    <div>${message}</div>
+                    <button onclick="window.relationFrontend.loadNodeRelations('${this.currentNodeId}')" 
+                            style="margin-top:10px;padding:5px 10px;">重试</button>
+                </div>
+            `;
+        }
+        
+        this.updateRelationStatus('加载失败');
+    }
+    
+    /**
+     * 更新关系状态指示器
+     */
+    updateRelationStatus(status) {
+        const statusElement = document.getElementById('relation-status');
+        if (statusElement) {
+            statusElement.textContent = status;
+        }
+    }
+    
+    /**
+     * 设置工具栏监听器
+     */
+    setupToolbarListeners() {
+        // 测试按钮
+        const testBtn = document.getElementById('relation-test-btn');
+        if (testBtn) {
+            testBtn.addEventListener('click', () => {
+                this.testRelationVisualization();
+            });
+        }
+        
+        // 刷新按钮
+        const refreshBtn = document.getElementById('relation-refresh-btn');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => {
-                this.loadNodeRelations(this.currentNodeId);
+                if (this.currentNodeId && this.isActive) {
+                    this.loadNodeRelations(this.currentNodeId);
+                }
             });
         }
         
-        // 导出关系
-        const exportBtn = document.getElementById('export-relations');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                this.exportRelations();
-            });
-        }
-        
-        // 注入MD到服务器
-        const injectBtn = document.getElementById('inject-md');
-        if (injectBtn) {
-            injectBtn.addEventListener('click', () => {
-                this.injectMDToServer();
+        // 同步按钮
+        const syncBtn = document.getElementById('relation-sync-btn');
+        if (syncBtn) {
+            syncBtn.addEventListener('click', () => {
+                this.syncToNeo4j();
             });
         }
     }
     
-    filterRelations(type) {
-        console.log(`[关系管理] 过滤关系类型: ${type}`);
+    /**
+     * 测试关系图可视化
+     */
+    testRelationVisualization() {
+        console.log('[关系管理] 🧪 开始测试关系图可视化');
         
-        const relationItems = document.querySelectorAll('.relation-item');
-        relationItems.forEach(item => {
-            if (type === 'all' || item.dataset.type === type) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
+        // 强制激活关系视图
+        this.onRelationViewActivated();
+        
+        // 生成测试数据
+        const testNodeId = 'test_node_001';
+        this.currentNodeId = testNodeId;
+        
+        // 直接加载模拟数据
+        const mockData = this.generateMockRelations(testNodeId);
+        this.processRelationData(mockData);
+        this.renderRelationView();
+        
+        this.updateRelationStatus('✅ 测试数据已加载');
+        
+        console.log('[关系管理] 🎉 测试关系图可视化完成');
+    }
+    
+    /**
+     * 同步到Neo4j
+     */
+    async syncToNeo4j() {
+        console.log('[关系管理] 同步数据到Neo4j');
+        // 这里可以实现同步逻辑
+        alert('Neo4j同步功能开发中...');
+    }
+    
+    // ==================== 辅助方法 ====================
+    
+    /**
+     * 获取当前脑图数据
+     */
+    async getCurrentMindmapData() {
+        try {
+            // 尝试从jsMind获取当前数据
+            if (window.jm && window.jm.get_data) {
+                return window.jm.get_data();
+            }
+            
+            // 尝试从统一存储获取
+            if (this.storage && this.currentNodeId) {
+                return await this.storage.loadMindmap(this.currentNodeId);
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('[关系管理] 获取脑图数据失败:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * 获取节点类型
+     */
+    getNodeType(node) {
+        // 根据节点属性判断类型
+        if (node.id && node.id.includes('root')) return 'project';
+        if (node.topic && node.topic.includes('任务')) return 'task';
+        if (node.topic && node.topic.includes('资源')) return 'resource';
+        if (node.topic && node.topic.includes('里程碑')) return 'milestone';
+        return 'default';
+    }
+    
+    /**
+     * 获取节点层级
+     */
+    getNodeLevel(node, mindmapData) {
+        // 简单的层级计算
+        return 1; // 可以根据需要实现更复杂的层级计算
+    }
+    
+    /**
+     * 获取相关节点
+     */
+    getRelatedNodes(nodeId, allNodes, allLinks) {
+        const relatedNodeIds = new Set([nodeId]);
+        
+        // 添加直接相关的节点
+        allLinks.forEach(link => {
+            if (link.source === nodeId) {
+                relatedNodeIds.add(link.target);
+            }
+            if (link.target === nodeId) {
+                relatedNodeIds.add(link.source);
             }
         });
-    }
-    
-    exportRelations() {
-        console.log('[关系管理] 导出关系数据');
         
-        const exportData = {
-            centerNode: this.currentNodeId,
-            relations: this.relationData,
-            exportedAt: new Date().toISOString()
-        };
-        
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `relations_${this.currentNodeId}_${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+        return allNodes.filter(node => relatedNodeIds.has(node.id));
     }
     
-    async injectMDToServer() {
-        console.log('[关系管理] 注入MD文档到服务器');
-        
-        try {
-            // 获取当前项目的MD内容
-            const mdContent = await this.getCurrentProjectMD();
-            if (!mdContent) {
-                alert('无法获取当前项目的MD内容');
-                return;
-            }
-            
-            // 调用注入API
-            const response = await this.callRelationAPI('inject_md', {
-                project_id: this.currentNodeId,
-                md_content: mdContent
-            });
-            
-            if (response && response.success) {
-                alert('MD文档已成功注入到服务器端存储');
-                // 刷新关系数据
-                this.loadNodeRelations(this.currentNodeId);
-            } else {
-                alert('MD文档注入失败');
-            }
-            
-        } catch (error) {
-            console.error('[关系管理] MD注入失败:', error);
-            alert('MD文档注入失败: ' + error.message);
-        }
-    }
-    
-    async getCurrentProjectMD() {
-        // 获取当前项目的MD内容
-        // 这里应该从当前的脑图数据生成MD文档
-        try {
-            if (window.MindmapController && window.MindmapController.data) {
-                return this.convertProjectToMD(window.MindmapController.data);
-            }
-            return null;
-        } catch (error) {
-            console.error('获取项目MD内容失败:', error);
-            return null;
-        }
-    }
-    
-    convertProjectToMD(projectData) {
-        // 将项目数据转换为MD格式
-        let md = `# ${projectData.label || '项目'}\n\n`;
-        
-        if (projectData.content) {
-            md += `${projectData.content}\n\n`;
-        }
-        
-        if (projectData.children && projectData.children.length > 0) {
-            md += this.convertChildrenToMD(projectData.children, 2);
-        }
-        
-        return md;
-    }
-    
-    convertChildrenToMD(children, level) {
-        let md = '';
-        const prefix = '#'.repeat(level);
-        
-        for (const child of children) {
-            md += `${prefix} ${child.label || '节点'}\n\n`;
-            
-            if (child.content) {
-                md += `${child.content}\n\n`;
-            }
-            
-            if (child.children && child.children.length > 0) {
-                md += this.convertChildrenToMD(child.children, level + 1);
-            }
-        }
-        
-        return md;
-    }
-    
-    // 辅助方法
-    getNodeLabel(nodeId) {
-        // 获取节点显示标签
-        if (nodeId === this.currentNodeId && window.MindmapController?.data) {
-            return window.MindmapController.data.label || nodeId;
-        }
-        return nodeId.replace(/_/g, ' ');
-    }
-    
-    inferNodeTemperature(relation) {
-        // 根据关系推断节点温度
-        if (relation.weight > 0.8) return 'hot';
-        if (relation.weight > 0.5) return 'warm';
-        return 'cold';
-    }
-    
-    getRelationColor(type) {
-        const colors = {
-            semantic: '#4CAF50',
-            structural: '#2196F3',
-            temporal: '#FF9800',
-            hierarchical: '#9C27B0'
-        };
-        return colors[type] || '#666';
-    }
-    
-    getRelationTypeName(type) {
-        const names = {
-            semantic: '语义关系',
-            structural: '结构关系',
-            temporal: '时间关系',
-            hierarchical: '层级关系'
-        };
-        return names[type] || type;
-    }
-    
-    showLoadingState() {
-        const relationColumn = document.getElementById('relation-column');
-        if (relationColumn) {
-            const columnContent = relationColumn.querySelector('.column-content');
-            if (columnContent) {
-                columnContent.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; height: 200px;">
-                        <div style="text-align: center;">
-                            <div>🔄 正在从服务器加载关系数据...</div>
-                            <div style="margin-top: 10px; font-size: 12px; color: #666;">
-                                数据源: 向量库 + 图库 + 数据库
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-    }
-    
-    showWelcomeMessage() {
-        const relationColumn = document.getElementById('relation-column');
-        if (relationColumn) {
-            const columnContent = relationColumn.querySelector('.column-content');
-            if (columnContent) {
-                columnContent.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; height: 200px;">
-                        <div style="text-align: center; color: #666;">
-                            <div style="font-size: 18px; margin-bottom: 10px;">🔗 关系分析</div>
-                            <div>请先选择一个节点来查看其关系</div>
-                            <div style="margin-top: 10px; font-size: 12px;">
-                                关系数据来自服务器端向量库、图库和数据库
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-    }
-    
-    showErrorMessage(message) {
-        const relationColumn = document.getElementById('relation-column');
-        if (relationColumn) {
-            const columnContent = relationColumn.querySelector('.column-content');
-            if (columnContent) {
-                columnContent.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; height: 200px;">
-                        <div style="text-align: center; color: #f44336;">
-                            <div style="font-size: 18px; margin-bottom: 10px;">❌ 加载失败</div>
-                            <div>${message}</div>
-                            <button onclick="window.relationFrontend.loadNodeRelations('${this.currentNodeId}')" 
-                                    style="margin-top: 10px; padding: 5px 10px;">重试</button>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-    }
-    
-    updateRelationStatus(relations) {
-        // 更新AutoGen状态指示器
-        if (window.updateAutoGenStatus) {
-            const totalRelations = Object.values(relations).reduce((sum, arr) => sum + arr.length, 0);
-            window.updateAutoGenStatus({
-                lastSync: new Date().toLocaleTimeString(),
-                relationCount: totalRelations
-            });
-        }
+    /**
+     * 获取相关连线
+     */
+    getRelatedLinks(nodeId, allLinks) {
+        return allLinks.filter(link => 
+            link.source === nodeId || link.target === nodeId
+        );
     }
 }
 
-// 初始化关系前端
+// 创建全局实例
 window.relationFrontend = new RelationFrontend();
 
-console.log('[关系管理] 前端模块已加载');
+console.log('[关系管理] RelationFrontend 已初始化');

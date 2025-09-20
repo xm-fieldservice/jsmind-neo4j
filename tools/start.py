@@ -31,6 +31,7 @@ except Exception:
 
 DEFAULT_BACKEND_PORT = 8081
 DEFAULT_FRONTEND_PORT = 8082
+DEFAULT_JSON_API_PORT = 5001
 
 
 def project_root() -> Path:
@@ -235,6 +236,33 @@ def start_neo4j_backend():
         return None
 
 
+def start_json_base_api():
+    """启动JSON底座API服务"""
+    print("[启动器] 🗄️ 启动JSON底座API服务...")
+    
+    root = project_root()
+    api_script = root / "backend" / "json_base_api.py"
+    
+    if not api_script.exists():
+        print(f"[启动器] ❌ 未找到JSON底座API脚本: {api_script}")
+        return None
+    
+    try:
+        cmd = [
+            sys.executable, str(api_script)
+        ]
+        
+        process = subprocess.Popen(cmd, cwd=str(root))
+        print(f"[启动器] ✅ JSON底座API服务已启动 (http://localhost:{DEFAULT_JSON_API_PORT})")
+        print(f"[启动器] 📋 健康检查: http://localhost:{DEFAULT_JSON_API_PORT}/health")
+        
+        return process
+        
+    except Exception as e:
+        print(f"[启动器] ❌ JSON底座API服务启动失败: {e}")
+        return None
+
+
 def test_d3_neo4j_integration():
     """测试D3.js与Neo4j集成"""
     print("[启动器] 🧪 测试D3.js与Neo4j集成...")
@@ -330,6 +358,12 @@ def main():
         # 清理端口
         kill_port(8000)  # Neo4j后端端口
         kill_port(args.frontend_port)  # 前端端口
+        kill_port(DEFAULT_JSON_API_PORT)  # JSON底座API端口
+        
+        # 启动JSON底座API
+        json_api_process = start_json_base_api()
+        if not json_api_process:
+            print("[启动器] ⚠️ JSON底座API启动失败，但继续启动其他服务")
         
         # 启动Neo4j后端
         neo4j_backend = start_neo4j_backend()
@@ -400,6 +434,12 @@ def main():
             frontend_process.terminate()
         
         return
+    
+    # 启动JSON底座API
+    kill_port(DEFAULT_JSON_API_PORT)
+    json_api_process = start_json_base_api()
+    if not json_api_process:
+        print("[启动器] ⚠️ JSON底座API启动失败，但继续启动其他服务")
     
     # 启动后端
     print(f"[启动器] 后端端口: {args.port}")

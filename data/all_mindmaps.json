@@ -1143,5 +1143,41 @@
       },
       "source": "current"
     }
-  ]
+  ],
+  
+  "relations": {},
+  
+  "app_config": {
+    "user_preferences": {
+      "relation_visualization": {
+        "default_layout": "force_directed",
+        "node_colors": {
+          "project": "#ff6b6b",
+          "task": "#4ecdc4",
+          "resource": "#96ceb4",
+          "milestone": "#f7dc6f"
+        },
+        "animation_enabled": true,
+        "auto_layout_on_load": true
+      },
+      "performance": {
+        "cache_ttl": 300000,
+        "max_cache_size": 50,
+        "auto_cleanup_enabled": true
+      }
+    },
+    "app_state": {}
+  },
+  
+  "cache_metadata": {
+    "last_cleanup": "2025-09-20T08:13:28.165Z",
+    "cache_statistics": {
+      "total_cache_hits": 0,
+      "total_cache_misses": 0,
+      "total_syncs": 0
+    },
+    "sync_history": []
+  },
+  
+  "version": "2.0.0"
 }
