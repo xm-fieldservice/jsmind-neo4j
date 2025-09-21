@@ -1,0 +1,645 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+缓存机制分析工具
+生成缓存状态检查页面
+"""
+
+def create_cache_analyzer():
+    """创建缓存分析页面"""
+    
+    analyzer_script = '''
+// 缓存机制分析工具
+console.log('🔍 开始分析缓存机制...');
+
+class CacheAnalyzer {
+    constructor() {
+        this.results = {
+            fileLayer: {},
+            localStorageLayer: {},
+            memoryLayer: {},
+            displayLayer: {},
+            conflicts: [],
+            recommendations: []
+        };
+    }
+    
+    // 分析文件层状态
+    analyzeFileLayer() {
+        console.log('📁 分析文件层...');
+        // 通过API检查文件状态
+        fetch('/api/mindmaps')
+            .then(response => response.json())
+            .then(data => {
+                const targetMindmap = data.mindmaps?.find(m => m.id === 'root-1758256084936-b8');
+                if (targetMindmap) {
+                    const nodeCount = targetMindmap.data?.data?.children?.length || 0;
+                    this.results.fileLayer = {
+                        status: '✅ 正常',
+                        nodeCount: nodeCount,
+                        lastModified: new Date().toISOString(),
+                        hasTargetMindmap: true
+                    };
+                } else {
+                    this.results.fileLayer = {
+                        status: '❌ 异常',
+                        hasTargetMindmap: false
+                    };
+                }
+            })
+            .catch(error => {
+                this.results.fileLayer = {
+                    status: '❌ 无法访问',
+                    error: error.message
+                };
+            });
+    }
+    
+    // 分析localStorage层
+    analyzeLocalStorageLayer() {
+        console.log('💾 分析localStorage层...');
+        
+        const cacheKeys = [
+            'mindmap_data_v1',
+            '__mind_full_cache_v1', 
+            'mm_project_catalog_v1',
+            'mm:root-1758256084936-b8:data',
+            'mm:root-1758256084936-b8:meta'
+        ];
+        
+        const analysis = {};
+        let totalSize = 0;
+        
+        cacheKeys.forEach(key => {
+            const value = localStorage.getItem(key);
+            if (value) {
+                try {
+                    const parsed = JSON.parse(value);
+                    const size = value.length;
+                    totalSize += size;
+                    
+                    analysis[key] = {
+                        exists: true,
+                        size: size,
+                        sizeKB: (size / 1024).toFixed(1),
+                        type: typeof parsed,
+                        hasData: !!parsed.data,
+                        nodeCount: this.countNodes(parsed)
+                    };
+                } catch (e) {
+                    analysis[key] = {
+                        exists: true,
+                        size: value.length,
+                        error: '解析失败',
+                        raw: value.substring(0, 100)
+                    };
+                }
+            } else {
+                analysis[key] = {
+                    exists: false
+                };
+            }
+        });
+        
+        this.results.localStorageLayer = {
+            totalKeys: Object.keys(analysis).length,
+            totalSize: totalSize,
+            totalSizeKB: (totalSize / 1024).toFixed(1),
+            keys: analysis
+        };
+    }
+    
+    // 分析内存层
+    analyzeMemoryLayer() {
+        console.log('🧠 分析内存层...');
+        
+        const analysis = {};
+        
+        // 检查全局缓存变量
+        analysis.mindFullCache = {
+            exists: typeof window.__mindFullCache !== 'undefined',
+            value: window.__mindFullCache,
+            type: typeof window.__mindFullCache,
+            nodeCount: this.countNodes(window.__mindFullCache)
+        };
+        
+        // 检查MindmapController
+        if (window.mindmapController) {
+            analysis.mindmapController = {
+                exists: true,
+                hasData: !!window.mindmapController.data,
+                hasMind: !!window.mindmapController.mind,
+                rootId: window.mindmapController.rootId,
+                dataId: window.mindmapController.data?.id,
+                nodeCount: this.countNodes(window.mindmapController.data)
+            };
+            
+            // 检查jsMind实例
+            if (window.mindmapController.mind) {
+                try {
+                    const mindData = window.mindmapController.mind.get_data('node_tree');
+                    analysis.jsMindInstance = {
+                        exists: true,
+                        hasData: !!mindData,
+                        nodeCount: this.countNodes(mindData),
+                        rootId: mindData?.data?.id
+                    };
+                } catch (e) {
+                    analysis.jsMindInstance = {
+                        exists: true,
+                        error: e.message
+                    };
+                }
+            }
+        } else {
+            analysis.mindmapController = {
+                exists: false
+            };
+        }
+        
+        this.results.memoryLayer = analysis;
+    }
+    
+    // 分析显示层
+    analyzeDisplayLayer() {
+        console.log('🖥️ 分析显示层...');
+        
+        const container = document.getElementById('mindmap-container');
+        const analysis = {
+            containerExists: !!container
+        };
+        
+        if (container) {
+            const nodes = container.querySelectorAll('jmnode');
+            analysis.visibleNodes = nodes.length;
+            analysis.containerSize = {
+                width: container.offsetWidth,
+                height: container.offsetHeight
+            };
+        }
+        
+        this.results.displayLayer = analysis;
+    }
+    
+    // 检测缓存冲突
+    detectConflicts() {
+        console.log('⚠️ 检测缓存冲突...');
+        
+        const conflicts = [];
+        
+        // 检查节点数量不一致
+        const fileCacheNodes = this.results.fileLayer.nodeCount;
+        const localStorageNodes = this.results.localStorageLayer.keys['mindmap_data_v1']?.nodeCount;
+        const memoryNodes = this.results.memoryLayer.mindFullCache?.nodeCount;
+        const displayNodes = this.results.displayLayer.visibleNodes;
+        
+        if (fileCacheNodes !== localStorageNodes) {
+            conflicts.push({
+                type: '数据不一致',
+                description: `文件层(${fileCacheNodes})与localStorage层(${localStorageNodes})节点数不一致`,
+                severity: 'high'
+            });
+        }
+        
+        if (localStorageNodes !== memoryNodes) {
+            conflicts.push({
+                type: '缓存不一致', 
+                description: `localStorage层(${localStorageNodes})与内存层(${memoryNodes})节点数不一致`,
+                severity: 'high'
+            });
+        }
+        
+        if (memoryNodes !== displayNodes) {
+            conflicts.push({
+                type: '显示不一致',
+                description: `内存层(${memoryNodes})与显示层(${displayNodes})节点数不一致`,
+                severity: 'critical'
+            });
+        }
+        
+        // 检查全局变量污染
+        if (this.results.memoryLayer.mindFullCache?.exists) {
+            conflicts.push({
+                type: '全局变量污染',
+                description: '__mindFullCache 全局变量仍然存在，可能导致缓存冲突',
+                severity: 'medium'
+            });
+        }
+        
+        this.results.conflicts = conflicts;
+    }
+    
+    // 生成建议
+    generateRecommendations() {
+        console.log('💡 生成建议...');
+        
+        const recommendations = [];
+        
+        if (this.results.conflicts.length > 0) {
+            recommendations.push({
+                priority: 'high',
+                action: '立即执行强制刷新',
+                description: '使用force_reload.html清除所有缓存层'
+            });
+        }
+        
+        if (this.results.memoryLayer.mindFullCache?.exists) {
+            recommendations.push({
+                priority: 'medium',
+                action: '清除全局变量',
+                description: '删除window.__mindFullCache避免冲突'
+            });
+        }
+        
+        if (this.results.localStorageLayer.totalSizeKB > 1000) {
+            recommendations.push({
+                priority: 'low',
+                action: '清理localStorage',
+                description: '清理过期的缓存数据释放空间'
+            });
+        }
+        
+        this.results.recommendations = recommendations;
+    }
+    
+    // 辅助方法：计算节点数量
+    countNodes(data) {
+        if (!data) return 0;
+        
+        // 尝试不同的数据结构
+        if (data.data && data.data.children) {
+            return data.data.children.length;
+        }
+        if (data.children) {
+            return data.children.length;
+        }
+        if (Array.isArray(data)) {
+            return data.length;
+        }
+        
+        return 0;
+    }
+    
+    // 执行完整分析
+    async runFullAnalysis() {
+        console.log('🚀 开始完整缓存分析...');
+        
+        this.analyzeLocalStorageLayer();
+        this.analyzeMemoryLayer();
+        this.analyzeDisplayLayer();
+        
+        // 等待文件层分析完成
+        await new Promise(resolve => {
+            this.analyzeFileLayer();
+            setTimeout(resolve, 1000);
+        });
+        
+        this.detectConflicts();
+        this.generateRecommendations();
+        
+        return this.results;
+    }
+    
+    // 生成报告HTML
+    generateReport() {
+        const results = this.results;
+        
+        let html = '<div class="analysis-report">';
+        html += '<h2>🔍 缓存机制分析报告</h2>';
+        
+        // 文件层
+        html += '<div class="layer-section">';
+        html += '<h3>📁 文件层状态</h3>';
+        html += `<p>状态: ${results.fileLayer.status || '分析中...'}</p>`;
+        if (results.fileLayer.nodeCount) {
+            html += `<p>节点数: ${results.fileLayer.nodeCount}</p>`;
+        }
+        html += '</div>';
+        
+        // localStorage层
+        html += '<div class="layer-section">';
+        html += '<h3>💾 localStorage层状态</h3>';
+        html += `<p>总大小: ${results.localStorageLayer.totalSizeKB}KB</p>`;
+        Object.entries(results.localStorageLayer.keys).forEach(([key, info]) => {
+            if (info.exists) {
+                html += `<p>${key}: ${info.sizeKB}KB (${info.nodeCount || 0}节点)</p>`;
+            } else {
+                html += `<p>${key}: ❌ 不存在</p>`;
+            }
+        });
+        html += '</div>';
+        
+        // 内存层
+        html += '<div class="layer-section">';
+        html += '<h3>🧠 内存层状态</h3>';
+        html += `<p>__mindFullCache: ${results.memoryLayer.mindFullCache?.exists ? '✅ 存在' : '❌ 不存在'}</p>`;
+        html += `<p>MindmapController: ${results.memoryLayer.mindmapController?.exists ? '✅ 存在' : '❌ 不存在'}</p>`;
+        if (results.memoryLayer.jsMindInstance) {
+            html += `<p>jsMind实例: ${results.memoryLayer.jsMindInstance.exists ? '✅ 存在' : '❌ 不存在'}</p>`;
+        }
+        html += '</div>';
+        
+        // 显示层
+        html += '<div class="layer-section">';
+        html += '<h3>🖥️ 显示层状态</h3>';
+        html += `<p>可见节点: ${results.displayLayer.visibleNodes || 0}</p>`;
+        html += `<p>容器: ${results.displayLayer.containerExists ? '✅ 存在' : '❌ 不存在'}</p>`;
+        html += '</div>';
+        
+        // 冲突检测
+        if (results.conflicts.length > 0) {
+            html += '<div class="conflicts-section">';
+            html += '<h3>⚠️ 检测到的冲突</h3>';
+            results.conflicts.forEach(conflict => {
+                html += `<p class="conflict-${conflict.severity}">${conflict.description}</p>`;
+            });
+            html += '</div>';
+        }
+        
+        // 建议
+        if (results.recommendations.length > 0) {
+            html += '<div class="recommendations-section">';
+            html += '<h3>💡 建议操作</h3>';
+            results.recommendations.forEach(rec => {
+                html += `<p class="rec-${rec.priority}"><strong>${rec.action}</strong>: ${rec.description}</p>`;
+            });
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        return html;
+    }
+}
+
+// 全局分析器实例
+window.cacheAnalyzer = new CacheAnalyzer();
+'''
+    
+    return analyzer_script
+
+def main():
+    print("🔍 创建缓存机制分析工具...")
+    print("=" * 50)
+    
+    # 创建分析脚本
+    analyzer_script = create_cache_analyzer()
+    
+    # 创建HTML页面
+    html_content = f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>缓存机制分析工具</title>
+    <style>
+        body {{
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }}
+        .container {{
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }}
+        h1 {{
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }}
+        .btn {{
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }}
+        .btn:hover {{ background: #2980b9; }}
+        .btn-success {{ background: #27ae60; }}
+        .btn-success:hover {{ background: #229954; }}
+        .btn-danger {{ background: #e74c3c; }}
+        .btn-danger:hover {{ background: #c0392b; }}
+        
+        .analysis-report {{
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }}
+        .layer-section {{
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }}
+        .conflicts-section {{
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff5f5;
+            border-radius: 6px;
+            border-left: 4px solid #e74c3c;
+        }}
+        .recommendations-section {{
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0fff4;
+            border-radius: 6px;
+            border-left: 4px solid #27ae60;
+        }}
+        .conflict-high {{ color: #e74c3c; font-weight: bold; }}
+        .conflict-medium {{ color: #f39c12; }}
+        .conflict-critical {{ color: #8e44ad; font-weight: bold; }}
+        .rec-high {{ color: #e74c3c; }}
+        .rec-medium {{ color: #f39c12; }}
+        .rec-low {{ color: #27ae60; }}
+        
+        .status-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }}
+        .status-card {{
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+        .loading {{
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 缓存机制分析工具</h1>
+        
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>📁 文件层</h3>
+                <p>数据源文件状态</p>
+                <div id="file-status" class="loading">分析中...</div>
+            </div>
+            <div class="status-card">
+                <h3>💾 localStorage层</h3>
+                <p>浏览器持久化缓存</p>
+                <div id="localStorage-status" class="loading">分析中...</div>
+            </div>
+            <div class="status-card">
+                <h3>🧠 内存层</h3>
+                <p>运行时缓存状态</p>
+                <div id="memory-status" class="loading">分析中...</div>
+            </div>
+            <div class="status-card">
+                <h3>🖥️ 显示层</h3>
+                <p>页面渲染状态</p>
+                <div id="display-status" class="loading">分析中...</div>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="btn btn-success" onclick="runAnalysis()">
+                🔍 开始分析
+            </button>
+            
+            <button class="btn" onclick="showDetailedReport()">
+                📊 详细报告
+            </button>
+            
+            <button class="btn btn-danger" onclick="openForceReload()">
+                🔄 强制刷新
+            </button>
+        </div>
+        
+        <div id="analysis-results"></div>
+    </div>
+
+    <script>
+        {analyzer_script}
+        
+        let analysisResults = null;
+        
+        async function runAnalysis() {{
+            console.log('🚀 开始缓存分析...');
+            
+            // 显示加载状态
+            document.getElementById('file-status').innerHTML = '🔄 分析中...';
+            document.getElementById('localStorage-status').innerHTML = '🔄 分析中...';
+            document.getElementById('memory-status').innerHTML = '🔄 分析中...';
+            document.getElementById('display-status').innerHTML = '🔄 分析中...';
+            
+            try {{
+                analysisResults = await window.cacheAnalyzer.runFullAnalysis();
+                
+                // 更新状态卡片
+                updateStatusCards(analysisResults);
+                
+                // 显示简要结果
+                showSummary(analysisResults);
+                
+            }} catch (error) {{
+                console.error('分析失败:', error);
+                alert('分析失败: ' + error.message);
+            }}
+        }}
+        
+        function updateStatusCards(results) {{
+            // 文件层状态
+            const fileStatus = results.fileLayer.status || '❓ 未知';
+            const fileNodes = results.fileLayer.nodeCount || 0;
+            document.getElementById('file-status').innerHTML = 
+                `${{fileStatus}}<br>节点数: ${{fileNodes}}`;
+            
+            // localStorage层状态
+            const lsSize = results.localStorageLayer.totalSizeKB || 0;
+            const lsKeys = Object.keys(results.localStorageLayer.keys).length;
+            document.getElementById('localStorage-status').innerHTML = 
+                `✅ 正常<br>大小: ${{lsSize}}KB<br>键数: ${{lsKeys}}`;
+            
+            // 内存层状态
+            const memCache = results.memoryLayer.mindFullCache?.exists ? '⚠️ 存在' : '✅ 清洁';
+            const memController = results.memoryLayer.mindmapController?.exists ? '✅ 存在' : '❌ 缺失';
+            document.getElementById('memory-status').innerHTML = 
+                `缓存: ${{memCache}}<br>控制器: ${{memController}}`;
+            
+            // 显示层状态
+            const displayNodes = results.displayLayer.visibleNodes || 0;
+            const displayContainer = results.displayLayer.containerExists ? '✅ 存在' : '❌ 缺失';
+            document.getElementById('display-status').innerHTML = 
+                `可见节点: ${{displayNodes}}<br>容器: ${{displayContainer}}`;
+        }}
+        
+        function showSummary(results) {{
+            let html = '<div class="analysis-report">';
+            html += '<h2>📋 分析摘要</h2>';
+            
+            if (results.conflicts.length > 0) {{
+                html += `<p style="color: #e74c3c; font-weight: bold;">⚠️ 发现 ${{results.conflicts.length}} 个缓存冲突</p>`;
+                results.conflicts.forEach(conflict => {{
+                    html += `<p class="conflict-${{conflict.severity}}">• ${{conflict.description}}</p>`;
+                }});
+            }} else {{
+                html += '<p style="color: #27ae60; font-weight: bold;">✅ 未发现缓存冲突</p>';
+            }}
+            
+            if (results.recommendations.length > 0) {{
+                html += '<h3>💡 建议操作</h3>';
+                results.recommendations.forEach(rec => {{
+                    html += `<p class="rec-${{rec.priority}}">• ${{rec.action}}: ${{rec.description}}</p>`;
+                }});
+            }}
+            
+            html += '</div>';
+            document.getElementById('analysis-results').innerHTML = html;
+        }}
+        
+        function showDetailedReport() {{
+            if (!analysisResults) {{
+                alert('请先运行分析');
+                return;
+            }}
+            
+            const reportHtml = window.cacheAnalyzer.generateReport();
+            document.getElementById('analysis-results').innerHTML = reportHtml;
+        }}
+        
+        function openForceReload() {{
+            window.open('force_reload.html', '_blank');
+        }}
+        
+        // 页面加载时自动运行分析
+        window.onload = function() {{
+            setTimeout(runAnalysis, 1000);
+        }};
+    </script>
+</body>
+</html>'''
+    
+    html_file = 'cache_analyzer.html'
+    with open(html_file, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+    
+    print(f"📄 已生成缓存分析页面: {html_file}")
+    print()
+    print("🎯 使用方法:")
+    print("1. 在浏览器中打开 cache_analyzer.html")
+    print("2. 页面会自动分析所有缓存层")
+    print("3. 查看冲突检测和建议操作")
+    print("4. 根据建议执行相应操作")
+    print()
+    print("💡 这将帮助您全面了解缓存机制的运行状态")
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>持久化系统集成测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.loading {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .log-area {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stats-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .stats-card h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .stats-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 持久化系统集成测试</h1>
+        <p>测试新的PersistenceManager与jsmind-controller的集成情况</p>
+
+        <!-- 系统状态 -->
+        <div class="test-section">
+            <h3>📊 系统状态</h3>
+            <div id="system-status" class="status loading">正在初始化持久化系统...</div>
+            
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <h4>LocalStorageAdapter</h4>
+                    <div class="value" id="localStorage-status">❌</div>
+                </div>
+                <div class="stats-card">
+                    <h4>JsonMirrorAdapter</h4>
+                    <div class="value" id="jsonMirror-status">❌</div>
+                </div>
+                <div class="stats-card">
+                    <h4>SnapshotAdapter</h4>
+                    <div class="value" id="snapshot-status">❌</div>
+                </div>
+                <div class="stats-card">
+                    <h4>PersistenceManager</h4>
+                    <div class="value" id="persistence-status">❌</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能测试 -->
+        <div class="test-section">
+            <h3>🧪 功能测试</h3>
+            <button id="test-save" disabled>测试保存数据</button>
+            <button id="test-load" disabled>测试加载数据</button>
+            <button id="test-snapshot" disabled>测试快照功能</button>
+            <button id="test-migration" disabled>测试数据迁移</button>
+            <button id="get-stats" disabled>获取统计信息</button>
+            <button id="clear-logs">清空日志</button>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="test-section">
+            <h3>📈 统计信息</h3>
+            <div id="stats-display" class="log-area">等待获取统计信息...</div>
+        </div>
+
+        <!-- 日志输出 -->
+        <div class="test-section">
+            <h3>📝 日志输出</h3>
+            <div id="log-output" class="log-area">系统初始化中...\n</div>
+        </div>
+    </div>
+
+    <!-- 加载持久化系统 -->
+    <script src="/src/persistence/persistence-loader.js"></script>
+
+    <script>
+        // 日志输出函数
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logOutput = document.getElementById('log-output');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            logOutput.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+            
+            console.log(`[PersistenceTest] ${message}`);
+        }
+
+        // 更新系统状态
+        function updateSystemStatus() {
+            const status = window.PersistenceSystemChecker ? window.PersistenceSystemChecker.getStatus() : null;
+            
+            if (status) {
+                document.getElementById('localStorage-status').textContent = status.components.LocalStorageAdapter ? '✅' : '❌';
+                document.getElementById('jsonMirror-status').textContent = status.components.JsonMirrorAdapter ? '✅' : '❌';
+                document.getElementById('snapshot-status').textContent = status.components.SnapshotAdapter ? '✅' : '❌';
+                document.getElementById('persistence-status').textContent = status.components.PersistenceManager ? '✅' : '❌';
+                
+                const systemStatusEl = document.getElementById('system-status');
+                if (status.ready) {
+                    systemStatusEl.className = 'status success';
+                    systemStatusEl.textContent = '✅ 持久化系统已就绪';
+                    enableTestButtons();
+                } else {
+                    systemStatusEl.className = 'status error';
+                    systemStatusEl.textContent = '❌ 持久化系统未就绪';
+                }
+            }
+        }
+
+        // 启用测试按钮
+        function enableTestButtons() {
+            const buttons = ['test-save', 'test-load', 'test-snapshot', 'test-migration', 'get-stats'];
+            buttons.forEach(id => {
+                document.getElementById(id).disabled = false;
+            });
+        }
+
+        // 测试保存数据
+        async function testSave() {
+            try {
+                log('开始测试保存数据...');
+                const testData = {
+                    format: 'node_tree',
+                    data: {
+                        id: 'test-root',
+                        topic: '测试脑图',
+                        children: [
+                            { id: 'test-1', topic: '测试节点1', children: [] },
+                            { id: 'test-2', topic: '测试节点2', children: [] }
+                        ]
+                    },
+                    meta: {
+                        mind_id: 'test-mind',
+                        format_version: 1,
+                        saved_at: new Date().toISOString(),
+                        source: 'integration-test'
+                    }
+                };
+
+                const result = await window.PersistenceManager.saveMind('test-mind', testData);
+                if (result.success) {
+                    log('保存测试成功', 'success');
+                } else {
+                    log(`保存测试失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`保存测试异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试加载数据
+        async function testLoad() {
+            try {
+                log('开始测试加载数据...');
+                const result = await window.PersistenceManager.loadMind('test-mind');
+                if (result.success) {
+                    log(`加载测试成功，数据大小: ${JSON.stringify(result.data).length} 字符`, 'success');
+                } else {
+                    log(`加载测试失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`加载测试异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试快照功能
+        async function testSnapshot() {
+            try {
+                log('开始测试快照功能...');
+                const result = await window.PersistenceManager.snapshot('test-mind', '集成测试快照');
+                if (result.success) {
+                    log(`快照测试成功，快照ID: ${result.snapshotId}`, 'success');
+                } else {
+                    log(`快照测试失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`快照测试异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试数据迁移
+        async function testMigration() {
+            try {
+                log('开始测试数据迁移...');
+                const result = await window.PersistenceManager.migrate('test-mind');
+                if (result.success) {
+                    log('迁移测试成功', 'success');
+                } else {
+                    log(`迁移测试失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`迁移测试异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 获取统计信息
+        function getStats() {
+            try {
+                log('获取统计信息...');
+                const stats = window.PersistenceManager.getStats();
+                document.getElementById('stats-display').textContent = JSON.stringify(stats, null, 2);
+                log('统计信息已更新', 'success');
+            } catch (error) {
+                log(`获取统计信息异常: ${error.message}`, 'error');
+            }
+        }
+
+        // 清空日志
+        function clearLogs() {
+            document.getElementById('log-output').textContent = '';
+            log('日志已清空');
+        }
+
+        // 绑定事件
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('test-save').addEventListener('click', testSave);
+            document.getElementById('test-load').addEventListener('click', testLoad);
+            document.getElementById('test-snapshot').addEventListener('click', testSnapshot);
+            document.getElementById('test-migration').addEventListener('click', testMigration);
+            document.getElementById('get-stats').addEventListener('click', getStats);
+            document.getElementById('clear-logs').addEventListener('click', clearLogs);
+
+            // 监听持久化系统就绪事件
+            window.addEventListener('persistenceSystemReady', function(event) {
+                log('持久化系统就绪事件触发', 'success');
+                updateSystemStatus();
+            });
+
+            window.addEventListener('persistenceSystemError', function(event) {
+                log(`持久化系统错误: ${event.detail.error}`, 'error');
+                updateSystemStatus();
+            });
+
+            // 定期更新状态
+            setInterval(updateSystemStatus, 2000);
+            
+            log('集成测试页面初始化完成');
+        });
+    </script>
+</body>
+</html>

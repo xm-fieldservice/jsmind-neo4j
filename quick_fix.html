@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速缓存修复</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .status {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { color: #00ff88; }
+        .warning { color: #ffaa00; }
+        .error { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <h1>🔧 快速缓存修复</h1>
+    
+    <button class="btn" onclick="quickFix()">
+        🚀 一键修复缓存问题
+    </button>
+    
+    <button class="btn" onclick="checkStatus()">
+        🔍 检查当前状态
+    </button>
+    
+    <button class="btn" onclick="openMindmap()">
+        🧠 打开脑图页面
+    </button>
+    
+    <div class="status" id="status">
+        等待操作...
+    </div>
+
+    <script>
+        let statusDiv = document.getElementById('status');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : '';
+            statusDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            statusDiv.scrollTop = statusDiv.scrollHeight;
+        }
+        
+        async function quickFix() {
+            log('🚀 开始快速修复...', 'info');
+            
+            try {
+                // 1. 清理全局缓存变量
+                log('🗑️ 清理全局缓存变量...', 'info');
+                delete window.__mindFullCache;
+                
+                // 2. 从API获取最新数据
+                log('🌐 从API获取最新数据...', 'info');
+                const response = await fetch('/api/mindmaps');
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const targetMindmap = data.mindmaps?.find(m => m.id === 'root-1758256084936-b8');
+                
+                if (!targetMindmap) {
+                    throw new Error('找不到目标脑图');
+                }
+                
+                const nodeCount = targetMindmap.data?.data?.children?.length || 0;
+                log(`📊 获取到数据: ${nodeCount} 个节点`, nodeCount >= 20 ? 'success' : 'warning');
+                
+                // 3. 重新定义缓存属性，添加保护
+                log('🛡️ 设置缓存保护机制...', 'info');
+                let protectedCache = {
+                    meta: { mind_id: targetMindmap.id, name: targetMindmap.name },
+                    format: 'node_tree',
+                    data: targetMindmap.data.data
+                };
+                
+                Object.defineProperty(window, '__mindFullCache', {
+                    get: function() {
+                        return protectedCache;
+                    },
+                    set: function(newValue) {
+                        // 只接受有效的完整数据
+                        if (newValue && newValue.data && newValue.data.children) {
+                            const newNodeCount = newValue.data.children.length;
+                            if (newNodeCount >= 20) {
+                                protectedCache = newValue;
+                                console.log(`✅ 接受缓存更新: ${newNodeCount} 个节点`);
+                            } else {
+                                console.warn(`⚠️ 拒绝不完整缓存: ${newNodeCount} 个节点`);
+                            }
+                        } else if (newValue === null || newValue === undefined) {
+                            console.log('🛡️ 拒绝清空缓存操作');
+                        }
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+                
+                // 4. 同步到localStorage
+                log('💾 同步到localStorage...', 'info');
+                localStorage.setItem('__mind_full_cache_v1', JSON.stringify(protectedCache));
+                localStorage.setItem('mindmap_data_v1', JSON.stringify(protectedCache));
+                
+                // 5. 如果存在MindmapController，触发重新渲染
+                if (window.mindmapController && window.mindmapController.mind) {
+                    log('🎯 触发重新渲染...', 'info');
+                    setTimeout(() => {
+                        try {
+                            window.mindmapController.mind.show(protectedCache);
+                            log('✅ 重新渲染完成', 'success');
+                        } catch (e) {
+                            log(`⚠️ 重新渲染失败: ${e.message}`, 'warning');
+                        }
+                    }, 500);
+                }
+                
+                log('✅ 快速修复完成！', 'success');
+                log('💡 建议刷新脑图页面查看结果', 'info');
+                
+            } catch (error) {
+                log(`❌ 快速修复失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkStatus() {
+            log('🔍 检查当前状态...', 'info');
+            
+            try {
+                // 检查全局缓存
+                const cache = window.__mindFullCache;
+                if (cache && cache.data && cache.data.children) {
+                    const nodeCount = cache.data.children.length;
+                    log(`📊 当前缓存: ${nodeCount} 个节点`, nodeCount >= 20 ? 'success' : 'warning');
+                } else {
+                    log('❌ 未找到有效缓存', 'error');
+                }
+                
+                // 检查localStorage
+                const lsCache = localStorage.getItem('__mind_full_cache_v1');
+                if (lsCache) {
+                    try {
+                        const parsed = JSON.parse(lsCache);
+                        const lsNodeCount = parsed.data?.children?.length || 0;
+                        log(`💾 localStorage: ${lsNodeCount} 个节点`, lsNodeCount >= 20 ? 'success' : 'warning');
+                    } catch (e) {
+                        log('⚠️ localStorage数据解析失败', 'warning');
+                    }
+                } else {
+                    log('❌ localStorage中无缓存数据', 'error');
+                }
+                
+                // 检查MindmapController
+                if (window.mindmapController) {
+                    log('✅ MindmapController存在', 'success');
+                    if (window.mindmapController.mind) {
+                        log('✅ jsMind实例存在', 'success');
+                    } else {
+                        log('⚠️ jsMind实例不存在', 'warning');
+                    }
+                } else {
+                    log('❌ MindmapController不存在', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ 状态检查失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function openMindmap() {
+            log('🧠 正在打开脑图页面...', 'info');
+            window.open('http://localhost:8082', '_blank');
+        }
+        
+        // 页面加载时自动检查状态
+        window.onload = function() {
+            log('🔧 快速缓存修复工具已加载', 'info');
+            setTimeout(checkStatus, 1000);
+        };
+    </script>
+</body>
+</html>

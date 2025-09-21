@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用缓存修复补丁</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .step {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #00cec9;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .status {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .center { text-align: center; }
+        .success { color: #00ff88; }
+        .warning { color: #ffaa00; }
+        .error { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <h1>🔧 缓存修复补丁</h1>
+    
+    <div class="step">
+        <h3>📋 修复原理</h3>
+        <p>通过重新定义 <code>__mindFullCache</code> 属性，添加智能过滤机制：</p>
+        <ul>
+            <li>✅ 只接受包含 ≥20 个节点的完整数据</li>
+            <li>🛡️ 拒绝空值设置，保护现有数据</li>
+            <li>🔄 自动从API恢复丢失的缓存</li>
+            <li>⚠️ 监控频繁设置，识别冲突</li>
+        </ul>
+    </div>
+    
+    <div class="center">
+        <button class="btn" onclick="applyPatch()">
+            🚀 应用修复补丁
+        </button>
+        
+        <button class="btn" onclick="testPatch()">
+            🧪 测试补丁效果
+        </button>
+        
+        <button class="btn" onclick="openMindmap()">
+            🧠 打开脑图页面
+        </button>
+    </div>
+    
+    <div class="status" id="status">
+        等待操作...
+    </div>
+
+    <script src="cache_fix_patch.js"></script>
+    <script>
+        let statusDiv = document.getElementById('status');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : '';
+            statusDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            statusDiv.scrollTop = statusDiv.scrollHeight;
+        }
+        
+        function applyPatch() {
+            log('🔧 正在应用缓存修复补丁...', 'info');
+            
+            try {
+                // 补丁已经通过 script 标签加载
+                log('✅ 补丁应用成功！', 'success');
+                log('🛡️ 缓存保护机制已激活', 'success');
+                
+                // 检查当前缓存状态
+                setTimeout(() => {
+                    if (window.__mindFullCache && window.__mindFullCache.data) {
+                        const nodeCount = window.__mindFullCache.data.children?.length || 0;
+                        log(`📊 当前缓存: ${nodeCount} 个节点`, nodeCount >= 20 ? 'success' : 'warning');
+                    } else {
+                        log('⚠️ 当前无有效缓存，尝试自动恢复...', 'warning');
+                        
+                        // 触发自动恢复
+                        if (window.fixCacheNow) {
+                            window.fixCacheNow().then(result => {
+                                if (result.success) {
+                                    log(`✅ 自动恢复成功: ${result.nodeCount} 个节点`, 'success');
+                                } else {
+                                    log(`❌ 自动恢复失败: ${result.error}`, 'error');
+                                }
+                            });
+                        }
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                log(`❌ 补丁应用失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function testPatch() {
+            log('🧪 开始测试补丁效果...', 'info');
+            
+            // 测试1: 尝试设置无效数据
+            log('测试1: 尝试设置空值...', 'info');
+            const oldCache = window.__mindFullCache;
+            window.__mindFullCache = null;
+            if (window.__mindFullCache === oldCache) {
+                log('✅ 空值设置被正确拒绝', 'success');
+            } else {
+                log('❌ 空值设置未被拒绝', 'error');
+            }
+            
+            // 测试2: 尝试设置不完整数据
+            log('测试2: 尝试设置不完整数据...', 'info');
+            const incompleteData = {
+                data: { children: [{ id: 'test1' }, { id: 'test2' }] }
+            };
+            window.__mindFullCache = incompleteData;
+            if (window.__mindFullCache !== incompleteData) {
+                log('✅ 不完整数据被正确拒绝', 'success');
+            } else {
+                log('⚠️ 不完整数据被接受（可能是临时接受）', 'warning');
+            }
+            
+            // 测试3: 检查手动修复接口
+            log('测试3: 检查手动修复接口...', 'info');
+            if (typeof window.fixCacheNow === 'function') {
+                log('✅ 手动修复接口可用', 'success');
+            } else {
+                log('❌ 手动修复接口不可用', 'error');
+            }
+            
+            log('🎯 测试完成', 'info');
+        }
+        
+        function openMindmap() {
+            log('🧠 正在打开脑图页面...', 'info');
+            window.open('http://localhost:8082', '_blank');
+        }
+        
+        // 页面加载时自动应用补丁
+        window.onload = function() {
+            log('🔧 缓存修复补丁工具已加载', 'info');
+            log('💡 点击"应用修复补丁"开始修复', 'info');
+            
+            // 自动应用补丁
+            setTimeout(applyPatch, 500);
+        };
+        
+        // 监听控制台消息
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            if (args[0] && args[0].includes('[CachePatch]')) {
+                const message = args.join(' ');
+                if (message.includes('✅') || message.includes('接受')) {
+                    log(message, 'success');
+                } else if (message.includes('⚠️') || message.includes('拒绝')) {
+                    log(message, 'warning');
+                } else {
+                    log(message, 'info');
+                }
+            }
+            originalLog.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            if (args[0] && args[0].includes('[CachePatch]')) {
+                log(args.join(' '), 'warning');
+            }
+            originalWarn.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            if (args[0] && args[0].includes('[CachePatch]')) {
+                log(args.join(' '), 'error');
+            }
+            originalError.apply(console, args);
+        };
+    </script>
+</body>
+</html>

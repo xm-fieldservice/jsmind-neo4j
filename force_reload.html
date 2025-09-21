@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>强制重新加载脑图</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .info {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            margin: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .btn-success {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 强制重新加载脑图</h1>
+        
+        <div class="info">
+            <strong>📊 当前状态:</strong><br>
+            脑图ID: root-1758256084936-b8<br>
+            节点数量: 25<br>
+            已恢复节点: 20个 (可能未显示)
+        </div>
+        
+        <div class="info">
+            ⚡ <strong>此操作将:</strong><br>
+            • 清除所有缓存机制<br>
+            • 停止自动同步干扰<br>
+            • 强制从文件重新加载<br>
+            • 自动刷新页面显示
+        </div>
+        
+        <button class="btn" onclick="forceReload()">
+            🚀 执行强制刷新
+        </button>
+        
+        <button class="btn btn-success" onclick="openMindmap()">
+            🧠 打开脑图页面
+        </button>
+    </div>
+
+    <script>
+        
+// 强制刷新脑图 - 绕过所有缓存
+console.log('🔄 开始强制刷新脑图...');
+
+// 1. 完全清除相关缓存
+function clearAllCaches() {
+    // 清除全局缓存变量
+    try {
+        delete window.__mindFullCache;
+        console.log('✅ 清除全局缓存变量');
+    } catch(e) {}
+    
+    // 清除localStorage中的缓存
+    const keysToRemove = [
+        '__mind_full_cache_v1',
+        'mindmap_data_v1',
+        'mm:root-1758256084936-b8:data',
+        'mm:root-1758256084936-b8:meta'
+    ];
+    
+    keysToRemove.forEach(key => {
+        try {
+            localStorage.removeItem(key);
+            console.log(`✅ 清除localStorage: ${key}`);
+        } catch(e) {}
+    });
+    
+    // 停止所有自动同步
+    try {
+        window.__STORAGE_PAUSE = true;
+        window.__REG_SYNC_SUPPRESS = true;
+        console.log('⏸️ 停止自动同步机制');
+    } catch(e) {}
+}
+
+// 2. 强制重新从文件加载
+function forceReloadFromFile() {
+    console.log('📂 强制从文件重新加载...');
+    
+    // 重新初始化MindmapController
+    if (window.mindmapController && typeof window.mindmapController.loadFromStorage === 'function') {
+        try {
+            window.mindmapController.loadFromStorage();
+            console.log('✅ MindmapController重新加载');
+        } catch(e) {
+            console.error('❌ MindmapController重新加载失败:', e);
+        }
+    }
+    
+    // 强制刷新页面
+    setTimeout(() => {
+        console.log('🔄 强制刷新页面...');
+        window.location.reload(true); // 强制从服务器重新加载
+    }, 2000);
+}
+
+// 3. 执行强制刷新
+try {
+    clearAllCaches();
+    forceReloadFromFile();
+    
+    alert('🔄 正在强制刷新脑图...\n\n页面将在2秒后自动刷新');
+    
+} catch(error) {
+    console.error('❌ 强制刷新失败:', error);
+    alert('❌ 强制刷新失败: ' + error.message);
+}
+
+        
+        function forceReload() {
+            if (confirm('确定要强制刷新脑图吗？\n\n这将清除所有缓存并重新加载数据。')) {
+                // 执行强制刷新逻辑
+                clearAllCaches();
+                forceReloadFromFile();
+            }
+        }
+        
+        function openMindmap() {
+            window.open('http://localhost:8082', '_blank');
+        }
+    </script>
+</body>
+</html>

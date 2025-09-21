@@ -1448,7 +1448,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (snap && snap.data && window.mindmapController?.mind?.show){
                             const mc = window.mindmapController;
                             mc.mind.show(snap);
-                            window.__mindFullCache = snap;
+                            // 不再覆写全局 __mindFullCache，避免跨路径状态干扰导致节点丢失
+                            // window.__mindFullCache = snap;
                             // 若根不存在，说明快照不完整或被覆盖，回退到控制器渲染
                             const root = mc.mind.get_root && mc.mind.get_root();
                             if (!root || !root.id){
@@ -1708,7 +1709,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             } else if (window.mindmapController.mind && typeof window.mindmapController.mind.show === 'function') {
                                 window.mindmapController.mind.show(targetPack);
                             }
-                            window.__mindFullCache = targetPack;
+                            // 不再覆写全局 __mindFullCache，避免目录切换时覆盖当前编辑态
+                            // window.__mindFullCache = targetPack;
                             
                             // 6. 同步更新目录payload为最新数据（确保下次切换时数据一致）
                             if (targetPack !== it.payload) {

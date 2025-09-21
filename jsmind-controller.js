@@ -9,8 +9,11 @@
       this.rootId = null; // 根ID
       this.perMindStorageKey = null; // 根据根ID动态生成的存储键
 
+      // 初始化持久化管理器（异步）
+      this._initPersistenceManager();
 
-      this.data = this.loadMindmapFromStorage() || this.getDefaultData();
+      // 异步加载数据
+      this._loadInitialData();
       this.mind = null; // jsMind 实例
       this.clipboard = null;
       this.selectedNode = null;
@@ -62,6 +65,106 @@
       
       // 启动定时快照
       try { this.startSnapshotScheduler(); } catch(_) { /* ignore */ }
+    }
+
+    // 初始化持久化管理器
+    async _initPersistenceManager() {
+      try {
+        // 等待持久化系统就绪
+        if (window.PersistenceSystemChecker) {
+          const ready = await window.PersistenceSystemChecker.waitForReady(5000);
+          if (ready && window.PersistenceManager) {
+            this.persistenceManager = window.PersistenceManager;
+            console.log('[MindmapController] 持久化管理器已就绪');
+          } else {
+            console.warn('[MindmapController] 持久化管理器未就绪，使用传统localStorage');
+            this.persistenceManager = null;
+          }
+        } else {
+          console.warn('[MindmapController] 持久化系统检查器不可用');
+          this.persistenceManager = null;
+        }
+      } catch (error) {
+        console.error('[MindmapController] 持久化管理器初始化失败:', error);
+        this.persistenceManager = null;
+      }
+    }
+
+    // 获取当前脑图ID
+    _getCurrentMindId() {
+      try {
+        const rootId = (this.mind && this.mind.get_root && this.mind.get_root().id) || 
+                      (this.data && this.data.id);
+        return rootId ? String(rootId) : 'root';
+      } catch (error) {
+        return 'root';
+      }
+    }
+
+    // 新的保存方法（使用PersistenceManager）
+    async _saveWithPersistenceManager(jmData, mindId) {
+      try {
+        if (!this.persistenceManager) {
+          console.warn('[MindmapController] PersistenceManager不可用，使用传统保存');
+          return false;
+        }
+
+        // 创建MindPack数据结构
+        const mindPack = {
+          format: 'node_tree',
+          data: jmData.data,
+          meta: {
+            mind_id: mindId,
+            format_version: 1,
+            saved_at: new Date().toISOString(),
+            source: 'jsmind-controller'
+          }
+        };
+
+        // 使用PersistenceManager保存
+        const result = await this.persistenceManager.saveMind(mindId, mindPack);
+        
+        if (result.success) {
+          console.log('[MindmapController] ✅ 使用PersistenceManager保存成功');
+          return true;
+        } else {
+          console.warn('[MindmapController] PersistenceManager保存失败:', result.error);
+          return false;
+        }
+      } catch (error) {
+        console.error('[MindmapController] PersistenceManager保存异常:', error);
+        return false;
+      }
+    }
+
+    // 传统保存方法（兜底）
+    _saveWithLocalStorage(jmData) {
+      try {
+        localStorage.setItem(this.localStorageKey, JSON.stringify(jmData));
+        if (Math.random() < 0.1) { // 仅10%概率输出日志
+          console.log('[MindmapController] 已保存到localStorage:', this.localStorageKey);
+        }
+        return true;
+      } catch(e) {
+        console.warn('[MindmapController] localStorage保存失败:', e);
+        return false;
+      }
+    }
+
+    // 异步加载初始数据
+    async _loadInitialData() {
+      try {
+        const loadedData = await this.loadMindmapFromStorage();
+        this.data = loadedData || this.getDefaultData();
+        
+        // 数据加载完成后，如果已经初始化了mind实例，重新渲染
+        if (this.mind) {
+          this.renderMindmap();
+        }
+      } catch (error) {
+        console.error('[MindmapController] 初始数据加载失败:', error);
+        this.data = this.getDefaultData();
+      }
     }
 
     // 绑定测试按钮
@@ -700,7 +803,7 @@
         // 1) 优先：每个脑图的独立键 mm:{mindKey}:data
         try{
           const mk = (function(){
-            try{ const p = window.__mindFullCache; const mid = p && p.meta && p.meta.mind_id; if (mid) return String(mid); }catch(_){ }
+            // 统一解析 mindKey：仅使用当前画布根ID，避免 __mindFullCache 的滞后/串扰问题
             try{ const rid = (this.mind && this.mind.get_root && this.mind.get_root().id) || (this.data && this.data.id); if (rid) return String(rid); }catch(_){ }
             return 'root';
           }).call(this);
@@ -2330,9 +2433,26 @@
     }
 
     // —— 存储 ——
-    loadMindmapFromStorage(){
+    async loadMindmapFromStorage(){
       try {
-        // 直接使用原来的localStorage机制（最稳定）
+        // 尝试使用新的PersistenceManager加载
+        if (this.persistenceManager) {
+          try {
+            const mindId = this._getCurrentMindId();
+            const result = await this.persistenceManager.loadMind(mindId);
+            
+            if (result.success && result.data) {
+              console.log('[MindmapController] ✅ 使用PersistenceManager加载成功');
+              return this.fromJsMindTree(result.data.data);
+            } else {
+              console.warn('[MindmapController] PersistenceManager加载失败，回退到localStorage');
+            }
+          } catch (error) {
+            console.warn('[MindmapController] PersistenceManager加载异常，回退到localStorage:', error);
+          }
+        }
+
+        // 回退到传统localStorage机制
         const raw = localStorage.getItem(this.localStorageKey);
         if (!raw) return null;
         const obj = JSON.parse(raw);
@@ -2360,7 +2480,7 @@
       }
     }
 
-    saveMindmapToStorage(immediate = false){
+    async saveMindmapToStorage(immediate = false){
   // 防抖逻辑：合并频繁保存操作，提升性能
   if (!immediate) {
     clearTimeout(this._saveDebounceTimer);
@@ -2438,15 +2558,23 @@ try{
           return 'root';
         }).call(this);
         try{ jmData.meta = Object.assign({}, jmData.meta || {}, { mind_id: mindKey }); }catch(_){ /* ignore */ }
-        // 直接使用原来的localStorage保存机制（最稳定）
+        
+        // 尝试使用新的PersistenceManager保存，失败则回退到localStorage
+        let saveSuccess = false;
         try {
-          localStorage.setItem(this.localStorageKey, JSON.stringify(jmData));
-          // 降低保存日志频率，避免噪音
-          if (Math.random() < 0.1) { // 仅10%概率输出日志
-            console.log('[MindmapController] 已保存到localStorage:', this.localStorageKey);
-          }
-        } catch(e) {
-          console.warn('[MindmapController] localStorage保存失败:', e);
+          saveSuccess = await this._saveWithPersistenceManager(jmData, mindKey);
+        } catch (error) {
+          console.warn('[MindmapController] PersistenceManager保存异常:', error);
+        }
+        
+        // 如果PersistenceManager保存失败，使用传统localStorage保存
+        if (!saveSuccess) {
+          this._saveWithLocalStorage(jmData);
+        }
+        
+        // 降低保存日志频率，避免噪音
+        if (Math.random() < 0.1) { // 仅10%概率输出日志
+          console.log('[MindmapController] 已保存到localStorage:', this.localStorageKey);
         }
         
         // MD文档自动保存已禁用 - 避免频繁备份
@@ -4353,14 +4481,42 @@ try{
     // 1) jsMind node_tree 包装 { format:'node_tree', data }
     // 2) 直接内部结构 { id,label,children,... }
     // 3) 完整快照 { meta:{mind_id}, format:'node_tree', data }
+    // 4) 备份文件格式 { mindmaps: [{ id, name, data: { format, data } }] }
     let data;
-    if (obj && obj.format==='node_tree' && obj.data){
+    
+    // 检查是否为备份文件格式
+    if (obj && obj.mindmaps && Array.isArray(obj.mindmaps) && obj.mindmaps.length > 0) {
+      // 备份文件格式：选择第一个脑图或让用户选择
+      if (obj.mindmaps.length === 1) {
+        const mindmap = obj.mindmaps[0];
+        if (mindmap.data && mindmap.data.format === 'node_tree' && mindmap.data.data) {
+          data = this.fromJsMindTree(mindmap.data.data);
+        } else {
+          throw new Error('备份文件中的脑图格式不正确');
+        }
+      } else {
+        // 多个脑图：显示选择对话框
+        const selectedMindmap = await this._showMindmapSelectionDialog(obj.mindmaps);
+        if (!selectedMindmap) {
+          this.showToast('已取消导入');
+          return;
+        }
+        if (selectedMindmap.data && selectedMindmap.data.format === 'node_tree' && selectedMindmap.data.data) {
+          data = this.fromJsMindTree(selectedMindmap.data.data);
+        } else {
+          throw new Error('选中的脑图格式不正确');
+        }
+      }
+    }
+    // 原有格式支持
+    else if (obj && obj.format==='node_tree' && obj.data){
       data = this.fromJsMindTree(obj.data);
     } else if (obj && obj.data && obj.meta && obj.format==='node_tree'){
       data = this.fromJsMindTree(obj.data);
     } else {
       data = obj;
     }
+    
     if (!data || !data.id){ throw new Error('无效的脑图数据：缺少 id'); }
     // 始终按“新建脑图”的逻辑处理整图导入：无条件生成全新根ID，避免与现有项目/历史导出冲突
     try{
@@ -4393,6 +4549,154 @@ try{
     console.error('[jsMind] 导入失败', e);
     this.showToast('导入失败：文件格式不正确');
   }
+}
+
+// 显示脑图选择对话框（用于多脑图备份文件）
+async _showMindmapSelectionDialog(mindmaps) {
+  return new Promise((resolve) => {
+    // 创建对话框
+    const dialog = document.createElement('div');
+    dialog.className = 'mindmap-selection-dialog';
+    dialog.innerHTML = `
+      <div class="dialog-overlay">
+        <div class="dialog-content">
+          <h3>选择要导入的脑图</h3>
+          <div class="mindmap-list">
+            ${mindmaps.map((mindmap, index) => `
+              <div class="mindmap-item" data-index="${index}">
+                <div class="mindmap-name">${mindmap.name || '未命名脑图'}</div>
+                <div class="mindmap-id">${mindmap.id}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="dialog-buttons">
+            <button class="btn-cancel">取消</button>
+            <button class="btn-confirm" disabled>确认导入</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // 添加样式
+    const style = document.createElement('style');
+    style.textContent = `
+      .mindmap-selection-dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10000;
+      }
+      .dialog-overlay {
+        background: rgba(0,0,0,0.5);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .dialog-content {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 70%;
+        overflow-y: auto;
+      }
+      .mindmap-list {
+        margin: 15px 0;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .mindmap-item {
+        padding: 10px;
+        border: 1px solid #ddd;
+        margin: 5px 0;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .mindmap-item:hover {
+        background: #f5f5f5;
+      }
+      .mindmap-item.selected {
+        background: #e3f2fd;
+        border-color: #2196f3;
+      }
+      .mindmap-name {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .mindmap-id {
+        font-size: 12px;
+        color: #666;
+      }
+      .dialog-buttons {
+        text-align: right;
+        margin-top: 20px;
+      }
+      .dialog-buttons button {
+        margin-left: 10px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .btn-cancel {
+        background: #f5f5f5;
+        color: #333;
+      }
+      .btn-confirm {
+        background: #2196f3;
+        color: white;
+      }
+      .btn-confirm:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    `;
+    
+    document.head.appendChild(style);
+    document.body.appendChild(dialog);
+    
+    let selectedIndex = -1;
+    
+    // 绑定事件
+    dialog.addEventListener('click', (e) => {
+      if (e.target.classList.contains('dialog-overlay')) {
+        // 点击遮罩关闭
+        cleanup();
+        resolve(null);
+      } else if (e.target.classList.contains('mindmap-item') || e.target.closest('.mindmap-item')) {
+        // 选择脑图
+        const item = e.target.closest('.mindmap-item');
+        selectedIndex = parseInt(item.dataset.index);
+        
+        // 更新选中状态
+        dialog.querySelectorAll('.mindmap-item').forEach(el => el.classList.remove('selected'));
+        item.classList.add('selected');
+        
+        // 启用确认按钮
+        dialog.querySelector('.btn-confirm').disabled = false;
+      } else if (e.target.classList.contains('btn-cancel')) {
+        // 取消
+        cleanup();
+        resolve(null);
+      } else if (e.target.classList.contains('btn-confirm')) {
+        // 确认
+        if (selectedIndex >= 0) {
+          cleanup();
+          resolve(mindmaps[selectedIndex]);
+        }
+      }
+    });
+    
+    function cleanup() {
+      document.body.removeChild(dialog);
+      document.head.removeChild(style);
+    }
+  });
 }
 
     // 使用本地保存文件选择器进行导出，若不支持则回退到下载

@@ -1021,6 +1021,9 @@
       })();
     </script>
     
+    <!-- 新的持久化系统 -->
+    <script src="src/persistence/persistence-loader.js"></script>
+    
     <!-- 统一存储管理系统 -->
     <script src="src/storage/UnifiedStorageManager.js"></script>
     
@@ -1033,12 +1036,31 @@
     <!-- D3.js关系图可视化组件 -->
     <script src="src/visualization/D3RelationGraph.js"></script>
     
-    <!-- 统一存储系统初始化检查 -->
+    <!-- 系统初始化检查 -->
     <script>
-        // 确保统一存储系统正确初始化
+        // 确保所有系统正确初始化
         window.addEventListener('DOMContentLoaded', function() {
-            console.log('[系统] 检查统一存储系统状态...');
+            console.log('[系统] 检查系统组件状态...');
             
+            // 检查持久化系统
+            if (window.PersistenceSystemChecker) {
+                console.log('[系统] ✅ 持久化系统检查器已加载');
+                
+                // 等待持久化系统就绪
+                window.PersistenceSystemChecker.waitForReady(10000).then(ready => {
+                    if (ready) {
+                        console.log('[系统] ✅ 持久化系统已就绪');
+                        const stats = window.PersistenceManager.getStats();
+                        console.log('[系统] 持久化统计:', stats);
+                    } else {
+                        console.error('[系统] ❌ 持久化系统初始化超时');
+                    }
+                });
+            } else {
+                console.error('[系统] ❌ 持久化系统检查器未加载');
+            }
+            
+            // 检查统一存储系统
             if (window.UnifiedStorage) {
                 console.log('[系统] ✅ 统一存储系统已加载');
                 
@@ -1055,11 +1077,21 @@
                 console.error('[系统] ❌ 统一存储系统未加载');
             }
             
+            // 检查关系管理前端
             if (window.relationFrontend) {
                 console.log('[系统] ✅ 关系管理前端已加载');
             } else {
                 console.error('[系统] ❌ 关系管理前端未加载');
             }
+        });
+
+        // 监听持久化系统事件
+        window.addEventListener('persistenceSystemReady', function(event) {
+            console.log('[系统] 🎉 持久化系统就绪事件触发', event.detail);
+        });
+
+        window.addEventListener('persistenceSystemError', function(event) {
+            console.error('[系统] ❌ 持久化系统错误事件触发', event.detail);
         });
     </script>
     
