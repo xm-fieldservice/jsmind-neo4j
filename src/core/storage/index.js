@@ -33,9 +33,10 @@ export async function initializeStorage(options = {}) {
         let formalStorage = null;
         let registry = null;
         let migrator = null;
+        let formalEnabled = enableFormal; // 修复：使用可变变量
 
         // 2. 初始化注册式存储系统
-        if (enableFormal) {
+        if (formalEnabled) {
             try {
                 // 创建注册中心
                 registry = new StorageRegistry();
@@ -54,13 +55,13 @@ export async function initializeStorage(options = {}) {
                 
             } catch (formalError) {
                 console.warn('[Storage] 注册式存储系统初始化失败，使用简化模式:', formalError);
-                enableFormal = false;
+                formalEnabled = false; // 修复：使用可变变量
             }
         }
 
         // 3. 自动迁移数据（如果启用）
         let migrationResult = null;
-        if (enableFormal && autoMigrate && migrator) {
+        if (formalEnabled && autoMigrate && migrator) {
             try {
                 console.log('[Storage] 开始自动数据迁移...');
                 migrationResult = await migrator.migrateAll({
@@ -79,7 +80,7 @@ export async function initializeStorage(options = {}) {
 
         const result = {
             success: true,
-            mode: enableFormal ? 'dual' : 'legacy',
+            mode: formalEnabled ? 'dual' : 'legacy',
             
             // 简化存储系统（向后兼容）
             legacy: {
@@ -89,7 +90,7 @@ export async function initializeStorage(options = {}) {
             },
             
             // 注册式存储系统
-            formal: enableFormal ? {
+            formal: formalEnabled ? {
                 storage: formalStorage,
                 registry: registry,
                 migrator: migrator,
@@ -193,25 +194,30 @@ export async function migrateToFormalStorage(options = {}) {
         };
     }
 }
-export function cleanupStorage(emergency = false) {
+export function cleanupStorage(storageInstance, emergency = false) {
+    if (!storageInstance) {
+        console.error('[Storage] 清理失败: 未提供存储实例');
+        return { success: false, error: '未提供存储实例' };
+    }
+    
     console.log(`[Storage] 开始${emergency ? '紧急' : '常规'}清理...`);
     
-    const beforeStats = simpleStorage.getStats();
+    const beforeStats = storageInstance.getStats();
     let cleanedCount = 0;
     
     if (emergency) {
-        cleanedCount = simpleStorage._emergencyCleanup();
+        cleanedCount = storageInstance._emergencyCleanup();
     } else {
         // 常规清理：清理超过限制的键
-        while (simpleStorage._getOurKeyCount() > simpleStorage.maxKeys * 0.8) {
-            if (!simpleStorage._cleanupOldest()) {
+        while (storageInstance._getOurKeyCount() > storageInstance.maxKeys * 0.8) {
+            if (!storageInstance._cleanupOldest()) {
                 break; // 无法继续清理
             }
             cleanedCount++;
         }
     }
     
-    const afterStats = simpleStorage.getStats();
+    const afterStats = storageInstance.getStats();
     
     const result = {
         success: true,
@@ -227,18 +233,24 @@ export function cleanupStorage(emergency = false) {
 
 /**
  * 导出存储数据（用于备份）
+ * @param {Object} storageInstance - 存储实例
  * @returns {Object} - 导出的数据
  */
-export function exportStorageData() {
+export function exportStorageData(storageInstance) {
+    if (!storageInstance) {
+        console.error('[Storage] 导出失败: 未提供存储实例');
+        return { success: false, error: '未提供存储实例' };
+    }
+    
     console.log('[Storage] 导出存储数据...');
     
-    const keys = simpleStorage.listKeys();
+    const keys = storageInstance.listKeys();
     const data = {};
     let exportedCount = 0;
     
     for (const key of keys) {
         try {
-            const value = simpleStorage.get(key);
+            const value = storageInstance.get(key);
             if (value !== null) {
                 data[key] = value;
                 exportedCount++;
@@ -249,6 +261,7 @@ export function exportStorageData() {
     }
     
     const result = {
+        success: true,
         timestamp: new Date().toISOString(),
         version: '1.0',
         exportedCount,
@@ -261,10 +274,16 @@ export function exportStorageData() {
 
 /**
  * 导入存储数据（用于恢复）
+ * @param {Object} storageInstance - 存储实例
  * @param {Object} importData - 要导入的数据
  * @returns {Object} - 导入结果
  */
-export function importStorageData(importData) {
+export function importStorageData(storageInstance, importData) {
+    if (!storageInstance) {
+        console.error('[Storage] 导入失败: 未提供存储实例');
+        return { success: false, error: '未提供存储实例' };
+    }
+    
     console.log('[Storage] 导入存储数据...');
     
     if (!importData || !importData.data) {
@@ -280,7 +299,7 @@ export function importStorageData(importData) {
     
     for (const [key, value] of Object.entries(importData.data)) {
         try {
-            if (simpleStorage.set(key, value)) {
+            if (storageInstance.set(key, value)) {
                 importedCount++;
             } else {
                 failedCount++;
@@ -334,8 +353,8 @@ function _getHealthRecommendations(stats) {
     return recommendations;
 }
 
-// 导出主要模块
-export { simpleStorage, simpleValidator };
+// 导出主要类
+export { SimpleStorageManager, SimpleDataValidator, StorageRegistry, FormalStorageManager, StorageMigrator };
 
 // 默认导出初始化函数
 export default initializeStorage;

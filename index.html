@@ -1060,32 +1060,66 @@
                 console.error('[系统] ❌ 持久化系统检查器未加载');
             }
             
-            // 检查简化存储系统
+            // 检查双模式存储系统
             try {
-                import('./src/core/storage/index.js').then(storageModule => {
-                    console.log('[系统] 📦 简化存储模块已导入');
+                import('./src/core/storage/index.js').then(async storageModule => {
+                    console.log('[系统] 📦 双模式存储模块已导入');
                     
-                    const initResult = storageModule.initializeStorage();
+                    // 使用新的双模式初始化
+                    const initResult = await storageModule.initializeStorage({
+                        enableFormal: true,
+                        autoMigrate: false // 不自动迁移，让用户选择
+                    });
+                    
                     if (initResult.success) {
-                        console.log('[系统] ✅ 简化存储系统初始化成功');
-                        console.log('[系统] 存储统计:', initResult.stats);
+                        console.log(`[系统] ✅ 双模式存储系统初始化成功 (模式: ${initResult.mode})`);
+                        console.log('[系统] 存储统计:', {
+                            legacy: initResult.legacy?.stats,
+                            formal: initResult.formal?.stats
+                        });
                         
                         // 将存储系统暴露到全局
-                        window.SimpleStorage = initResult.storage;
-                        window.SimpleValidator = initResult.validator;
+                        window.StorageSystem = initResult;
+                        window.SimpleStorage = initResult.legacy?.storage; // 向后兼容
+                        window.SimpleValidator = initResult.legacy?.validator; // 向后兼容
+                        window.FormalStorage = initResult.formal?.storage;
+                        window.StorageRegistry = initResult.formal?.registry;
+                        
+                        // 创建存储工具实例
+                        import('./src/core/storage/StorageUtils.js').then(utilsModule => {
+                            window.StorageUtils = utilsModule.createStorageUtils(initResult);
+                            console.log('[系统] ✅ 存储工具实例已创建');
+                        }).catch(error => {
+                            console.warn('[系统] ⚠️ 存储工具创建失败:', error);
+                        });
                         
                         // 触发存储系统就绪事件
-                        window.dispatchEvent(new CustomEvent('simpleStorageReady', {
-                            detail: { storage: initResult.storage, validator: initResult.validator }
+                        window.dispatchEvent(new CustomEvent('storageSystemReady', {
+                            detail: { 
+                                system: initResult,
+                                mode: initResult.mode,
+                                // 向后兼容的事件数据
+                                storage: initResult.legacy?.storage, 
+                                validator: initResult.legacy?.validator 
+                            }
                         }));
+                        
+                        // 向后兼容：触发旧的事件
+                        window.dispatchEvent(new CustomEvent('simpleStorageReady', {
+                            detail: { 
+                                storage: initResult.legacy?.storage, 
+                                validator: initResult.legacy?.validator 
+                            }
+                        }));
+                        
                     } else {
-                        console.error('[系统] ❌ 简化存储系统初始化失败:', initResult.error);
+                        console.error('[系统] ❌ 双模式存储系统初始化失败:', initResult.error);
                     }
                 }).catch(error => {
-                    console.error('[系统] ❌ 导入简化存储模块失败:', error);
+                    console.error('[系统] ❌ 导入双模式存储模块失败:', error);
                 });
             } catch (error) {
-                console.error('[系统] ❌ 简化存储系统加载异常:', error);
+                console.error('[系统] ❌ 双模式存储系统加载异常:', error);
             }
             
             // 检查统一存储系统（向后兼容）
