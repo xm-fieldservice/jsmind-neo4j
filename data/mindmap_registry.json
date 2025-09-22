@@ -5,7 +5,7 @@
       "project_id": "root-1758538631921-tayu",
       "name": "脑图优化",
       "created_at": "2025-09-22T11:10:29.788Z",
-      "last_modified": "2025-09-22T11:18:32.259Z",
+      "last_modified": "2025-09-22T16:43:39.627Z",
       "source": "save",
       "payload": {
         "format": "node_tree",
@@ -48,7 +48,7 @@
       "project_id": "root-1758490798034-j5",
       "name": "脑图优化",
       "created_at": "2025-09-22T09:15:25.631Z",
-      "last_modified": "2025-09-22T11:10:28.467Z",
+      "last_modified": "2025-09-22T16:43:41.359Z",
       "source": "imported",
       "payload": {
         "format": "node_tree",
@@ -1194,7 +1194,7 @@
   ],
   "metadata": {
     "total_projects": 2,
-    "last_updated": "2025-09-22T11:18:32.270Z",
+    "last_updated": "2025-09-22T16:43:41.361Z",
     "storage_type": "unified_md"
   }
 }

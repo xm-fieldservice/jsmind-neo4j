@@ -1136,6 +1136,94 @@
                                 console.warn('[系统] ⚠️ 组件事件适配器创建失败:', error);
                             });
                             
+                            // 阶段2.2：创建Redux-like状态管理系统
+                            Promise.all([
+                                import('./src/core/StateSchema.js'),
+                                import('./src/core/StateManager.js'),
+                                import('./src/core/StatePersistence.js'),
+                                import('./src/core/GlobalVariableMigrator.js')
+                            ]).then(([schemaModule, managerModule, persistenceModule, migratorModule]) => {
+                                console.log('[系统] 📊 状态管理模块已导入');
+                                
+                                // 创建状态验证器
+                                window.StateValidator = schemaModule.StateValidator;
+                                window.StateUtils = schemaModule.StateUtils;
+                                const validator = new schemaModule.StateValidator();
+                                
+                                // 创建状态管理器
+                                window.StateManager = managerModule.StateManager;
+                                window.ActionTypes = managerModule.ActionTypes;
+                                window.AppStateManager = new managerModule.StateManager(
+                                    window.GlobalEventBus,
+                                    window.StandardEvents,
+                                    validator.createDefaultState()
+                                );
+                                
+                                // 开启调试模式（开发阶段）
+                                window.AppStateManager.setDebugMode(true);
+                                
+                                // 创建状态持久化管理器
+                                window.StatePersistenceManager = persistenceModule.StatePersistenceManager;
+                                window.StatePersistence = new persistenceModule.StatePersistenceManager(
+                                    window.AppStateManager,
+                                    window.GlobalEventBus,
+                                    window.StandardEvents,
+                                    {
+                                        autoSave: true,
+                                        saveInterval: 5000,
+                                        storageKey: 'app_state_v2',
+                                        maxBackups: 5
+                                    }
+                                );
+                                
+                                // 创建全局变量迁移器
+                                window.GlobalVariableMigrator = migratorModule.GlobalVariableMigrator;
+                                window.GlobalMigrationHelper = migratorModule.GlobalMigrationHelper;
+                                window.GlobalMigrator = new migratorModule.GlobalVariableMigrator(
+                                    window.AppStateManager,
+                                    window.GlobalEventBus,
+                                    window.StandardEvents
+                                );
+                                
+                                // 创建迁移助手
+                                window.MigrationHelper = new migratorModule.GlobalMigrationHelper(window.GlobalMigrator);
+                                
+                                console.log('[系统] ✅ Redux-like状态管理系统已创建');
+                                console.log('[系统] 状态管理器统计:', window.AppStateManager.getStats());
+                                console.log('[系统] 持久化管理器统计:', window.StatePersistence.getStats());
+                                console.log('[系统] 全局变量迁移统计:', window.GlobalMigrator.getStats());
+                                
+                                // 发布状态管理系统就绪事件
+                                window.GlobalEventBus.emit(window.StandardEvents.SYSTEM.READY, {
+                                    component: 'StateManagementSystem',
+                                    timestamp: Date.now(),
+                                    stats: {
+                                        stateManager: window.AppStateManager.getStats(),
+                                        persistence: window.StatePersistence.getStats(),
+                                        migration: window.GlobalMigrator.getStats()
+                                    }
+                                });
+                                
+                                // 初始化系统状态
+                                window.AppStateManager.dispatch({
+                                    type: window.ActionTypes.SYSTEM.SET_INITIALIZED,
+                                    payload: true
+                                });
+                                
+                                window.AppStateManager.dispatch({
+                                    type: window.ActionTypes.SYSTEM.SET_STORAGE_MODE,
+                                    payload: initResult.mode
+                                });
+                                
+                            }).catch(error => {
+                                console.error('[系统] ❌ 状态管理系统创建失败:', error);
+                                window.GlobalEventBus.emit(window.StandardEvents.SYSTEM.ERROR, {
+                                    component: 'StateManagementSystem',
+                                    error: error.message,
+                                    timestamp: Date.now()
+                                });
+                            });
+                            
                             // 第二阶段：通过事件总线发布存储就绪事件
                             window.GlobalEventBus.emit(window.StandardEvents.STORAGE.READY, {
                                 system: initResult,
