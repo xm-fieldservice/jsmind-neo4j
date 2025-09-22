@@ -1224,6 +1224,133 @@
                                 });
                             });
                             
+                            // 阶段2.3：创建组件生命周期管理系统
+                            Promise.all([
+                                import('./src/core/ComponentLifecycle.js'),
+                                import('./src/core/ApplicationLifecycle.js'),
+                                import('./src/core/MemoryLeakDetector.js')
+                            ]).then(([componentModule, applicationModule, memoryModule]) => {
+                                console.log('[系统] 🔄 组件生命周期模块已导入');
+                                
+                                // 创建组件生命周期管理器
+                                window.ComponentLifecycleState = componentModule.ComponentLifecycleState;
+                                window.ComponentPriority = componentModule.ComponentPriority;
+                                window.ComponentType = componentModule.ComponentType;
+                                window.IComponent = componentModule.IComponent;
+                                window.ComponentLifecycleManager = componentModule.ComponentLifecycleManager;
+                                
+                                window.ComponentLifecycle = new componentModule.ComponentLifecycleManager(
+                                    window.AppStateManager,
+                                    window.GlobalEventBus,
+                                    window.StandardEvents
+                                );
+                                
+                                // 创建应用生命周期管理器
+                                window.ApplicationState = applicationModule.ApplicationState;
+                                window.StartupPhase = applicationModule.StartupPhase;
+                                window.ApplicationLifecycleManager = applicationModule.ApplicationLifecycleManager;
+                                
+                                window.ApplicationLifecycle = new applicationModule.ApplicationLifecycleManager(
+                                    window.ComponentLifecycle,
+                                    window.AppStateManager,
+                                    window.GlobalEventBus,
+                                    window.StandardEvents
+                                );
+                                
+                                // 创建内存泄漏检测器
+                                window.MemoryLeakType = memoryModule.MemoryLeakType;
+                                window.LeakSeverity = memoryModule.LeakSeverity;
+                                window.MemoryLeakDetector = memoryModule.MemoryLeakDetector;
+                                
+                                window.memoryLeakDetector = new memoryModule.MemoryLeakDetector(
+                                    window.AppStateManager,
+                                    window.GlobalEventBus,
+                                    window.StandardEvents
+                                );
+                                
+                                console.log('[系统] ✅ 组件生命周期管理系统已创建');
+                                console.log('[系统] 组件生命周期统计:', window.ComponentLifecycle.getStats());
+                                console.log('[系统] 应用生命周期状态:', window.ApplicationLifecycle.getApplicationState());
+                                console.log('[系统] 内存检测器统计:', window.memoryLeakDetector.getStats());
+                                
+                                // 启动内存泄漏检测器
+                                window.memoryLeakDetector.start({
+                                    enabled: true,
+                                    interval: 60000, // 1分钟检测一次
+                                    maxDomNodes: 15000,
+                                    maxEventListeners: 1500,
+                                    maxTimers: 150
+                                });
+                                
+                                // 发布组件生命周期系统就绪事件
+                                window.GlobalEventBus.emit(window.StandardEvents.SYSTEM.READY, {
+                                    component: 'ComponentLifecycleSystem',
+                                    timestamp: Date.now(),
+                                    stats: {
+                                        componentLifecycle: window.ComponentLifecycle.getStats(),
+                                        applicationLifecycle: window.ApplicationLifecycle.getApplicationState(),
+                                        memoryDetector: window.memoryLeakDetector.getStats()
+                                    }
+                                });
+                                
+                                // 注册现有组件到生命周期管理器
+                                console.log('[系统] 🔧 注册现有组件到生命周期管理器...');
+                                
+                                // 注册存储系统组件
+                                if (window.StorageUtils) {
+                                    const storageComponent = new window.IComponent('StorageUtils', window.ComponentType.CORE, window.ComponentPriority.CRITICAL);
+                                    storageComponent.initialize = async () => true; // 已初始化
+                                    storageComponent.start = async () => true; // 已启动
+                                    storageComponent.stop = async () => true;
+                                    storageComponent.destroy = async () => true;
+                                    storageComponent.state = window.ComponentLifecycleState.RUNNING;
+                                    window.ComponentLifecycle.register(storageComponent);
+                                }
+                                
+                                // 注册事件系统组件
+                                if (window.GlobalEventBus) {
+                                    const eventComponent = new window.IComponent('GlobalEventBus', window.ComponentType.CORE, window.ComponentPriority.CRITICAL);
+                                    eventComponent.initialize = async () => true;
+                                    eventComponent.start = async () => true;
+                                    eventComponent.stop = async () => true;
+                                    eventComponent.destroy = async () => true;
+                                    eventComponent.state = window.ComponentLifecycleState.RUNNING;
+                                    window.ComponentLifecycle.register(eventComponent);
+                                }
+                                
+                                // 注册状态管理组件
+                                if (window.AppStateManager) {
+                                    const stateComponent = new window.IComponent('StateManager', window.ComponentType.CORE, window.ComponentPriority.HIGH);
+                                    stateComponent.initialize = async () => true;
+                                    stateComponent.start = async () => true;
+                                    stateComponent.stop = async () => true;
+                                    stateComponent.destroy = async () => true;
+                                    stateComponent.state = window.ComponentLifecycleState.RUNNING;
+                                    window.ComponentLifecycle.register(stateComponent);
+                                }
+                                
+                                // 注册组件事件适配器
+                                if (window.ComponentAdapters) {
+                                    const adapterComponent = new window.IComponent('ComponentEventAdapters', window.ComponentType.ADAPTER, window.ComponentPriority.HIGH);
+                                    adapterComponent.initialize = async () => true;
+                                    adapterComponent.start = async () => true;
+                                    adapterComponent.stop = async () => true;
+                                    adapterComponent.destroy = async () => true;
+                                    adapterComponent.state = window.ComponentLifecycleState.RUNNING;
+                                    window.ComponentLifecycle.register(adapterComponent);
+                                }
+                                
+                                console.log('[系统] ✅ 现有组件注册完成');
+                                
+                            }).catch(error => {
+                                console.error('[系统] ❌ 组件生命周期系统创建失败:', error);
+                                window.GlobalEventBus.emit(window.StandardEvents.SYSTEM.ERROR, {
+                                    component: 'ComponentLifecycleSystem',
+                                    error: error.message,
+                                    timestamp: Date.now()
+                                });
+                            });
+                            
                             // 第二阶段：通过事件总线发布存储就绪事件
                             window.GlobalEventBus.emit(window.StandardEvents.STORAGE.READY, {
                                 system: initResult,
