@@ -67,25 +67,48 @@
       try { this.startSnapshotScheduler(); } catch(_) { /* ignore */ }
     }
 
-    // 初始化持久化管理器
+    // 初始化存储系统
     async _initPersistenceManager() {
       try {
-        // 等待持久化系统就绪
-        if (window.PersistenceSystemChecker) {
+        // 尝试导入新的简化存储系统
+        if (typeof window !== 'undefined') {
+          try {
+            // 动态导入存储模块
+            const storageModule = await import('./src/core/storage/index.js');
+            const initResult = storageModule.initializeStorage();
+            
+            if (initResult.success) {
+              this.storageManager = initResult.storage;
+              this.dataValidator = initResult.validator;
+              console.log('[MindmapController] 简化存储系统初始化成功');
+              console.log('[MindmapController] 存储统计:', initResult.stats);
+            } else {
+              console.warn('[MindmapController] 简化存储系统初始化失败:', initResult.error);
+              this.storageManager = null;
+              this.dataValidator = null;
+            }
+          } catch (importError) {
+            console.warn('[MindmapController] 无法导入简化存储系统:', importError);
+            this.storageManager = null;
+            this.dataValidator = null;
+          }
+        }
+        
+        // 回退：尝试旧的持久化系统
+        if (!this.storageManager && window.PersistenceSystemChecker) {
           const ready = await window.PersistenceSystemChecker.waitForReady(5000);
           if (ready && window.PersistenceManager) {
             this.persistenceManager = window.PersistenceManager;
-            console.log('[MindmapController] 持久化管理器已就绪');
+            console.log('[MindmapController] 回退到旧持久化管理器');
           } else {
-            console.warn('[MindmapController] 持久化管理器未就绪，使用传统localStorage');
+            console.warn('[MindmapController] 所有存储系统不可用，使用传统localStorage');
             this.persistenceManager = null;
           }
-        } else {
-          console.warn('[MindmapController] 持久化系统检查器不可用');
-          this.persistenceManager = null;
         }
       } catch (error) {
-        console.error('[MindmapController] 持久化管理器初始化失败:', error);
+        console.error('[MindmapController] 存储系统初始化失败:', error);
+        this.storageManager = null;
+        this.dataValidator = null;
         this.persistenceManager = null;
       }
     }
@@ -98,6 +121,59 @@
         return rootId ? String(rootId) : 'root';
       } catch (error) {
         return 'root';
+      }
+    }
+
+    // 获取存储系统状态（用于调试）
+    getStorageSystemStatus() {
+      const status = {
+        simpleStorage: {
+          available: !!this.storageManager,
+          stats: this.storageManager ? this.storageManager.getStats() : null
+        },
+        dataValidator: {
+          available: !!this.dataValidator
+        },
+        legacyPersistence: {
+          available: !!this.persistenceManager
+        },
+        localStorage: {
+          available: typeof Storage !== 'undefined',
+          keys: []
+        }
+      };
+
+      // 获取localStorage中的相关键
+      if (status.localStorage.available) {
+        try {
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith('mm:') || key.includes('mindmap'))) {
+              status.localStorage.keys.push(key);
+            }
+          }
+        } catch (error) {
+          status.localStorage.error = error.message;
+        }
+      }
+
+      return status;
+    }
+
+    // 清理存储缓存（用于调试）
+    clearStorageCache() {
+      if (this.storageManager) {
+        try {
+          const result = this.storageManager.clear();
+          console.log('[MindmapController] 存储缓存已清理:', result);
+          return result;
+        } catch (error) {
+          console.error('[MindmapController] 清理存储缓存失败:', error);
+          return { error: error.message };
+        }
+      } else {
+        console.warn('[MindmapController] 简化存储系统不可用');
+        return { error: '简化存储系统不可用' };
       }
     }
 
@@ -2435,43 +2511,69 @@
     // —— 存储 ——
     async loadMindmapFromStorage(){
       try {
-        // 尝试使用新的PersistenceManager加载
-        if (this.persistenceManager) {
+        // 优先使用新的简化存储系统
+        if (this.storageManager) {
           try {
             const mindId = this._getCurrentMindId();
-            const result = await this.persistenceManager.loadMind(mindId);
+            const data = this.storageManager.loadMindmap(mindId);
             
-            if (result.success && result.data) {
-              console.log('[MindmapController] ✅ 使用PersistenceManager加载成功');
-              return this.fromJsMindTree(result.data.data);
+            if (data) {
+              console.log('[MindmapController] ✅ 使用简化存储系统加载成功');
+              
+              // 验证数据
+              if (this.dataValidator) {
+                const validation = this.dataValidator.validateMindmap(data);
+                if (!validation.valid) {
+                  console.warn('[MindmapController] 加载的数据存在问题:', validation.issues);
+                  this.dataValidator.printValidationResult(validation);
+                }
+              }
+              
+              // 返回数据
+              if (data.format === 'node_tree' && data.data) {
+                return this.fromJsMindTree(data.data);
+              }
             } else {
-              console.warn('[MindmapController] PersistenceManager加载失败，回退到localStorage');
+              console.log('[MindmapController] 简化存储系统中没有数据，尝试其他方式');
             }
           } catch (error) {
-            console.warn('[MindmapController] PersistenceManager加载异常，回退到localStorage:', error);
+            console.warn('[MindmapController] 简化存储系统加载异常:', error);
           }
         }
-
+        
         // 回退到传统localStorage机制
         const raw = localStorage.getItem(this.localStorageKey);
         if (!raw) return null;
+        
         const obj = JSON.parse(raw);
         if (!obj || !obj.format || !obj.data) return null;
+        
         if (obj.format === 'node_tree') {
-          try { return this.fromJsMindTree(obj.data); }
-          catch(e){ console.warn('[MindmapController] 解析本地持久化(node_tree)失败，将忽略并回退默认数据', e); return null; }
+          try { 
+            console.log('[MindmapController] ✅ 使用传统localStorage加载成功');
+            return this.fromJsMindTree(obj.data); 
+          }
+          catch(e){ 
+            console.warn('[MindmapController] 解析传统localStorage失败:', e); 
+            return null; 
+          }
         }
-        // 进一步回退：尝试全图快照键（可能仅包含 data，需要包装为 node_tree）
+        
+        // 进一步回退：尝试全图快照键
         try{
           const rawFull = localStorage.getItem(this.fullCacheKey);
           if (rawFull){
             const snap = JSON.parse(rawFull);
             if (snap && (snap.data || (snap.format === 'node_tree' && snap.data))){
               const data = snap.data || null;
-              if (data) { return this.fromJsMindTree(data); }
+              if (data) { 
+                console.log('[MindmapController] ✅ 使用全图快照加载成功');
+                return this.fromJsMindTree(data); 
+              }
             }
           }
         }catch(_){ }
+        
         return null;
       } 
       catch (e) {
@@ -2559,17 +2661,41 @@ try{
         }).call(this);
         try{ jmData.meta = Object.assign({}, jmData.meta || {}, { mind_id: mindKey }); }catch(_){ /* ignore */ }
         
-        // 尝试使用新的PersistenceManager保存，失败则回退到localStorage
+        // 尝试使用新的简化存储系统保存
         let saveSuccess = false;
-        try {
-          saveSuccess = await this._saveWithPersistenceManager(jmData, mindKey);
-        } catch (error) {
-          console.warn('[MindmapController] PersistenceManager保存异常:', error);
+        
+        if (this.storageManager) {
+          try {
+            // 验证数据
+            if (this.dataValidator) {
+              const validation = this.dataValidator.validateMindmap(jmData);
+              if (!validation.valid) {
+                console.warn('[MindmapController] 保存前数据验证失败:', validation.issues);
+                this.dataValidator.printValidationResult(validation);
+              }
+            }
+            
+            // 使用简化存储系统保存
+            saveSuccess = this.storageManager.saveMindmap(mindKey, jmData);
+            
+            if (saveSuccess) {
+              console.log('[MindmapController] ✅ 使用简化存储系统保存成功');
+            } else {
+              console.warn('[MindmapController] 简化存储系统保存失败，尝试其他方式');
+            }
+          } catch (error) {
+            console.warn('[MindmapController] 简化存储系统保存异常:', error);
+          }
         }
         
-        // 如果PersistenceManager保存失败，使用传统localStorage保存
+        // 回退：使用传统localStorage保存
         if (!saveSuccess) {
-          this._saveWithLocalStorage(jmData);
+          try {
+            this._saveWithLocalStorage(jmData);
+            console.log('[MindmapController] ✅ 使用传统localStorage保存');
+          } catch (error) {
+            console.error('[MindmapController] 所有存储方式都失败:', error);
+          }
         }
         
         // 降低保存日志频率，避免噪音

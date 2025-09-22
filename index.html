@@ -1060,7 +1060,35 @@
                 console.error('[系统] ❌ 持久化系统检查器未加载');
             }
             
-            // 检查统一存储系统
+            // 检查简化存储系统
+            try {
+                import('./src/core/storage/index.js').then(storageModule => {
+                    console.log('[系统] 📦 简化存储模块已导入');
+                    
+                    const initResult = storageModule.initializeStorage();
+                    if (initResult.success) {
+                        console.log('[系统] ✅ 简化存储系统初始化成功');
+                        console.log('[系统] 存储统计:', initResult.stats);
+                        
+                        // 将存储系统暴露到全局
+                        window.SimpleStorage = initResult.storage;
+                        window.SimpleValidator = initResult.validator;
+                        
+                        // 触发存储系统就绪事件
+                        window.dispatchEvent(new CustomEvent('simpleStorageReady', {
+                            detail: { storage: initResult.storage, validator: initResult.validator }
+                        }));
+                    } else {
+                        console.error('[系统] ❌ 简化存储系统初始化失败:', initResult.error);
+                    }
+                }).catch(error => {
+                    console.error('[系统] ❌ 导入简化存储模块失败:', error);
+                });
+            } catch (error) {
+                console.error('[系统] ❌ 简化存储系统加载异常:', error);
+            }
+            
+            // 检查统一存储系统（向后兼容）
             if (window.UnifiedStorage) {
                 console.log('[系统] ✅ 统一存储系统已加载');
                 
@@ -1074,7 +1102,7 @@
                     }
                 }, 1000);
             } else {
-                console.error('[系统] ❌ 统一存储系统未加载');
+                console.warn('[系统] ⚠️ 统一存储系统未加载（使用简化存储系统）');
             }
             
             // 检查关系管理前端
@@ -1092,6 +1120,17 @@
 
         window.addEventListener('persistenceSystemError', function(event) {
             console.error('[系统] ❌ 持久化系统错误事件触发', event.detail);
+        });
+
+        // 监听简化存储系统事件
+        window.addEventListener('simpleStorageReady', function(event) {
+            console.log('[系统] 🎉 简化存储系统就绪事件触发', event.detail);
+            
+            // 如果MindmapController已经初始化，通知它存储系统已就绪
+            if (window.mindmapController) {
+                console.log('[系统] 通知MindmapController存储系统已就绪');
+                // 可以在这里触发重新初始化存储系统
+            }
         });
     </script>
     
