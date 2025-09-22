@@ -188,9 +188,26 @@ class LocalStorageAdapter {
     _checkStorageSpace(requiredSize) {
         try {
             const usage = this.getUsage();
-            const availableSize = (5 * 1024 * 1024) - usage.totalSize; // 假设5MB配额
+            const usagePercent = (usage.totalSize / (5 * 1024 * 1024)) * 100;
+            
+            // 记录使用情况
+            if (usagePercent > 90) {
+                console.warn(`[LocalStorageAdapter] 存储空间严重不足: ${usagePercent.toFixed(1)}%`);
+            } else if (usagePercent > 80) {
+                console.warn(`[LocalStorageAdapter] 存储空间紧张: ${usagePercent.toFixed(1)}%`);
+            }
+            
+            const availableSize = (5 * 1024 * 1024) - usage.totalSize;
+            
+            // 如果超过80%，主动清理
+            if (usagePercent > 80) {
+                console.log('[LocalStorageAdapter] 触发主动清理...');
+                this._aggressiveCleanup();
+            }
+            
             return availableSize > requiredSize * 1.2; // 留20%缓冲
         } catch (error) {
+            console.error('[LocalStorageAdapter] 空间检查失败:', error);
             return true; // 检查失败时假设有空间
         }
     }
@@ -241,6 +258,106 @@ class LocalStorageAdapter {
         } catch (error) {
             console.error('[LocalStorageAdapter] 清理失败', error);
         }
+    }
+    
+    /**
+     * 激进清理 - 在存储空间紧张时使用
+     */
+    _aggressiveCleanup() {
+        try {
+            console.log('[LocalStorageAdapter] 开始激进清理...');
+            
+            const keysToClean = [];
+            let cleanedSize = 0;
+            
+            // 1. 清理所有快照（只保留最新3个）
+            const snapshotKeys = this.listKeys('mindmap_snapshot_')
+                .sort()
+                .reverse();
+            
+            if (snapshotKeys.length > 3) {
+                keysToClean.push(...snapshotKeys.slice(3));
+            }
+            
+            // 2. 清理所有临时和缓存数据
+            keysToClean.push(...this.listKeys('temp_'));
+            keysToClean.push(...this.listKeys('cache_'));
+            keysToClean.push(...this.listKeys('debug_'));
+            keysToClean.push(...this.listKeys('_drag_diag_'));
+            keysToClean.push(...this.listKeys('backup_'));
+            
+            // 3. 清理旧的全图缓存（保留最新的）
+            const fullCacheKeys = this.listKeys('__mind_full_cache_');
+            if (fullCacheKeys.length > 1) {
+                keysToClean.push(...fullCacheKeys.slice(1));
+            }
+            
+            // 4. 清理重复的脑图数据键
+            const mindmapKeys = this.listKeys('mm:');
+            const projectCatalog = this.read('mm_project_catalog_v1') || [];
+            const activeIds = new Set(projectCatalog.map(p => p.id));
+            
+            mindmapKeys.forEach(key => {
+                const match = key.match(/^mm:(.+):data$/);
+                if (match && !activeIds.has(match[1])) {
+                    keysToClean.push(key); // 清理不在项目目录中的脑图数据
+                }
+            });
+            
+            // 执行清理
+            keysToClean.forEach(key => {
+                try {
+                    const value = localStorage.getItem(key);
+                    if (value) {
+                        cleanedSize += key.length + value.length;
+                        localStorage.removeItem(key);
+                    }
+                } catch (error) {
+                    console.warn(`[LocalStorageAdapter] 激进清理键失败: ${key}`, error);
+                }
+            });
+            
+            console.log(`[LocalStorageAdapter] 激进清理完成: 删除${keysToClean.length}个键, 释放${(cleanedSize/1024).toFixed(1)}KB空间`);
+            
+            // 清理后重新检查使用情况
+            const usage = this.getUsage();
+            const usagePercent = (usage.totalSize / (5 * 1024 * 1024)) * 100;
+            console.log(`[LocalStorageAdapter] 清理后使用率: ${usagePercent.toFixed(1)}%`);
+            
+        } catch (error) {
+            console.error('[LocalStorageAdapter] 激进清理失败', error);
+        }
+    }
+    
+    /**
+     * 获取存储健康状态
+     */
+    getHealthStatus() {
+        const usage = this.getUsage();
+        const usagePercent = (usage.totalSize / (5 * 1024 * 1024)) * 100;
+        
+        let status = 'healthy';
+        let message = '存储空间充足';
+        
+        if (usagePercent > 95) {
+            status = 'critical';
+            message = '存储空间严重不足，需要立即清理';
+        } else if (usagePercent > 85) {
+            status = 'warning';
+            message = '存储空间紧张，建议清理';
+        } else if (usagePercent > 70) {
+            status = 'caution';
+            message = '存储空间使用较多';
+        }
+        
+        return {
+            status,
+            message,
+            usagePercent: usagePercent.toFixed(1),
+            totalSize: usage.totalSize,
+            itemCount: usage.itemCount,
+            availableSize: (5 * 1024 * 1024) - usage.totalSize
+        };
     }
 }
 

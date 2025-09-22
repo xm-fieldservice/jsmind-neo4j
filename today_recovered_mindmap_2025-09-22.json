@@ -1,0 +1,196 @@
+{
+  "recovery_info": {
+    "recovery_time": "2025-09-22T07:44:52+08:00",
+    "source": "localStorage mm:root-1758286740234-q2:data",
+    "original_size": "245KB",
+    "node_count": 201,
+    "root_id": "root-1758286740234-q2",
+    "root_topic": "未命名文档",
+    "saved_at": "2025-09-21T22:19:39.484Z"
+  },
+  "meta": {
+    "name": "Project Mindmap",
+    "author": "local", 
+    "version": "1.0"
+  },
+  "format": "node_tree",
+  "data": {
+    "id": "root-1758268230907-7vq1",
+    "topic": "标签标记",
+    "expanded": true,
+    "content": "# 根节点\n\n在此编写内容...",
+    "data": {
+      "content": "# 根节点\n\n在此编写内容..."
+    },
+    "background-color": "#f5f5f5",
+    "foreground-color": "#333",
+    "children": [
+      {
+        "id": "n3",
+        "topic": "输入框",
+        "expanded": true,
+        "direction": "right",
+        "content": "开发计划...",
+        "data": {
+          "content": "开发计划..."
+        },
+        "background-color": "#f5f5f5",
+        "foreground-color": "#333",
+        "children": [
+          {
+            "id": "96148c927773fa60",
+            "topic": "回车发送",
+            "expanded": true,
+            "content": "创建: 2025-09-19 17:23:18\n\n",
+            "data": {
+              "content": "创建: 2025-09-19 17:23:18\n\n"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          },
+          {
+            "id": "node-1758273940397-irt0",
+            "topic": "alt + 回车发送给智能体",
+            "expanded": true,
+            "content": "创建: 2025-09-19 17:25:40\n\n",
+            "data": {
+              "content": "创建: 2025-09-19 17:25:40\n\n"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          },
+          {
+            "id": "9614be1d3b1d0ab4",
+            "topic": "shift + 回车：直接记入笔记",
+            "expanded": true,
+            "content": "创建: 2025-09-19 17:26:46\n\n",
+            "data": {
+              "content": "创建: 2025-09-19 17:26:46\n\n"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          }
+        ]
+      },
+      {
+        "id": "9614cc3bbbce331a",
+        "topic": "输入按键",
+        "expanded": true,
+        "direction": "right",
+        "content": "创建: 2025-09-19 17:27:43\n\n",
+        "data": {
+          "content": "创建: 2025-09-19 17:27:43\n\n"
+        },
+        "background-color": "#f5f5f5",
+        "foreground-color": "#333",
+        "children": [
+          {
+            "id": "9614ce737e91a66a",
+            "topic": "添加附件",
+            "expanded": true,
+            "content": "创建: 2025-09-19 17:27:42\n\n",
+            "data": {
+              "content": "创建: 2025-09-19 17:27:42\n\n"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          }
+        ]
+      },
+      {
+        "id": "961490aa0661846b",
+        "topic": "输出框",
+        "expanded": true,
+        "direction": "right",
+        "content": "创建: 2025-09-19 17:23:34\n\n",
+        "data": {
+          "content": "创建: 2025-09-19 17:23:34\n\n"
+        },
+        "background-color": "#f5f5f5",
+        "foreground-color": "#333",
+        "children": [
+          {
+            "id": "9614d2d9126e6e8e",
+            "topic": "MD阅读器",
+            "expanded": true,
+            "content": "创建: 2025-09-19 17:28:48\n\n",
+            "data": {
+              "content": "创建: 2025-09-19 17:28:48\n\n"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          },
+          {
+            "id": "9614f58ac32358c6",
+            "topic": "New Node",
+            "expanded": true,
+            "content": "",
+            "data": {
+              "content": ""
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          },
+          {
+            "id": "9614d4d4d4cb8910",
+            "topic": "笔记内容标题栏右侧（添加"复制"按键",
+            "expanded": true,
+            "content": "创建: 2025-09-19 17:28:27\n全部复制输出框内的内容到剪贴板\n",
+            "data": {
+              "content": "创建: 2025-09-19 17:28:27\n全部复制输出框内的内容到剪贴板\n"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          },
+          {
+            "id": "9614e38214a87c44",
+            "topic": "笔记内容标题栏右侧："处理"按键",
+            "expanded": true,
+            "content": "创建: 2025-09-19 17:28:27\n将输出栏的内容使用team处理\n\n",
+            "data": {
+              "content": "创建: 2025-09-19 17:28:27\n将输出栏的内容使用team处理\n\n"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          }
+        ]
+      },
+      {
+        "id": "961496e1a6786f4e",
+        "topic": "智能体",
+        "expanded": true,
+        "direction": "right",
+        "content": "创建: 2025-09-19 17:23:50\n\n",
+        "data": {
+          "content": "创建: 2025-09-19 17:23:50\n\n"
+        },
+        "background-color": "#f5f5f5",
+        "foreground-color": "#333",
+        "children": [
+          {
+            "id": "node-1758273834249-2m7v",
+            "topic": "通用脚本",
+            "expanded": true,
+            "content": "设计说是的，这个脚本已经完全兼容Agent和Team！\n\n✅ 自动识别: 根据component_type字段自动识别\n✅ 统一接口: 相同的命令行参数和API接口\n✅ 原生支持: 严格使用AutoGen 0.7.1原生方法\n✅ 测试验证: Agent和Team都测试成功\n✅ 笔记栏集成: 后端API透明支持两种类型\n一个脚本，两种模式，完全兼容！🚀明...\n\n---\n\n### 通用脚本\n2025-09-19 17:21:00\n\n[完整的通用脚本代码内容...]",
+            "data": {
+              "content": "设计说是的，这个脚本已经完全兼容Agent和Team！\n\n✅ 自动识别: 根据component_type字段自动识别\n✅ 统一接口: 相同的命令行参数和API接口\n✅ 原生支持: 严格使用AutoGen 0.7.1原生方法\n✅ 测试验证: Agent和Team都测试成功\n✅ 笔记栏集成: 后端API透明支持两种类型\n一个脚本，两种模式，完全兼容！🚀明...\n\n---\n\n### 通用脚本\n2025-09-19 17:21:00\n\n[完整的通用脚本代码内容...]"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          },
+          {
+            "id": "9615b12295d90c84",
+            "topic": "参数传递，外部启动",
+            "expanded": true,
+            "content": "创建: 2025-09-19 17:43:07\n\n",
+            "data": {
+              "content": "创建: 2025-09-19 17:43:07\n\n"
+            },
+            "background-color": "#f5f5f5",
+            "foreground-color": "#333"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 紧急数据恢复工具</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .emergency { background: #ffebee; border: 2px solid #f44336; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #e8f5e8; border: 2px solid #4caf50; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .warning { background: #fff3e0; border: 2px solid #ff9800; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .data-source { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .data-preview { background: #f9f9f9; padding: 10px; margin: 10px 0; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }
+        button { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-recover { background: #4caf50; color: white; }
+        .btn-analyze { background: #2196f3; color: white; }
+        .btn-export { background: #ff9800; color: white; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 20px 0; }
+        .stat-card { background: #f0f0f0; padding: 15px; border-radius: 5px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 紧急数据恢复工具</h1>
+        
+        <div class="emergency">
+            <h3>⚠️ 紧急情况</h3>
+            <p>检测到数据丢失，正在扫描所有可能的备份源...</p>
+            <button class="btn-analyze" onclick="scanAllDataSources()">🔍 立即扫描所有数据源</button>
+            <button class="btn-export" onclick="exportAllData()">💾 导出所有找到的数据</button>
+        </div>
+
+        <div class="stats" id="recovery-stats">
+            <div class="stat-card">
+                <h4>localStorage 键数量</h4>
+                <div id="localStorage-count">检查中...</div>
+            </div>
+            <div class="stat-card">
+                <h4>脑图相关数据</h4>
+                <div id="mindmap-count">检查中...</div>
+            </div>
+            <div class="stat-card">
+                <h4>快照数量</h4>
+                <div id="snapshot-count">检查中...</div>
+            </div>
+            <div class="stat-card">
+                <h4>备份数据大小</h4>
+                <div id="backup-size">检查中...</div>
+            </div>
+        </div>
+
+        <div id="data-sources"></div>
+        
+        <div id="recovery-log" style="margin-top: 20px;">
+            <h3>🔍 恢复日志</h3>
+            <div id="log-content" class="data-preview">正在初始化恢复工具...</div>
+        </div>
+    </div>
+
+    <script>
+        let recoveryData = {};
+        
+        function log(message, type = 'info') {
+            const logContent = document.getElementById('log-content');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logContent.innerHTML += `<div>[${timestamp}] ${prefix} ${message}</div>`;
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function scanAllDataSources() {
+            log('开始扫描所有数据源...', 'info');
+            
+            // 1. 扫描 localStorage
+            scanLocalStorage();
+            
+            // 2. 扫描快照系统
+            scanSnapshots();
+            
+            // 3. 扫描持久化系统的各种键
+            scanPersistenceKeys();
+            
+            // 4. 扫描项目目录
+            scanProjectCatalog();
+            
+            // 5. 更新统计
+            updateStats();
+            
+            log('数据源扫描完成！', 'success');
+        }
+
+        function scanLocalStorage() {
+            log('扫描 localStorage...', 'info');
+            
+            const allKeys = [];
+            const mindmapKeys = [];
+            let totalSize = 0;
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                allKeys.push(key);
+                
+                const value = localStorage.getItem(key);
+                totalSize += value ? value.length : 0;
+                
+                // 检查是否是脑图相关的键
+                if (key.includes('mindmap') || key.includes('mind') || key.includes('mm:') || key.includes('node_tree')) {
+                    mindmapKeys.push(key);
+                    log(`发现脑图数据键: ${key} (${value ? Math.round(value.length/1024) : 0}KB)`, 'success');
+                    
+                    // 尝试解析数据
+                    try {
+                        const data = JSON.parse(value);
+                        recoveryData[key] = {
+                            key: key,
+                            data: data,
+                            size: value.length,
+                            timestamp: data.meta?.saved_at || data.timestamp || '未知',
+                            nodeCount: countNodes(data)
+                        };
+                        
+                        createDataSourceCard(key, data, value.length);
+                    } catch (e) {
+                        log(`键 ${key} 数据解析失败: ${e.message}`, 'warning');
+                    }
+                }
+            }
+            
+            document.getElementById('localStorage-count').textContent = allKeys.length;
+            document.getElementById('mindmap-count').textContent = mindmapKeys.length;
+            document.getElementById('backup-size').textContent = Math.round(totalSize/1024) + 'KB';
+            
+            log(`localStorage 扫描完成: ${allKeys.length} 个键, ${mindmapKeys.length} 个脑图相关键`, 'info');
+        }
+
+        function scanSnapshots() {
+            log('扫描快照系统...', 'info');
+            
+            try {
+                const snapshotIndex = localStorage.getItem('mindmap_snapshots_index');
+                if (snapshotIndex) {
+                    const index = JSON.parse(snapshotIndex);
+                    log(`发现快照索引: ${Object.keys(index).length} 个快照`, 'success');
+                    
+                    Object.keys(index).forEach(snapshotId => {
+                        const snapshotKey = `mindmap_snapshot_${snapshotId}`;
+                        const snapshotData = localStorage.getItem(snapshotKey);
+                        if (snapshotData) {
+                            try {
+                                const data = JSON.parse(snapshotData);
+                                recoveryData[snapshotKey] = {
+                                    key: snapshotKey,
+                                    data: data,
+                                    size: snapshotData.length,
+                                    timestamp: index[snapshotId].timestamp || '未知',
+                                    nodeCount: countNodes(data),
+                                    isSnapshot: true
+                                };
+                                
+                                createDataSourceCard(snapshotKey, data, snapshotData.length, true);
+                                log(`发现快照: ${snapshotId} (${Math.round(snapshotData.length/1024)}KB)`, 'success');
+                            } catch (e) {
+                                log(`快照 ${snapshotId} 解析失败: ${e.message}`, 'warning');
+                            }
+                        }
+                    });
+                    
+                    document.getElementById('snapshot-count').textContent = Object.keys(index).length;
+                } else {
+                    log('未找到快照索引', 'warning');
+                    document.getElementById('snapshot-count').textContent = '0';
+                }
+            } catch (e) {
+                log(`快照扫描失败: ${e.message}`, 'error');
+                document.getElementById('snapshot-count').textContent = '错误';
+            }
+        }
+
+        function scanPersistenceKeys() {
+            log('扫描持久化系统键...', 'info');
+            
+            const persistenceKeys = [
+                'mindmap_data_v1',
+                '__mind_full_cache_v1',
+                'mm_project_catalog_v1'
+            ];
+            
+            persistenceKeys.forEach(key => {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        log(`发现持久化数据: ${key} (${Math.round(data.length/1024)}KB)`, 'success');
+                        
+                        recoveryData[key] = {
+                            key: key,
+                            data: parsed,
+                            size: data.length,
+                            timestamp: parsed.meta?.saved_at || parsed.timestamp || '未知',
+                            nodeCount: countNodes(parsed),
+                            isPersistence: true
+                        };
+                        
+                        createDataSourceCard(key, parsed, data.length, false, true);
+                    } catch (e) {
+                        log(`持久化数据 ${key} 解析失败: ${e.message}`, 'warning');
+                    }
+                }
+            });
+        }
+
+        function scanProjectCatalog() {
+            log('扫描项目目录...', 'info');
+            
+            try {
+                const catalog = localStorage.getItem('mm_project_catalog_v1');
+                if (catalog) {
+                    const projects = JSON.parse(catalog);
+                    log(`发现项目目录: ${projects.length} 个项目`, 'success');
+                    
+                    projects.forEach((project, index) => {
+                        log(`项目 ${index + 1}: ${project.name} (ID: ${project.id})`, 'info');
+                    });
+                }
+            } catch (e) {
+                log(`项目目录扫描失败: ${e.message}`, 'error');
+            }
+        }
+
+        function countNodes(data) {
+            if (!data) return 0;
+            
+            // 尝试不同的数据结构
+            if (data.data && data.data.children) {
+                return countNodesRecursive(data.data);
+            } else if (data.children) {
+                return countNodesRecursive(data);
+            } else if (Array.isArray(data)) {
+                return data.length;
+            } else if (data.meta && data.meta.node_count) {
+                return data.meta.node_count;
+            }
+            
+            return 1; // 至少有根节点
+        }
+
+        function countNodesRecursive(node) {
+            let count = 1; // 当前节点
+            if (node.children && Array.isArray(node.children)) {
+                node.children.forEach(child => {
+                    count += countNodesRecursive(child);
+                });
+            }
+            return count;
+        }
+
+        function createDataSourceCard(key, data, size, isSnapshot = false, isPersistence = false) {
+            const container = document.getElementById('data-sources');
+            
+            const card = document.createElement('div');
+            card.className = 'data-source';
+            
+            const type = isSnapshot ? '📸 快照' : isPersistence ? '💾 持久化' : '📄 数据';
+            const nodeCount = countNodes(data);
+            const timestamp = data.meta?.saved_at || data.timestamp || '未知时间';
+            
+            card.innerHTML = `
+                <h4>${type}: ${key}</h4>
+                <p><strong>节点数量:</strong> ${nodeCount} | <strong>大小:</strong> ${Math.round(size/1024)}KB | <strong>时间:</strong> ${timestamp}</p>
+                <div class="data-preview">${JSON.stringify(data, null, 2).substring(0, 500)}...</div>
+                <button class="btn-recover" onclick="recoverFromSource('${key}')">🔄 恢复此数据</button>
+                <button class="btn-analyze" onclick="analyzeData('${key}')">🔍 详细分析</button>
+                <button class="btn-export" onclick="exportData('${key}')">💾 导出数据</button>
+            `;
+            
+            container.appendChild(card);
+        }
+
+        function recoverFromSource(key) {
+            if (!recoveryData[key]) {
+                log(`错误: 找不到数据源 ${key}`, 'error');
+                return;
+            }
+            
+            const sourceData = recoveryData[key];
+            log(`开始从 ${key} 恢复数据...`, 'info');
+            
+            try {
+                // 恢复到主要的存储键
+                localStorage.setItem('mindmap_data_v1', JSON.stringify(sourceData.data));
+                log(`数据已恢复到 mindmap_data_v1`, 'success');
+                
+                // 创建备份
+                const backupKey = `recovery_backup_${Date.now()}`;
+                localStorage.setItem(backupKey, JSON.stringify(sourceData.data));
+                log(`已创建恢复备份: ${backupKey}`, 'success');
+                
+                alert(`✅ 数据恢复成功！\n\n从: ${key}\n节点数: ${sourceData.nodeCount}\n请刷新页面查看恢复的数据。`);
+                
+            } catch (e) {
+                log(`恢复失败: ${e.message}`, 'error');
+                alert(`❌ 恢复失败: ${e.message}`);
+            }
+        }
+
+        function analyzeData(key) {
+            const sourceData = recoveryData[key];
+            if (!sourceData) return;
+            
+            const analysis = {
+                key: key,
+                nodeCount: sourceData.nodeCount,
+                size: sourceData.size,
+                timestamp: sourceData.timestamp,
+                structure: analyzeStructure(sourceData.data)
+            };
+            
+            const popup = window.open('', '_blank', 'width=800,height=600');
+            popup.document.write(`
+                <html>
+                <head><title>数据分析: ${key}</title></head>
+                <body style="font-family: Arial; padding: 20px;">
+                    <h2>数据分析: ${key}</h2>
+                    <pre>${JSON.stringify(analysis, null, 2)}</pre>
+                    <hr>
+                    <h3>完整数据:</h3>
+                    <pre>${JSON.stringify(sourceData.data, null, 2)}</pre>
+                </body>
+                </html>
+            `);
+        }
+
+        function analyzeStructure(data) {
+            const structure = {
+                hasData: !!data.data,
+                hasMeta: !!data.meta,
+                hasChildren: !!(data.children || (data.data && data.data.children)),
+                format: data.format || '未知',
+                rootId: data.data?.id || data.id || '未知'
+            };
+            
+            return structure;
+        }
+
+        function exportData(key) {
+            const sourceData = recoveryData[key];
+            if (!sourceData) return;
+            
+            const exportData = {
+                exportTime: new Date().toISOString(),
+                sourceKey: key,
+                recoveryInfo: sourceData,
+                fullData: sourceData.data
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `recovery_${key}_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            log(`已导出数据: ${key}`, 'success');
+        }
+
+        function exportAllData() {
+            const allData = {
+                exportTime: new Date().toISOString(),
+                totalSources: Object.keys(recoveryData).length,
+                sources: recoveryData
+            };
+            
+            const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `emergency_recovery_all_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            log(`已导出所有恢复数据`, 'success');
+        }
+
+        function updateStats() {
+            // 统计已在各个扫描函数中更新
+        }
+
+        // 页面加载时自动开始扫描
+        window.addEventListener('load', () => {
+            log('紧急数据恢复工具已启动', 'success');
+            setTimeout(scanAllDataSources, 1000);
+        });
+    </script>
+</body>
+</html>

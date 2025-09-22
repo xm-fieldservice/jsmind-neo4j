@@ -4461,6 +4461,12 @@ try{
     }
 
     importMindmapFromPicker(){
+  // 防重复点击保护
+  if (this._importLock) {
+    this.showToast('正在导入中，请稍候...');
+    return;
+  }
+  
   // 兼容：若未缓存 fileInput，则按ID即时获取
   try{ if (!this.dom) this.dom = {}; }catch(_){ this.dom = this.dom || {}; }
   if (!this.dom.fileInput){ this.dom.fileInput = document.getElementById('fileInputMindmap'); }
@@ -4475,81 +4481,230 @@ try{
 
     async importMindmapFromFile(file){
   try{
+    // 设置导入锁定
+    this._importLock = true;
+    this.showToast('开始导入文件...');
+    
+    // 第一步：清理列表内原有的内容
+    await this.clearAllProjectsFromList();
+    
+    // 第二步：读取JSON文件内容
     const text = await file.text();
     const obj = JSON.parse(text);
-    // 支持：
-    // 1) jsMind node_tree 包装 { format:'node_tree', data }
-    // 2) 直接内部结构 { id,label,children,... }
-    // 3) 完整快照 { meta:{mind_id}, format:'node_tree', data }
-    // 4) 备份文件格式 { mindmaps: [{ id, name, data: { format, data } }] }
-    let data;
     
-    // 检查是否为备份文件格式
-    if (obj && obj.mindmaps && Array.isArray(obj.mindmaps) && obj.mindmaps.length > 0) {
-      // 备份文件格式：选择第一个脑图或让用户选择
-      if (obj.mindmaps.length === 1) {
-        const mindmap = obj.mindmaps[0];
-        if (mindmap.data && mindmap.data.format === 'node_tree' && mindmap.data.data) {
-          data = this.fromJsMindTree(mindmap.data.data);
-        } else {
-          throw new Error('备份文件中的脑图格式不正确');
-        }
-      } else {
-        // 多个脑图：显示选择对话框
-        const selectedMindmap = await this._showMindmapSelectionDialog(obj.mindmaps);
-        if (!selectedMindmap) {
-          this.showToast('已取消导入');
-          return;
-        }
-        if (selectedMindmap.data && selectedMindmap.data.format === 'node_tree' && selectedMindmap.data.data) {
-          data = this.fromJsMindTree(selectedMindmap.data.data);
-        } else {
-          throw new Error('选中的脑图格式不正确');
-        }
+    this.showToast('正在处理文件内容...');
+    
+    // 第三步：根据文件内容结构直接显示，不做格式判断和转换
+    if (obj && obj.mindmaps && Array.isArray(obj.mindmaps)) {
+      // 备份文件格式：包含多个脑图，全部导入
+      console.log(`[导入] 检测到备份文件格式，包含 ${obj.mindmaps.length} 个脑图`);
+      this.showToast(`发现${obj.mindmaps.length}个脑图，正在导入...`);
+      
+      for (let i = 0; i < obj.mindmaps.length; i++) {
+        const mindmap = obj.mindmaps[i];
+        console.log(`[导入] 正在导入第 ${i + 1} 个脑图:`, mindmap.name || mindmap.id);
+        await this.importSingleMindmapToList(mindmap, file.name, i);
       }
-    }
-    // 原有格式支持
-    else if (obj && obj.format==='node_tree' && obj.data){
-      data = this.fromJsMindTree(obj.data);
-    } else if (obj && obj.data && obj.meta && obj.format==='node_tree'){
-      data = this.fromJsMindTree(obj.data);
+      
+      // 显示第一个脑图
+      if (obj.mindmaps.length > 0) {
+        await this.loadFirstMindmapFromList();
+      }
+      
+      this.showToast(`成功导入${obj.mindmaps.length}个脑图`);
+      
+    } else if (obj && (obj.format === 'node_tree' || obj.data || obj.id)) {
+      // 单个脑图格式：直接导入
+      this.showToast('发现单个脑图，正在导入...');
+      
+      const mindmapData = {
+        id: obj.id || obj.data?.id || `imported-${Date.now()}`,
+        name: obj.topic || obj.label || obj.data?.topic || obj.data?.label || file.name.replace(/\.(json|mindmap\.json)$/i, ''),
+        data: obj
+      };
+      
+      await this.importSingleMindmapToList(mindmapData, file.name, 0);
+      await this.loadFirstMindmapFromList();
+      
+      this.showToast('成功导入1个脑图');
+      
     } else {
-      data = obj;
+      // 其他格式：尝试作为脑图数据导入
+      this.showToast('未知格式，尝试作为脑图数据导入...');
+      
+      const mindmapData = {
+        id: `imported-${Date.now()}`,
+        name: file.name.replace(/\.(json|mindmap\.json)$/i, ''),
+        data: obj
+      };
+      
+      await this.importSingleMindmapToList(mindmapData, file.name, 0);
+      await this.loadFirstMindmapFromList();
+      
+      this.showToast('导入完成');
     }
     
-    if (!data || !data.id){ throw new Error('无效的脑图数据：缺少 id'); }
-    // 始终按“新建脑图”的逻辑处理整图导入：无条件生成全新根ID，避免与现有项目/历史导出冲突
-    try{
-      data.id = `root-${Date.now()}-${Math.random().toString(36).slice(2,4)}`;
-    }catch(_){ }
-    this.data = data;
-    // 渲染与选择
-    this.renderMindmap();
-    this.setSelectedNode(this.data.id);
-    // 解除抑制，允许保存
-    try{ window.__STORAGE_PAUSE = false; window.__REG_SYNC_SUPPRESS = false; }catch(_){ }
-    // 绑定快照键
-    try{ window.__mindFullCache = { meta:{ mind_id:String(this.data.id) }, format:'node_tree', data: this.data }; }catch(_){ }
-    // 保存一次
-    this.saveMindmapToStorage();
-    // 新架构：注册并选中列表项（按新建逻辑）
-    try{
-      const payload = { format:'node_tree', data: this.data };
-      const baseName = (this.data && (this.data.label || this.data.topic)) || '未命名项目';
-      const name = (file && file.name) ? file.name.replace(/\.(json|mindmap\.json)$/i,'') : baseName;
-      if (window.Registry && window.Registry.cmd){
-        await window.Registry.cmd.register({ id:this.data.id, project_id:this.data.id, name, payload, source:'new' });
-        window.Registry.cmd.select(this.data.id);
-      } else {
-        // 兜底：广播给旧机制
-        try{ window.dispatchEvent(new CustomEvent('mindmap:imported', { detail: { name, payload, source: 'new' } })); }catch(_){ }
-      }
-    }catch(e){ console.warn('[import] 注册失败', e); }
   }catch(e){
-    console.error('[jsMind] 导入失败', e);
-    this.showToast('导入失败：文件格式不正确');
+    console.error('[导入] 导入失败', e);
+    this.showToast(`导入失败：${e.message}`, 'error');
+  } finally {
+    // 释放导入锁定
+    this._importLock = false;
   }
 }
+
+    // 清理列表内所有项目
+    async clearAllProjectsFromList() {
+      try {
+        this.showToast('正在清理现有项目列表...');
+        
+        // 清理 localStorage 中的项目数据
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (
+            key.startsWith('mm:') || 
+            key.startsWith('mindmap_') || 
+            key === 'mm_project_catalog_v1' ||
+            key === '__mind_full_cache_v1'
+          )) {
+            keysToRemove.push(key);
+          }
+        }
+        
+        keysToRemove.forEach(key => {
+          try {
+            localStorage.removeItem(key);
+          } catch (e) {
+            console.warn(`清理键失败: ${key}`, e);
+          }
+        });
+        
+        // 清理注册表（通过设置空数组）
+        if (window.Registry && window.Registry.repo && window.Registry.repo.store) {
+          try {
+            window.Registry.repo.store.setProjects([]);
+            await window.Registry.repo.saveRegistry();
+          } catch (e) {
+            console.warn('清理注册表失败', e);
+          }
+        }
+        
+        // 清理UI显示
+        const catalog = document.getElementById('project-catalog');
+        if (catalog) {
+          catalog.innerHTML = '<div class="no-projects">列表已清空，等待导入...</div>';
+        }
+        
+        console.log(`[清理] 已清理 ${keysToRemove.length} 个存储键`);
+        
+      } catch (e) {
+        console.error('[清理] 清理列表失败', e);
+        this.showToast('清理列表时出现错误', 'error');
+      }
+    }
+    
+    // 将单个脑图导入到列表
+    async importSingleMindmapToList(mindmapData, fileName, index) {
+      try {
+        // 生成唯一ID
+        const uniqueId = mindmapData.id || `imported-${Date.now()}-${index}`;
+        
+        // 智能处理数据结构
+        let payload;
+        if (mindmapData.data && mindmapData.data.format === 'node_tree') {
+          // 备份文件格式：mindmapData.data 已经是完整的 payload
+          payload = mindmapData.data;
+        } else if (mindmapData.data && mindmapData.data.data) {
+          // 嵌套格式：需要提取内层数据
+          payload = {
+            format: 'node_tree',
+            data: mindmapData.data.data
+          };
+        } else {
+          // 直接数据格式
+          payload = {
+            format: 'node_tree',
+            data: mindmapData.data || mindmapData
+          };
+        }
+        
+        // 构建项目数据
+        const projectData = {
+          id: uniqueId,
+          project_id: uniqueId,
+          name: mindmapData.name || `导入项目${index + 1}`,
+          payload: payload,
+          source: 'imported',
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          fileName: fileName,
+          originalIndex: index
+        };
+        
+        // 保存到 localStorage
+        const storageKey = `mm:${uniqueId}:data`;
+        localStorage.setItem(storageKey, JSON.stringify(projectData.payload));
+        
+        // 注册到项目目录
+        if (window.Registry && window.Registry.cmd) {
+          try {
+            await window.Registry.cmd.register(projectData);
+          } catch (e) {
+            console.warn(`注册项目失败: ${projectData.name}`, e);
+          }
+        }
+        
+        console.log(`[导入] 成功导入: ${projectData.name}`);
+        
+      } catch (e) {
+        console.error(`[导入] 导入单个脑图失败:`, mindmapData, e);
+        throw e;
+      }
+    }
+    
+    // 加载列表中的第一个脑图到界面
+    async loadFirstMindmapFromList() {
+      try {
+        if (window.Registry && window.Registry.repo && window.Registry.repo.store) {
+          const projects = window.Registry.repo.store.state.projects;
+          if (projects && projects.length > 0) {
+            const firstProject = projects[0];
+            
+            // 加载第一个项目的数据
+            if (firstProject.payload && firstProject.payload.data) {
+              let data = firstProject.payload.data;
+              
+              // 数据格式转换
+              if (data.format === 'node_tree' && data.data) {
+                data = this.fromJsMindTree(data.data);
+              } else if (data.data) {
+                data = this.fromJsMindTree(data);
+              } else {
+                // 直接使用原始数据
+                data = data;
+              }
+              
+              // 设置为当前数据并渲染
+              this.data = data;
+              this.renderMindmap();
+              if (data.id) {
+                this.setSelectedNode(data.id);
+              }
+              
+              // 选中列表项
+              if (window.Registry.cmd) {
+                window.Registry.cmd.select(firstProject.id);
+              }
+              
+              console.log(`[加载] 已加载第一个项目: ${firstProject.name}`);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('[加载] 加载第一个脑图失败', e);
+      }
+    }
 
 // 显示脑图选择对话框（用于多脑图备份文件）
 async _showMindmapSelectionDialog(mindmaps) {

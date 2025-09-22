@@ -1,0 +1,65 @@
+{
+  "export_time": "2025-09-22T05:00:00.000Z",
+  "total_count": 3,
+  "mindmaps": [
+    {
+      "id": "test-mindmap-1",
+      "name": "测试脑图1",
+      "data": {
+        "format": "node_tree",
+        "data": {
+          "id": "test-mindmap-1",
+          "topic": "测试脑图1",
+          "expanded": true,
+          "content": "这是第一个测试脑图",
+          "children": [
+            {
+              "id": "child-1-1",
+              "topic": "子节点1-1",
+              "direction": "right"
+            },
+            {
+              "id": "child-1-2", 
+              "topic": "子节点1-2",
+              "direction": "right"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "test-mindmap-2",
+      "name": "测试脑图2",
+      "data": {
+        "format": "node_tree",
+        "data": {
+          "id": "test-mindmap-2",
+          "topic": "测试脑图2",
+          "expanded": true,
+          "content": "这是第二个测试脑图",
+          "children": [
+            {
+              "id": "child-2-1",
+              "topic": "子节点2-1",
+              "direction": "right"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "test-mindmap-3",
+      "name": "测试脑图3",
+      "data": {
+        "format": "node_tree",
+        "data": {
+          "id": "test-mindmap-3",
+          "topic": "测试脑图3",
+          "expanded": true,
+          "content": "这是第三个测试脑图",
+          "children": []
+        }
+      }
+    }
+  ]
+}
