@@ -21,4 +21,6 @@ if (typeof StorageManager === 'undefined') {
     }
   }
   window.StorageManager = StorageManager;
+} else {
+  console.warn('StorageManager already defined');
 }

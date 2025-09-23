@@ -45,6 +45,12 @@ class StorageHealthMonitor {
                 critical: 500   // 500ms 响应时间严重
             }
         };
+        
+        // 每30分钟检查一次
+        this.intervalId = setInterval(() => this.checkHealth(), 30 * 60 * 1000);
+        
+        // 立即执行首次检查
+        this.checkHealth();
     }
 
     /**
@@ -553,6 +559,60 @@ class StorageHealthMonitor {
                                this.performanceMetrics.writeTimes.length;
         
         return totalOperations > 0 ? totalErrors / totalOperations : 0;
+    }
+
+    async checkHealth() {
+        // 检查存储空间
+        if (navigator.storage && navigator.storage.estimate) {
+            try {
+                const estimate = await navigator.storage.estimate();
+                this.stats.storageUsage = (estimate.usage / estimate.quota * 100).toFixed(2);
+            } catch (e) {
+                console.error('存储空间评估失败:', e);
+            }
+        }
+        
+        // 执行测试存储
+        const testKey = `healthcheck_${Date.now()}`;
+        try {
+            await this.system.save(testKey, { test: true });
+            const data = await this.system.load(testKey);
+            
+            if (data && data.test) {
+                this.stats.lastSuccess = new Date();
+                this.stats.errorCount = 0;
+            } else {
+                this.stats.errorCount++;
+            }
+            
+            // 清理测试数据
+            await this.system.remove(testKey);
+        } catch (error) {
+            this.stats.errorCount++;
+        }
+        
+        // 更新UI指示器
+        this.updateStatusIndicator();
+    }
+
+    updateStatusIndicator() {
+        const indicator = document.getElementById('storage-health-indicator');
+        if (!indicator) return;
+        
+        if (this.stats.errorCount > 2) {
+            indicator.className = 'critical';
+            indicator.title = '存储系统严重故障';
+        } else if (this.stats.errorCount > 0) {
+            indicator.className = 'warning';
+            indicator.title = '存储系统部分故障';
+        } else {
+            indicator.className = 'healthy';
+            indicator.title = `存储系统正常 | 使用率: ${this.stats.storageUsage}%`;
+        }
+    }
+
+    destroy() {
+        clearInterval(this.intervalId);
     }
 }
 

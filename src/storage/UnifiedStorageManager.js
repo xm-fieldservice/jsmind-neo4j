@@ -4,16 +4,13 @@
  * 支持脑图数据、关系数据、应用状态等多种数据类型
  */
 
+import UnifiedStorageAdapter from '../core/storage/UnifiedStorageAdapter';
+import LocalStorageAdapter from '../core/storage/adapters/LocalStorageAdapter';
+import IndexedDBAdapter from '../core/storage/adapters/IndexedDBAdapter';
+import JsonBaseAdapter from './adapters/JsonBaseAdapter';
+
 class UnifiedStorageManager {
     constructor() {
-        this.JSON_BASE_PATH = '/data/all_mindmaps.json';
-        this.syncTimers = {};
-        this.cacheStats = {
-            hits: 0,
-            misses: 0,
-            syncs: 0
-        };
-        
         // 数据类型配置
         this.DATA_TYPES = {
             MINDMAP: 'mindmap',
@@ -30,6 +27,29 @@ class UnifiedStorageManager {
             [this.DATA_TYPES.USER_PREFERENCES]: 604800000 // 7天
         };
         
+        // 创建各个存储适配器
+        const localStorageAdapter = new LocalStorageAdapter();
+        const indexedDBAdapter = new IndexedDBAdapter();
+        const jsonBaseAdapter = new JsonBaseAdapter();
+        
+        // 优先级顺序：IndexedDB > localStorage > JSON文件
+        this.storageAdapter = new UnifiedStorageAdapter([
+            indexedDBAdapter,
+            localStorageAdapter,
+            jsonBaseAdapter
+        ]);
+        
+        // 缓存统计
+        this.cacheStats = {
+            hits: 0,
+            misses: 0,
+            syncs: 0
+        };
+        
+        // 同步定时器
+        this.syncTimers = {};
+        
+        // 初始化
         this.initialize();
     }
     
@@ -55,8 +75,6 @@ class UnifiedStorageManager {
         }
     }
     
-    // ==================== 脑图数据管理 ====================
-    
     /**
      * 保存脑图数据
      */
@@ -69,9 +87,12 @@ class UnifiedStorageManager {
             version: mindmapData.version || '1.0.0'
         };
         
-        // 立即保存到LocalStorage
-        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-        console.log(`[统一存储] 脑图数据已缓存: ${mindmapData.id}`);
+        try {
+            await this.storageAdapter.save(`mm:${mindmapData.id}:data`, cacheData);
+            console.log(`[统一存储] 脑图数据已缓存: ${mindmapData.id}`);
+        } catch (error) {
+            console.error(`[统一存储] 缓存失败: ${error}`);
+        }
         
         // 触发延迟同步到JSON底座
         this.scheduleJsonSync(this.DATA_TYPES.MINDMAP, mindmapData.id);
@@ -85,38 +106,28 @@ class UnifiedStorageManager {
     async loadMindmap(mindmapId) {
         const cacheKey = `${this.DATA_TYPES.MINDMAP}_${mindmapId}`;
         
-        // 1. 优先从LocalStorage加载
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            try {
-                const cacheData = JSON.parse(cached);
-                if (!this.isCacheExpired(cacheData, this.DATA_TYPES.MINDMAP)) {
-                    this.cacheStats.hits++;
-                    console.log(`[统一存储] 从缓存加载脑图: ${mindmapId}`);
-                    return cacheData;
-                }
-            } catch (error) {
-                console.warn(`[统一存储] 缓存数据损坏，清理: ${cacheKey}`);
-                localStorage.removeItem(cacheKey);
+        try {
+            const cacheData = await this.storageAdapter.load(`mm:${mindmapId}:data`);
+            if (cacheData) {
+                this.cacheStats.hits++;
+                console.log(`[统一存储] 从缓存加载脑图: ${mindmapId}`);
+                return cacheData;
             }
+        } catch (error) {
+            console.error(`[统一存储] 加载失败: ${error}`);
         }
         
-        // 2. 从JSON底座加载
+        // 3. 从JSON底座加载
         this.cacheStats.misses++;
         try {
             const jsonBase = await this.loadJsonBase();
             const mindmapData = jsonBase.mindmaps?.find(m => m.id === mindmapId);
             
             if (mindmapData) {
-                // 更新LocalStorage缓存
-                const cacheData = {
-                    ...mindmapData,
-                    timestamp: Date.now(),
-                    dirty: false
-                };
-                localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+                // 更新缓存
+                await this.storageAdapter.save(`mm:${mindmapId}:data`, mindmapData);
                 console.log(`[统一存储] 从JSON底座加载脑图: ${mindmapId}`);
-                return cacheData;
+                return mindmapData;
             }
         } catch (error) {
             console.error(`[统一存储] 从JSON底座加载脑图失败: ${mindmapId}`, error);
@@ -124,8 +135,6 @@ class UnifiedStorageManager {
         
         return null;
     }
-    
-    // ==================== 关系数据管理 ====================
     
     /**
      * 保存关系数据
@@ -139,9 +148,12 @@ class UnifiedStorageManager {
             data: relationData
         };
         
-        // 立即保存到LocalStorage
-        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-        console.log(`[统一存储] 关系数据已缓存: ${mindmapId}`);
+        try {
+            await this.storageAdapter.save(`rl:${mindmapId}:data`, cacheData);
+            console.log(`[统一存储] 关系数据已缓存: ${mindmapId}`);
+        } catch (error) {
+            console.error(`[统一存储] 缓存失败: ${error}`);
+        }
         
         // 触发延迟同步到JSON底座
         this.scheduleJsonSync(this.DATA_TYPES.RELATION, mindmapId);
@@ -155,31 +167,31 @@ class UnifiedStorageManager {
     async loadRelationData(mindmapId) {
         const cacheKey = `${this.DATA_TYPES.RELATION}_${mindmapId}`;
         
-        // 1. 检查LocalStorage缓存
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            try {
-                const cacheData = JSON.parse(cached);
-                if (Date.now() - cacheData.timestamp < cacheData.ttl) {
-                    this.cacheStats.hits++;
-                    console.log(`[统一存储] 从缓存加载关系数据: ${mindmapId}`);
-                    return cacheData.data;
-                }
-            } catch (error) {
-                console.warn(`[统一存储] 关系缓存数据损坏，清理: ${cacheKey}`);
-                localStorage.removeItem(cacheKey);
+        try {
+            const cacheData = await this.storageAdapter.load(`rl:${mindmapId}:data`);
+            if (cacheData) {
+                this.cacheStats.hits++;
+                console.log(`[统一存储] 从缓存加载关系数据: ${mindmapId}`);
+                return cacheData.data;
             }
+        } catch (error) {
+            console.error(`[统一存储] 加载失败: ${error}`);
         }
         
-        // 2. 从JSON底座加载
+        // 3. 从JSON底座加载
         this.cacheStats.misses++;
         try {
             const jsonBase = await this.loadJsonBase();
             const relationData = jsonBase.relations?.[mindmapId];
             
             if (relationData) {
-                // 重新缓存到LocalStorage
-                await this.saveRelationData(mindmapId, relationData);
+                // 重新缓存
+                await this.storageAdapter.save(`rl:${mindmapId}:data`, {
+                    mindmap_id: mindmapId,
+                    timestamp: Date.now(),
+                    ttl: this.TTL_CONFIG[this.DATA_TYPES.RELATION],
+                    data: relationData
+                });
                 console.log(`[统一存储] 从JSON底座加载关系数据: ${mindmapId}`);
                 return relationData;
             }
@@ -189,8 +201,6 @@ class UnifiedStorageManager {
         
         return null;
     }
-    
-    // ==================== 应用状态管理 ====================
     
     /**
      * 保存应用状态
@@ -220,14 +230,12 @@ class UnifiedStorageManager {
         return appState[module] || {};
     }
     
-    // ==================== JSON底座操作 ====================
-    
     /**
      * 加载JSON底座数据
      */
     async loadJsonBase() {
         try {
-            const response = await fetch(this.JSON_BASE_PATH);
+            const response = await fetch('/data/all_mindmaps.json');
             if (!response.ok) {
                 throw new Error(`JSON底座加载失败: ${response.status}`);
             }
@@ -263,42 +271,27 @@ class UnifiedStorageManager {
      */
     async saveJsonBase(jsonData) {
         try {
-            // 更新元数据
-            jsonData.export_time = new Date().toISOString();
-            jsonData.total_count = jsonData.mindmaps?.length || 0;
-            jsonData.cache_metadata = {
-                ...jsonData.cache_metadata,
-                last_sync: new Date().toISOString(),
-                cache_statistics: this.cacheStats
-            };
+            // 创建Blob对象
+            const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
             
-            // 数据验证
-            const validation = this.validateJsonBase(jsonData);
-            if (!validation.valid) {
-                throw new Error(`数据验证失败: ${validation.errors.join(', ')}`);
-            }
+            // 创建下载链接
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'all_mindmaps.json';
+            document.body.appendChild(a);
+            a.click();
             
-            // 保存到服务器（需要后端API支持）
-            const response = await fetch('/api/save-json-base', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    filePath: 'data/all_mindmaps.json',
-                    data: jsonData
-                })
-            });
+            // 清理
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
             
-            if (!response.ok) {
-                throw new Error(`JSON底座保存失败: ${response.status}`);
-            }
-            
-            this.cacheStats.syncs++;
-            console.log('[统一存储] JSON底座保存成功');
-            
+            return { success: true };
         } catch (error) {
-            console.error('[统一存储] JSON底座保存失败:', error);
-            // 可以考虑降级到localStorage备份
-            this.saveJsonBaseBackup(jsonData);
+            console.error('JSON下载失败:', error);
+            return { success: false, error };
         }
     }
     
@@ -338,8 +331,6 @@ class UnifiedStorageManager {
             errors
         };
     }
-    
-    // ==================== 同步机制 ====================
     
     /**
      * 调度JSON同步任务
@@ -390,10 +381,10 @@ class UnifiedStorageManager {
      */
     async syncMindmapToJsonBase(jsonBase, mindmapId) {
         const cacheKey = `${this.DATA_TYPES.MINDMAP}_${mindmapId}`;
-        const cached = localStorage.getItem(cacheKey);
+        const cached = await this.storageAdapter.load(`mm:${mindmapId}:data`);
         
         if (cached) {
-            const cacheData = JSON.parse(cached);
+            const cacheData = cached;
             if (cacheData.dirty) {
                 // 更新或添加脑图数据
                 const existingIndex = jsonBase.mindmaps.findIndex(m => m.id === mindmapId);
@@ -416,7 +407,7 @@ class UnifiedStorageManager {
                 
                 // 清除dirty标记
                 cacheData.dirty = false;
-                localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+                await this.storageAdapter.save(`mm:${mindmapId}:data`, cacheData);
                 
                 console.log(`[统一存储] 脑图数据已同步到JSON底座: ${mindmapId}`);
             }
@@ -428,10 +419,10 @@ class UnifiedStorageManager {
      */
     async syncRelationToJsonBase(jsonBase, mindmapId) {
         const cacheKey = `${this.DATA_TYPES.RELATION}_${mindmapId}`;
-        const cached = localStorage.getItem(cacheKey);
+        const cached = await this.storageAdapter.load(`rl:${mindmapId}:data`);
         
         if (cached) {
-            const cacheData = JSON.parse(cached);
+            const cacheData = cached;
             
             // 确保relations对象存在
             if (!jsonBase.relations) {
@@ -465,8 +456,6 @@ class UnifiedStorageManager {
         
         console.log('[统一存储] 应用状态已同步到JSON底座');
     }
-    
-    // ==================== 缓存管理 ====================
     
     /**
      * 检查缓存是否过期
@@ -513,6 +502,9 @@ class UnifiedStorageManager {
                 }
             }
         });
+        
+        // 清理IndexedDB缓存
+        this.storageAdapter.clearExpiredCaches();
         
         if (cleanedCount > 0) {
             console.log(`[统一存储] 清理了 ${cleanedCount} 个过期缓存`);

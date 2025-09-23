@@ -96,6 +96,8 @@
             <button class="view-toggle" data-view="relation">关系</button>
             <button class="view-toggle active" data-view="detail">详情</button>
         </div>
+        <!-- 添加存储健康指示器 -->
+        <div id="storage-health-indicator" class="healthy" title="存储系统正常"></div>
     </div>
     
     <!-- 内容区容器 -->
@@ -572,9 +574,12 @@
       })();
     </script>
     
-    <!-- 混合存储系统 -->
+    <!-- 存储系统核心 -->
+    <script src="src/core/storage/IStorage.js"></script>
+    <script src="src/core/storage/adapters/LocalStorageAdapter.js"></script>
     <script src="src/core/storage/adapters/IndexedDBAdapter.js"></script>
     <script src="src/core/storage/HybridStorageAdapter.js"></script>
+    <script src="src/core/storage/StorageManager.js"></script>
     <script src="src/core/storage/StorageMigrator.js"></script>
     
     <script>
