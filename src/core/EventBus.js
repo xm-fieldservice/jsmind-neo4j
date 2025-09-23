@@ -34,6 +34,9 @@ class EventBus {
             namespacesCreated: 0
         };
         
+        // 事件统计
+        this.eventStats = new Map(); // 公共属性
+        
         // 调试模式
         this.debugMode = false;
         
@@ -160,6 +163,10 @@ class EventBus {
         // 记录事件历史
         this._recordEvent(eventData);
         this.stats.eventsEmitted++;
+
+        // 更新事件触发次数
+        const count = this.eventStats.get(event) || 0;
+        this.eventStats.set(event, count + 1);
 
         if (this.debugMode) {
             console.log(`[EventBus] 发布事件: ${event}`, eventData);
@@ -300,6 +307,14 @@ class EventBus {
             activeNamespaces: this.namespaces.size,
             errorCount: this.errorCount
         };
+    }
+
+    /**
+     * 获取事件统计信息
+     * @returns {Object} 事件统计信息
+     */
+    getEventStats() {
+        return Object.fromEntries(this.eventStats.entries());
     }
 
     /**
@@ -466,62 +481,7 @@ class EventBus {
     }
 }
 
-/**
- * 全局事件总线实例
- */
-const globalEventBus = new EventBus();
+// 使用简化版事件总线
+import SimpleEventBus from './events/SimpleEventBus';
 
-/**
- * 标准事件定义
- */
-const StandardEvents = {
-    // 存储相关事件
-    STORAGE: {
-        READY: 'storage:ready',
-        MODIFIED: 'storage:modified',
-        MIGRATED: 'storage:migrated',
-        ERROR: 'storage:error',
-        HEALTH_CHANGED: 'storage:health_changed'
-    },
-    
-    // 脑图相关事件
-    MINDMAP: {
-        UPDATED: 'mindmap:updated',
-        LOADED: 'mindmap:loaded',
-        SAVED: 'mindmap:saved',
-        NODE_ADDED: 'mindmap:node_added',
-        NODE_REMOVED: 'mindmap:node_removed',
-        NODE_UPDATED: 'mindmap:node_updated',
-        SELECTION_CHANGED: 'mindmap:selection_changed'
-    },
-    
-    // 注册表相关事件
-    REGISTRY: {
-        CHANGED: 'registry:changed',
-        PROJECT_ADDED: 'registry:project_added',
-        PROJECT_REMOVED: 'registry:project_removed',
-        PROJECT_UPDATED: 'registry:project_updated'
-    },
-    
-    // UI相关事件
-    UI: {
-        TAB_CHANGED: 'ui:tab_changed',
-        VIEW_CHANGED: 'ui:view_changed',
-        FILTER_CHANGED: 'ui:filter_changed',
-        THEME_CHANGED: 'ui:theme_changed'
-    },
-    
-    // 系统相关事件
-    SYSTEM: {
-        READY: 'system:ready',
-        ERROR: 'system:error',
-        SHUTDOWN: 'system:shutdown'
-    }
-};
-
-// 向后兼容：暴露到全局
-if (typeof window !== 'undefined') {
-    window.EventBus = EventBus;
-    window.globalEventBus = globalEventBus;
-    window.StandardEvents = StandardEvents;
-}
+export default SimpleEventBus;
