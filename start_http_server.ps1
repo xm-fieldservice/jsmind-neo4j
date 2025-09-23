@@ -31,34 +31,38 @@ Write-Host "按Ctrl+C停止服务器..."
 
 try {
     while ($listener.IsListening) {
-        $context = $listener.GetContext()
-        $request = $context.Request
-        $response = $context.Response
-        
-        $localPath = $request.Url.LocalPath
-        $localPath = $localPath -replace "/", "\\"
-        
-        if ($localPath -eq "\\") {
-            $localPath = "\\index.html"
+        try {
+            $context = $listener.GetContext()
+            $request = $context.Request
+            $response = $context.Response
+            
+            $localPath = $request.Url.LocalPath
+            $localPath = $localPath -replace "/", "\\"
+            
+            if ($localPath -eq "\\") {
+                $localPath = "\\index.html"
+            }
+            
+            $filename = Join-Path $path $localPath.TrimStart("\\")
+            Write-Host "请求: $($request.Url.LocalPath) -> $filename"
+            
+            if (Test-Path $filename -PathType Leaf) {
+                $content = [System.IO.File]::ReadAllBytes($filename)
+                $response.ContentLength64 = $content.Length
+                $response.ContentType = GetContentType $filename
+                $response.OutputStream.Write($content, 0, $content.Length)
+            } else {
+                $response.StatusCode = 404
+                $message = "404 - 文件不存在"
+                $content = [System.Text.Encoding]::UTF8.GetBytes($message)
+                $response.ContentLength64 = $content.Length
+                $response.OutputStream.Write($content, 0, $content.Length)
+            }
+            
+            $response.Close()
+        } catch {
+            Write-Host "处理请求时出错: $_" -ForegroundColor Red
         }
-        
-        $filename = Join-Path $path $localPath.TrimStart("\\")
-        Write-Host "请求: $($request.Url.LocalPath) -> $filename"
-        
-        if (Test-Path $filename -PathType Leaf) {
-            $content = [System.IO.File]::ReadAllBytes($filename)
-            $response.ContentLength64 = $content.Length
-            $response.ContentType = GetContentType $filename
-            $response.OutputStream.Write($content, 0, $content.Length)
-        } else {
-            $response.StatusCode = 404
-            $message = "404 - 文件不存在"
-            $content = [System.Text.Encoding]::UTF8.GetBytes($message)
-            $response.ContentLength64 = $content.Length
-            $response.OutputStream.Write($content, 0, $content.Length)
-        }
-        
-        $response.Close()
     }
 }
 finally {

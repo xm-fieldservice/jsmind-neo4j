@@ -4,12 +4,10 @@
  * 基于事件驱动架构，提供状态订阅/发布机制
  */
 
-import { StateValidator, StateUtils } from './StateSchema.js';
-
 /**
  * Action类型定义
  */
-export const ActionTypes = {
+const ActionTypes = {
     // 脑图相关Actions
     MINDMAP: {
         SET_CURRENT_PID: 'MINDMAP_SET_CURRENT_PID',
@@ -62,7 +60,7 @@ export const ActionTypes = {
 /**
  * Reducer函数集合
  */
-export const Reducers = {
+const Reducers = {
     /**
      * 脑图状态Reducer
      */
@@ -311,7 +309,7 @@ export const Reducers = {
 /**
  * Redux-like状态管理器
  */
-export class StateManager {
+class StateManager {
     constructor(eventBus, standardEvents, initialState = null) {
         this.eventBus = eventBus;
         this.events = standardEvents;
@@ -707,5 +705,3 @@ if (typeof window !== 'undefined') {
     window.ActionTypes = ActionTypes;
     window.Reducers = Reducers;
 }
-
-export default StateManager;

@@ -7,7 +7,7 @@
 /**
  * 脑图状态Schema
  */
-export const MindmapStateSchema = {
+const MindmapStateSchema = {
     // 当前脑图信息
     current: {
         pid: null,              // 当前脑图PID
@@ -46,7 +46,7 @@ export const MindmapStateSchema = {
 /**
  * UI状态Schema
  */
-export const UIStateSchema = {
+const UIStateSchema = {
     // 活动标签
     activeTab: 'mindmap',       // 'mindmap' | 'registry' | 'workspace' | 'relations'
     
@@ -90,7 +90,7 @@ export const UIStateSchema = {
 /**
  * 注册表状态Schema
  */
-export const RegistryStateSchema = {
+const RegistryStateSchema = {
     // 项目列表
     projects: [],               // 项目列表
     
@@ -116,7 +116,7 @@ export const RegistryStateSchema = {
 /**
  * 系统状态Schema
  */
-export const SystemStateSchema = {
+const SystemStateSchema = {
     // 初始化状态
     initialization: {
         isInitialized: false,   // 系统是否已初始化
@@ -157,7 +157,7 @@ export const SystemStateSchema = {
 /**
  * 完整的应用状态Schema
  */
-export const AppStateSchema = {
+const AppStateSchema = {
     mindmap: MindmapStateSchema,
     ui: UIStateSchema,
     registry: RegistryStateSchema,
@@ -175,7 +175,7 @@ export const AppStateSchema = {
 /**
  * 状态验证器
  */
-export class StateValidator {
+class StateValidator {
     constructor() {
         this.validationRules = new Map();
         this._initializeRules();
@@ -445,7 +445,7 @@ export class StateValidator {
 /**
  * 状态工具函数
  */
-export const StateUtils = {
+const StateUtils = {
     /**
      * 深度克隆状态
      */
@@ -547,13 +547,3 @@ if (typeof window !== 'undefined') {
     window.StateUtils = StateUtils;
     window.AppStateSchema = AppStateSchema;
 }
-
-export default {
-    AppStateSchema,
-    MindmapStateSchema,
-    UIStateSchema,
-    RegistryStateSchema,
-    SystemStateSchema,
-    StateValidator,
-    StateUtils
-};

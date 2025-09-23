@@ -405,5 +405,14 @@ class SimpleStorageManager {
 // 创建单例
 const simpleStorage = new SimpleStorageManager();
 
-// 导出
-export default simpleStorage;
+// 暴露到全局作用域（兼容不支持模块的环境）
+if (typeof window !== 'undefined') {
+    window.SimpleStorageManager = SimpleStorageManager;
+    window.simpleStorage = simpleStorage;
+}
+
+// 导出（保持ES6模块兼容性）
+if (typeof exports !== 'undefined') {
+    exports.SimpleStorageManager = SimpleStorageManager;
+    exports.default = simpleStorage;
+}

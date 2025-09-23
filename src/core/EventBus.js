@@ -7,7 +7,7 @@
 /**
  * 事件总线类 - 应用级事件通信中心
  */
-export class EventBus {
+class EventBus {
     constructor() {
         // 事件监听器存储：Map<eventName, Set<listener>>
         this.listeners = new Map();
@@ -469,12 +469,12 @@ export class EventBus {
 /**
  * 全局事件总线实例
  */
-export const globalEventBus = new EventBus();
+const globalEventBus = new EventBus();
 
 /**
  * 标准事件定义
  */
-export const StandardEvents = {
+const StandardEvents = {
     // 存储相关事件
     STORAGE: {
         READY: 'storage:ready',
@@ -525,5 +525,3 @@ if (typeof window !== 'undefined') {
     window.GlobalEventBus = globalEventBus;
     window.StandardEvents = StandardEvents;
 }
-
-export default EventBus;
