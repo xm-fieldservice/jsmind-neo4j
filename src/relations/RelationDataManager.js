@@ -504,9 +504,6 @@ class RelationDataManager {
     }
 }
 
-// 导出类
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = RelationDataManager;
-} else {
-    window.RelationDataManager = RelationDataManager;
+if (typeof window !== 'undefined') {
+  window.RelationDataManager = RelationDataManager;
 }

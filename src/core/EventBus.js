@@ -522,6 +522,6 @@ const StandardEvents = {
 // 向后兼容：暴露到全局
 if (typeof window !== 'undefined') {
     window.EventBus = EventBus;
-    window.GlobalEventBus = globalEventBus;
+    window.globalEventBus = globalEventBus;
     window.StandardEvents = StandardEvents;
 }

@@ -212,12 +212,29 @@ class PersistenceManager {
      */
     getStats() {
         return {
-            ...this.stats,
-            timestamp: new Date().toISOString(),
+            loads: this.stats.loads,
+            saves: this.stats.saves,
+            mirrors: this.stats.mirrors,
+            snapshots: this.stats.snapshots,
+            migrations: this.stats.migrations,
+            errors: this.stats.errors,
             adapters: {
-                localStorage: this.adapters.localStorage.getStats(),
-                jsonMirror: this.adapters.jsonMirror.getStats(),
-                snapshot: this.adapters.snapshot.getStats()
+                localStorage: {
+                    reads: this.adapters.localStorage.stats.reads,
+                    writes: this.adapters.localStorage.stats.writes,
+                    errors: this.adapters.localStorage.stats.errors
+                },
+                jsonMirror: {
+                    syncs: this.adapters.jsonMirror.stats.syncs,
+                    loads: this.adapters.jsonMirror.stats.loads,
+                    errors: this.adapters.jsonMirror.stats.errors
+                },
+                snapshot: {
+                    created: this.adapters.snapshot.stats.created,
+                    restored: this.adapters.snapshot.stats.restored,
+                    deleted: this.adapters.snapshot.stats.deleted,
+                    errors: this.adapters.snapshot.stats.errors
+                }
             }
         };
     }

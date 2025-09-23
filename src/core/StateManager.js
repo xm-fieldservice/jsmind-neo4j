@@ -699,7 +699,6 @@ class StateManager {
     }
 }
 
-// 向后兼容：暴露到全局
 if (typeof window !== 'undefined') {
     window.StateManager = StateManager;
     window.ActionTypes = ActionTypes;

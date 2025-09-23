@@ -7,7 +7,7 @@
  * 存储工具类
  * 提供基于初始化结果的统一操作接口
  */
-export class StorageUtils {
+class StorageUtils {
     constructor(initResult) {
         if (!initResult || !initResult.success) {
             throw new Error('存储系统初始化失败，无法创建工具实例');
@@ -600,8 +600,11 @@ export class StorageUtils {
  * @param {Object} initResult - 存储系统初始化结果
  * @returns {StorageUtils} 存储工具实例
  */
-export function createStorageUtils(initResult) {
+function createStorageUtils(initResult) {
     return new StorageUtils(initResult);
 }
 
-export default StorageUtils;
+if (typeof window !== 'undefined') {
+    window.StorageUtils = StorageUtils;
+    window.createStorageUtils = createStorageUtils;
+}

@@ -3,7 +3,7 @@
  * 提供存储系统的健康检查、性能监控和诊断功能
  */
 
-export class StorageHealthMonitor {
+class StorageHealthMonitor {
     constructor(storageSystem) {
         if (!storageSystem || !storageSystem.success) {
             throw new Error('存储系统未正确初始化');
@@ -561,8 +561,11 @@ export class StorageHealthMonitor {
  * @param {Object} storageSystem - 存储系统实例
  * @returns {StorageHealthMonitor} 健康监控器实例
  */
-export function createHealthMonitor(storageSystem) {
+function createHealthMonitor(storageSystem) {
     return new StorageHealthMonitor(storageSystem);
 }
 
-export default StorageHealthMonitor;
+if (typeof window !== 'undefined') {
+    window.StorageHealthMonitor = StorageHealthMonitor;
+    window.createHealthMonitor = createHealthMonitor;
+}

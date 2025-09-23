@@ -476,9 +476,6 @@ class MindmapRelationExtractor {
     }
 }
 
-// 导出类
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = MindmapRelationExtractor;
-} else {
-    window.MindmapRelationExtractor = MindmapRelationExtractor;
+if (typeof window !== 'undefined') {
+  window.MindmapRelationExtractor = MindmapRelationExtractor;
 }

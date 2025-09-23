@@ -295,7 +295,8 @@ class D3RelationGraph {
     }
 }
 
-// 导出到全局作用域
-window.D3RelationGraph = D3RelationGraph;
+if (typeof window !== 'undefined') {
+  window.D3RelationGraph = D3RelationGraph;
+}
 
 console.log('[D3关系图] 组件已加载');

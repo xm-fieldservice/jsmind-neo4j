@@ -572,6 +572,35 @@
       })();
     </script>
     
+    <!-- 混合存储系统 -->
+    <script src="src/core/storage/adapters/IndexedDBAdapter.js"></script>
+    <script src="src/core/storage/HybridStorageAdapter.js"></script>
+    <script src="src/core/storage/StorageMigrator.js"></script>
+    
+    <script>
+      // 初始化混合存储
+      const hybridAdapter = new HybridStorageAdapter();
+      window.StorageSystem = new StorageManager(hybridAdapter);
+      
+      // 迁移旧数据
+      const migrator = new StorageMigrator(
+        new LocalStorageAdapter(), 
+        hybridAdapter
+      );
+      migrator.migrateAll('mind:');
+    </script>
+    
+    <!-- 统一存储系统 -->
+    <script src="src/core/storage/IStorage.js"></script>
+    <script src="src/core/storage/adapters/LocalStorageAdapter.js"></script>
+    <script src="src/core/storage/StorageManager.js"></script>
+    
+    <script>
+      // 初始化存储系统
+      const storageAdapter = new LocalStorageAdapter();
+      window.StorageSystem = new StorageManager(storageAdapter);
+    </script>
+    
     <!-- 统一存储服务 -->
     <script src="src/services/StorageService.js?v=1758295377"></script>
     
@@ -981,14 +1010,22 @@
       })();
     </script>
     
-    <!-- 新注册表模块（方案C） -->
-    <script src="infra/event_bus.js?v=20250917"></script>
-    <script src="registry/registry_state_machine.js?v=20250917"></script>
-    <script src="registry/registry_store.js?v=20250917"></script>
-    <script src="registry/registry_repository.js?v=20250917"></script>
-    <script src="registry/command_bus.js?v=20250917"></script>
-    <script src="registry/registry_view.js?v=20250917"></script>
-    <script src="registry/registry_bootstrap.js?v=20250917"></script>
+    <!-- 核心状态管理系统 -->
+    <script src="src/core/EventBus.js"></script>
+    <script src="src/core/StateManager.js"></script>
+    
+    <!-- 关系管理系统 -->
+    <script src="src/relations/RelationDataManager.js"></script>
+    
+    <!-- 可视化组件 -->
+    <script src="src/visualization/D3RelationGraph.js"></script>
+    
+    <!-- 挂载确认 -->
+    <script>
+      console.assert(window.EventBus, 'EventBus 挂载成功');
+      console.assert(window.StateManager, 'StateManager 挂载成功');
+      console.assert(window.StateValidator, 'StateValidator 挂载成功');
+    </script>
     
     <!-- 统一调试面板 -->
     <script src="src/debug/DebugPanel.js?v=20250918"></script>
@@ -1029,12 +1066,6 @@
     
     <!-- 脑图关系提取器 -->
     <script src="src/relations/MindmapRelationExtractor.js"></script>
-    
-    <!-- 关系数据管理器 -->
-    <script src="src/relations/RelationDataManager.js"></script>
-    
-    <!-- D3.js关系图可视化组件 -->
-    <script src="src/visualization/D3RelationGraph.js"></script>
     
     <!-- 系统健康检查脚本 -->
     <script src="scripts/system_health_check.js?v=20250923"></script>

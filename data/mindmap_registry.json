@@ -5,7 +5,7 @@
       "project_id": "root-1758490798034-j5",
       "name": "脑图优化",
       "created_at": "2025-09-23T07:16:39.963Z",
-      "last_modified": "2025-09-23T07:17:07.173Z",
+      "last_modified": "2025-09-23T07:36:48.454Z",
       "source": "imported",
       "payload": {
         "format": "node_tree",
@@ -1008,6 +1008,14 @@
                                       "expanded": true,
                                       "attachments": [],
                                       "children": []
+                                    },
+                                    {
+                                      "id": "9757e1dbe771af79",
+                                      "label": "New Node",
+                                      "content": "创建: 2025-09-23 15:33:45\n\n",
+                                      "expanded": true,
+                                      "attachments": [],
+                                      "children": []
                                     }
                                   ]
                                 }
@@ -1193,7 +1201,7 @@
   ],
   "metadata": {
     "total_projects": 1,
-    "last_updated": "2025-09-23T07:17:07.176Z",
+    "last_updated": "2025-09-23T07:36:48.459Z",
     "storage_type": "unified_md"
   }
 }

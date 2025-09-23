@@ -17,7 +17,7 @@ import { registerDefaultTypes } from './DefaultStorageTypes.js';
  * @param {boolean} options.autoMigrate - 是否自动迁移数据
  * @returns {Promise<Object>} 初始化结果
  */
-export async function initializeStorage(options = {}) {
+async function initializeStorage(options = {}) {
     const {
         enableFormal = true,
         autoMigrate = false
@@ -129,7 +129,7 @@ export async function initializeStorage(options = {}) {
  * 初始化简化存储系统（原有接口，保持兼容）
  * @returns {Object} 初始化结果
  */
-export function initializeSimpleStorage() {
+function initializeSimpleStorage() {
     try {
         const storage = new SimpleStorageManager();
         const validator = new SimpleDataValidator();
@@ -162,7 +162,7 @@ export function initializeSimpleStorage() {
  * @param {Object} options - 迁移选项
  * @returns {Object} 迁移结果
  */
-export async function migrateToFormalStorage(options = {}) {
+async function migrateToFormalStorage(options = {}) {
     try {
         console.log('[Storage] 开始数据迁移到注册式存储...');
         
@@ -194,7 +194,8 @@ export async function migrateToFormalStorage(options = {}) {
         };
     }
 }
-export function cleanupStorage(storageInstance, emergency = false) {
+
+function cleanupStorage(storageInstance, emergency = false) {
     if (!storageInstance) {
         console.error('[Storage] 清理失败: 未提供存储实例');
         return { success: false, error: '未提供存储实例' };
@@ -236,7 +237,7 @@ export function cleanupStorage(storageInstance, emergency = false) {
  * @param {Object} storageInstance - 存储实例
  * @returns {Object} - 导出的数据
  */
-export function exportStorageData(storageInstance) {
+function exportStorageData(storageInstance) {
     if (!storageInstance) {
         console.error('[Storage] 导出失败: 未提供存储实例');
         return { success: false, error: '未提供存储实例' };
@@ -278,7 +279,7 @@ export function exportStorageData(storageInstance) {
  * @param {Object} importData - 要导入的数据
  * @returns {Object} - 导入结果
  */
-export function importStorageData(storageInstance, importData) {
+function importStorageData(storageInstance, importData) {
     if (!storageInstance) {
         console.error('[Storage] 导入失败: 未提供存储实例');
         return { success: false, error: '未提供存储实例' };
@@ -354,7 +355,17 @@ function _getHealthRecommendations(stats) {
 }
 
 // 导出主要类
-export { SimpleStorageManager, SimpleDataValidator, StorageRegistry, FormalStorageManager, StorageMigrator };
+if (typeof window !== 'undefined') {
+    window.SimpleStorageManager = SimpleStorageManager;
+    window.SimpleDataValidator = SimpleDataValidator;
+    window.StorageRegistry = StorageRegistry;
+    window.FormalStorageManager = FormalStorageManager;
+    window.StorageMigrator = StorageMigrator;
 
-// 默认导出初始化函数
-export default initializeStorage;
+    window.initializeStorage = initializeStorage;
+    window.initializeSimpleStorage = initializeSimpleStorage;
+    window.migrateToFormalStorage = migrateToFormalStorage;
+    window.cleanupStorage = cleanupStorage;
+    window.exportStorageData = exportStorageData;
+    window.importStorageData = importStorageData;
+}
