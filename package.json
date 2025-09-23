@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Project management system with mindmap and Neo4j integration",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node tools/start.js",
     "build": "webpack",
