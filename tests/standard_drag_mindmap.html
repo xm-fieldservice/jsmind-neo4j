@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>标准HTML5拖拽脑图</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 15px 25px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .container {
+      height: calc(100vh - 120px);
+      position: relative;
+      padding: 20px;
+    }
+    
+    .mindmap {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: auto;
+    }
+    
+    /* 节点样式 */
+    .node {
+      position: absolute;
+      background: white;
+      border-radius: 8px;
+      padding: 12px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      cursor: move;
+      user-select: none;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+      min-width: 120px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .node:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .node.root {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: default;
+    }
+    
+    .node.level-1 {
+      background: linear-gradient(135deg, #4834d4, #686de0);
+      color: white;
+    }
+    
+    .node.level-2 {
+      background: linear-gradient(135deg, #00d2d3, #54a0ff);
+      color: white;
+    }
+    
+    /* HTML5 拖拽状态 */
+    .node[draggable="true"] {
+      cursor: grab;
+    }
+    
+    .node.dragging {
+      opacity: 0.5;
+      transform: rotate(5deg) scale(1.05);
+      cursor: grabbing;
+    }
+    
+    .node.drag-over {
+      border-color: #00ff88;
+      background: rgba(0, 255, 136, 0.1);
+      transform: scale(1.02);
+    }
+    
+    /* 连接线 */
+    .connection {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .connection svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .connection path {
+      stroke: rgba(255, 255, 255, 0.6);
+      stroke-width: 2;
+      fill: none;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+    
+    .status {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ff88;
+      animation: pulse 2s infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.2); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📋 标准HTML5拖拽脑图</h1>
+    <div class="controls">
+      <button class="btn" id="reset">重置</button>
+      <button class="btn" id="auto-layout">自动布局</button>
+      <button class="btn" id="export">导出数据</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="mindmap" id="mindmap"></div>
+  </div>
+  
+  <div class="status">
+    <div style="display: flex; align-items: center;">
+      <div class="status-dot"></div>
+      <span id="status-text">标准HTML5拖拽就绪</span>
+    </div>
+    <div>
+      <span id="action-log">拖拽节点重新组织结构</span>
+    </div>
+  </div>
+
+  <script>
+    class StandardDragMindMap {
+      constructor() {
+        this.container = document.getElementById('mindmap');
+        this.nodes = new Map();
+        this.draggedNode = null;
+        
+        this.init();
+        this.loadData();
+        this.render();
+      }
+      
+      init() {
+        // 绑定全局事件
+        document.addEventListener('dragover', this.handleDragOver.bind(this));
+        document.addEventListener('drop', this.handleDrop.bind(this));
+      }
+      
+      loadData() {
+        // 简单的扁平数据结构
+        const data = [
+          { id: 'root', text: '项目A', x: 400, y: 200, level: 0, parent: null },
+          { id: 'req', text: '需求分析', x: 200, y: 100, level: 1, parent: 'root' },
+          { id: 'design', text: '系统设计', x: 200, y: 200, level: 1, parent: 'root' },
+          { id: 'dev', text: '开发实现', x: 200, y: 300, level: 1, parent: 'root' },
+          { id: 'test', text: '测试部署', x: 200, y: 400, level: 1, parent: 'root' },
+          { id: 'story', text: '用户故事', x: 50, y: 50, level: 2, parent: 'req' },
+          { id: 'accept', text: '验收标准', x: 50, y: 150, level: 2, parent: 'req' },
+          { id: 'arch', text: '架构设计', x: 50, y: 180, level: 2, parent: 'design' },
+          { id: 'data', text: '数据模型', x: 50, y: 220, level: 2, parent: 'design' },
+          { id: 'frontend', text: '前端开发', x: 50, y: 280, level: 2, parent: 'dev' },
+          { id: 'backend', text: '后端开发', x: 50, y: 320, level: 2, parent: 'dev' },
+          { id: 'unit', text: '单元测试', x: 50, y: 380, level: 2, parent: 'test' },
+          { id: 'deploy', text: '生产部署', x: 50, y: 420, level: 2, parent: 'test' }
+        ];
+        
+        // 转换为Map
+        data.forEach(node => {
+          this.nodes.set(node.id, node);
+        });
+        
+        this.updateStatus('数据加载完成', `${data.length} 个节点`);
+      }
+      
+      render() {
+        // 清空容器
+        this.container.innerHTML = '';
+        
+        // 渲染连接线
+        this.renderConnections();
+        
+        // 渲染节点
+        this.nodes.forEach(node => {
+          this.renderNode(node);
+        });
+        
+        this.updateStatus('渲染完成', '可以拖拽节点了');
+      }
+      
+      renderNode(node) {
+        const element = document.createElement('div');
+        element.className = `node level-${node.level}`;
+        if (node.level === 0) element.classList.add('root');
+        
+        element.textContent = node.text;
+        element.style.left = node.x + 'px';
+        element.style.top = node.y + 'px';
+        element.dataset.nodeId = node.id;
+        
+        // 只有非根节点可拖拽
+        if (node.level > 0) {
+          element.draggable = true;
+          
+          // HTML5 拖拽事件
+          element.addEventListener('dragstart', this.handleDragStart.bind(this));
+          element.addEventListener('dragend', this.handleDragEnd.bind(this));
+          element.addEventListener('dragenter', this.handleDragEnter.bind(this));
+          element.addEventListener('dragleave', this.handleDragLeave.bind(this));
+        }
+        
+        this.container.appendChild(element);
+      }
+      
+      renderConnections() {
+        // 创建SVG容器用于连接线
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.style.position = 'absolute';
+        svg.style.top = '0';
+        svg.style.left = '0';
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+        svg.style.pointerEvents = 'none';
+        svg.style.zIndex = '1';
+        
+        // 绘制连接线
+        this.nodes.forEach(node => {
+          if (node.parent) {
+            const parent = this.nodes.get(node.parent);
+            if (parent) {
+              const path = this.createConnection(parent, node);
+              svg.appendChild(path);
+            }
+          }
+        });
+        
+        this.container.appendChild(svg);
+      }
+      
+      createConnection(from, to) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        
+        const fromX = from.x + 60; // 节点中心
+        const fromY = from.y + 20;
+        const toX = to.x + 60;
+        const toY = to.y + 20;
+        
+        // 简单的直线连接
+        const d = `M ${fromX} ${fromY} L ${toX} ${toY}`;
+        
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', 'rgba(255, 255, 255, 0.6)');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        
+        return path;
+      }
+      
+      // HTML5 拖拽事件处理
+      handleDragStart(e) {
+        this.draggedNode = e.target.dataset.nodeId;
+        e.target.classList.add('dragging');
+        
+        // 设置拖拽数据
+        e.dataTransfer.setData('text/plain', this.draggedNode);
+        e.dataTransfer.effectAllowed = 'move';
+        
+        this.updateStatus('拖拽开始', `正在移动 "${e.target.textContent}"`);
+      }
+      
+      handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        
+        // 清理所有拖拽状态
+        document.querySelectorAll('.drag-over').forEach(el => {
+          el.classList.remove('drag-over');
+        });
+        
+        this.draggedNode = null;
+        this.updateStatus('拖拽结束', '');
+      }
+      
+      handleDragEnter(e) {
+        if (this.draggedNode && e.target.dataset.nodeId !== this.draggedNode) {
+          e.target.classList.add('drag-over');
+        }
+      }
+      
+      handleDragLeave(e) {
+        e.target.classList.remove('drag-over');
+      }
+      
+      handleDragOver(e) {
+        e.preventDefault(); // 允许拖放
+        e.dataTransfer.dropEffect = 'move';
+      }
+      
+      handleDrop(e) {
+        e.preventDefault();
+        
+        const targetElement = e.target.closest('.node');
+        if (!targetElement || !this.draggedNode) return;
+        
+        const targetId = targetElement.dataset.nodeId;
+        const sourceId = this.draggedNode;
+        
+        if (targetId === sourceId) return;
+        
+        // 检查循环引用
+        if (this.wouldCreateCycle(sourceId, targetId)) {
+          this.updateStatus('移动失败', '不能移动到子节点下');
+          return;
+        }
+        
+        // 执行移动
+        this.moveNode(sourceId, targetId);
+        
+        // 清理状态
+        targetElement.classList.remove('drag-over');
+        
+        const sourceNode = this.nodes.get(sourceId);
+        const targetNode = this.nodes.get(targetId);
+        this.updateStatus('移动完成', `"${sourceNode.text}" 移动到 "${targetNode.text}" 下`);
+        
+        // 重新渲染
+        this.render();
+      }
+      
+      moveNode(sourceId, targetId) {
+        const sourceNode = this.nodes.get(sourceId);
+        const targetNode = this.nodes.get(targetId);
+        
+        if (!sourceNode || !targetNode) return;
+        
+        // 更新父子关系
+        sourceNode.parent = targetId;
+        sourceNode.level = targetNode.level + 1;
+        
+        // 简单的位置调整
+        sourceNode.x = targetNode.x - 150;
+        sourceNode.y = targetNode.y + Math.random() * 100 - 50;
+      }
+      
+      wouldCreateCycle(sourceId, targetId) {
+        let current = this.nodes.get(targetId);
+        while (current && current.parent) {
+          if (current.parent === sourceId) return true;
+          current = this.nodes.get(current.parent);
+        }
+        return false;
+      }
+      
+      autoLayout() {
+        // 自动重新布局
+        const levels = new Map();
+        
+        // 按层级分组
+        this.nodes.forEach(node => {
+          if (!levels.has(node.level)) {
+            levels.set(node.level, []);
+          }
+          levels.get(node.level).push(node);
+        });
+        
+        // 重新计算位置
+        levels.forEach((nodes, level) => {
+          nodes.forEach((node, index) => {
+            node.x = 100 + level * 200;
+            node.y = 100 + index * 80;
+          });
+        });
+        
+        this.render();
+        this.updateStatus('自动布局完成', '节点位置已重新计算');
+      }
+      
+      reset() {
+        this.loadData();
+        this.render();
+        this.updateStatus('数据重置', '恢复到初始状态');
+      }
+      
+      exportData() {
+        const data = Array.from(this.nodes.values());
+        console.log('脑图数据:', data);
+        
+        // 创建下载链接
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mindmap.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        this.updateStatus('导出完成', 'JSON文件已下载');
+      }
+      
+      updateStatus(status, action = '') {
+        document.getElementById('status-text').textContent = status;
+        if (action) {
+          document.getElementById('action-log').textContent = action;
+        }
+      }
+    }
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      const mindmap = new StandardDragMindMap();
+      
+      // 绑定按钮
+      document.getElementById('reset').addEventListener('click', () => mindmap.reset());
+      document.getElementById('auto-layout').addEventListener('click', () => mindmap.autoLayout());
+      document.getElementById('export').addEventListener('click', () => mindmap.exportData());
+    });
+  </script>
+</body>
+</html>

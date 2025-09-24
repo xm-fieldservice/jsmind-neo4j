@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markmap + D3.js 拖拽脑图测试</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 15px 25px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .container {
+      height: calc(100vh - 120px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    #markmap {
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 0;
+    }
+    
+    .status {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ff88;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.2); }
+    }
+    
+    /* Markmap 自定义样式 */
+    .mm-node {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .mm-node:hover {
+      filter: brightness(1.2);
+    }
+    
+    .mm-node.dragging {
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      transform: scale(1.05);
+    }
+    
+    .mm-link {
+      transition: all 0.3s ease;
+    }
+    
+    .mm-link.highlight {
+      stroke-width: 3;
+      stroke: #00ff88;
+    }
+    
+    /* 工具提示 */
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .tooltip.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>
+      <span>🧠</span>
+      Markmap + D3.js 专业拖拽脑图
+    </h1>
+    <div class="controls">
+      <button class="btn" id="fit">适应窗口</button>
+      <button class="btn" id="reset">重置数据</button>
+      <button class="btn" id="export">导出 SVG</button>
+      <button class="btn" id="theme">切换主题</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <svg id="markmap"></svg>
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+  
+  <div class="status">
+    <div class="status-item">
+      <div class="status-dot"></div>
+      <span id="status-text">D3.js + Markmap 就绪 - 专业级拖拽体验</span>
+    </div>
+    <div class="status-item">
+      <span id="action-log">拖拽节点重新组织结构</span>
+    </div>
+  </div>
+
+  <!-- 引入 D3.js 和 Markmap -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markmap-view@0.15.4/dist/index.min.js"></script>
+
+  <script>
+    class ProfessionalMarkmap {
+      constructor() {
+        this.svg = d3.select('#markmap');
+        this.tooltip = d3.select('#tooltip');
+        this.mm = null;
+        this.isDragging = false;
+        this.draggedNode = null;
+        this.currentTheme = 0;
+        
+        this.themes = [
+          {
+            name: '专业蓝',
+            colorFreezeLevel: 2,
+            color: d3.scaleOrdinal(['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'])
+          },
+          {
+            name: '科技绿',
+            colorFreezeLevel: 2,
+            color: d3.scaleOrdinal(['#00ff88', '#00d4ff', '#ff6b6b', '#ffd93d', '#6c5ce7', '#fd79a8'])
+          },
+          {
+            name: '商务灰',
+            colorFreezeLevel: 2,
+            color: d3.scaleOrdinal(['#2d3436', '#636e72', '#74b9ff', '#0984e3', '#00b894', '#00cec9'])
+          }
+        ];
+        
+        this.init();
+      }
+      
+      init() {
+        // 初始化 Markmap
+        const { Markmap, loadCSS, loadJS } = window.markmap;
+        
+        // 加载必要的资源
+        loadCSS([
+          'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css',
+          'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css'
+        ]);
+        
+        this.createMarkmap();
+        this.bindEvents();
+        this.loadSampleData();
+      }
+      
+      createMarkmap() {
+        const options = {
+          ...this.themes[this.currentTheme],
+          duration: 500,
+          maxWidth: 300,
+          paddingX: 12,
+          paddingY: 8,
+          spacingVertical: 8,
+          spacingHorizontal: 100,
+          autoFit: true,
+          fitRatio: 0.9,
+          pan: true,
+          zoom: true
+        };
+        
+        this.mm = window.markmap.Markmap.create(this.svg.node(), options);
+        
+        // 启用拖拽功能
+        this.enableDragging();
+      }
+      
+      enableDragging() {
+        // 使用 D3.js 的拖拽行为
+        const drag = d3.drag()
+          .on('start', this.dragStart.bind(this))
+          .on('drag', this.dragging.bind(this))
+          .on('end', this.dragEnd.bind(this));
+        
+        // 应用拖拽到所有节点
+        this.svg.selectAll('.mm-node')
+          .call(drag)
+          .style('cursor', 'grab');
+      }
+      
+      dragStart(event, d) {
+        if (!d || d.data.depth === 0) return; // 根节点不可拖拽
+        
+        this.isDragging = true;
+        this.draggedNode = d;
+        
+        // 视觉反馈
+        d3.select(event.sourceEvent.target.closest('.mm-node'))
+          .classed('dragging', true)
+          .style('cursor', 'grabbing');
+        
+        // 高亮相关连接线
+        this.highlightConnections(d);
+        
+        this.updateStatus('拖拽中...', `正在移动 "${d.data.content}"`);
+        
+        event.sourceEvent.stopPropagation();
+      }
+      
+      dragging(event, d) {
+        if (!this.isDragging || !this.draggedNode) return;
+        
+        // 实时更新节点位置（视觉反馈）
+        const node = d3.select(event.sourceEvent.target.closest('.mm-node'));
+        node.attr('transform', `translate(${event.x}, ${event.y})`);
+        
+        // 显示拖放提示
+        this.showDropHints(event);
+      }
+      
+      dragEnd(event, d) {
+        if (!this.isDragging || !this.draggedNode) return;
+        
+        // 查找拖放目标
+        const target = this.findDropTarget(event);
+        
+        if (target && target !== d && !this.wouldCreateCycle(d, target)) {
+          // 执行移动
+          this.moveNode(d, target);
+          this.updateStatus('移动完成', `"${d.data.content}" 移动到 "${target.data.content}" 下`);
+        } else {
+          this.updateStatus('移动取消', '无效的拖放目标或会造成循环引用');
+        }
+        
+        // 清理状态
+        this.svg.selectAll('.mm-node')
+          .classed('dragging', false)
+          .style('cursor', 'grab');
+        
+        this.svg.selectAll('.mm-link')
+          .classed('highlight', false);
+        
+        this.hideTooltip();
+        
+        this.isDragging = false;
+        this.draggedNode = null;
+        
+        // 重新渲染
+        setTimeout(() => this.refresh(), 100);
+      }
+      
+      findDropTarget(event) {
+        // 使用 D3 的 elementsFromPoint 查找目标
+        const elements = document.elementsFromPoint(event.sourceEvent.clientX, event.sourceEvent.clientY);
+        const targetElement = elements.find(el => el.closest('.mm-node') && el.closest('.mm-node') !== event.sourceEvent.target.closest('.mm-node'));
+        
+        if (targetElement) {
+          const targetNode = d3.select(targetElement.closest('.mm-node')).datum();
+          return targetNode;
+        }
+        
+        return null;
+      }
+      
+      wouldCreateCycle(source, target) {
+        // 检查是否会创建循环引用
+        let current = target;
+        while (current) {
+          if (current === source) return true;
+          current = current.parent;
+        }
+        return false;
+      }
+      
+      moveNode(source, target) {
+        // 更新数据结构
+        if (source.parent) {
+          const siblings = source.parent.children || [];
+          const index = siblings.indexOf(source);
+          if (index > -1) {
+            siblings.splice(index, 1);
+          }
+        }
+        
+        // 添加到新父节点
+        if (!target.children) {
+          target.children = [];
+        }
+        target.children.push(source);
+        source.parent = target;
+        
+        // 更新深度
+        this.updateDepth(source, target.data.depth + 1);
+      }
+      
+      updateDepth(node, depth) {
+        node.data.depth = depth;
+        if (node.children) {
+          node.children.forEach(child => {
+            this.updateDepth(child, depth + 1);
+          });
+        }
+      }
+      
+      highlightConnections(node) {
+        // 高亮相关连接线
+        this.svg.selectAll('.mm-link')
+          .classed('highlight', d => d.source === node || d.target === node);
+      }
+      
+      showDropHints(event) {
+        // 显示拖放提示
+        const target = this.findDropTarget(event);
+        if (target) {
+          this.showTooltip(event.sourceEvent.clientX, event.sourceEvent.clientY, `拖放到: ${target.data.content}`);
+        } else {
+          this.hideTooltip();
+        }
+      }
+      
+      showTooltip(x, y, text) {
+        this.tooltip
+          .style('left', (x + 10) + 'px')
+          .style('top', (y - 30) + 'px')
+          .text(text)
+          .classed('show', true);
+      }
+      
+      hideTooltip() {
+        this.tooltip.classed('show', false);
+      }
+      
+      loadSampleData() {
+        const data = {
+          "content": "项目A",
+          "children": [
+            {
+              "content": "需求分析",
+              "children": [
+                {"content": "用户故事"},
+                {"content": "验收标准"},
+                {"content": "业务流程"}
+              ]
+            },
+            {
+              "content": "系统设计",
+              "children": [
+                {"content": "架构设计"},
+                {"content": "数据模型"},
+                {"content": "接口设计"}
+              ]
+            },
+            {
+              "content": "开发实现",
+              "children": [
+                {"content": "前端开发"},
+                {"content": "后端开发"},
+                {"content": "数据库设计"}
+              ]
+            },
+            {
+              "content": "测试部署",
+              "children": [
+                {"content": "单元测试"},
+                {"content": "集成测试"},
+                {"content": "生产部署"}
+              ]
+            }
+          ]
+        };
+        
+        this.mm.setData(data);
+        this.mm.fit();
+        
+        // 重新绑定拖拽事件（数据更新后需要重新绑定）
+        setTimeout(() => this.enableDragging(), 500);
+      }
+      
+      refresh() {
+        // 重新渲染并绑定事件
+        this.mm.rescale();
+        setTimeout(() => this.enableDragging(), 100);
+      }
+      
+      fit() {
+        this.mm.fit();
+        this.updateStatus('视图已适应', '脑图已居中显示');
+      }
+      
+      reset() {
+        this.loadSampleData();
+        this.updateStatus('数据已重置', '恢复到初始状态');
+      }
+      
+      exportSVG() {
+        // 导出 SVG
+        const svgData = new XMLSerializer().serializeToString(this.svg.node());
+        const blob = new Blob([svgData], {type: 'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mindmap.svg';
+        a.click();
+        
+        URL.revokeObjectURL(url);
+        this.updateStatus('导出完成', 'SVG 文件已下载');
+      }
+      
+      switchTheme() {
+        this.currentTheme = (this.currentTheme + 1) % this.themes.length;
+        const theme = this.themes[this.currentTheme];
+        
+        // 更新主题
+        this.mm.setOptions({
+          ...theme,
+          duration: 500
+        });
+        
+        this.updateStatus('主题已切换', `当前主题: ${theme.name}`);
+      }
+      
+      updateStatus(status, action = '') {
+        document.getElementById('status-text').textContent = status;
+        if (action) {
+          document.getElementById('action-log').textContent = action;
+        }
+      }
+      
+      bindEvents() {
+        // 绑定控制按钮
+        document.getElementById('fit').addEventListener('click', () => this.fit());
+        document.getElementById('reset').addEventListener('click', () => this.reset());
+        document.getElementById('export').addEventListener('click', () => this.exportSVG());
+        document.getElementById('theme').addEventListener('click', () => this.switchTheme());
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+              case 'r':
+                e.preventDefault();
+                this.reset();
+                break;
+              case 's':
+                e.preventDefault();
+                this.exportSVG();
+                break;
+              case 't':
+                e.preventDefault();
+                this.switchTheme();
+                break;
+            }
+          }
+        });
+      }
+    }
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      new ProfessionalMarkmap();
+    });
+  </script>
+</body>
+</html>
