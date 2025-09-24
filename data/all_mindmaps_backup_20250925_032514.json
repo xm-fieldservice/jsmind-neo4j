@@ -1,6 +1,6 @@
 {
-  "export_time": "2025-09-25T07:39:28.206459",
-  "total_count": 5,
+  "export_time": "2025-09-25T03:19:19.602568",
+  "total_count": 11,
   "mindmaps": [
     {
       "id": "root-1758490798034-j5",
@@ -15,7 +15,7 @@
         "format": "node_tree",
         "data": {
           "id": "root-1758490798034-j5",
-          "topic": "项目脑图",
+          "topic": "脑图栏优化",
           "expanded": true,
           "content": "# 根节点\n\n在此编写内容...",
           "data": {
@@ -2342,12 +2342,384 @@
           ]
         }
       },
-      "last_modified": "2025-09-24T23:39:27.606Z",
-      "content_hash": "-3e1bdf6a"
+      "last_modified": "2025-09-24T19:19:18.983Z",
+      "content_hash": "722f8ed4"
+    },
+    {
+      "id": "root-1758726962698-xpwi",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758726962698-xpwi"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758726962698-xpwi",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-24T19:19:12.846Z",
+      "content_hash": "-5198df20"
+    },
+    {
+      "id": "root-test",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-test"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-test",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "创建: 2025-09-25 00:12:53\n\n",
+          "data": {
+            "content": "创建: 2025-09-25 00:12:53\n\n"
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "child1",
+              "topic": "子节点1",
+              "expanded": true,
+              "direction": "right",
+              "content": "",
+              "data": {
+                "content": ""
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "child2",
+              "topic": "子节点2",
+              "expanded": true,
+              "direction": "right",
+              "content": "",
+              "data": {
+                "content": ""
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-24T16:12:56.284Z",
+      "content_hash": "-5d8d6f0d"
+    },
+    {
+      "id": "root-1758727070331-kjvg",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758727070331-kjvg"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758727070331-kjvg",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-24T19:19:10.433Z",
+      "content_hash": "39d13a00"
+    },
+    {
+      "id": "root-1758730375616-mjks",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758730375616-mjks"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758730375616-mjks",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-24T19:18:23.779Z",
+      "content_hash": "-237d1820"
+    },
+    {
+      "id": "root-1758730647779-s5zc",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758730647779-s5zc"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758730647779-s5zc",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-24T16:41:05.941Z",
+      "content_hash": "512415e0"
+    },
+    {
+      "id": "root-1758731795289-k8l3",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758731795289-k8l3"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758731795289-k8l3",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-24T16:38:40.774Z",
+      "content_hash": "204fb2e0"
     },
     {
       "id": "root-1758731934614-f9i2",
-      "name": "项目脑图",
+      "name": "脑图栏优化",
       "data": {
         "meta": {
           "name": "Project Mindmap",
@@ -2406,22 +2778,22 @@
           ]
         }
       },
-      "last_modified": "2025-09-24T19:28:29.796Z",
+      "last_modified": "2025-09-24T19:19:16.599Z",
       "content_hash": "-3d2a2480"
     },
     {
-      "id": "root-1758742095563-f6l4",
+      "id": "root-1758735406298-pvkk",
       "name": "项目脑图",
       "data": {
         "meta": {
           "name": "Project Mindmap",
           "author": "local",
           "version": "1.0",
-          "mind_id": "root-1758742095563-f6l4"
+          "mind_id": "root-1758735406298-pvkk"
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1758742095563-f6l4",
+          "id": "root-1758735406298-pvkk",
           "topic": "项目脑图",
           "expanded": true,
           "content": "# 根节点\n\n在此编写内容...",
@@ -2470,22 +2842,22 @@
           ]
         }
       },
-      "last_modified": "2025-09-24T19:28:18.385Z",
-      "content_hash": "-2a860"
+      "last_modified": "2025-09-24T17:36:49.115Z",
+      "content_hash": "-1bf659c0"
     },
     {
-      "id": "root-1758757152621-4jq2",
+      "id": "root-1758737667080-4bsr",
       "name": "项目脑图",
       "data": {
         "meta": {
           "name": "Project Mindmap",
           "author": "local",
           "version": "1.0",
-          "mind_id": "root-1758757152621-4jq2"
+          "mind_id": "root-1758737667080-4bsr"
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1758757152621-4jq2",
+          "id": "root-1758737667080-4bsr",
           "topic": "项目脑图",
           "expanded": true,
           "content": "# 根节点\n\n在此编写内容...",
@@ -2534,22 +2906,22 @@
           ]
         }
       },
-      "last_modified": "2025-09-24T23:39:15.684Z",
-      "content_hash": "-38a91620"
+      "last_modified": "2025-09-24T18:16:33.994Z",
+      "content_hash": "-565e79e0"
     },
     {
-      "id": "root-1758757157676-5acl",
+      "id": "root-1758741409185-cfnl",
       "name": "项目脑图",
       "data": {
         "meta": {
           "name": "Project Mindmap",
           "author": "local",
           "version": "1.0",
-          "mind_id": "root-1758757157676-5acl"
+          "mind_id": "root-1758741409185-cfnl"
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1758757157676-5acl",
+          "id": "root-1758741409185-cfnl",
           "topic": "项目脑图",
           "expanded": true,
           "content": "# 根节点\n\n在此编写内容...",
@@ -2598,8 +2970,8 @@
           ]
         }
       },
-      "last_modified": "2025-09-24T23:39:20.491Z",
-      "content_hash": "4a7f58c0"
+      "last_modified": "2025-09-24T19:18:13.527Z",
+      "content_hash": "-cfcac00"
     }
   ]
 }

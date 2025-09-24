@@ -2,15 +2,15 @@
   "version": "1.0",
   "projects": [
     {
-      "project_id": "root-1758737795942-ohvv",
+      "project_id": "root-1758757157676-5acl",
       "name": "项目脑图",
-      "created_at": "2025-09-24T18:16:36.760Z",
-      "last_modified": "2025-09-24T18:16:36.760Z",
+      "created_at": "2025-09-24T23:39:18.483Z",
+      "last_modified": "2025-09-24T23:39:18.483Z",
       "source": "save",
       "payload": {
         "format": "node_tree",
         "data": {
-          "id": "root-1758737795942-ohvv",
+          "id": "root-1758757157676-5acl",
           "label": "项目脑图",
           "content": "# 根节点\n\n在此编写内容...",
           "expanded": true,
@@ -38,46 +38,35 @@
       }
     },
     {
-      "project_id": "root-1758737667080-4bsr",
+      "project_id": "root-1758757152621-4jq2",
       "name": "项目脑图",
-      "created_at": "2025-09-24T18:14:27.897Z",
-      "last_modified": "2025-09-24T18:16:31.992Z",
+      "created_at": "2025-09-24T23:39:13.684Z",
+      "last_modified": "2025-09-24T23:39:13.684Z",
       "source": "save",
       "payload": {
         "format": "node_tree",
         "data": {
-          "id": "root-1758737667080-4bsr",
+          "id": "root-1758757152621-4jq2",
           "label": "项目脑图",
-          "topic": "项目脑图",
           "content": "# 根节点\n\n在此编写内容...",
           "expanded": true,
-          "attachments": [],
           "children": [
             {
               "id": "n1",
               "label": "需求",
-              "topic": "需求",
               "content": "需求说明...",
-              "expanded": true,
-              "attachments": [],
               "children": []
             },
             {
               "id": "n2",
               "label": "设计",
-              "topic": "设计",
               "content": "设计说明...",
-              "expanded": true,
-              "attachments": [],
               "children": []
             },
             {
               "id": "n3",
               "label": "开发",
-              "topic": "开发",
               "content": "开发计划...",
-              "expanded": true,
-              "attachments": [],
               "children": []
             }
           ]
@@ -85,15 +74,15 @@
       }
     },
     {
-      "project_id": "root-1758735406298-pvkk",
+      "project_id": "root-1758731934614-f9i2",
       "name": "项目脑图",
-      "created_at": "2025-09-24T17:36:47.115Z",
-      "last_modified": "2025-09-24T17:50:08.657Z",
-      "source": "save",
+      "created_at": "2025-09-24T19:28:18.105Z",
+      "last_modified": "2025-09-24T19:28:27.791Z",
+      "source": "imported",
       "payload": {
         "format": "node_tree",
         "data": {
-          "id": "root-1758735406298-pvkk",
+          "id": "root-1758731934614-f9i2",
           "label": "项目脑图",
           "topic": "项目脑图",
           "content": "# 根节点\n\n在此编写内容...",
@@ -134,8 +123,8 @@
     {
       "project_id": "root-1758490798034-j5",
       "name": "项目脑图",
-      "created_at": "2025-09-24T16:56:00.881Z",
-      "last_modified": "2025-09-24T18:55:48.856Z",
+      "created_at": "2025-09-24T19:28:18.019Z",
+      "last_modified": "2025-09-24T23:40:09.819Z",
       "source": "imported",
       "payload": {
         "format": "node_tree",
@@ -310,7 +299,7 @@
                   "id": "9619426eb594f316",
                   "label": "数据",
                   "topic": "数据",
-                  "content": "",
+                  "content": "创建: 2025-09-25 02:59:22\n\n",
                   "expanded": true,
                   "attachments": [],
                   "children": [
@@ -526,6 +515,191 @@
                           ]
                         }
                       ]
+                    }
+                  ]
+                },
+                {
+                  "id": "97d1837e8e8ab2e5",
+                  "label": "【系统字典】",
+                  "topic": "【系统字典】",
+                  "content": "创建: 2025-09-25 03:00:21\n\n",
+                  "expanded": true,
+                  "attachments": [],
+                  "children": [
+                    {
+                      "id": "97d1850de5a9b5b5",
+                      "label": "系统标签",
+                      "topic": "系统标签",
+                      "content": "创建: 2025-09-25 03:00:41\n\n",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": [
+                        {
+                          "id": "97d1b89a484c696c",
+                          "label": "管理",
+                          "topic": "管理",
+                          "content": "创建: 2025-09-25 03:03:11\n\n",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": [
+                            {
+                              "id": "97d1db9637cb446e",
+                              "label": "目标",
+                              "topic": "目标",
+                              "content": "创建: 2025-09-25 03:07:06\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1da6791489ae7",
+                              "label": "规划",
+                              "topic": "规划",
+                              "content": "创建: 2025-09-25 03:05:35\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1d9296ba5bab2",
+                              "label": "项目",
+                              "topic": "项目",
+                              "content": "创建: 2025-09-25 03:05:41\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1d9de2cc04ee0",
+                              "label": "议题",
+                              "topic": "议题",
+                              "content": "创建: 2025-09-25 03:07:05\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1dc80438757f9",
+                              "label": "日程",
+                              "topic": "日程",
+                              "content": "创建: 2025-09-25 03:07:01\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "97d1b90e55fb98d2",
+                          "label": "点评",
+                          "topic": "点评",
+                          "content": "创建: 2025-09-25 03:03:17\n\n",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": [
+                            {
+                              "id": "97d1d2f83d45b66a",
+                              "label": "里程碑",
+                              "topic": "里程碑",
+                              "content": "",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1d3c36f4eb865",
+                              "label": "节点",
+                              "topic": "节点",
+                              "content": "创建: 2025-09-25 03:07:36\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1d4abb4d121c8",
+                              "label": "难点",
+                              "topic": "难点",
+                              "content": "创建: 2025-09-25 03:07:46\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "97d1be3a99d265ae",
+                          "label": "状态",
+                          "topic": "状态",
+                          "content": "创建: 2025-09-25 03:03:30\n\n",
+                          "expanded": true,
+                          "attachments": [],
+                          "children": [
+                            {
+                              "id": "97d1c79c26eac21a",
+                              "label": "计划",
+                              "topic": "计划",
+                              "content": "创建: 2025-09-25 03:04:11\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1c1db2dc7d93b",
+                              "label": "发布",
+                              "topic": "发布",
+                              "content": "创建: 2025-09-25 03:04:19\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1c077c37e8cb1",
+                              "label": "进行",
+                              "topic": "进行",
+                              "content": "创建: 2025-09-25 03:04:09\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1c3d6304e98ae",
+                              "label": "验收",
+                              "topic": "验收",
+                              "content": "创建: 2025-09-25 03:04:00\n\n",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            },
+                            {
+                              "id": "97d1ce8651800e2c",
+                              "label": "中断",
+                              "topic": "中断",
+                              "content": "",
+                              "expanded": true,
+                              "attachments": [],
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "97d1e9b2a81dbd2b",
+                      "label": "部门",
+                      "topic": "部门",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
+                    },
+                    {
+                      "id": "97d1eb030cf0d802",
+                      "label": "New Node",
+                      "topic": "New Node",
+                      "content": "",
+                      "expanded": true,
+                      "attachments": [],
+                      "children": []
                     }
                   ]
                 }
@@ -1525,7 +1699,7 @@
                           "id": "9797f374ead7a05d",
                           "label": "标签面板与标签数据的同步",
                           "topic": "标签面板与标签数据的同步",
-                          "content": "创建: 2025-09-24 10:13:45\n\n",
+                          "content": "创建: 2025-09-24 10:13:45\n\n1. 节点详情栏内的“标签面板”与脑图文件内的“系统标签”节点同步；",
                           "expanded": true,
                           "attachments": [],
                           "children": []
@@ -1812,7 +1986,7 @@
   ],
   "metadata": {
     "total_projects": 4,
-    "last_updated": "2025-09-24T18:55:48.860Z",
+    "last_updated": "2025-09-24T23:40:09.823Z",
     "storage_type": "unified_md"
   }
 }

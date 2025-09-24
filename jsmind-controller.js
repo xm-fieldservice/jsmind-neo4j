@@ -889,7 +889,20 @@
           // 来自系统标签脑图的 pack
           let pack = opts.systemPack || null;
           if (!pack){
+            // 优先从localStorage读取
             try{ const raw = localStorage.getItem('mm:proj:SYS_TAGS:data'); pack = raw ? JSON.parse(raw) : null; }catch(_){ }
+            
+            // 如果localStorage没有，尝试从JSON底座API获取
+            if (!pack) {
+              try {
+                this._loadSystemTagsFromJsonBase().then(systemPack => {
+                  if (systemPack) {
+                    // 异步更新标签面板
+                    this.renderTagPanelFromSource({ mode: 'system', systemPack });
+                  }
+                });
+              } catch(_) { }
+            }
           }
           root = pack && pack.data ? pack.data : null;
         } else {
@@ -910,7 +923,11 @@
           return null;
         };
 
-        const tagRoot = findByTopic(root, '标签管理');
+        // 支持多种标签节点名称：优先"标签管理"，其次"系统标签"
+        let tagRoot = findByTopic(root, '标签管理');
+        if (!tagRoot) {
+          tagRoot = findByTopic(root, '系统标签');
+        }
         if (!tagRoot || !Array.isArray(tagRoot.children) || tagRoot.children.length === 0){
           this.tagGroups = [];
           this.activeTagGroup = null;
@@ -985,6 +1002,26 @@
     // 兼容旧接口：始终从"系统标签脑图"解析，与script.js保持一致
     renderTagPanelFromMind(){
       try{ this.renderTagPanelFromSource({ mode: 'system' }); }catch(_){ }
+    }
+
+    // 从JSON底座加载系统标签数据（使用标准查询服务）
+    async _loadSystemTagsFromJsonBase() {
+      try {
+        // 使用JsonBaseQueryService获取系统标签
+        if (window.JsonBaseQueryService) {
+          const systemTagsResult = await window.JsonBaseQueryService.getSystemTags();
+          if (systemTagsResult) {
+            console.log('[TagPanel] 从JSON底座加载系统标签:', systemTagsResult.source.name);
+            return systemTagsResult;
+          }
+        }
+        
+        console.warn('[TagPanel] JsonBaseQueryService不可用或未找到系统标签');
+        return null;
+      } catch (error) {
+        console.warn('[TagPanel] 从JSON底座加载系统标签失败:', error);
+        return null;
+      }
     }
 
     // 渲染右侧标签列表：
