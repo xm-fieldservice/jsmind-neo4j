@@ -315,7 +315,7 @@ const saveCurrentMindToActiveCard = ()=>{
  */
 class ColumnManager {
     constructor() {
-        this.views = ['list', 'mindmap', 'notes', 'relation', 'detail'];
+        this.views = ['workspace', 'list', 'mindmap', 'notes', 'relation', 'detail'];
         // 默认显示 列表 + 脑图 + 详情
         // 与 updateLayout 中的固定宽度规则（列表1/7、详情1/5）配合，打开页面即呈现目标布局
         this.activeViews = ['list', 'mindmap', 'detail'];

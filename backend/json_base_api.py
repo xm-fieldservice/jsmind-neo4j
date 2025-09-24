@@ -81,8 +81,9 @@ def save_json_base():
         if not is_valid:
             return jsonify({'success': False, 'error': f'JSON结构验证失败: {error_msg}'}), 400
         
-        # 创建备份
-        backup_path = create_backup()
+        # 禁用自动备份机制 - 保留保存功能但不创建备份文件
+        # backup_path = create_backup()
+        backup_path = None
         
         # 保存到指定路径
         target_path = os.path.join(os.path.dirname(__file__), '..', file_path)
@@ -157,8 +158,9 @@ def sync_mindmap():
         json_base['export_time'] = datetime.now().isoformat()
         json_base['total_count'] = len(json_base['mindmaps'])
         
-        # 创建备份（仅在有实际变更时）
-        backup_path = create_backup()
+        # 禁用自动备份机制 - 保留同步功能但不创建备份文件
+        # backup_path = create_backup()
+        backup_path = None
         
         # 保存更新后的JSON底座
         with open(JSON_BASE_PATH, 'w', encoding='utf-8') as f:
