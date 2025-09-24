@@ -941,7 +941,11 @@
         if (this.$tagEmpty) this.$tagEmpty.style.display = 'none';
         const themeOf = (name)=>{
           const n = normalize(name);
-          // 固定分组主题：分类/操作 -> 蓝；部门 -> 绿
+          // 系统标签分组主题映射
+          if (/^管理$/.test(n)) return 'theme-blue';
+          if (/^点评$/.test(n)) return 'theme-green';
+          if (/^状态$/.test(n)) return 'theme-yellow';
+          // 兼容旧的分组名称
           if (/^分类$/.test(n) || /^操作$/.test(n)) return 'theme-blue';
           if (/^部门$/.test(n)) return 'theme-green';
           // 其余关键字回退
@@ -972,13 +976,18 @@
 
         // 渲染左侧组（纯文字标签，不可点击），并在特定分组名后追加 emoji
         const emojiOf = (name)=>{
+          // 系统标签分组emoji映射
+          if (name === '管理') return '📋';
+          if (name === '点评') return '⭐';
+          if (name === '状态') return '🔄';
+          // 兼容旧的分组名称
           if (name === '分类') return '📅';
           if (name === '部门') return '📚';
           if (name === '操作') return '📌';
           return '';
         };
-        // 按固定顺序与右侧行保持一致
-        const leftOrder = ['分类','部门','操作'];
+        // 按系统标签顺序排列，兼容旧分组
+        const leftOrder = ['管理','点评','状态','分类','部门','操作'];
         const groupsOrdered = groups.slice().sort((a,b)=>{
           const ia = leftOrder.indexOf(a.name);
           const ib = leftOrder.indexOf(b.name);
@@ -1042,14 +1051,23 @@
         }
         tagItems = tags.map(t=>({ name:t, theme }));
       } else {
-        // 分组行渲染：按“分类、部门、操作”的顺序，每行=左侧分组名+emoji，右侧chips
-        const order = ['分类','部门','操作'];
+        // 分组行渲染：按系统标签顺序，每行=左侧分组名+emoji，右侧chips
+        const order = ['管理','点评','状态','分类','部门','操作'];
         const preferred = {
+          '管理': ['目标','规划','项目','议题','日程'],
+          '点评': ['里程碑','节点','难点'],
+          '状态': ['计划','发布','进行','验收','中断'],
+          // 兼容旧分组
           '分类': ['项目','笔记','任务'],
           '部门': ['软件','贝壳','内务'],
           '操作': ['完成','工作区','疑难','里程碑','收藏']
         };
         const emojiOf = (name)=>{
+          // 系统标签分组emoji映射
+          if (name === '管理') return '📋';
+          if (name === '点评') return '⭐';
+          if (name === '状态') return '🔄';
+          // 兼容旧的分组名称
           if (name === '分类') return '📅';
           if (name === '部门') return '📚';
           if (name === '操作') return '📌';

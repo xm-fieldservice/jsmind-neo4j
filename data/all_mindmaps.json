@@ -1,6 +1,6 @@
 {
-  "export_time": "2025-09-25T07:39:28.206459",
-  "total_count": 5,
+  "export_time": "2025-09-25T07:45:53.097825",
+  "total_count": 6,
   "mindmaps": [
     {
       "id": "root-1758490798034-j5",
@@ -2478,9 +2478,6 @@
       "name": "项目脑图",
       "data": {
         "meta": {
-          "name": "Project Mindmap",
-          "author": "local",
-          "version": "1.0",
           "mind_id": "root-1758757152621-4jq2"
         },
         "format": "node_tree",
@@ -2534,8 +2531,8 @@
           ]
         }
       },
-      "last_modified": "2025-09-24T23:39:15.684Z",
-      "content_hash": "-38a91620"
+      "last_modified": "2025-09-24T23:45:48.363Z",
+      "content_hash": "2299c711"
     },
     {
       "id": "root-1758757157676-5acl",
@@ -2600,6 +2597,70 @@
       },
       "last_modified": "2025-09-24T23:39:20.491Z",
       "content_hash": "4a7f58c0"
+    },
+    {
+      "id": "root-1758757550267-ew1r",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758757550267-ew1r"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758757550267-ew1r",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-24T23:45:53.083Z",
+      "content_hash": "-2778be20"
     }
   ]
 }
