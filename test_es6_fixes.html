@@ -52,16 +52,22 @@
                 result: typeof window.SystemHealthChecker !== 'undefined' ? '✅ 通过' : '❌ 失败'
             });
             
-            // 测试2: 尝试创建实例
+            // UnifiedStorageManager已删除，使用AutogenUnifiedStorage
             try {
-                const unifiedStorage = new window.UnifiedStorageManager();
-                results.push({
-                    test: 'UnifiedStorageManager实例创建',
-                    result: '✅ 通过'
-                });
+                if (window.AutogenUnifiedStorage) {
+                    results.push({
+                        test: 'AutogenUnifiedStorage可用性',
+                        result: '✅ 通过'
+                    });
+                } else {
+                    results.push({
+                        test: 'AutogenUnifiedStorage可用性',
+                        result: '❌ 失败: AutogenUnifiedStorage未加载'
+                    });
+                }
             } catch (error) {
                 results.push({
-                    test: 'UnifiedStorageManager实例创建',
+                    test: 'AutogenUnifiedStorage可用性',
                     result: `❌ 失败: ${error.message}`
                 });
             }

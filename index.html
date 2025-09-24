@@ -555,6 +555,13 @@
     <script src="src/core/messaging/AutogenEventBus.js"></script>
     <script src="src/migration/StorageMigrationTool.js"></script>
     
+    <!-- 核心管理组件 - 在基础组件加载后添加 -->
+    <script src="src/core/ErrorHandler.js"></script>
+    <script src="src/core/DependencyManager.js"></script>
+    
+    <!-- 🚨 快速修复脑图消失问题 -->
+    <script src="quick_fix_mindmap.js"></script>
+    
     <!-- ES6模块修复脚本 -->
     <script src="fix_es6_modules.js"></script>
     
@@ -1151,8 +1158,14 @@
     <!-- 数据备份工具 -->
     <script src="backup_current_data.js"></script>
     
-    <!-- 第二阶段架构统一测试 -->
+    <!-- 🧪 第二阶段架构统一测试工具已加载 -->
     <script src="test_phase2_unification.js"></script>
+    
+    <!-- 🧪 最终清理验证测试 -->
+    <script src="test_final_cleanup.js"></script>
+    
+    <!-- 🔄 用户数据恢复脚本 -->
+    <script src="restore_user_data.js"></script>
     
     <!-- Toast提示 -->
     <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>

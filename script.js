@@ -1889,7 +1889,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cfgBase = (window.API_BASE || localStorage.getItem('__api_base'));
                 if (!cfgBase){
                     // 未配置API，静默降级为本地空数据
-                    this && this._dragDiagLog && this._dragDiagLog('relations.api_disabled', {});
+                    console.debug('[Relations] API未配置，使用本地空数据');
                     return [];
                 }
                 const API_BASE = cfgBase.replace(/\/$/, '');

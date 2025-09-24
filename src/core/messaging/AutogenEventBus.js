@@ -534,9 +534,9 @@ class AutogenEventBus {
 const globalEventBus = new AutogenEventBus();
 
 // 全局导出（兼容现有代码）
-window.AutogenEventBus = AutogenEventBus;
+window.AutogenEventBus = globalEventBus; // 导出实例而不是类
 window.GlobalEventBus = globalEventBus;
-window.EventBus = AutogenEventBus; // 兼容性
+window.EventBus = globalEventBus; // 兼容性
 
 // 模块导出
 if (typeof module !== 'undefined' && module.exports) {

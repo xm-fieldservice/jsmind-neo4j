@@ -259,66 +259,13 @@
 
     // HTML5拖拽相关方法已删除 - 使用 jsMind 原生拖拽
 
-    // —— 拖拽诊断：初始化/记录/导出 ——
-    _initDragDiagnostics(){
-      try{
-        this._dragDiag = {
-          startedAt: new Date().toISOString(),
-          ua: (typeof navigator!=='undefined' ? navigator.userAgent : ''),
-          platform: (typeof navigator!=='undefined' ? navigator.platform : ''),
-          logs: []
-        };
-        this._dragDiagPersistKey = 'mm_drag_diag_v1';
-        this._dragDiagAutoFlushTimer = null;
-        // 恢复旧日志（使用AutogenUnifiedStorage）
-        try{
-          if (this.autogenStorage) {
-            this.autogenStorage.retrieve('diagnostic', this._dragDiagPersistKey).then(old => {
-              if (old && Array.isArray(old.logs)){
-                this._dragDiag.logs.push({ t: Date.now(), evt:'diag.restore_prev', size: old.logs.length });
-              }
-            }).catch(() => {});
-          }
-        }catch(_){ /* ignore */ }
-      }catch(_){ /* ignore */ }
-    }
-
-    _dragDiagLog(evt, data){
-      try{
-        const rec = { t: Date.now(), evt, data: data||{} };
-        (this._dragDiag && this._dragDiag.logs) ? this._dragDiag.logs.push(rec) : null;
-        // 节流持久化（使用AutogenUnifiedStorage）
-        clearTimeout(this._dragDiagAutoFlushTimer);
-        this._dragDiagAutoFlushTimer = setTimeout(()=>{
-          try{ 
-            if (this.autogenStorage) {
-              this.autogenStorage.store('diagnostic', this._dragDiagPersistKey, this._dragDiag).catch(() => {});
-            }
-          }catch(_){ }
-        }, 400);
-      }catch(_){ /* ignore */ }
-    }
-
-    exportDragDiagnostics(){
-      try{
-        const payload = JSON.stringify(this._dragDiag || {}, null, 2);
-        const blob = new Blob([payload], { type:'application/json' });
-        const a = document.createElement('a');
-        const ts = new Date().toISOString().replace(/[:.]/g,'-');
-        a.href = URL.createObjectURL(blob);
-        a.download = `drag-diagnostics-${ts}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(a.href);
-        this.showToast && this.showToast('已导出拖拽诊断');
-      }catch(e){ console.warn('导出拖拽诊断失败', e); }
-    }
+    // 拖拽诊断功能已清除 - 使用jsMind原生拖拽，无需额外诊断
 
     _installDragDomProbes(){
       try{
         if (this._dragProbesInstalled) return;
         const container = this.dom && this.dom.containerEl;
+        // 
         if (!container) return;
         const getNodeInfo = (el)=>{
           try{
@@ -328,13 +275,14 @@
           }catch(_){ return { nodeid:null, cls:'' }; }
         };
         const probe = (type)=> (e)=>{
+          // DOM事件探针 - 仅用于调试，不记录日志
           const info = getNodeInfo(e.target);
-          this._dragDiagLog(`dom.${type}`, {
+          console.debug(`[DragProbe] ${type}:`, {
             nodeid: info.nodeid,
             cls: info.cls,
             btn: e.button,
-            x: e.clientX, y: e.clientY,
-            alt: !!e.altKey, ctrl: !!e.ctrlKey, shift: !!e.shiftKey,
+            x: e.clientX,
+            y: e.clientY
           });
         };
         // 拖拽相关事件
@@ -347,7 +295,6 @@
         container.addEventListener('mousemove', probe('mousemove'));
         container.addEventListener('mouseup', probe('mouseup'));
         this._dragProbesInstalled = true;
-        this._dragDiagLog('dom.probes_installed', {});
       }catch(_){ /* ignore */ }
     }
 
@@ -2808,11 +2755,9 @@ try{
         this.debugMessages = this.debugMessages.slice(-50);
       }
       
-      // 使用现有的调试输出框
+      // 使用控制台调试输出
       try {
-        if (typeof this._dragDiagLog === 'function') {
-          this._dragDiagLog('image.debug', { message, data });
-        }
+        console.debug('[ImageDebug]', message, data);
       } catch (err) {
         // 忽略调试输出错误
       }
@@ -4398,13 +4343,14 @@ try{
               
               // 触发界面刷新事件，通知其他系统数据已更新
               try {
-                if (window.AutogenEventBus) {
+                if (window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function') {
                   window.AutogenEventBus.emit('mindmap:dataLoaded', { 
                     source: 'import',
                     projectId: firstProject.id,
                     projectName: firstProject.name,
                     data: data
                   });
+                  console.log('[加载] 已通过AutogenEventBus触发数据加载事件');
                 } else {
                   window.dispatchEvent(new CustomEvent('mindmap:dataLoaded', {
                     detail: { 
@@ -4414,10 +4360,14 @@ try{
                       data: data
                     }
                   }));
+                  console.log('[加载] 已通过CustomEvent触发数据加载事件');
                 }
-                console.log('[加载] 已触发数据加载事件');
               } catch (error) {
                 console.warn('[加载] 触发事件失败:', error);
+                console.warn('[加载] AutogenEventBus状态:', {
+                  exists: !!window.AutogenEventBus,
+                  hasEmit: window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function'
+                });
               }
               
               console.log(`[加载] 已加载第一个项目: ${firstProject.name}`);
@@ -5427,13 +5377,12 @@ async _showMindmapSelectionDialog(mindmaps) {
     }
 
     // —— 快照：存取/调度/UI ——
-    _loadSnapshotConfig(){
+    async _loadSnapshotConfig(){
       try{
         if (this.autogenStorage) {
-          this.autogenStorage.retrieve('config', 'mindmap_snapshots_config').then(obj => {
-            if (obj && typeof obj.intervalMs==='number') this._snapConfig.intervalMs = Math.max(60*1000, obj.intervalMs);
-            if (obj && typeof obj.maxCount==='number') this._snapConfig.maxCount = Math.min(10, Math.max(1, Math.floor(obj.maxCount)));
-          }).catch(() => {});
+          const obj = await this.autogenStorage.retrieve('config', 'mindmap_snapshots_config');
+          if (obj && typeof obj.intervalMs==='number') this._snapConfig.intervalMs = Math.max(60*1000, obj.intervalMs);
+          if (obj && typeof obj.maxCount==='number') this._snapConfig.maxCount = Math.min(10, Math.max(1, Math.floor(obj.maxCount)));
           return;
         }
         // 回退到localStorage
@@ -5454,12 +5403,13 @@ async _showMindmapSelectionDialog(mindmaps) {
         }
       }catch(_){/* ignore */}
     }
-    _snapshotIndex(){
+    async _snapshotIndex(){
       try{ 
         if (this.autogenStorage) {
-          // 异步获取，这里返回空数组，实际使用时需要改为异步
-          return [];
+          const index = await this.autogenStorage.retrieve('snapshot', 'mindmap_snapshots_index');
+          return Array.isArray(index) ? index : [];
         }
+        // 回退到localStorage
         const raw = localStorage.getItem('mindmap_snapshots_index'); 
         return Array.isArray(JSON.parse(raw))? JSON.parse(raw): []; 
       }catch(_){ return []; }
@@ -5473,7 +5423,7 @@ async _showMindmapSelectionDialog(mindmaps) {
         }
       }catch(_){/* ignore */}
     }
-    takeSnapshot(){
+    async takeSnapshot(){
       try{
         // 导出当前内部数据为一份全量快照
         const payload = { ts: new Date().toISOString(), data: this.data };
@@ -5484,7 +5434,7 @@ async _showMindmapSelectionDialog(mindmaps) {
           localStorage.setItem(`mindmap_snapshot_${id}`, JSON.stringify(payload));
         }
         // 更新索引并裁剪
-        const idx = this._snapshotIndex();
+        const idx = await this._snapshotIndex();
         idx.unshift({ id, ts: payload.ts });
         const maxN = Math.min(10, Math.max(1, Math.floor(this._snapConfig.maxCount || 5)));
         const drop = idx.splice(maxN);
@@ -5502,7 +5452,7 @@ async _showMindmapSelectionDialog(mindmaps) {
         this.showToast('已创建快照');
       }catch(e){ console.warn('创建快照失败', e); this.showToast('创建快照失败', 'error'); }
     }
-    listSnapshots(){ return this._snapshotIndex(); }
+    async listSnapshots(){ return await this._snapshotIndex(); }
     restoreSnapshot(id){
       try{
         if (this.autogenStorage) {
@@ -5530,21 +5480,18 @@ async _showMindmapSelectionDialog(mindmaps) {
         this.showToast('已从快照恢复');
       }catch(e){ console.warn('恢复快照失败', e); this.showToast('恢复失败', 'error'); }
     }
-    deleteSnapshot(id){
+    async deleteSnapshot(id){
       try{
         if (this.autogenStorage) {
-          this.autogenStorage.remove('snapshot', `mindmap_snapshot_${id}`).then(() => {
-            const idx = this._snapshotIndex().filter(x=>x.id!==id);
-            this._saveSnapshotIndex(idx);
-            this.showToast('已删除快照');
-          }).catch(() => {
-            this.showToast('删除失败', 'error');
-          });
+          await this.autogenStorage.remove('snapshot', `mindmap_snapshot_${id}`);
+          const idx = (await this._snapshotIndex()).filter(x=>x.id!==id);
+          this._saveSnapshotIndex(idx);
+          this.showToast('已删除快照');
           return;
         }
         // 回退到localStorage
         localStorage.removeItem(`mindmap_snapshot_${id}`);
-        const idx = this._snapshotIndex().filter(x=>x.id!==id);
+        const idx = (await this._snapshotIndex()).filter(x=>x.id!==id);
         this._saveSnapshotIndex(idx);
         this.showToast('已删除快照');
       }catch(_){ this.showToast('删除失败', 'error'); }
@@ -5575,9 +5522,9 @@ async _showMindmapSelectionDialog(mindmaps) {
         a.click(); URL.revokeObjectURL(a.href);
       }catch(_){ this.showToast('导出失败', 'error'); }
     }
-    startSnapshotScheduler(){
+    async startSnapshotScheduler(){
       try{
-        this._loadSnapshotConfig();
+        await this._loadSnapshotConfig();
         if (this._snapTimer) clearInterval(this._snapTimer);
         const iv = Math.max(60*1000, Number(this._snapConfig.intervalMs)|| (10*60*1000));
         this._snapTimer = setInterval(()=>{ try{ this.takeSnapshot(); }catch(_){/* ignore */} }, iv);
@@ -5585,7 +5532,7 @@ async _showMindmapSelectionDialog(mindmaps) {
     }
     stopSnapshotScheduler(){ try{ if (this._snapTimer) clearInterval(this._snapTimer); this._snapTimer=null; }catch(_){/* ignore */}
     }
-    openSnapshotManager(){
+    async openSnapshotManager(){
       // 简易管理器 UI（无外部CSS依赖）
       try{
         const prev = document.getElementById('mm-snap-overlay'); if (prev){ prev.parentNode.removeChild(prev); }
@@ -5603,7 +5550,7 @@ async _showMindmapSelectionDialog(mindmaps) {
             <button id="snap-close" class="mm-btn">关闭</button>
           </div>`;
         const list = document.createElement('div');
-        const items = this.listSnapshots();
+        const items = await this.listSnapshots();
         if (!items.length){ list.innerHTML = '<div style="padding:8px;color:#666;">暂无快照</div>'; }
         else{
           const html = items.map(it=>{
@@ -5632,12 +5579,12 @@ async _showMindmapSelectionDialog(mindmaps) {
           this.startSnapshotScheduler();
           this.showToast('已保存快照设置');
         });
-        cfgWrap.querySelector('#snap-take').addEventListener('click', ()=>{ this.takeSnapshot(); list.innerHTML=''; this.openSnapshotManager(); });
-        list.addEventListener('click', (e)=>{
+        cfgWrap.querySelector('#snap-take').addEventListener('click', async ()=>{ await this.takeSnapshot(); list.innerHTML=''; await this.openSnapshotManager(); });
+        list.addEventListener('click', async (e)=>{
           const btn = e.target.closest('button[data-act]'); if (!btn) return;
           const act = btn.getAttribute('data-act'); const id = btn.getAttribute('data-id');
           if (act==='restore'){ if (confirm('确认恢复该快照并替换当前内容？')){ this.restoreSnapshot(id); } }
-          if (act==='delete'){ if (confirm('确认删除该快照？')){ this.deleteSnapshot(id); btn.closest('div').remove(); } }
+          if (act==='delete'){ if (confirm('确认删除该快照？')){ await this.deleteSnapshot(id); btn.closest('div').remove(); } }
           if (act==='export'){ this.exportSnapshot(id); }
         });
       }catch(e){ console.warn('打开快照管理器失败', e); this.showToast('打开快照管理器失败', 'error'); }
