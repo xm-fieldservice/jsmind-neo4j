@@ -560,6 +560,14 @@
     
     <!-- 存储监控工具 -->
     <script src="storage_monitor.js"></script>
+    <!-- Registry系统 - 必需用于界面刷新 -->
+    <script src="registry/registry_store.js"></script>
+    <script src="registry/registry_state_machine.js"></script>
+    <script src="registry/registry_repository.js"></script>
+    <script src="registry/command_bus.js"></script>
+    <script src="registry/registry_view.js"></script>
+    <script src="registry/registry_bootstrap.js"></script>
+    
     <!-- 原有脑图控制器（保持不变） -->
     <script src="jsmind-controller.js?v=1758295844"></script>
     
@@ -1136,6 +1144,9 @@
     
     <!-- 存储修复效果测试 -->
     <script src="test_storage_fix.js"></script>
+    
+    <!-- "读"功能完整流程测试 -->
+    <script src="test_import_refresh.js"></script>
     
     <!-- Toast提示 -->
     <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>

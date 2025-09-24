@@ -42,5 +42,6 @@
     await this.repo.remove(id);
     if (this.store.state.currentId === id){ this.store.setCurrentId(null); }
   };
-  global.RegistryCommandBus = CommandBus;
+  global.CommandBus = CommandBus;
+  global.RegistryCommandBus = CommandBus; // 向后兼容
 })(window || this);
