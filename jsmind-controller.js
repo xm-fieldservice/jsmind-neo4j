@@ -49,14 +49,7 @@
       };
       // 内容编辑脏标记：用于占位符模式下避免空值误覆盖
       this._contentDirty = false;
-      // 初始化拖拽诊断记录
-      this._initDragDiagnostics();
-      // 兜底：确保 _dragDiagLog 始终为可调用的函数（防止外部误覆盖导致 "_dragDiagLog is not a function"）
-      try{
-        if (typeof this._dragDiagLog !== 'function'){
-          this._dragDiagLog = MindmapController.prototype._dragDiagLog.bind(this);
-        }
-      }catch(_){ /* ignore */ }
+      // 拖拽诊断代码已移除 - jsMind 0.8.7 原生拖拽无需诊断
       this.bindDetailEvents();
       this.init();
       
@@ -324,262 +317,17 @@
     }
     // 确保拖拽已启用（仅原生拖拽；不启用软拖拽回退）
     ensureDragEnabled(){
+      if (!this.dragEnabled || !this.mind) return;
+      
       try {
-        if (!this.mind) return;
-        // 若未开启拖拽，则卸载所有非原生拖拽增强并返回
-        if (!this.dragEnabled){
-          this._dragDiagLog('drag.ensure', { enabled:false });
-          this.disableSoftDrag();
-          this._disableHtml5DnDLayer && this._disableHtml5DnDLayer();
-          const st = document.getElementById('jm-drag-style');
-          if (st && st.parentNode) st.parentNode.removeChild(st);
-          // 尝试关闭原生拖拽（若提供）
-          try { if (this.mind.disable_draggable) this.mind.disable_draggable(); } catch(_) { /* ignore */ }
-          return;
-        }
-        // 清理任何历史残留的 HTML5/软拖拽层
-        this.disableSoftDrag();
-        this._disableHtml5DnDLayer && this._disableHtml5DnDLayer();
-        // 仅启用 jsMind 原生拖拽
-        let nativeEnabled = false;
-        const hasEnableDraggable = typeof this.mind.enable_draggable === 'function';
-        const hasEnableDragen = typeof this.mind.enable_dragen === 'function';
-        const hasEnableDraggableNode = typeof this.mind.enable_draggable_node === 'function';
-        // 优先尝试插件的原生节点拖拽
-        try { if (hasEnableDraggableNode){ this.mind.enable_draggable_node(); nativeEnabled = true; } } catch(e){ this._dragDiagLog('drag.enable_draggable_node.error', { message: String(e) }); }
-        try { if (hasEnableDraggable){ this.mind.enable_draggable(); nativeEnabled = true; } } catch(e){ this._dragDiagLog('drag.enable_draggable.error', { message: String(e) }); }
-        try { if (hasEnableDragen){ this.mind.enable_dragen(); nativeEnabled = true; } } catch(e){ this._dragDiagLog('drag.enable_dragen.error', { message: String(e) }); }
-        // 强制仅原生：若不可用，则保持禁用状态，不启用任何回退实现
-        this._dragDiagLog('drag.ensure', { enabled:true, hasEnableDraggableNode, hasEnableDraggable, hasEnableDragen, nativeEnabled });
-        // 为原生 draggable 增加安全补丁，避免插件在视图尚未就绪时访问未定义对象
-        if (nativeEnabled) {
-          try { this._patchDraggableSafeguards(); } catch(_) { /* ignore */ }
-          // 彻底禁用 HTML5 拖拽层，确保只使用 jsMind 原生拖拽
-          this._forceDisableHtml5DnDLayer();
-        }
-        // 仅当原生拖拽成功启用时，才添加拖拽样式暗示
-        const oldStyle = document.getElementById('jm-drag-style');
-        if (nativeEnabled){
-          if (!oldStyle){
-            const st = document.createElement('style');
-            st.id = 'jm-drag-style';
-            st.textContent = '.jmnode{cursor:move;} .jsmind-inner{user-select:none;-webkit-user-select:none;}';
-            document.head.appendChild(st);
-          }
-        } else {
-          if (oldStyle && oldStyle.parentNode) oldStyle.parentNode.removeChild(oldStyle);
-          console.warn('[MindmapController] 原生拖拽不可用，保持禁用（禁止 HTML5/软拖拽回退）');
-          this._dragDiagLog('drag.native_unavailable', { note:'native only, fallback disabled' });
-        }
-      } catch(_) { /* ignore */ }
-    }
-
-    // 启用浏览器原生 HTML5 拖拽层（非软拖拽）：给 .jmnode 设置 draggable 并处理 drop
-    _enableHtml5DnDLayer(){
-      try{
-        const container = this.dom && this.dom.containerEl;
-        if (!container) return;
-        // 绑定一次性全局监听
-        if (!this._html5DnDBound){
-          const onDragOver = (e)=>{
-            // 允许放置
-            e.preventDefault();
-            try{ if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'; }catch(_){ }
-            const nid = this._closestNodeId(e.target);
-            this._dragDiagLog('html5.dragover', { nid, x:e.clientX, y:e.clientY });
-          };
-          const onDrop = (e)=>{
-            e.preventDefault();
-            const targetId = this._closestNodeId(e.target);
-            const srcId = this._html5DnD && this._html5DnD.srcId;
-            this._dragDiagLog('html5.drop', { srcId, targetId });
-            if (!srcId || !targetId || srcId===targetId) return;
-            this.moveNodeTo(srcId, targetId, 'last');
-            // 清理
-            if (this._html5DnD) this._html5DnD.srcId = null;
-          };
-          // 捕获阶段记录 dragstart（辅助诊断）
-          const onDragStartCapture = (e)=>{
-            const nid = this._closestNodeId(e.target);
-            this._dragDiagLog('html5.dragstart.capture', { nid });
-          };
-          container.addEventListener('dragover', onDragOver);
-          container.addEventListener('drop', onDrop);
-          container.addEventListener('dragstart', onDragStartCapture, true);
-          // 文档级兜底（防止在容器边界外释放没有 drop 触发）
-          const onDocDrop = (e)=>{
-            const targetId = this._closestNodeId(e.target);
-            const srcId = this._html5DnD && this._html5DnD.srcId;
-            if (!srcId) return;
-            e.preventDefault();
-            this._dragDiagLog('html5.drop.document', { srcId, targetId });
-            if (targetId && srcId !== targetId) this.moveNodeTo(srcId, targetId, 'last');
-            if (this._html5DnD) this._html5DnD.srcId = null;
-          };
-          document.addEventListener('drop', onDocDrop);
-          this._html5DnDHandlers = this._html5DnDHandlers || {};
-          this._html5DnDHandlers.onDragOver = onDragOver;
-          this._html5DnDHandlers.onDrop = onDrop;
-          this._html5DnDHandlers.onDragStartCapture = onDragStartCapture;
-          this._html5DnDHandlers.onDocDrop = onDocDrop;
-          this._html5DnDBound = true;
-          // 附加样式，提升拖拽体验并避免选中文本干扰
-          if (!document.getElementById('jm-drag-style-html5')){
-            const st = document.createElement('style');
-            st.id = 'jm-drag-style-html5';
-            st.textContent = '.jmnode, .jmnode *{ -webkit-user-drag: element; user-select:none; -webkit-user-select:none; } .jmnode{cursor:move;}';
-            document.head.appendChild(st);
-          }
-        }
-        // 为当前所有节点及其子元素设置 draggable 和 dragstart 监听
-        const nodes = container.querySelectorAll('.jmnode');
-        this._html5DnD = this._html5DnD || { srcId:null };
-        nodes.forEach((n)=>{
-          try{
-            n.setAttribute('draggable', 'true');
-            if (!n._mmDragStart){
-              const fn = (e)=>{
-                const nid = n.getAttribute('nodeid') || (n.dataset && n.dataset.nodeid) || '';
-                this._html5DnD.srcId = nid;
-                try{
-                  if (e.dataTransfer){
-                    e.dataTransfer.setData('text/plain', nid);
-                    e.dataTransfer.effectAllowed = 'move';
-                  }
-                }catch(_){ }
-                this._dragDiagLog('html5.dragstart', { srcId:nid });
-              };
-              n.addEventListener('dragstart', fn);
-              n._mmDragStart = fn;
-            }
-            // 其子元素也设置 draggable，提升“从文字上拖动”的触发率
-            const subs = n.querySelectorAll('*');
-            subs.forEach((child)=>{
-              try{
-                if (!child.hasAttribute('draggable')) child.setAttribute('draggable','true');
-                if (!child._mmDragStart){
-                  const fn2 = (e)=>{
-                    const nid = n.getAttribute('nodeid') || (n.dataset && n.dataset.nodeid) || '';
-                    this._html5DnD.srcId = nid;
-                    try{
-                      if (e.dataTransfer){
-                        e.dataTransfer.setData('text/plain', nid);
-                        e.dataTransfer.effectAllowed = 'move';
-                      }
-                    }catch(_){ }
-                    this._dragDiagLog('html5.dragstart.child', { srcId:nid, tag: child.tagName });
-                  };
-                  child.addEventListener('dragstart', fn2);
-                  child._mmDragStart = fn2;
-                }
-              }catch(_){ /* ignore */ }
-            });
-          }catch(_){ /* ignore */ }
-        });
-        // 监听 DOM 变化，确保新增/展开的节点也具备 draggable
-        if (!this._html5DnDObserver){
-          const mo = new MutationObserver(()=>{
-            try{ this._enableHtml5DnDLayer(); }catch(_){ }
-          });
-          mo.observe(container, { childList:true, subtree:true });
-          this._html5DnDObserver = mo;
-        }
-      }catch(_){ /* ignore */ }
-    }
-
-    _disableHtml5DnDLayer(){
-      try{
-        const container = this.dom && this.dom.containerEl;
-        if (!container) return;
-        const h = this._html5DnDHandlers || {};
-        if (h.onDragOver) container.removeEventListener('dragover', h.onDragOver);
-        if (h.onDrop) container.removeEventListener('drop', h.onDrop);
-        if (h.onDragStartCapture) container.removeEventListener('dragstart', h.onDragStartCapture, true);
-        if (h.onDocDrop) document.removeEventListener('drop', h.onDocDrop);
-        // 移除每个节点的 dragstart 监听与 draggable 属性
-        const nodes = container.querySelectorAll('.jmnode');
-        nodes.forEach((n)=>{
-          try{
-            if (n._mmDragStart){ n.removeEventListener('dragstart', n._mmDragStart); delete n._mmDragStart; }
-            n.removeAttribute('draggable');
-            const subs = n.querySelectorAll('*');
-            subs.forEach((child)=>{
-              try{
-                if (child._mmDragStart){ child.removeEventListener('dragstart', child._mmDragStart); delete child._mmDragStart; }
-                if (child.hasAttribute('draggable')) child.removeAttribute('draggable');
-              }catch(_){ /* ignore */ }
-            });
-          }catch(_){ /* ignore */ }
-        });
-        // 断开变化观察
-        if (this._html5DnDObserver){ try{ this._html5DnDObserver.disconnect(); }catch(_){ } this._html5DnDObserver = null; }
-        this._html5DnDBound = false;
-        this._html5DnDHandlers = {};
-        this._html5DnD = null;
-      }catch(_){ /* ignore */ }
-    }
-
-    // 强制禁用 HTML5 拖拽层，确保只使用 jsMind 原生拖拽
-    _forceDisableHtml5DnDLayer(){
-      try{
-        // 调用标准禁用方法
-        this._disableHtml5DnDLayer();
-        
-        // 移除 HTML5 拖拽样式
-        const html5Style = document.getElementById('jm-drag-style-html5');
-        if (html5Style && html5Style.parentNode) {
-          html5Style.parentNode.removeChild(html5Style);
-        }
-        
-        // 彻底清理所有节点的 draggable 属性，防止单击即拖拽
-        const container = this.dom && this.dom.containerEl;
-        if (container) {
-          const allElements = container.querySelectorAll('*[draggable]');
-          allElements.forEach((el)=>{
-            try{
-              el.removeAttribute('draggable');
-              // Edge 浏览器兼容性：强制设置为 false
-              el.draggable = false;
-              // 移除可能残留的拖拽事件监听器
-              if (el._mmDragStart) {
-                el.removeEventListener('dragstart', el._mmDragStart);
-                delete el._mmDragStart;
-              }
-            }catch(_){ /* ignore */ }
-          });
-          
-          // Edge 浏览器额外处理：延时再次清理
-          setTimeout(() => {
-            try {
-              const remainingElements = container.querySelectorAll('*[draggable]');
-              remainingElements.forEach((el) => {
-                el.removeAttribute('draggable');
-                el.draggable = false;
-              });
-            } catch(_) { /* ignore */ }
-          }, 100);
-        }
-        
-        this._dragDiagLog('drag.force_disable_html5', { success: true, browser: navigator.userAgent });
-      }catch(e){
-        this._dragDiagLog('drag.force_disable_html5_error', { message: String(e) });
+        // jsMind 0.8.7 的 draggable-node 插件会自动启用，只需确保 editable: true
+        console.log('[MindmapController] jsMind 原生拖拽已启用');
+      } catch(e) {
+        console.warn('[MindmapController] 拖拽启用失败:', e);
       }
     }
 
-    _closestNodeId(el){
-      try{
-        const container = this.dom && this.dom.containerEl;
-        if (!container || !el) return null;
-        let cur = el;
-        while(cur && cur !== container){
-          if (cur.classList && cur.classList.contains('jmnode')){
-            return cur.getAttribute('nodeid') || (cur.dataset && cur.dataset.nodeid) || null;
-          }
-          cur = cur.parentNode;
-        }
-        return null;
-      }catch(_){ return null; }
-    }
+    // HTML5拖拽相关方法已删除 - 使用 jsMind 原生拖拽
 
     // —— 拖拽诊断：初始化/记录/导出 ——
     _initDragDiagnostics(){
@@ -943,8 +691,7 @@
       
       const options = {
         container: this.containerId,
-        editable: true,
-        draggable: !!this.dragEnabled,
+        editable: true,  // 启用编辑模式（包含拖拽功能）
         theme: 'primary',
         support_html: false,
         mode: 'side',
@@ -954,24 +701,13 @@
       
       try {
         this.mind = new jsMind(options);
-        this._debugLog('jsMind 实例创建成功');
+        this._debugLog('jsMind 实例创建成功 - 拖拽功能已自动启用');
       } catch(error) {
         this._debugLog('错误: jsMind 实例创建失败 - ' + error.message);
         this.mind = null;
         return;
       }
-      // 某些构建需要显式启用拖拽
-      if (this.dragEnabled){
-        let native = false;
-        try { if (this.mind.enable_draggable_node){ this.mind.enable_draggable_node(); native = true; } } catch(e) { this._dragDiagLog('drag.enable_draggable_node.error', { message: String(e) }); }
-        try { if (this.mind.enable_draggable){ this.mind.enable_draggable(); native = true; } } catch(e) { this._dragDiagLog('drag.enable_draggable.error', { message: String(e) }); }
-        try { if (this.mind.enable_dragen){ this.mind.enable_dragen(); native = true; } } catch(e) { this._dragDiagLog('drag.enable_dragen.error', { message: String(e) }); }
-        // 原生不可用时不启用任何回退实现，保持禁用
-        if (!native){ this._dragDiagLog('drag.native_missing_on_create', {}); }
-      }
-      // 记录创建参数并安装事件探针
-      this._dragDiagLog('mind.created', { options });
-      this._installDragDomProbes();
+      // jsMind 0.8.7 原生拖拽无需额外配置
       // 选择事件
       this.mind.add_event_listener((type, data)=>{
         if(type === jsMind.event_type.select){
@@ -1065,101 +801,7 @@
       try{ window.dispatchEvent(new CustomEvent('mindmap:rendered', { detail: { data: this.data } })); }catch(_){ }
     }
 
-    // 为 jsMind 原生拖拽打安全补丁：在 view/line 未就绪时避免报错
-    _patchDraggableSafeguards(){
-      try{
-        if (!this.mind) return;
-        const jm = this.mind;
-
-        // 统一的安全清线
-        const safeClearLines = (ctx)=>{
-          try{
-            const m = ctx && ctx.jm ? ctx.jm : jm;
-            if (m && m.view && m.view.line && typeof m.view.line.clear === 'function'){
-              m.view.line.clear();
-            }
-          }catch(_){ /* ignore */ }
-        };
-
-        // 原型层补丁：覆盖所有实例
-        try{
-          if (window.jsMind && jsMind.draggable && jsMind.draggable.prototype && !jsMind.draggable.prototype._mmPatched){
-            const proto = jsMind.draggable.prototype;
-            // 包装 clear_lines：依赖未就绪则直接跳过
-            if (typeof proto.clear_lines === 'function' && !proto._mmWrapped_clear_lines){
-              const orig = proto.clear_lines;
-              proto.clear_lines = function(){
-                try{
-                  const m = this && this.jm;
-                  if (!m || !m.view || !m.view.line || typeof m.view.line.clear !== 'function') return;
-                }catch(_){ return; }
-                return orig.apply(this, arguments);
-              };
-              proto._mmWrapped_clear_lines = true;
-            }
-            // 包装 dragend：调用前先安全清线
-            if (typeof proto.dragend === 'function' && !proto._mmWrapped_dragend){
-              const origEnd = proto.dragend;
-              proto.dragend = function(){
-                try{ safeClearLines(this); }catch(_){ }
-                return origEnd.apply(this, arguments);
-              };
-              proto._mmWrapped_dragend = true;
-            }
-            // 包装 _magnet_shadow 或 magnet_shadow：调用前先安全清线
-            const magName = (typeof proto._magnet_shadow === 'function') ? '_magnet_shadow'
-                            : ((typeof proto.magnet_shadow === 'function') ? 'magnet_shadow' : null);
-            if (magName && !proto._mmWrapped_magnet_shadow){
-              const origMag = proto[magName];
-              proto[magName] = function(){
-                try{ safeClearLines(this); }catch(_){ }
-                return origMag.apply(this, arguments);
-              };
-              proto._mmWrapped_magnet_shadow = true;
-            }
-            jsMind.draggable.prototype._mmPatched = true;
-          }
-        }catch(_){ /* ignore */ }
-
-        // 实例层补丁：若某些构建未走原型或已被替换，这里再兜底
-        const d = jm.draggable || jm._draggable || jm.dragen || null;
-        if (d){
-          if (typeof d.clear_lines === 'function' && !d._mmWrapped_clear_lines){
-            const orig = d.clear_lines.bind(d);
-            d.clear_lines = function(){
-              try{
-                const m = this && this.jm ? this.jm : jm;
-                if (!m || !m.view || !m.view.line || typeof m.view.line.clear !== 'function') return;
-              }catch(_){ return; }
-              return orig();
-            };
-            d._mmWrapped_clear_lines = true;
-          }
-          if (typeof d.dragend === 'function' && !d._mmWrapped_dragend){
-            const origEnd = d.dragend.bind(d);
-            d.dragend = function(){
-              try{ safeClearLines(this); }catch(_){ }
-              return origEnd.apply(this, arguments);
-            };
-            d._mmWrapped_dragend = true;
-          }
-          const magFn = (typeof d._magnet_shadow === 'function') ? '_magnet_shadow'
-                        : ((typeof d.magnet_shadow === 'function') ? 'magnet_shadow' : null);
-          if (magFn && !d._mmWrapped_magnet_shadow){
-            const origMag = d[magFn].bind(d);
-            d[magFn] = function(){
-              try{ safeClearLines(this); }catch(_){ }
-              return origMag.apply(this, arguments);
-            };
-            d._mmWrapped_magnet_shadow = true;
-          }
-        }
-
-        this._dragDiagLog('drag.safeguards_patched', { ok:true });
-      }catch(e){
-        this._dragDiagLog('drag.safeguards_patch_error', { message: String(e) });
-      }
-    }
+    // 拖拽安全补丁已移除 - jsMind 0.8.7 原生拖拽无需补丁
 
     // 异步从 IndexedDB 读取该节点的最新全文，若内部内容为空且未脏，则回填并持久化
     async _tryHydrateContentFromIDB(nodeId){
@@ -5240,19 +4882,18 @@ async _showMindmapSelectionDialog(mindmaps) {
             this.renderTagPanelFromMind();
           }
         }
-      }catch(e){ /* ignore */ }
+      }catch(e){ console.warn('[MindmapController] syncFromMind异常:', e); }
     }
 
-    // 监听拖拽结束（或鼠标离开）后，同步内部数据
+    // 监听拖拽结束后同步内部数据
     wireDragSync(){
       const el = this.dom.containerEl;
       if (!el) return;
       const handler = ()=>{
         // 若拖拽未开启则不进行同步
-        if (!this.dragEnabled) { this._dragDiagLog('sync.skip_drag_disabled', {}); return; }
+        if (!this.dragEnabled) return;
         // 稍微延迟，等 jsMind 完成内部移动
-        this._dragDiagLog('sync.request', {});
-        setTimeout(()=>{ this._dragDiagLog('sync.run', {}); this.syncFromMind(); }, 0);
+        setTimeout(()=>{ this.syncFromMind(); }, 0);
       };
       el.addEventListener('mouseup', handler);
       el.addEventListener('mouseleave', handler);
