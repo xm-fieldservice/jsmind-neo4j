@@ -737,13 +737,52 @@
         return;
       }
       
+      // 数据完整性验证和修复
+      try {
+        // 确保根节点有有效的标题
+        if (!this.data.label || !String(this.data.label).trim()) {
+          this.data.label = this.data.id && this.data.id.startsWith('root-') ? '项目脑图' : '未命名项目';
+          console.warn(`[MindmapController] 修复根节点空标题: ${this.data.id} -> ${this.data.label}`);
+        }
+        
+        // 确保根节点有ID
+        if (!this.data.id) {
+          this.data.id = `root-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
+          console.warn(`[MindmapController] 修复根节点缺失ID: -> ${this.data.id}`);
+        }
+        
+        // 确保children数组存在
+        if (!Array.isArray(this.data.children)) {
+          this.data.children = [];
+          console.warn(`[MindmapController] 修复根节点缺失children数组`);
+        }
+        
+      } catch (error) {
+        console.error('[MindmapController] 数据修复失败:', error);
+        // 创建默认数据
+        this.data = {
+          id: `root-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,
+          label: '项目脑图',
+          content: '创建: ' + new Date().toLocaleString(),
+          children: []
+        };
+        console.warn('[MindmapController] 已创建默认数据结构');
+      }
+      
       this._debugLog('数据根ID: ' + (this.data.id || '无'));
       this._debugLog('数据标签: ' + (this.data.label || '无'));
+      
+      // 转换为jsMind格式
+      const convertedData = this.toJsMindTree(this.data);
+      if (!convertedData) {
+        console.error('[MindmapController] 数据转换失败，无法渲染');
+        return;
+      }
       
       const jmData = {
         meta: { name: 'Project Mindmap', author: 'local', version: '1.0' },
         format: 'node_tree',
-        data: this.toJsMindTree(this.data),
+        data: convertedData,
       };
       
       this._debugLog('jsMind 数据根ID: ' + (jmData.data && jmData.data.id || '无'));
@@ -2093,7 +2132,22 @@
 
     // —— 数据转换 ——
     toJsMindTree(node, depth=0){
-      const safeLabel = (node && node.label && String(node.label).trim()) ? String(node.label).trim() : '未命名项目';
+      if (!node || !node.id) {
+        console.warn('[MindmapController] toJsMindTree: 无效的节点', node);
+        return null;
+      }
+      
+      // 确保标题不为空，优先使用label，其次topic，最后使用默认值
+      let safeLabel = '';
+      if (node.label && String(node.label).trim()) {
+        safeLabel = String(node.label).trim();
+      } else if (node.topic && String(node.topic).trim()) {
+        safeLabel = String(node.topic).trim();
+      } else {
+        safeLabel = node.id.startsWith('root-') ? '项目脑图' : '未命名节点';
+        console.warn(`[MindmapController] 修复空标题节点: ${node.id} -> ${safeLabel}`);
+      }
+      
       const safeContent = (node && node.content != null) ? String(node.content) : '';
       const t = {
         id: node.id,
@@ -2111,7 +2165,7 @@
         t.data.attachments = node.attachments;
       }
       if (node.children && node.children.length){
-        t.children = node.children.map(ch=>this.toJsMindTree(ch, depth+1));
+        t.children = node.children.map(ch=>this.toJsMindTree(ch, depth+1)).filter(Boolean);
       }
       return t;
     }
@@ -2121,9 +2175,18 @@
         console.warn('[MindmapController] fromJsMindTree: 无效的jsMind节点');
         return null;
       }
+      
+      // 修复标题为空的问题：确保每个节点都有有效的标题
+      let nodeLabel = jmNode.topic || jmNode.label || '';
+      if (!nodeLabel || nodeLabel.trim() === '') {
+        nodeLabel = jmNode.id.startsWith('root-') ? '项目脑图' : '未命名节点';
+        console.warn(`[MindmapController] 修复空标题节点: ${jmNode.id} -> ${nodeLabel}`);
+      }
+      
       const n = {
         id: jmNode.id,
-        label: jmNode.topic || '',
+        label: nodeLabel,
+        topic: nodeLabel, // 同时设置topic字段，确保兼容性
         // 优先读取顶层 content，其次 data.content
         content: (jmNode.content !== undefined ? jmNode.content : ((jmNode.data && jmNode.data.content) || '')),
         expanded: jmNode.expanded !== false,
@@ -2131,6 +2194,7 @@
         attachments: (jmNode.data && Array.isArray(jmNode.data.attachments)) ? jmNode.data.attachments : [],
         children: []
       };
+      
       if (jmNode.children && jmNode.children.length > 0) {
         for (const child of jmNode.children) {
           const childNode = this.fromJsMindTree(child);

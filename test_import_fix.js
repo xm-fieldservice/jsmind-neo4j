@@ -250,38 +250,19 @@
     // 导出测试函数
     window.testImportFix = runTests;
     
-    // 监听系统修复完成事件
-    window.addEventListener('systemFixed', (event) => {
-        console.log('🎉 [测试] 系统修复完成，开始运行测试');
-        console.log('📊 [测试] 系统组件状态:', event.detail.components);
-        
-        setTimeout(() => {
-            if (!window._testAlreadyRun) {
-                window._testAlreadyRun = true;
-                runTests().then(success => {
-                    if (success) {
-                        console.log('✨ [测试] 修复验证完成，系统已就绪！');
-                    } else {
-                        console.log('🔧 [测试] 需要进一步调试和修复');
-                    }
-                });
-            }
-        }, 1000);
-    });
+    // 自动运行测试 - 已禁用，避免干扰生产环境
+    // window.addEventListener('systemFixComplete', (event) => {
+    //     console.log('🎉 [测试] 系统修复完成，开始运行测试');
+    //     console.log('📆 [测试] 系统组件状态:', event.detail.components);
+    //     
+    //     setTimeout(() => {
+    //         if (!window._testAlreadyRun) {
+    //             window._testAlreadyRun = true;
+    //             runTests();
+    //         }
+    //     }, 1000);
+    // });
     
-    // 兜底：如果没有收到系统修复事件，延迟运行测试
-    setTimeout(() => {
-        if (!window._testAlreadyRun) {
-            console.log('⏰ [测试] 兜底运行导入修复测试');
-            window._testAlreadyRun = true;
-            runTests().then(success => {
-                if (success) {
-                    console.log('✨ [测试] 修复验证完成，系统已就绪！');
-                } else {
-                    console.log('🔧 [测试] 需要进一步调试和修复');
-                }
-            });
-        }
-    }, 5000);
+    // 手动运行：window.runImportFixTests = runTests;
     
 })();

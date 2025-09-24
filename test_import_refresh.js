@@ -238,10 +238,12 @@
     // 导出测试函数
     window.testImportRefresh = runImportRefreshTest;
     
-    // 自动运行测试
-    setTimeout(() => {
-        console.log('⏰ 自动运行"读"功能测试');
-        runImportRefreshTest();
-    }, 3000);
+    // 自动运行测试 - 已禁用，避免干扰生产环境
+    // setTimeout(() => {
+    //     console.log('⏰ 自动运行"读"功能测试');
+    //     runImportRefreshTest();
+    // }, 3000);
+    
+    // 手动运行：window.testImportRefresh()
     
 })();

@@ -467,6 +467,61 @@
                         <div id="tag-panel-empty" class="tag-panel-empty" style="display:none;">未在脑图中找到"标签管理"，将显示默认标签组。</div>
                       </div>
                         </div>
+                    
+                    <!-- 测试页面选项卡 -->
+                    <div id="test-panel" class="tab-pane" style="display:none;">
+                      <div class="detail-item">
+                        <h4>🧪 系统测试工具</h4>
+                        <div style="margin-bottom: 16px;">
+                          <p style="color: #666; font-size: 14px; margin-bottom: 12px;">
+                            这里提供各种测试工具，用于验证系统功能和诊断问题。所有测试都是手动触发，不会自动运行。
+                          </p>
+                        </div>
+                        
+                        <!-- 脑图测试区域 -->
+                        <div class="test-section" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                          <h5 style="margin: 0 0 12px 0; color: #374151;">🧠 脑图功能测试</h5>
+                          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                            <button id="test-mindmap-render" class="test-btn" style="padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">测试渲染</button>
+                            <button id="test-mindmap-data" class="test-btn" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">数据验证</button>
+                            <button id="test-mindmap-storage" class="test-btn" style="padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer;">存储测试</button>
+                          </div>
+                          <div id="mindmap-test-result" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px; font-size: 12px; font-family: monospace; min-height: 60px; white-space: pre-wrap;"></div>
+                        </div>
+                        
+                        <!-- 存储系统测试区域 -->
+                        <div class="test-section" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                          <h5 style="margin: 0 0 12px 0; color: #374151;">💾 存储系统测试</h5>
+                          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                            <button id="test-storage-basic" class="test-btn" style="padding: 6px 12px; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer;">基础功能</button>
+                            <button id="test-storage-migration" class="test-btn" style="padding: 6px 12px; background: #ec4899; color: white; border: none; border-radius: 4px; cursor: pointer;">数据迁移</button>
+                            <button id="test-storage-cleanup" class="test-btn" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">清理测试</button>
+                          </div>
+                          <div id="storage-test-result" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px; font-size: 12px; font-family: monospace; min-height: 60px; white-space: pre-wrap;"></div>
+                        </div>
+                        
+                        <!-- 导入导出测试区域 -->
+                        <div class="test-section" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                          <h5 style="margin: 0 0 12px 0; color: #374151;">📁 导入导出测试</h5>
+                          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                            <button id="test-import-flow" class="test-btn" style="padding: 6px 12px; background: #06b6d4; color: white; border: none; border-radius: 4px; cursor: pointer;">导入流程</button>
+                            <button id="test-export-flow" class="test-btn" style="padding: 6px 12px; background: #84cc16; color: white; border: none; border-radius: 4px; cursor: pointer;">导出流程</button>
+                            <button id="test-refresh-mechanism" class="test-btn" style="padding: 6px 12px; background: #f97316; color: white; border: none; border-radius: 4px; cursor: pointer;">界面刷新</button>
+                          </div>
+                          <div id="import-export-test-result" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px; font-size: 12px; font-family: monospace; min-height: 60px; white-space: pre-wrap;"></div>
+                        </div>
+                        
+                        <!-- 系统诊断区域 -->
+                        <div class="test-section" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;">
+                          <h5 style="margin: 0 0 12px 0; color: #374151;">🔍 系统诊断</h5>
+                          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                            <button id="test-system-health" class="test-btn" style="padding: 6px 12px; background: #6366f1; color: white; border: none; border-radius: 4px; cursor: pointer;">健康检查</button>
+                            <button id="test-clear-all" class="test-btn" style="padding: 6px 12px; background: #64748b; color: white; border: none; border-radius: 4px; cursor: pointer;">清空结果</button>
+                          </div>
+                          <div id="system-diagnostic-result" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px; font-size: 12px; font-family: monospace; min-height: 60px; white-space: pre-wrap;"></div>
+                        </div>
+                      </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -1146,29 +1201,24 @@
         });
     </script>
     
-    <!-- 导入显示问题修复测试 -->
-    <script src="test_import_fix.js"></script>
-    
-    <!-- 存储修复效果测试 -->
-    <script src="test_storage_fix.js"></script>
-    
-    <!-- "读"功能完整流程测试 -->
-    <script src="test_import_refresh.js"></script>
+    <!-- 测试脚本已移除，避免干扰生产环境 -->
+    <!-- <script src="test_import_fix.js"></script> -->
+    <!-- <script src="test_storage_fix.js"></script> -->
+    <!-- <script src="test_import_refresh.js"></script> -->
     
     <!-- 数据备份工具 -->
     <script src="backup_current_data.js"></script>
     
-    <!-- 🧪 第二阶段架构统一测试工具已加载 -->
-    <script src="test_phase2_unification.js"></script>
+    <!-- 测试脚本已移除，避免干扰生产环境 -->
+    <!-- <script src="test_phase2_unification.js"></script> -->
+    <!-- <script src="test_final_cleanup.js"></script> -->
+    <!-- <script src="test_incremental_sync.js"></script> -->
     
-    <!-- 🧪 最终清理验证测试 -->
-    <script src="test_final_cleanup.js"></script>
-    
-    <!-- 🔄 用户数据恢复脚本 -->
+    <!-- 🔄 用户数据恢复脚本（保留，可能有用） -->
     <script src="restore_user_data.js"></script>
     
-    <!-- 📡 增量同步测试工具 -->
-    <script src="test_incremental_sync.js"></script>
+    <!-- 🧪 测试面板功能脚本 -->
+    <script src="test_panel.js"></script>
     
     <!-- Toast提示 -->
     <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>

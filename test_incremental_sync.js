@@ -205,18 +205,20 @@
     // 暴露到全局
     window.IncrementalSyncTester = IncrementalSyncTester;
     
-    // 页面加载完成后自动运行测试
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                IncrementalSyncTester.testIncrementalSync();
-            }, 3000); // 等待系统初始化完成
-        });
-    } else {
-        setTimeout(() => {
-            IncrementalSyncTester.testIncrementalSync();
-        }, 3000);
-    }
+    // 自动运行测试 - 已禁用，避免干扰生产环境
+    // if (document.readyState === 'loading') {
+    //     document.addEventListener('DOMContentLoaded', () => {
+    //         setTimeout(() => {
+    //             IncrementalSyncTester.testIncrementalSync();
+    //         }, 3000);
+    //     });
+    // } else {
+    //     setTimeout(() => {
+    //         IncrementalSyncTester.testIncrementalSync();
+    //     }, 3000);
+    // }
+    
+    // 手动运行：IncrementalSyncTester.testIncrementalSync()
     
     console.log('📋 增量同步测试工具已加载');
     console.log('💡 使用方法:');

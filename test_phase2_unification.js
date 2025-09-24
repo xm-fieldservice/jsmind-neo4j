@@ -323,10 +323,12 @@
     console.log('🧪 第二阶段架构统一测试工具已加载');
     console.log('💡 使用 testPhase2() 运行完整测试');
     
-    // 自动运行测试
-    setTimeout(() => {
-        console.log('⏰ 自动运行第二阶段测试');
-        Phase2UnificationTest.runCompleteTest();
-    }, 3000);
+    // 自动运行测试 - 已禁用，避免干扰生产环境
+    // setTimeout(() => {
+    //     console.log('⏰ 自动运行第二阶段测试');
+    //     Phase2UnificationTest.runCompleteTest();
+    // }, 3000);
+    
+    // 手动运行：Phase2UnificationTest.runCompleteTest()
     
 })();

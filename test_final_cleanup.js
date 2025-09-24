@@ -263,10 +263,12 @@
     // 暴露到全局
     window.FinalCleanupTest = FinalCleanupTest;
     
-    // 自动运行测试（延迟执行，确保所有模块加载完成）
-    setTimeout(() => {
-        console.log('⏰ 自动运行最终清理验证测试');
-        FinalCleanupTest.runAllTests();
-    }, 3000);
+    // 自动运行测试 - 已禁用，避免干扰生产环境
+    // setTimeout(() => {
+    //     console.log('⏰ 自动运行最终清理验证测试');
+    //     FinalCleanupTest.runAllTests();
+    // }, 3000);
+    
+    // 手动运行：FinalCleanupTest.runAllTests()
     
 })();

@@ -120,10 +120,12 @@
     // 导出测试函数
     window.testStorageFix = runStorageFixTest;
     
-    // 自动运行测试
-    setTimeout(() => {
-        console.log('⏰ 自动运行存储修复测试');
-        runStorageFixTest();
-    }, 2000);
+    // 自动运行测试 - 已禁用，避免干扰生产环境
+    // setTimeout(() => {
+    //     console.log('⏰ 自动运行存储修复测试');
+    //     runStorageFixTest();
+    // }, 2000);
+    
+    // 手动运行：window.runStorageFixTest()
     
 })();
