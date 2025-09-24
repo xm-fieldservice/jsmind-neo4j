@@ -24,8 +24,8 @@
     <script>
       (function(){
         function load(src, cb){ var s=document.createElement('script'); s.src=src; s.defer=true; s.onload=function(){ cb&&cb(); }; s.onerror=function(){ cb&&cb(new Error('fail '+src)); }; document.head.appendChild(s); }
-        var local = ['vendor/jsmind/js/jsmind.js','vendor/jsmind/js/jsmind.draggable.js'];
-        var cdn   = ['https://cdn.jsdelivr.net/npm/jsmind/js/jsmind.js','https://cdn.jsdelivr.net/npm/jsmind/js/jsmind.draggable.js'];
+        var local = ['vendor/jsmind/js/jsmind.js','vendor/jsmind/js/jsmind.draggable-node.js'];
+        var cdn   = ['https://unpkg.com/jsmind@0.8.7/es6/jsmind.js','https://unpkg.com/jsmind@0.8.7/es6/jsmind.draggable-node.js'];
         var i=0; (function next(){ if(i>=local.length){
             // 运行时校验 jsMind 是否可用，否则回退到 CDN
             if (typeof window.jsMind === 'undefined'){ load(cdn[0], function(){ if (typeof window.jsMind==='undefined'){ console.error('jsMind 加载失败'); } }); }
@@ -35,36 +35,12 @@
         })();
       })();
     </script>
-    <!-- 封存拖拽插件：即使已加载 jsmind.draggable.js，也通过运行时打补丁彻底禁用所有拖拽相关行为 -->
+    <!-- 启用原生拖拽功能 -->
     <script>
       (function(){
         function whenReady(cb){ if (window.jsMind) { cb(); } else { setTimeout(function(){ whenReady(cb); }, 50); } }
         whenReady(function(){
-          try{
-            // 1) 禁用 jsMind 实例上的启用拖拽方法
-            if (jsMind && jsMind.prototype){
-              jsMind.prototype.enable_draggable = function(){};
-              jsMind.prototype.enable_draggable_node = function(){};
-              jsMind.prototype.enable_dragen = function(){};
-              jsMind.prototype.disable_draggable = function(){};
-            }
-            // 2) 若拖拽插件已加载，重写其关键方法为 no-op
-            if (jsMind && jsMind.draggable && jsMind.draggable.prototype){
-              var noop = function(){};
-              var proto = jsMind.draggable.prototype;
-              ['dragstart','drag','dragend','magnet_shadow','_magnet_shadow','clear_lines'].forEach(function(k){
-                if (typeof proto[k] === 'function') proto[k] = noop;
-              });
-            }
-            // 3) 覆盖节点鼠标样式，避免误导为可拖拽
-            try{
-              var st = document.createElement('style');
-              st.id = 'jm-drag-disabled-style';
-              st.textContent = '.jmnode{cursor:default !important} .jsmind-inner{user-select:auto !important;-webkit-user-select:auto !important;}';
-              document.head.appendChild(st);
-            }catch(_){ }
-            console.log('[init] 拖拽功能已封存(禁用)');
-          }catch(e){ console.warn('封存拖拽插件失败', e); }
+          console.log('[init] jsMind 原生拖拽功能已启用');
         });
       })();
     </script>

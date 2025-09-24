@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jsMind 原生拖拽功能测试</title>
+  <link rel="stylesheet" href="../vendor/jsmind/style/jsmind.css" />
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'PingFang SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif; margin: 0; }
+    header { padding: 12px 16px; background: #0f172a; color: #fff; }
+    header h1 { margin: 0; font-size: 16px; }
+    .toolbar { display: flex; gap: 8px; align-items: center; padding: 10px 16px; border-bottom: 1px solid #e5e7eb; background: #f8fafc; }
+    .toolbar button { padding: 6px 10px; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; cursor: pointer; }
+    .toolbar .hint { color: #475569; font-size: 13px; }
+    #container { height: calc(100vh - 110px); }
+    #jsmind_container { width: 100%; height: 100%; background: #f1f5f9; }
+    /* 防止画布遮挡事件 */
+    #jsmind_container canvas { pointer-events: none; }
+    .statusbar { padding: 8px 16px; border-top: 1px solid #e5e7eb; font-size: 13px; color: #334155; background: #f8fafc; display:flex; justify-content: space-between; }
+    .ok { color: #16a34a; }
+    .warn { color: #b45309; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>jsMind 原生拖拽功能测试</h1>
+  </header>
+
+  <div class="toolbar">
+    <button id="btn-reset">重置数据</button>
+    <button id="btn-expand">全部展开</button>
+    <button id="btn-collapse">全部收起</button>
+    <span class="hint">提示：按住节点左键拖拽，可改变父子关系或同层顺序；根节点不可拖拽。</span>
+  </div>
+
+  <div id="container">
+    <div id="jsmind_container"></div>
+  </div>
+
+  <div class="statusbar">
+    <div>拖拽状态：<span id="drag-status" class="warn">等待操作</span></div>
+    <div>最近一次移动：<span id="last-move">-</span></div>
+  </div>
+
+  <!-- 使用本地的 jsMind 0.8.7 版本 -->
+  <script src="../vendor/jsmind/js/jsmind.js"></script>
+  <script src="../vendor/jsmind/js/jsmind.draggable-node.js"></script>
+  
+  <script>
+    (function() {
+      const containerId = 'jsmind_container';
+      const options = {
+        container: containerId,
+        editable: true,       // 允许编辑（启用拖拽的前提）
+        theme: 'primary',
+      };
+
+      // 准备一份基础测试数据
+      const mindData = {
+        meta: { name: 'drag_test', author: 'qa', version: '1.0' },
+        format: 'node_array',
+        data: [
+          { id: 'root', isroot: true, topic: '项目A' },
+          { id: 'n1', parentid: 'root', topic: '需求分析' },
+          { id: 'n1-1', parentid: 'n1', topic: '用户故事' },
+          { id: 'n1-2', parentid: 'n1', topic: '验收标准' },
+          { id: 'n2', parentid: 'root', topic: '系统设计' },
+          { id: 'n2-1', parentid: 'n2', topic: '系统架构' },
+          { id: 'n2-2', parentid: 'n2', topic: '数据模型' },
+          { id: 'n3', parentid: 'root', topic: '开发实现' },
+          { id: 'n3-1', parentid: 'n3', topic: '前端开发' },
+          { id: 'n3-2', parentid: 'n3', topic: '后端开发' },
+          { id: 'n4', parentid: 'root', topic: '测试部署' },
+          { id: 'n4-1', parentid: 'n4', topic: '单元测试' },
+          { id: 'n4-2', parentid: 'n4', topic: '生产部署' },
+        ]
+      };
+
+      let jm = null;
+      const $ = (id) => document.getElementById(id);
+      const $status = $('drag-status');
+      const $last = $('last-move');
+
+      function renderMind() {
+        if (jm) { 
+          jm.destroy(); 
+          jm = null; 
+        }
+        
+        jm = new jsMind(options);
+        jm.show(mindData);
+        
+        // 初始化一次尺寸，确保 draggable 画布有正确宽高
+        if (typeof jm.resize === 'function') { 
+          jm.resize(); 
+        }
+        
+        // jsmind.draggable-node.js 插件会在 editable=true 时自动启用拖拽
+        $status.textContent = '拖拽就绪 - 可以拖拽非根节点';
+        $status.className = 'ok';
+      }
+
+      // 工具条事件绑定
+      $('btn-reset').addEventListener('click', () => {
+        renderMind();
+        $last.textContent = '数据已重置';
+      });
+      
+      $('btn-expand').addEventListener('click', () => {
+        if (jm) {
+          jm.expand_all();
+          $last.textContent = '全部节点已展开';
+        }
+      });
+      
+      $('btn-collapse').addEventListener('click', () => {
+        if (jm) {
+          jm.collapse_all();
+          $last.textContent = '全部节点已收起';
+        }
+      });
+
+      // 首次渲染
+      renderMind();
+      
+      // 再触发一次 resize 以防第一帧未完成布局
+      setTimeout(() => { 
+        if (jm && typeof jm.resize === 'function') {
+          jm.resize(); 
+        }
+      }, 500);
+      
+    })();
+  </script>
+</body>
+</html>

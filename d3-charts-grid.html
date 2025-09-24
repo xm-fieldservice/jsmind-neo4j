@@ -295,6 +295,160 @@
                     { name: '测试', value: 10 },
                     { name: '部署', value: 5 }
                 ]
+            },
+            {
+                id: 'force-graph',
+                title: '力导向图',
+                description: '展示节点间的关系网络，常用于社交网络分析',
+                type: 'force',
+                data: {
+                    nodes: [
+                        { id: 'A', group: 1 },
+                        { id: 'B', group: 1 },
+                        { id: 'C', group: 2 },
+                        { id: 'D', group: 2 },
+                        { id: 'E', group: 3 },
+                        { id: 'F', group: 3 }
+                    ],
+                    links: [
+                        { source: 'A', target: 'B', value: 1 },
+                        { source: 'B', target: 'C', value: 1 },
+                        { source: 'C', target: 'D', value: 1 },
+                        { source: 'D', target: 'E', value: 1 },
+                        { source: 'E', target: 'F', value: 1 },
+                        { source: 'A', target: 'D', value: 1 }
+                    ]
+                }
+            },
+            {
+                id: 'tree-diagram',
+                title: '树状图',
+                description: '展示层级结构数据，如组织架构或文件目录',
+                type: 'tree',
+                data: {
+                    name: '根节点',
+                    children: [
+                        {
+                            name: '分支1',
+                            children: [
+                                { name: '叶子1-1', value: 10 },
+                                { name: '叶子1-2', value: 15 }
+                            ]
+                        },
+                        {
+                            name: '分支2',
+                            children: [
+                                { name: '叶子2-1', value: 20 },
+                                { name: '叶子2-2', value: 25 }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                id: 'sankey-diagram',
+                title: '桑基图',
+                description: '展示流量或资源的流动路径，适合流程分析',
+                type: 'sankey',
+                data: {
+                    nodes: [
+                        { name: '起点A' },
+                        { name: '起点B' },
+                        { name: '中间节点' },
+                        { name: '终点X' },
+                        { name: '终点Y' }
+                    ],
+                    links: [
+                        { source: 0, target: 2, value: 10 },
+                        { source: 1, target: 2, value: 15 },
+                        { source: 2, target: 3, value: 20 },
+                        { source: 2, target: 4, value: 5 }
+                    ]
+                }
+            },
+            {
+                id: 'bubble-chart',
+                title: '气泡图',
+                description: '散点图的变体，用气泡大小表示第三个维度',
+                type: 'bubble',
+                data: [
+                    { x: 10, y: 20, value: 30, category: 'A' },
+                    { x: 15, y: 35, value: 45, category: 'A' },
+                    { x: 25, y: 15, value: 60, category: 'B' },
+                    { x: 30, y: 45, value: 25, category: 'B' },
+                    { x: 40, y: 25, value: 80, category: 'C' },
+                    { x: 50, y: 60, value: 35, category: 'C' }
+                ]
+            },
+            {
+                id: 'radar-chart',
+                title: '雷达图',
+                description: '多维度数据对比，适合性能评估和技能分析',
+                type: 'radar',
+                data: [
+                    { axis: '技术能力', value: 85 },
+                    { axis: '沟通能力', value: 70 },
+                    { axis: '项目管理', value: 90 },
+                    { axis: '创新能力', value: 65 },
+                    { axis: '团队协作', value: 80 },
+                    { axis: '学习能力', value: 95 }
+                ]
+            },
+            {
+                id: 'brush-zoom-chart',
+                title: '刷选缩放图',
+                description: '支持区域选择和缩放交互的复杂图表',
+                type: 'brushZoom',
+                data: [
+                    { time: 1, value: 30 },
+                    { time: 2, value: 45 },
+                    { time: 3, value: 60 },
+                    { time: 4, value: 55 },
+                    { time: 5, value: 75 },
+                    { time: 6, value: 90 },
+                    { time: 7, value: 85 },
+                    { time: 8, value: 70 },
+                    { time: 9, value: 95 },
+                    { time: 10, value: 110 }
+                ]
+            },
+            {
+                id: 'animated-chart',
+                title: '动画过渡图',
+                description: '展示D3.js强大的动画和过渡效果',
+                type: 'animated',
+                data: [
+                    { category: '阶段1', value: 50 },
+                    { category: '阶段2', value: 75 },
+                    { category: '阶段3', value: 90 },
+                    { category: '阶段4', value: 65 },
+                    { category: '阶段5', value: 85 }
+                ]
+            },
+            {
+                id: 'hierarchical-chart',
+                title: '层级图',
+                description: '多种层级可视化技术的综合展示',
+                type: 'hierarchical',
+                data: {
+                    name: '根',
+                    children: [
+                        {
+                            name: '类别A',
+                            children: [
+                                { name: '项目A1', value: 100 },
+                                { name: '项目A2', value: 150 }
+                            ]
+                        },
+                        {
+                            name: '类别B',
+                            children: [
+                                { name: '项目B1', value: 200 },
+                                { name: '项目B2', value: 120 }
+                            ]
+                        }
+                    ]
+                }
             }
         ];
 
@@ -367,6 +521,30 @@
                     break;
                 case 'donut':
                     renderDonutChart(container, config.data, width, height);
+                    break;
+                case 'force':
+                    renderForceGraph(container, config.data, width, height);
+                    break;
+                case 'tree':
+                    renderTreeDiagram(container, config.data, width, height);
+                    break;
+                case 'sankey':
+                    renderSankeyDiagram(container, config.data, width, height);
+                    break;
+                case 'bubble':
+                    renderBubbleChart(container, config.data, width, height);
+                    break;
+                case 'radar':
+                    renderRadarChart(container, config.data, width, height);
+                    break;
+                case 'brushZoom':
+                    renderBrushZoomChart(container, config.data, width, height);
+                    break;
+                case 'animated':
+                    renderAnimatedChart(container, config.data, width, height);
+                    break;
+                case 'hierarchical':
+                    renderHierarchicalChart(container, config.data, width, height);
                     break;
             }
         }
@@ -617,6 +795,534 @@
                 .on('mouseout', function(event, d) {
                     d3.select(this).attr('opacity', 1);
                 });
+        }
+
+        // 渲染力导向图
+        function renderForceGraph(container, data, width, height) {
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            const simulation = d3.forceSimulation(data.nodes)
+                .force('link', d3.forceLink(data.links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2));
+
+            const link = svg.append('g')
+                .attr('class', 'links')
+                .selectAll('line')
+                .data(data.links)
+                .enter()
+                .append('line')
+                .attr('stroke', '#999')
+                .attr('stroke-opacity', 0.6)
+                .attr('stroke-width', d => Math.sqrt(d.value));
+
+            const node = svg.append('g')
+                .attr('class', 'nodes')
+                .selectAll('circle')
+                .data(data.nodes)
+                .enter()
+                .append('circle')
+                .attr('r', 10)
+                .attr('fill', d => color(d.group))
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+
+            node.append('title')
+                .text(d => d.id);
+
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+            });
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // 渲染树状图
+        function renderTreeDiagram(container, data, width, height) {
+            const margin = { top: 20, right: 90, bottom: 30, left: 90 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const treeLayout = d3.tree().size([innerHeight, innerWidth]);
+            const root = d3.hierarchy(data);
+            const treeData = treeLayout(root);
+
+            // 添加链接
+            svg.selectAll('.link')
+                .data(treeData.links())
+                .enter()
+                .append('path')
+                .attr('class', 'link')
+                .attr('d', d3.linkHorizontal()
+                    .x(d => d.y)
+                    .y(d => d.x))
+                .attr('fill', 'none')
+                .attr('stroke', '#ccc')
+                .attr('stroke-width', 2);
+
+            // 添加节点
+            const node = svg.selectAll('.node')
+                .data(treeData.descendants())
+                .enter()
+                .append('g')
+                .attr('class', 'node')
+                .attr('transform', d => `translate(${d.y},${d.x})`);
+
+            node.append('circle')
+                .attr('r', 10)
+                .attr('fill', 'steelblue');
+
+            node.append('text')
+                .attr('dy', '.35em')
+                .attr('x', d => d.children ? -13 : 13)
+                .attr('text-anchor', d => d.children ? 'end' : 'start')
+                .text(d => d.data.name)
+                .style('font-size', '12px');
+        }
+
+        // 渲染桑基图
+        function renderSankeyDiagram(container, data, width, height) {
+            const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const sankey = d3.sankey()
+                .nodeWidth(15)
+                .nodePadding(10)
+                .extent([[1, 1], [innerWidth - 1, innerHeight - 6]]);
+
+            const { nodes, links } = sankey({
+                nodes: data.nodes.map(d => Object.assign({}, d)),
+                links: data.links.map(d => Object.assign({}, d))
+            });
+
+            // 添加链接
+            svg.append('g')
+                .attr('fill', 'none')
+                .attr('stroke-opacity', 0.5)
+                .selectAll('path')
+                .data(links)
+                .join('path')
+                .attr('d', d3.sankeyLinkHorizontal())
+                .attr('stroke', d => d3.schemeCategory10[d.source.index % 10])
+                .attr('stroke-width', d => Math.max(1, d.width));
+
+            // 添加节点
+            const node = svg.append('g')
+                .selectAll('rect')
+                .data(nodes)
+                .join('rect')
+                .attr('x', d => d.x0)
+                .attr('y', d => d.y0)
+                .attr('height', d => d.y1 - d.y0)
+                .attr('width', d => d.x1 - d.x0)
+                .attr('fill', d => d3.schemeCategory10[d.index % 10]);
+
+            // 添加节点标签
+            svg.append('g')
+                .attr('font-family', 'sans-serif')
+                .attr('font-size', 10)
+                .selectAll('text')
+                .data(nodes)
+                .join('text')
+                .attr('x', d => d.x0 < innerWidth / 2 ? d.x1 + 6 : d.x0 - 6)
+                .attr('y', d => (d.y1 + d.y0) / 2)
+                .attr('dy', '0.35em')
+                .attr('text-anchor', d => d.x0 < innerWidth / 2 ? 'start' : 'end')
+                .text(d => d.name);
+        }
+
+        // 渲染气泡图
+        function renderBubbleChart(container, data, width, height) {
+            const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.x)])
+                .nice()
+                .range([0, innerWidth]);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.y)])
+                .nice()
+                .range([innerHeight, 0]);
+
+            const size = d3.scaleSqrt()
+                .domain([0, d3.max(data, d => d.value)])
+                .range([5, 30]);
+
+            const color = d3.scaleOrdinal()
+                .domain(data.map(d => d.category))
+                .range(d3.schemeCategory10);
+
+            // 添加X轴
+            svg.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(x));
+
+            // 添加Y轴
+            svg.append('g')
+                .call(d3.axisLeft(y));
+
+            // 添加气泡
+            svg.selectAll('.bubble')
+                .data(data)
+                .enter()
+                .append('circle')
+                .attr('class', 'bubble')
+                .attr('cx', d => x(d.x))
+                .attr('cy', d => y(d.y))
+                .attr('r', d => size(d.value))
+                .attr('fill', d => color(d.category))
+                .attr('opacity', 0.7)
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('stroke', '#000').attr('stroke-width', 2);
+                })
+                .on('mouseout', function(event, d) {
+                    d3.select(this).attr('stroke', 'none');
+                });
+        }
+
+        // 渲染雷达图
+        function renderRadarChart(container, data, width, height) {
+            const radius = Math.min(width, height) / 2 - 40;
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2},${height / 2})`);
+
+            const angleSlice = (2 * Math.PI) / data.length;
+            const rScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, radius]);
+
+            // 添加网格线
+            const levels = 5;
+            for (let level = 1; level <= levels; level++) {
+                const levelFactor = radius * level / levels;
+                svg.selectAll('.levels')
+                    .data(data)
+                    .enter()
+                    .append('line')
+                    .attr('x1', (d, i) => levelFactor * Math.cos(angleSlice * i - Math.PI / 2))
+                    .attr('y1', (d, i) => levelFactor * Math.sin(angleSlice * i - Math.PI / 2))
+                    .attr('x2', (d, i) => levelFactor * Math.cos(angleSlice * (i + 1) - Math.PI / 2))
+                    .attr('y2', (d, i) => levelFactor * Math.sin(angleSlice * (i + 1) - Math.PI / 2))
+                    .attr('class', 'line')
+                    .style('stroke', 'grey')
+                    .style('stroke-opacity', 0.5)
+                    .style('stroke-width', '0.5px');
+
+                svg.selectAll('.levels')
+                    .data(data)
+                    .enter()
+                    .append('text')
+                    .attr('class', 'legend')
+                    .style('font-size', '10px')
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', '0.35em')
+                    .attr('x', (d, i) => levelFactor * Math.cos(angleSlice * i - Math.PI / 2))
+                    .attr('y', (d, i) => levelFactor * Math.sin(angleSlice * i - Math.PI / 2))
+                    .text((level * 100 / levels).toString());
+            }
+
+            // 添加轴线
+            for (let i = 0; i < data.length; i++) {
+                svg.append('line')
+                    .attr('x1', 0)
+                    .attr('y1', 0)
+                    .attr('x2', radius * Math.cos(angleSlice * i - Math.PI / 2))
+                    .attr('y2', radius * Math.sin(angleSlice * i - Math.PI / 2))
+                    .attr('class', 'line')
+                    .style('stroke', 'grey')
+                    .style('stroke-width', '1px');
+
+                svg.append('text')
+                    .attr('class', 'legend')
+                    .style('font-size', '11px')
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', '0.35em')
+                    .attr('x', (radius + 10) * Math.cos(angleSlice * i - Math.PI / 2))
+                    .attr('y', (radius + 10) * Math.sin(angleSlice * i - Math.PI / 2))
+                    .text(data[i].axis);
+            }
+
+            // 添加数据线
+            const radarLine = d3.lineRadial()
+                .angle((d, i) => i * angleSlice)
+                .radius(d => rScale(d.value))
+                .curve(d3.curveLinearClosed);
+
+            svg.append('path')
+                .datum(data)
+                .attr('d', radarLine)
+                .style('stroke-width', 2)
+                .style('stroke', 'steelblue')
+                .style('fill', 'steelblue')
+                .style('fill-opacity', 0.1);
+        }
+
+        // 渲染刷选缩放图
+        function renderBrushZoomChart(container, data, width, height) {
+            const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            const mainGroup = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.time)])
+                .range([0, innerWidth]);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.value)])
+                .range([innerHeight, 0]);
+
+            const line = d3.line()
+                .x(d => x(d.time))
+                .y(d => y(d.value))
+                .curve(d3.curveMonotoneX);
+
+            // 主图表
+            mainGroup.append('path')
+                .datum(data)
+                .attr('class', 'line')
+                .attr('d', line)
+                .attr('fill', 'none')
+                .attr('stroke', 'steelblue')
+                .attr('stroke-width', 2);
+
+            mainGroup.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(x));
+
+            mainGroup.append('g')
+                .call(d3.axisLeft(y));
+
+            // 刷选区域
+            const brush = d3.brushX()
+                .extent([[0, 0], [innerWidth, 30]])
+                .on('brush', brushed)
+                .on('end', brushended);
+
+            const brushGroup = svg.append('g')
+                .attr('transform', `translate(${margin.left},${height - 60})`);
+
+            const contextX = d3.scaleLinear()
+                .domain(x.domain())
+                .range([0, innerWidth]);
+
+            const contextLine = d3.line()
+                .x(d => contextX(d.time))
+                .y(15)
+                .curve(d3.curveMonotoneX);
+
+            brushGroup.append('path')
+                .datum(data)
+                .attr('class', 'context-line')
+                .attr('d', contextLine)
+                .attr('fill', 'none')
+                .attr('stroke', '#999')
+                .attr('stroke-width', 1);
+
+            brushGroup.append('g')
+                .attr('class', 'brush')
+                .call(brush);
+
+            function brushed(event) {
+                if (!event.selection) return;
+                const [x0, x1] = event.selection.map(contextX.invert);
+                x.domain([x0, x1]);
+                mainGroup.select('.line').attr('d', line);
+                mainGroup.select('.x-axis').call(d3.axisBottom(x));
+            }
+
+            function brushended(event) {
+                if (!event.selection) {
+                    x.domain([0, d3.max(data, d => d.time)]);
+                    mainGroup.select('.line').attr('d', line);
+                    mainGroup.select('.x-axis').call(d3.axisBottom(x));
+                }
+            }
+        }
+
+        // 渲染动画过渡图
+        function renderAnimatedChart(container, data, width, height) {
+            const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.category))
+                .range([0, innerWidth])
+                .padding(0.1);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.value)])
+                .range([innerHeight, 0]);
+
+            // 添加X轴
+            svg.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(x));
+
+            // 添加Y轴
+            svg.append('g')
+                .call(d3.axisLeft(y));
+
+            // 初始动画
+            const bars = svg.selectAll('.bar')
+                .data(data)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('x', d => x(d.category))
+                .attr('y', innerHeight)
+                .attr('width', x.bandwidth())
+                .attr('height', 0)
+                .attr('fill', 'steelblue');
+
+            bars.transition()
+                .duration(1000)
+                .attr('y', d => y(d.value))
+                .attr('height', d => innerHeight - y(d.value))
+                .delay((d, i) => i * 100);
+
+            // 添加动画控制
+            let animationRunning = false;
+            
+            container.append('button')
+                .style('position', 'absolute')
+                .style('top', '10px')
+                .style('right', '10px')
+                .text('重新播放动画')
+                .on('click', function() {
+                    if (animationRunning) return;
+                    animationRunning = true;
+                    
+                    bars.transition()
+                        .duration(500)
+                        .attr('y', innerHeight)
+                        .attr('height', 0)
+                        .on('end', function() {
+                            bars.transition()
+                                .duration(1000)
+                                .attr('y', d => y(d.value))
+                                .attr('height', d => innerHeight - y(d.value))
+                                .delay((d, i) => i * 100)
+                                .on('end', () => animationRunning = false);
+                        });
+                });
+        }
+
+        // 渲染层级图
+        function renderHierarchicalChart(container, data, width, height) {
+            const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const root = d3.hierarchy(data)
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+
+            const pack = d3.pack()
+                .size([innerWidth, innerHeight])
+                .padding(3);
+
+            const packed = pack(root);
+
+            const node = svg.selectAll('circle')
+                .data(packed.descendants())
+                .enter()
+                .append('g')
+                .attr('transform', d => `translate(${d.x},${d.y})`);
+
+            node.append('circle')
+                .attr('r', d => d.r)
+                .attr('fill', d => d.depth === 0 ? '#fff' : d3.schemeCategory10[d.depth % 10])
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 2)
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('stroke-width', 4);
+                })
+                .on('mouseout', function(event, d) {
+                    d3.select(this).attr('stroke-width', 2);
+                });
+
+            node.filter(d => !d.children)
+                .append('text')
+                .attr('dy', '0.3em')
+                .attr('text-anchor', 'middle')
+                .text(d => d.data.name)
+                .style('font-size', d => Math.min(2 * d.r, (2 * d.r - 8) / d.data.name.length * 10) + 'px')
+                .style('fill', 'white')
+                .style('pointer-events', 'none');
         }
 
         // 工具提示功能
