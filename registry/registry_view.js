@@ -23,8 +23,38 @@
     var favSet = new Set();
     var arcSet = new Set();
     try{
-      var favRaw = localStorage.getItem('mm:favorites'); if (favRaw){ JSON.parse(favRaw).forEach(function(id){ favSet.add(id); }); }
-      var arcRaw = localStorage.getItem('mm:archived'); if (arcRaw){ JSON.parse(arcRaw).forEach(function(id){ arcSet.add(id); }); }
+      // 使用AutogenUnifiedStorage加载收藏和归档数据（同步方式）
+      if (window.AutogenUnifiedStorage) {
+        try {
+          // 使用Promise方式处理异步调用
+          window.AutogenUnifiedStorage.retrieve('registry', 'favorites').then(function(favData) {
+            if (favData && Array.isArray(favData)) { 
+              favData.forEach(function(id){ favSet.add(id); }); 
+              // 重新渲染以应用收藏状态
+              setTimeout(function() { self.render(); }, 0);
+            }
+          }).catch(function(e) {
+            console.warn('[Registry] 加载收藏数据失败:', e);
+          });
+          
+          window.AutogenUnifiedStorage.retrieve('registry', 'archived').then(function(arcData) {
+            if (arcData && Array.isArray(arcData)) { 
+              arcData.forEach(function(id){ arcSet.add(id); }); 
+              // 重新渲染以应用归档状态
+              setTimeout(function() { self.render(); }, 0);
+            }
+          }).catch(function(e) {
+            console.warn('[Registry] 加载归档数据失败:', e);
+          });
+        } catch(e) {
+          console.warn('[Registry] AutogenUnifiedStorage调用失败，使用localStorage回退:', e);
+          var favRaw = localStorage.getItem('mm:favorites'); if (favRaw){ JSON.parse(favRaw).forEach(function(id){ favSet.add(id); }); }
+          var arcRaw = localStorage.getItem('mm:archived'); if (arcRaw){ JSON.parse(arcRaw).forEach(function(id){ arcSet.add(id); }); }
+        }
+      } else {
+        var favRaw = localStorage.getItem('mm:favorites'); if (favRaw){ JSON.parse(favRaw).forEach(function(id){ favSet.add(id); }); }
+        var arcRaw = localStorage.getItem('mm:archived'); if (arcRaw){ JSON.parse(arcRaw).forEach(function(id){ arcSet.add(id); }); }
+      }
     }catch(_){ }
     if (!sorted.length){
       var emptyItem = document.createElement('li');
@@ -56,14 +86,30 @@
       btnFav.addEventListener('click', function(e){
         e.stopPropagation();
         if (isFav){ favSet.delete(p.id); } else { favSet.add(p.id); }
-        try{ localStorage.setItem('mm:favorites', JSON.stringify(Array.from(favSet))); }catch(_){ }
+        // 使用AutogenUnifiedStorage保存收藏数据
+        if (window.AutogenUnifiedStorage) {
+          window.AutogenUnifiedStorage.store('registry', 'favorites', Array.from(favSet)).catch(function(e) {
+            console.warn('[Registry] 保存收藏数据失败，回退到localStorage:', e);
+            try{ localStorage.setItem('mm:favorites', JSON.stringify(Array.from(favSet))); }catch(_){ }
+          });
+        } else {
+          try{ localStorage.setItem('mm:favorites', JSON.stringify(Array.from(favSet))); }catch(_){ }
+        }
         self.render();
       });
       var btnArc = document.createElement('button'); btnArc.className = 'action-btn archive-btn'; btnArc.title = isArc ? '已归档（占位）' : '归档（占位）'; btnArc.textContent = '📦';
       btnArc.addEventListener('click', function(e){
         e.stopPropagation();
         if (isArc){ arcSet.delete(p.id); } else { arcSet.add(p.id); }
-        try{ localStorage.setItem('mm:archived', JSON.stringify(Array.from(arcSet))); }catch(_){ }
+        // 使用AutogenUnifiedStorage保存归档数据
+        if (window.AutogenUnifiedStorage) {
+          window.AutogenUnifiedStorage.store('registry', 'archived', Array.from(arcSet)).catch(function(e) {
+            console.warn('[Registry] 保存归档数据失败，回退到localStorage:', e);
+            try{ localStorage.setItem('mm:archived', JSON.stringify(Array.from(arcSet))); }catch(_){ }
+          });
+        } else {
+          try{ localStorage.setItem('mm:archived', JSON.stringify(Array.from(arcSet))); }catch(_){ }
+        }
         self.render();
       });
       inlineActions.appendChild(btnDel); inlineActions.appendChild(btnFav); inlineActions.appendChild(btnArc);

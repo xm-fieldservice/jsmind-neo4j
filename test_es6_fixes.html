@@ -11,7 +11,7 @@
     <script src="src/core/storage/AutogenUnifiedStorage.js"></script>
     <script src="src/core/messaging/AutogenEventBus.js"></script>
     <script src="src/migration/StorageMigrationTool.js"></script>
-    <script src="src/storage/UnifiedStorageManager.js"></script>
+    <!-- UnifiedStorageManager.js已删除，功能已合并到AutogenUnifiedStorage -->
     <script src="src/core/EventBus.js"></script>
     <script src="scripts/system_health_check.js"></script>
     
@@ -36,9 +36,10 @@
                 result: typeof window.StorageMigrationTool !== 'undefined' ? '✅ 通过' : '❌ 失败'
             });
             
+            // UnifiedStorageManager已删除，功能已合并到AutogenUnifiedStorage
             results.push({
-                test: 'UnifiedStorageManager类',
-                result: typeof window.UnifiedStorageManager !== 'undefined' ? '✅ 通过' : '❌ 失败'
+                test: 'UnifiedStorageManager已删除',
+                result: typeof window.UnifiedStorageManager === 'undefined' ? '✅ 通过（已清理）' : '❌ 仍存在'
             });
             
             results.push({

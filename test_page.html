@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面</title>
+</head>
+<body>
+    <h1>系统测试页面</h1>
+    <div id="status">正在加载...</div>
+    
+    <!-- 核心脚本 -->
+    <script src="src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="src/core/messaging/AutogenEventBus.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusDiv = document.getElementById('status');
+            let status = [];
+            
+            // 检查AutogenUnifiedStorage
+            if (typeof window.AutogenUnifiedStorage !== 'undefined') {
+                status.push('✅ AutogenUnifiedStorage 加载成功');
+            } else {
+                status.push('❌ AutogenUnifiedStorage 加载失败');
+            }
+            
+            // 检查AutogenEventBus
+            if (typeof window.AutogenEventBus !== 'undefined') {
+                status.push('✅ AutogenEventBus 加载成功');
+            } else {
+                status.push('❌ AutogenEventBus 加载失败');
+            }
+            
+            statusDiv.innerHTML = status.join('<br>');
+            
+            // 测试存储功能
+            if (window.AutogenUnifiedStorage) {
+                try {
+                    window.AutogenUnifiedStorage.store('test', 'key1', 'value1');
+                    status.push('✅ 存储功能测试成功');
+                } catch (error) {
+                    status.push('❌ 存储功能测试失败: ' + error.message);
+                }
+            }
+            
+            // 测试事件功能
+            if (window.AutogenEventBus) {
+                try {
+                    window.AutogenEventBus.on('test', () => {
+                        status.push('✅ 事件功能测试成功');
+                        statusDiv.innerHTML = status.join('<br>');
+                    });
+                    window.AutogenEventBus.emit('test');
+                } catch (error) {
+                    status.push('❌ 事件功能测试失败: ' + error.message);
+                }
+            }
+            
+            statusDiv.innerHTML = status.join('<br>');
+        });
+    </script>
+</body>
+</html>

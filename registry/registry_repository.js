@@ -34,7 +34,18 @@
     if (!json.success) throw new Error(json.error || '保存注册表失败');
     this.bus && this.bus.emit('registry:saved', { total: json.data && json.data.total });
     try{ window.LogPanel && window.LogPanel.log(`[Repo] save -> total=${json.data && json.data.total}`); }catch(_){ }
-    try{ localStorage.setItem('__registry_fallback__', JSON.stringify(reg)); }catch(_){ }
+    // 使用AutogenUnifiedStorage保存Registry备份
+    try{ 
+      if (window.AutogenUnifiedStorage) {
+        await window.AutogenUnifiedStorage.store('registry', 'fallback', reg);
+        console.log('[Registry] ✅ 已保存到AutogenUnifiedStorage');
+      } else {
+        localStorage.setItem('__registry_fallback__', JSON.stringify(reg));
+        console.log('[Registry] ⚠️ 回退到localStorage保存');
+      }
+    }catch(e){ 
+      console.warn('[Registry] 保存备份失败:', e);
+    }
     return true;
   };
   Repository.prototype.register = async function(project){

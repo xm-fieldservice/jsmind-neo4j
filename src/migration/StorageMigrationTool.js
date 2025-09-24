@@ -207,8 +207,8 @@ class StorageMigrationTool {
         // 迁移FormalStorageManager数据
         await this.migrateFormalStorage();
         
-        // 迁移UnifiedStorageManager数据
-        await this.migrateUnifiedStorage();
+        // UnifiedStorageManager已删除，跳过迁移
+        // await this.migrateUnifiedStorage();
         
         // 迁移基础StorageManager数据
         await this.migrateBasicStorage();

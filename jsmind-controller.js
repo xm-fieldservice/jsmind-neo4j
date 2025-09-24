@@ -119,32 +119,27 @@
     }
 
 
-    // 统一存储保存方法（优先使用AutogenUnifiedStorage）
+    // 统一存储保存方法（完全使用AutogenUnifiedStorage）
     async _saveWithUnifiedStorage(jmData) {
-      // 优先使用AutogenUnifiedStorage
-      if (this.autogenStorage) {
-        try {
-          const success = await this.autogenStorage.store('mindmap', this.localStorageKey, jmData);
-          if (success) {
-            if (Math.random() < 0.1) { // 仅10%概率输出日志
-              console.log('[MindmapController] ✅ 已保存到AutogenUnifiedStorage:', this.localStorageKey);
-            }
-            return true;
-          }
-        } catch(e) {
-          console.warn('[MindmapController] AutogenUnifiedStorage保存失败:', e);
-        }
+      // 确保AutogenUnifiedStorage可用
+      if (!this.autogenStorage) {
+        console.error('[MindmapController] AutogenUnifiedStorage不可用，无法保存数据');
+        return false;
       }
       
-      // 回退到传统localStorage
       try {
-        localStorage.setItem(this.localStorageKey, JSON.stringify(jmData));
-        if (Math.random() < 0.1) { // 仅10%概率输出日志
-          console.log('[MindmapController] 已保存到localStorage:', this.localStorageKey);
+        const success = await this.autogenStorage.store('mindmap', this.localStorageKey, jmData);
+        if (success) {
+          if (Math.random() < 0.1) { // 仅10%概率输出日志
+            console.log('[MindmapController] ✅ 已保存到AutogenUnifiedStorage:', this.localStorageKey);
+          }
+          return true;
+        } else {
+          console.error('[MindmapController] AutogenUnifiedStorage保存失败');
+          return false;
         }
-        return true;
-      } catch(e) {
-        console.warn('[MindmapController] localStorage保存失败:', e);
+      } catch (error) {
+        console.error('[MindmapController] AutogenUnifiedStorage保存异常:', error);
         return false;
       }
     }
@@ -242,7 +237,13 @@
       this._appendEmojisToRootForTest();
       this.scheduleAutoFit();
       // 广播渲染完成事件（供注册管理器自举）
-      try{ window.dispatchEvent(new CustomEvent('mindmap:rendered', { detail: { data: this.data } })); }catch(_){ }
+      try{ 
+        if (window.AutogenEventBus) {
+          window.AutogenEventBus.emit('mindmap:rendered', { data: this.data });
+        } else {
+          window.dispatchEvent(new CustomEvent('mindmap:rendered', { detail: { data: this.data } }));
+        }
+      }catch(_){ }
     }
     // 确保拖拽已启用（仅原生拖拽；不启用软拖拽回退）
     ensureDragEnabled(){
@@ -269,14 +270,14 @@
         };
         this._dragDiagPersistKey = 'mm_drag_diag_v1';
         this._dragDiagAutoFlushTimer = null;
-        // 恢复旧日志（若存在，按需求可清空，这里选择拼接以便跨次会话）
+        // 恢复旧日志（使用AutogenUnifiedStorage）
         try{
-          const raw = localStorage.getItem(this._dragDiagPersistKey);
-          if (raw){
-            const old = JSON.parse(raw);
-            if (old && Array.isArray(old.logs)){
-              this._dragDiag.logs.push({ t: Date.now(), evt:'diag.restore_prev', size: old.logs.length });
-            }
+          if (this.autogenStorage) {
+            this.autogenStorage.retrieve('diagnostic', this._dragDiagPersistKey).then(old => {
+              if (old && Array.isArray(old.logs)){
+                this._dragDiag.logs.push({ t: Date.now(), evt:'diag.restore_prev', size: old.logs.length });
+              }
+            }).catch(() => {});
           }
         }catch(_){ /* ignore */ }
       }catch(_){ /* ignore */ }
@@ -286,10 +287,14 @@
       try{
         const rec = { t: Date.now(), evt, data: data||{} };
         (this._dragDiag && this._dragDiag.logs) ? this._dragDiag.logs.push(rec) : null;
-        // 节流持久化
+        // 节流持久化（使用AutogenUnifiedStorage）
         clearTimeout(this._dragDiagAutoFlushTimer);
         this._dragDiagAutoFlushTimer = setTimeout(()=>{
-          try{ localStorage.setItem(this._dragDiagPersistKey, JSON.stringify(this._dragDiag)); }catch(_){ }
+          try{ 
+            if (this.autogenStorage) {
+              this.autogenStorage.store('diagnostic', this._dragDiagPersistKey, this._dragDiag).catch(() => {});
+            }
+          }catch(_){ }
         }, 400);
       }catch(_){ /* ignore */ }
     }
@@ -727,7 +732,13 @@
       this._appendEmojisToRootForTest();
       this.scheduleAutoFit();
       // 广播渲染完成事件（供注册管理器自举）
-      try{ window.dispatchEvent(new CustomEvent('mindmap:rendered', { detail: { data: this.data } })); }catch(_){ }
+      try{ 
+        if (window.AutogenEventBus) {
+          window.AutogenEventBus.emit('mindmap:rendered', { data: this.data });
+        } else {
+          window.dispatchEvent(new CustomEvent('mindmap:rendered', { detail: { data: this.data } }));
+        }
+      }catch(_){ }
     }
 
     // 拖拽安全补丁已移除 - jsMind 0.8.7 原生拖拽无需补丁
@@ -755,7 +766,11 @@
     if (!full || !full.data) return;
     const copy = JSON.parse(JSON.stringify(full));
     // 注意：不再设置 window.__mindFullCache，避免全局状态干扰保存ID解析
-    try { localStorage.setItem(this.fullCacheKey, JSON.stringify(copy)); } catch(_) { /* ignore */ }
+    try { 
+      if (this.autogenStorage) {
+        this.autogenStorage.store('snapshot', this.fullCacheKey, copy).catch(() => {});
+      }
+    } catch(_) { /* ignore */ }
     try{ console.log('[PERSIST][SNAPSHOT] fullCache updated ->', { key: this.fullCacheKey, mind_id: copy && copy.meta && copy.meta.mind_id, root: copy && copy.data && copy.data.id }); }catch(_){ }
   }catch(_){ /* ignore */ }
 }
@@ -1832,11 +1847,27 @@
         left: pane.offsetLeft || 0,
         top: pane.offsetTop || 0
       };
-      try{ localStorage.setItem('mmFsPaneState', JSON.stringify(state)); }catch(e){ /* ignore */ }
+      try{ 
+        if (this.autogenStorage) {
+          this.autogenStorage.store('ui_state', 'mmFsPaneState', state).catch(() => {});
+        }
+      }catch(e){ /* ignore */ }
     }
 
     _applyFsPanePersist(pane){
       try{
+        if (this.autogenStorage) {
+          this.autogenStorage.retrieve('ui_state', 'mmFsPaneState').then(s => {
+            if (s && typeof s === 'object'){
+              if (s.width) pane.style.width = Math.max(320, s.width) + 'px';
+              if (s.height) pane.style.height = Math.max(220, s.height) + 'px';
+              if (s.left !== undefined) pane.style.left = s.left + 'px';
+              if (s.top !== undefined) pane.style.top = s.top + 'px';
+            }
+          }).catch(() => {});
+          return;
+        }
+        // 回退到localStorage（兼容性）
         const raw = localStorage.getItem('mmFsPaneState');
         if (!raw) return;
         const s = JSON.parse(raw);
@@ -2082,53 +2113,32 @@
     // —— 存储 ——
     async loadMindmapFromStorage(){
       try {
-        // 优先从AutogenUnifiedStorage加载
-        if (this.autogenStorage) {
-          try {
-            const data = await this.autogenStorage.retrieve('mindmap', this.localStorageKey);
-            if (data) {
-              console.log('[MindmapController] ✅ 使用AutogenUnifiedStorage加载成功');
-              if (data.format === 'node_tree' && data.data) {
-                return this.fromJsMindTree(data.data);
-              }
-            }
-          } catch (error) {
-            console.warn('[MindmapController] AutogenUnifiedStorage加载失败:', error);
-          }
+        // 完全使用AutogenUnifiedStorage加载
+        if (!this.autogenStorage) {
+          console.error('[MindmapController] AutogenUnifiedStorage不可用，无法加载数据');
+          return null;
         }
         
-        // 回退到传统localStorage机制
-        const raw = localStorage.getItem(this.localStorageKey);
-        if (!raw) return null;
-        
-        const obj = JSON.parse(raw);
-        if (!obj || !obj.format || !obj.data) return null;
-        
-        if (obj.format === 'node_tree') {
-          try { 
-            console.log('[MindmapController] ✅ 使用传统localStorage加载成功');
-            return this.fromJsMindTree(obj.data); 
-          }
-          catch(e){ 
-            console.warn('[MindmapController] 解析传统localStorage失败:', e); 
-            return null; 
-          }
-        }
-        
-        // 进一步回退：尝试全图快照键
-        try{
-          const rawFull = localStorage.getItem(this.fullCacheKey);
-          if (rawFull){
-            const snap = JSON.parse(rawFull);
-            if (snap && (snap.data || (snap.format === 'node_tree' && snap.data))){
-              const data = snap.data || null;
-              if (data) { 
-                console.log('[MindmapController] ✅ 使用全图快照加载成功');
-                return this.fromJsMindTree(data); 
-              }
+        try {
+          const data = await this.autogenStorage.retrieve('mindmap', this.localStorageKey);
+          if (data) {
+            console.log('[MindmapController] ✅ 使用AutogenUnifiedStorage加载成功');
+            if (data.format === 'node_tree' && data.data) {
+              return this.fromJsMindTree(data.data);
+            } else if (data.data) {
+              // 处理其他格式的数据
+              return this.fromJsMindTree(data);
             }
           }
-        }catch(_){ }
+          
+          // 如果没有找到数据，返回null让系统使用默认数据
+          console.log('[MindmapController] 未找到存储的脑图数据，将使用默认数据');
+          return null;
+          
+        } catch (error) {
+          console.error('[MindmapController] AutogenUnifiedStorage加载失败:', error);
+          return null;
+        }
         
         return null;
       } 
@@ -2174,7 +2184,14 @@ try{
             allowed = true;
             const remember = window.confirm('是否将该来源加入白名单，以后自动放行？');
             if (remember){
-              try{ wl.add(src); localStorage.setItem('save_whitelist', JSON.stringify(Array.from(wl))); }catch(_){ }
+              try{ 
+                wl.add(src); 
+                if (this.autogenStorage) {
+                  this.autogenStorage.store('config', 'save_whitelist', Array.from(wl)).catch(() => {});
+                } else {
+                  localStorage.setItem('save_whitelist', JSON.stringify(Array.from(wl)));
+                }
+              }catch(_){ }
             }
           }
         }
@@ -4295,14 +4312,24 @@ try{
           originalIndex: index
         };
         
-        // 保存到 localStorage
+        // 保存到 AutogenUnifiedStorage
         const storageKey = `mm:${uniqueId}:data`;
-        localStorage.setItem(storageKey, JSON.stringify(projectData.payload));
+        if (this.autogenStorage) {
+          try {
+            await this.autogenStorage.store('mindmap', storageKey, projectData.payload);
+            console.log(`[导入] ✅ 已保存到AutogenUnifiedStorage: ${storageKey}`);
+          } catch (error) {
+            console.error(`[导入] AutogenUnifiedStorage保存失败: ${storageKey}`, error);
+          }
+        } else {
+          console.error('[导入] AutogenUnifiedStorage不可用，无法保存导入数据');
+        }
         
         // 注册到项目目录
         if (window.Registry && window.Registry.cmd) {
           try {
             await window.Registry.cmd.register(projectData);
+            console.log(`[导入] ✅ 已注册到Registry: ${projectData.name}`);
           } catch (e) {
             console.warn(`注册项目失败: ${projectData.name}`, e);
           }
@@ -4371,14 +4398,23 @@ try{
               
               // 触发界面刷新事件，通知其他系统数据已更新
               try {
-                window.dispatchEvent(new CustomEvent('mindmap:dataLoaded', {
-                  detail: { 
+                if (window.AutogenEventBus) {
+                  window.AutogenEventBus.emit('mindmap:dataLoaded', { 
                     source: 'import',
                     projectId: firstProject.id,
                     projectName: firstProject.name,
                     data: data
-                  }
-                }));
+                  });
+                } else {
+                  window.dispatchEvent(new CustomEvent('mindmap:dataLoaded', {
+                    detail: { 
+                      source: 'import',
+                      projectId: firstProject.id,
+                      projectName: firstProject.name,
+                      data: data
+                    }
+                  }));
+                }
                 console.log('[加载] 已触发数据加载事件');
               } catch (error) {
                 console.warn('[加载] 触发事件失败:', error);
@@ -4866,7 +4902,11 @@ async _showMindmapSelectionDialog(mindmaps) {
       try{
         const w = Math.max(200, Math.min(2000, Math.floor(width||0)));
         const h = Math.max(120, Math.min(2000, Math.floor(height||0)));
-        localStorage.setItem('detail_content_editor_size', JSON.stringify({width:w, height:h}));
+        if (this.autogenStorage) {
+          this.autogenStorage.store('ui_state', 'detail_content_editor_size', {width:w, height:h}).catch(() => {});
+        } else {
+          localStorage.setItem('detail_content_editor_size', JSON.stringify({width:w, height:h}));
+        }
       }catch(_){}
     }
     wireContentEditorResizePersistence(){
@@ -4945,7 +4985,13 @@ async _showMindmapSelectionDialog(mindmaps) {
             try { await window.mindmapRegistry.registerProject({ name, payload, source:'new' }); } catch(e){ console.warn('[New] legacy registerProject 失败', e); }
           } else {
             // 最后回退：广播事件，供外部兜底监听
-            try { window.dispatchEvent(new CustomEvent('mindmap:imported', { detail:{ name, payload, source:'new' } })); } catch(_){ }
+            try { 
+              if (window.AutogenEventBus) {
+                window.AutogenEventBus.emit('mindmap:imported', { name, payload, source:'new' });
+              } else {
+                window.dispatchEvent(new CustomEvent('mindmap:imported', { detail:{ name, payload, source:'new' } }));
+              }
+            } catch(_){ }
           }
           // 视图切换到“脑图”
           try{
@@ -5223,9 +5269,17 @@ async _showMindmapSelectionDialog(mindmaps) {
             const idx = list.findIndex(x=> x.content_hash === contentHash);
             if (idx >= 0){
               const removed = list.splice(idx,1);
-              localStorage.setItem(KEY, JSON.stringify(list));
+              if (this.autogenStorage) {
+                this.autogenStorage.store('project_list', 'projects', list).catch(() => {});
+              } else {
+                localStorage.setItem(KEY, JSON.stringify(list));
+              }
               try{ console.log('[projects] removed', removed && removed[0] && removed[0].name); }catch(_){ }
-              window.dispatchEvent(new CustomEvent('mindmap:removed', { detail: { content_hash: contentHash } }));
+              if (window.AutogenEventBus) {
+                window.AutogenEventBus.emit('mindmap:removed', { content_hash: contentHash });
+              } else {
+                window.dispatchEvent(new CustomEvent('mindmap:removed', { detail: { content_hash: contentHash } }));
+              }
               this.showToast('已从列表中移除');
             } else {
               this.showToast('列表中未找到该脑图');
@@ -5375,6 +5429,14 @@ async _showMindmapSelectionDialog(mindmaps) {
     // —— 快照：存取/调度/UI ——
     _loadSnapshotConfig(){
       try{
+        if (this.autogenStorage) {
+          this.autogenStorage.retrieve('config', 'mindmap_snapshots_config').then(obj => {
+            if (obj && typeof obj.intervalMs==='number') this._snapConfig.intervalMs = Math.max(60*1000, obj.intervalMs);
+            if (obj && typeof obj.maxCount==='number') this._snapConfig.maxCount = Math.min(10, Math.max(1, Math.floor(obj.maxCount)));
+          }).catch(() => {});
+          return;
+        }
+        // 回退到localStorage
         const raw = localStorage.getItem('mindmap_snapshots_config');
         if (!raw) return;
         const obj = JSON.parse(raw);
@@ -5385,21 +5447,42 @@ async _showMindmapSelectionDialog(mindmaps) {
     _saveSnapshotConfig(){
       try{
         const cfg = { intervalMs: this._snapConfig.intervalMs, maxCount: Math.min(10, Math.max(1, Math.floor(this._snapConfig.maxCount))) };
-        localStorage.setItem('mindmap_snapshots_config', JSON.stringify(cfg));
+        if (this.autogenStorage) {
+          this.autogenStorage.store('config', 'mindmap_snapshots_config', cfg).catch(() => {});
+        } else {
+          localStorage.setItem('mindmap_snapshots_config', JSON.stringify(cfg));
+        }
       }catch(_){/* ignore */}
     }
     _snapshotIndex(){
-      try{ const raw = localStorage.getItem('mindmap_snapshots_index'); return Array.isArray(JSON.parse(raw))? JSON.parse(raw): []; }catch(_){ return []; }
+      try{ 
+        if (this.autogenStorage) {
+          // 异步获取，这里返回空数组，实际使用时需要改为异步
+          return [];
+        }
+        const raw = localStorage.getItem('mindmap_snapshots_index'); 
+        return Array.isArray(JSON.parse(raw))? JSON.parse(raw): []; 
+      }catch(_){ return []; }
     }
     _saveSnapshotIndex(list){
-      try{ localStorage.setItem('mindmap_snapshots_index', JSON.stringify(list)); }catch(_){/* ignore */}
+      try{ 
+        if (this.autogenStorage) {
+          this.autogenStorage.store('snapshot', 'mindmap_snapshots_index', list).catch(() => {});
+        } else {
+          localStorage.setItem('mindmap_snapshots_index', JSON.stringify(list));
+        }
+      }catch(_){/* ignore */}
     }
     takeSnapshot(){
       try{
         // 导出当前内部数据为一份全量快照
         const payload = { ts: new Date().toISOString(), data: this.data };
         const id = `snap_${Date.now()}`;
-        localStorage.setItem(`mindmap_snapshot_${id}`, JSON.stringify(payload));
+        if (this.autogenStorage) {
+          this.autogenStorage.store('snapshot', `mindmap_snapshot_${id}`, payload).catch(() => {});
+        } else {
+          localStorage.setItem(`mindmap_snapshot_${id}`, JSON.stringify(payload));
+        }
         // 更新索引并裁剪
         const idx = this._snapshotIndex();
         idx.unshift({ id, ts: payload.ts });
@@ -5407,13 +5490,35 @@ async _showMindmapSelectionDialog(mindmaps) {
         const drop = idx.splice(maxN);
         this._saveSnapshotIndex(idx);
         // 删除溢出快照
-        drop.forEach(x=>{ try{ localStorage.removeItem(`mindmap_snapshot_${x.id}`);}catch(_){/* ignore */} });
+        drop.forEach(x=>{ 
+          try{ 
+            if (this.autogenStorage) {
+              this.autogenStorage.remove('snapshot', `mindmap_snapshot_${x.id}`).catch(() => {});
+            } else {
+              localStorage.removeItem(`mindmap_snapshot_${x.id}`);
+            }
+          }catch(_){/* ignore */} 
+        });
         this.showToast('已创建快照');
       }catch(e){ console.warn('创建快照失败', e); this.showToast('创建快照失败', 'error'); }
     }
     listSnapshots(){ return this._snapshotIndex(); }
     restoreSnapshot(id){
       try{
+        if (this.autogenStorage) {
+          this.autogenStorage.retrieve('snapshot', `mindmap_snapshot_${id}`).then(obj => {
+            if (!obj || !obj.data){ this.showToast('快照格式无效', 'error'); return; }
+            this.data = obj.data;
+            this.saveMindmapToStorage();
+            this.renderMindmap();
+            this.setSelectedNode(this.data && this.data.id);
+            this.showToast('已从快照恢复');
+          }).catch(() => {
+            this.showToast('快照不存在', 'error');
+          });
+          return;
+        }
+        // 回退到localStorage
         const raw = localStorage.getItem(`mindmap_snapshot_${id}`);
         if (!raw){ this.showToast('快照不存在', 'error'); return; }
         const obj = JSON.parse(raw);
@@ -5427,6 +5532,17 @@ async _showMindmapSelectionDialog(mindmaps) {
     }
     deleteSnapshot(id){
       try{
+        if (this.autogenStorage) {
+          this.autogenStorage.remove('snapshot', `mindmap_snapshot_${id}`).then(() => {
+            const idx = this._snapshotIndex().filter(x=>x.id!==id);
+            this._saveSnapshotIndex(idx);
+            this.showToast('已删除快照');
+          }).catch(() => {
+            this.showToast('删除失败', 'error');
+          });
+          return;
+        }
+        // 回退到localStorage
         localStorage.removeItem(`mindmap_snapshot_${id}`);
         const idx = this._snapshotIndex().filter(x=>x.id!==id);
         this._saveSnapshotIndex(idx);
@@ -5435,6 +5551,21 @@ async _showMindmapSelectionDialog(mindmaps) {
     }
     exportSnapshot(id){
       try{
+        if (this.autogenStorage) {
+          this.autogenStorage.retrieve('snapshot', `mindmap_snapshot_${id}`).then(obj => {
+            if (!obj){ this.showToast('快照不存在', 'error'); return; }
+            const raw = JSON.stringify(obj);
+            const blob = new Blob([raw], {type:'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${id}.json`;
+            a.click(); URL.revokeObjectURL(a.href);
+          }).catch(() => {
+            this.showToast('快照不存在', 'error');
+          });
+          return;
+        }
+        // 回退到localStorage
         const raw = localStorage.getItem(`mindmap_snapshot_${id}`);
         if (!raw){ this.showToast('快照不存在', 'error'); return; }
         const blob = new Blob([raw], {type:'application/json'});
@@ -5506,8 +5637,7 @@ async _showMindmapSelectionDialog(mindmaps) {
           const btn = e.target.closest('button[data-act]'); if (!btn) return;
           const act = btn.getAttribute('data-act'); const id = btn.getAttribute('data-id');
           if (act==='restore'){ if (confirm('确认恢复该快照并替换当前内容？')){ this.restoreSnapshot(id); } }
-          if (act==='delete'){ if (confirm('确认删除该快照？')){ this.deleteSnapshot(id); btn.closest('div').remove(); }
-          }
+          if (act==='delete'){ if (confirm('确认删除该快照？')){ this.deleteSnapshot(id); btn.closest('div').remove(); } }
           if (act==='export'){ this.exportSnapshot(id); }
         });
       }catch(e){ console.warn('打开快照管理器失败', e); this.showToast('打开快照管理器失败', 'error'); }

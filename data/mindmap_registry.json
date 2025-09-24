@@ -4,8 +4,8 @@
     {
       "project_id": "root-1758490798034-j5",
       "name": "脑图优化",
-      "created_at": "2025-09-24T07:15:25.646Z",
-      "last_modified": "2025-09-24T07:15:31.685Z",
+      "created_at": "2025-09-24T13:25:10.489Z",
+      "last_modified": "2025-09-24T13:25:26.428Z",
       "source": "imported",
       "payload": {
         "format": "node_tree",
@@ -1420,7 +1420,7 @@
   ],
   "metadata": {
     "total_projects": 1,
-    "last_updated": "2025-09-24T07:15:31.693Z",
+    "last_updated": "2025-09-24T13:25:26.431Z",
     "storage_type": "unified_md"
   }
 }
