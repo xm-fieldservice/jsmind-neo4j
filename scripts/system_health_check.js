@@ -473,4 +473,5 @@ if (typeof window !== 'undefined') {
     console.log('💡 使用方法: await runSystemHealthCheck()');
 }
 
-export default SystemHealthChecker;
+// 全局导出
+window.SystemHealthChecker = SystemHealthChecker;

@@ -550,49 +550,24 @@
       })();
     </script>
     
-    <!-- 存储系统核心 -->
-    <script src="src/core/storage/IStorage.js"></script>
-    <script src="src/core/storage/adapters/LocalStorageAdapter.js"></script>
-    <script src="src/core/storage/adapters/IndexedDBAdapter.js"></script>
-    <script src="src/core/storage/HybridStorageAdapter.js"></script>
-    <script src="src/core/storage/StorageManager.js"></script>
-    <script src="src/core/storage/StorageMigrator.js"></script>
+    <!-- AutogenUnifiedStorage - 统一存储系统 -->
+    <script src="src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="src/core/messaging/AutogenEventBus.js"></script>
+    <script src="src/migration/StorageMigrationTool.js"></script>
     
-    <script>
-      // 初始化混合存储
-      const hybridAdapter = new HybridStorageAdapter();
-      window.StorageSystem = new StorageManager(hybridAdapter);
-      
-      // 迁移旧数据
-      const migrator = new StorageMigrator(
-        new LocalStorageAdapter(), 
-        hybridAdapter
-      );
-      migrator.migrateAll('mind:');
-    </script>
+    <!-- ES6模块修复脚本 -->
+    <script src="fix_es6_modules.js"></script>
     
-    <!-- 统一存储系统 -->
-    <script src="src/core/storage/IStorage.js"></script>
-    <script src="src/core/storage/adapters/LocalStorageAdapter.js"></script>
-    <script src="src/core/storage/StorageManager.js"></script>
-    
-    <script>
-      // 初始化存储系统
-      const storageAdapter = new LocalStorageAdapter();
-      window.StorageSystem = new StorageManager(storageAdapter);
-    </script>
-    
-    <!-- 统一存储服务 -->
-    <script src="src/services/StorageService.js?v=1758295377"></script>
-    
-    <!-- MD转换工具 -->
-    <script src="src/services/MDToMindmap.js?v=1758295377"></script>
-    
+    <!-- 存储监控工具 -->
+    <script src="storage_monitor.js"></script>
     <!-- 原有脑图控制器（保持不变） -->
     <script src="jsmind-controller.js?v=1758295844"></script>
     
     <!-- 关系管理前端 -->
     <script src="relation_frontend.js?v=20250917"></script>
+    
+    <!-- MD转换工具 -->
+    <script src="src/services/MDToMindmap.js?v=1758295377"></script>
     
     <!-- 笔记栏功能 -->
     <script>
@@ -1003,9 +978,24 @@
     
     <!-- 挂载确认 -->
     <script>
-      console.assert(window.EventBus, 'EventBus 挂载成功');
-      console.assert(window.StateManager, 'StateManager 挂载成功');
-      console.assert(window.StateValidator, 'StateValidator 挂载成功');
+      // 检查核心组件是否加载成功
+      if (window.EventBus) {
+        console.log('✅ EventBus 挂载成功');
+      } else {
+        console.error('❌ EventBus 挂载失败');
+      }
+      
+      if (window.StateManager) {
+        console.log('✅ StateManager 挂载成功');
+      } else {
+        console.error('❌ StateManager 挂载失败');
+      }
+      
+      if (window.AutogenUnifiedStorage) {
+        console.log('✅ AutogenUnifiedStorage 挂载成功');
+      } else {
+        console.error('❌ AutogenUnifiedStorage 挂载失败');
+      }
     </script>
     
     <!-- 统一调试面板 -->
@@ -1039,11 +1029,7 @@
       })();
     </script>
     
-    <!-- 新的持久化系统 -->
-    <script src="src/persistence/persistence-loader.js"></script>
-    
-    <!-- 统一存储管理系统 -->
-    <script src="src/storage/UnifiedStorageManager.js"></script>
+    <!-- 持久化和存储系统已由AutogenUnifiedStorage统一管理 -->
     
     <!-- 脑图关系提取器 -->
     <script src="src/relations/MindmapRelationExtractor.js"></script>
@@ -1065,8 +1051,16 @@
                 window.PersistenceSystemChecker.waitForReady(10000).then(ready => {
                     if (ready) {
                         console.log('[系统] ✅ 持久化系统已就绪');
-                        const stats = window.PersistenceManager.getStats();
-                        console.log('[系统] 持久化统计:', stats);
+                        try {
+                            if (window.PersistenceManager && typeof window.PersistenceManager.getStats === 'function') {
+                                const stats = window.PersistenceManager.getStats();
+                                console.log('[系统] 持久化统计:', stats);
+                            } else {
+                                console.log('[系统] PersistenceManager.getStats不可用，跳过统计');
+                            }
+                        } catch (error) {
+                            console.warn('[系统] 获取持久化统计失败:', error.message);
+                        }
                     } else {
                         console.error('[系统] ❌ 持久化系统初始化超时');
                     }
@@ -1136,6 +1130,12 @@
             }
         });
     </script>
+    
+    <!-- 导入显示问题修复测试 -->
+    <script src="test_import_fix.js"></script>
+    
+    <!-- 存储修复效果测试 -->
+    <script src="test_storage_fix.js"></script>
     
     <!-- Toast提示 -->
     <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>

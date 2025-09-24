@@ -46,4 +46,6 @@ class SimpleEventBus {
   }
 }
 
-export default new SimpleEventBus();
+// 创建全局实例
+window.EventBus = new SimpleEventBus();
+window.SimpleEventBus = SimpleEventBus;

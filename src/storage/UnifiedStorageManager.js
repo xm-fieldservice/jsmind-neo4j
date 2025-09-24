@@ -4,10 +4,11 @@
  * 支持脑图数据、关系数据、应用状态等多种数据类型
  */
 
-import UnifiedStorageAdapter from '../core/storage/UnifiedStorageAdapter';
-import LocalStorageAdapter from '../core/storage/adapters/LocalStorageAdapter';
-import IndexedDBAdapter from '../core/storage/adapters/IndexedDBAdapter';
-import JsonBaseAdapter from './adapters/JsonBaseAdapter';
+// 移除ES6导入，使用全局对象
+// import UnifiedStorageAdapter from '../core/storage/UnifiedStorageAdapter';
+// import LocalStorageAdapter from '../core/storage/adapters/LocalStorageAdapter';
+// import IndexedDBAdapter from '../core/storage/adapters/IndexedDBAdapter';
+// import JsonBaseAdapter from './adapters/JsonBaseAdapter';
 
 class UnifiedStorageManager {
     constructor() {
@@ -27,17 +28,15 @@ class UnifiedStorageManager {
             [this.DATA_TYPES.USER_PREFERENCES]: 604800000 // 7天
         };
         
-        // 创建各个存储适配器
-        const localStorageAdapter = new LocalStorageAdapter();
-        const indexedDBAdapter = new IndexedDBAdapter();
-        const jsonBaseAdapter = new JsonBaseAdapter();
+        // 智能存储配额管理
+        this.QUOTA_CONFIG = {
+            maxLocalStorageSize: 4 * 1024 * 1024, // 4MB限制
+            maxItemSize: 1 * 1024 * 1024,         // 单项1MB限制
+            emergencyCleanupThreshold: 0.9        // 90%使用率触发清理
+        };
         
-        // 优先级顺序：IndexedDB > localStorage > JSON文件
-        this.storageAdapter = new UnifiedStorageAdapter([
-            indexedDBAdapter,
-            localStorageAdapter,
-            jsonBaseAdapter
-        ]);
+        // 创建存储适配器（简化版，避免ES6导入问题）
+        this.storageAdapter = this.createSimpleStorageAdapter();
         
         // 缓存统计
         this.cacheStats = {
@@ -49,8 +48,217 @@ class UnifiedStorageManager {
         // 同步定时器
         this.syncTimers = {};
         
-        // 初始化
-        this.initialize();
+        // 自动清理定时器（每小时执行一次）
+        this.setupAutoCleanup();
+    }
+    
+    /**
+     * 创建简化的存储适配器
+     */
+    createSimpleStorageAdapter() {
+        return {
+            // 智能存储方法
+            store: async (key, data) => {
+                return this.smartStore(key, data);
+            },
+            
+            // 智能读取方法
+            retrieve: async (key) => {
+                return this.smartRetrieve(key);
+            },
+            
+            // 删除方法
+            remove: async (key) => {
+                return this.smartRemove(key);
+            }
+        };
+    }
+    
+    /**
+     * 智能存储 - 根据数据大小选择存储方式
+     */
+    async smartStore(key, data) {
+        try {
+            const jsonString = JSON.stringify(data);
+            const dataSize = jsonString.length;
+            
+            // 检查数据大小
+            if (dataSize > this.QUOTA_CONFIG.maxItemSize) {
+                console.warn(`[UnifiedStorageManager] 数据过大，跳过LocalStorage: ${key} (${Math.round(dataSize/1024)}KB)`);
+                
+                // 尝试IndexedDB
+                if (window.AutogenUnifiedStorage) {
+                    return await window.AutogenUnifiedStorage.store('unified', key, data);
+                }
+                return false;
+            }
+            
+            // 检查LocalStorage使用率
+            const usage = this.getLocalStorageUsage();
+            if (usage.ratio > this.QUOTA_CONFIG.emergencyCleanupThreshold) {
+                console.warn(`[UnifiedStorageManager] LocalStorage使用率过高(${Math.round(usage.ratio*100)}%)，执行清理`);
+                await this.emergencyCleanup();
+            }
+            
+            // 尝试存储到LocalStorage
+            try {
+                localStorage.setItem(key, jsonString);
+                console.log(`[UnifiedStorageManager] 存储成功: ${key} (${Math.round(dataSize/1024)}KB)`);
+                return true;
+            } catch (quotaError) {
+                if (quotaError.name === 'QuotaExceededError') {
+                    console.warn(`[UnifiedStorageManager] LocalStorage配额超限，执行紧急清理`);
+                    await this.emergencyCleanup();
+                    
+                    // 清理后重试一次
+                    try {
+                        localStorage.setItem(key, jsonString);
+                        console.log(`[UnifiedStorageManager] 清理后存储成功: ${key}`);
+                        return true;
+                    } catch (retryError) {
+                        console.error(`[UnifiedStorageManager] 清理后仍然失败，使用IndexedDB: ${key}`);
+                        
+                        // 最后尝试IndexedDB
+                        if (window.AutogenUnifiedStorage) {
+                            return await window.AutogenUnifiedStorage.store('unified', key, data);
+                        }
+                        return false;
+                    }
+                }
+                throw quotaError;
+            }
+            
+        } catch (error) {
+            console.error(`[UnifiedStorageManager] 存储失败: ${key}`, error);
+            return false;
+        }
+    }
+    
+    /**
+     * 智能读取
+     */
+    async smartRetrieve(key) {
+        try {
+            // 先尝试LocalStorage
+            const localData = localStorage.getItem(key);
+            if (localData) {
+                this.cacheStats.hits++;
+                return JSON.parse(localData);
+            }
+            
+            // 再尝试IndexedDB
+            if (window.AutogenUnifiedStorage) {
+                const indexedData = await window.AutogenUnifiedStorage.retrieve('unified', key);
+                if (indexedData) {
+                    this.cacheStats.hits++;
+                    return indexedData;
+                }
+            }
+            
+            this.cacheStats.misses++;
+            return null;
+            
+        } catch (error) {
+            console.error(`[UnifiedStorageManager] 读取失败: ${key}`, error);
+            this.cacheStats.misses++;
+            return null;
+        }
+    }
+    
+    /**
+     * 智能删除
+     */
+    async smartRemove(key) {
+        try {
+            // 从LocalStorage删除
+            localStorage.removeItem(key);
+            
+            // 从IndexedDB删除
+            if (window.AutogenUnifiedStorage) {
+                await window.AutogenUnifiedStorage.delete('unified', key);
+            }
+            
+            return true;
+        } catch (error) {
+            console.error(`[UnifiedStorageManager] 删除失败: ${key}`, error);
+            return false;
+        }
+    }
+    
+    /**
+     * 获取LocalStorage使用情况
+     */
+    getLocalStorageUsage() {
+        let totalSize = 0;
+        let itemCount = 0;
+        
+        for (let key in localStorage) {
+            if (localStorage.hasOwnProperty(key)) {
+                totalSize += localStorage[key].length + key.length;
+                itemCount++;
+            }
+        }
+        
+        return {
+            totalSize,
+            itemCount,
+            ratio: totalSize / this.QUOTA_CONFIG.maxLocalStorageSize,
+            formatted: `${Math.round(totalSize/1024)}KB / ${Math.round(this.QUOTA_CONFIG.maxLocalStorageSize/1024)}KB`
+        };
+    }
+    
+    /**
+     * 紧急清理LocalStorage
+     */
+    async emergencyCleanup() {
+        console.warn('[UnifiedStorageManager] 执行紧急清理...');
+        
+        const beforeUsage = this.getLocalStorageUsage();
+        let cleanedCount = 0;
+        
+        // 清理策略：优先清理过期和非关键数据
+        const keysToRemove = [];
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key) {
+                // 清理临时数据
+                if (key.includes('temp_') || key.includes('cache_') || key.includes('snapshot_')) {
+                    keysToRemove.push(key);
+                }
+                // 清理过期的autogen数据
+                else if (key.startsWith('autogen:') && !key.includes('mindmap_data_v1')) {
+                    keysToRemove.push(key);
+                }
+                // 清理旧版本数据
+                else if (key.includes('_v0') || key.includes('_old') || key.includes('_backup')) {
+                    keysToRemove.push(key);
+                }
+            }
+        }
+        
+        // 执行清理
+        keysToRemove.forEach(key => {
+            try {
+                localStorage.removeItem(key);
+                cleanedCount++;
+            } catch (error) {
+                // 忽略删除错误
+            }
+        });
+        
+        const afterUsage = this.getLocalStorageUsage();
+        const savedSpace = beforeUsage.totalSize - afterUsage.totalSize;
+        
+        console.log(`[UnifiedStorageManager] 紧急清理完成: 清理${cleanedCount}项，释放${Math.round(savedSpace/1024)}KB`);
+        console.log(`[UnifiedStorageManager] 使用率: ${Math.round(beforeUsage.ratio*100)}% → ${Math.round(afterUsage.ratio*100)}%`);
+        
+        return {
+            cleanedCount,
+            savedSpace,
+            beforeUsage,
+            afterUsage
+        };
     }
     
     /**

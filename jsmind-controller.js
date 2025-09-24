@@ -60,49 +60,20 @@
       try { this.startSnapshotScheduler(); } catch(_) { /* ignore */ }
     }
 
-    // 初始化存储系统
+    // 初始化存储系统（简化版 - 只使用AutogenUnifiedStorage）
     async _initPersistenceManager() {
       try {
-        // 尝试导入新的简化存储系统
-        if (typeof window !== 'undefined') {
-          try {
-            // 动态导入存储模块
-            const storageModule = await import('./src/core/storage/index.js');
-            const initResult = storageModule.initializeStorage();
-            
-            if (initResult.success) {
-              this.storageManager = initResult.storage;
-              this.dataValidator = initResult.validator;
-              console.log('[MindmapController] 简化存储系统初始化成功');
-              console.log('[MindmapController] 存储统计:', initResult.stats);
-            } else {
-              console.warn('[MindmapController] 简化存储系统初始化失败:', initResult.error);
-              this.storageManager = null;
-              this.dataValidator = null;
-            }
-          } catch (importError) {
-            console.warn('[MindmapController] 无法导入简化存储系统:', importError);
-            this.storageManager = null;
-            this.dataValidator = null;
-          }
-        }
-        
-        // 回退：尝试旧的持久化系统
-        if (!this.storageManager && window.PersistenceSystemChecker) {
-          const ready = await window.PersistenceSystemChecker.waitForReady(5000);
-          if (ready && window.PersistenceManager) {
-            this.persistenceManager = window.PersistenceManager;
-            console.log('[MindmapController] 回退到旧持久化管理器');
-          } else {
-            console.warn('[MindmapController] 所有存储系统不可用，使用传统localStorage');
-            this.persistenceManager = null;
-          }
+        // 使用AutogenUnifiedStorage统一存储系统
+        if (window.AutogenUnifiedStorage) {
+          this.autogenStorage = window.AutogenUnifiedStorage;
+          console.log('[MindmapController] ✅ 使用AutogenUnifiedStorage统一存储系统');
+        } else {
+          console.warn('[MindmapController] AutogenUnifiedStorage不可用，将使用传统localStorage');
+          this.autogenStorage = null;
         }
       } catch (error) {
         console.error('[MindmapController] 存储系统初始化失败:', error);
-        this.storageManager = null;
-        this.dataValidator = null;
-        this.persistenceManager = null;
+        this.autogenStorage = null;
       }
     }
 
@@ -117,97 +88,55 @@
       }
     }
 
-    // 获取存储系统状态（用于调试）
+    // 获取存储系统状态（简化版）
     getStorageSystemStatus() {
-      const status = {
-        simpleStorage: {
-          available: !!this.storageManager,
-          stats: this.storageManager ? this.storageManager.getStats() : null
-        },
-        dataValidator: {
-          available: !!this.dataValidator
-        },
-        legacyPersistence: {
-          available: !!this.persistenceManager
+      return {
+        autogenStorage: {
+          available: !!this.autogenStorage,
+          type: 'AutogenUnifiedStorage'
         },
         localStorage: {
           available: typeof Storage !== 'undefined',
-          keys: []
+          keys: this._getLocalStorageKeys()
         }
       };
-
-      // 获取localStorage中的相关键
-      if (status.localStorage.available) {
-        try {
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && (key.startsWith('mm:') || key.includes('mindmap'))) {
-              status.localStorage.keys.push(key);
-            }
-          }
-        } catch (error) {
-          status.localStorage.error = error.message;
-        }
-      }
-
-      return status;
     }
 
-    // 清理存储缓存（用于调试）
-    clearStorageCache() {
-      if (this.storageManager) {
-        try {
-          const result = this.storageManager.clear();
-          console.log('[MindmapController] 存储缓存已清理:', result);
-          return result;
-        } catch (error) {
-          console.error('[MindmapController] 清理存储缓存失败:', error);
-          return { error: error.message };
-        }
-      } else {
-        console.warn('[MindmapController] 简化存储系统不可用');
-        return { error: '简化存储系统不可用' };
-      }
-    }
-
-    // 新的保存方法（使用PersistenceManager）
-    async _saveWithPersistenceManager(jmData, mindId) {
+    // 获取相关的localStorage键
+    _getLocalStorageKeys() {
+      const keys = [];
       try {
-        if (!this.persistenceManager) {
-          console.warn('[MindmapController] PersistenceManager不可用，使用传统保存');
-          return false;
-        }
-
-        // 创建MindPack数据结构
-        const mindPack = {
-          format: 'node_tree',
-          data: jmData.data,
-          meta: {
-            mind_id: mindId,
-            format_version: 1,
-            saved_at: new Date().toISOString(),
-            source: 'jsmind-controller'
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('mm:') || key.includes('mindmap'))) {
+            keys.push(key);
           }
-        };
-
-        // 使用PersistenceManager保存
-        const result = await this.persistenceManager.saveMind(mindId, mindPack);
-        
-        if (result.success) {
-          console.log('[MindmapController] ✅ 使用PersistenceManager保存成功');
-          return true;
-        } else {
-          console.warn('[MindmapController] PersistenceManager保存失败:', result.error);
-          return false;
         }
       } catch (error) {
-        console.error('[MindmapController] PersistenceManager保存异常:', error);
-        return false;
+        console.warn('[MindmapController] 获取localStorage键失败:', error);
       }
+      return keys;
     }
 
-    // 传统保存方法（兜底）
-    _saveWithLocalStorage(jmData) {
+
+    // 统一存储保存方法（优先使用AutogenUnifiedStorage）
+    async _saveWithUnifiedStorage(jmData) {
+      // 优先使用AutogenUnifiedStorage
+      if (this.autogenStorage) {
+        try {
+          const success = await this.autogenStorage.store('mindmap', this.localStorageKey, jmData);
+          if (success) {
+            if (Math.random() < 0.1) { // 仅10%概率输出日志
+              console.log('[MindmapController] ✅ 已保存到AutogenUnifiedStorage:', this.localStorageKey);
+            }
+            return true;
+          }
+        } catch(e) {
+          console.warn('[MindmapController] AutogenUnifiedStorage保存失败:', e);
+        }
+      }
+      
+      // 回退到传统localStorage
       try {
         localStorage.setItem(this.localStorageKey, JSON.stringify(jmData));
         if (Math.random() < 0.1) { // 仅10%概率输出日志
@@ -2153,33 +2082,18 @@
     // —— 存储 ——
     async loadMindmapFromStorage(){
       try {
-        // 优先使用新的简化存储系统
-        if (this.storageManager) {
+        // 优先从AutogenUnifiedStorage加载
+        if (this.autogenStorage) {
           try {
-            const mindId = this._getCurrentMindId();
-            const data = this.storageManager.loadMindmap(mindId);
-            
+            const data = await this.autogenStorage.retrieve('mindmap', this.localStorageKey);
             if (data) {
-              console.log('[MindmapController] ✅ 使用简化存储系统加载成功');
-              
-              // 验证数据
-              if (this.dataValidator) {
-                const validation = this.dataValidator.validateMindmap(data);
-                if (!validation.valid) {
-                  console.warn('[MindmapController] 加载的数据存在问题:', validation.issues);
-                  this.dataValidator.printValidationResult(validation);
-                }
-              }
-              
-              // 返回数据
+              console.log('[MindmapController] ✅ 使用AutogenUnifiedStorage加载成功');
               if (data.format === 'node_tree' && data.data) {
                 return this.fromJsMindTree(data.data);
               }
-            } else {
-              console.log('[MindmapController] 简化存储系统中没有数据，尝试其他方式');
             }
           } catch (error) {
-            console.warn('[MindmapController] 简化存储系统加载异常:', error);
+            console.warn('[MindmapController] AutogenUnifiedStorage加载失败:', error);
           }
         }
         
@@ -2303,41 +2217,12 @@ try{
         }).call(this);
         try{ jmData.meta = Object.assign({}, jmData.meta || {}, { mind_id: mindKey }); }catch(_){ /* ignore */ }
         
-        // 尝试使用新的简化存储系统保存
-        let saveSuccess = false;
-        
-        if (this.storageManager) {
-          try {
-            // 验证数据
-            if (this.dataValidator) {
-              const validation = this.dataValidator.validateMindmap(jmData);
-              if (!validation.valid) {
-                console.warn('[MindmapController] 保存前数据验证失败:', validation.issues);
-                this.dataValidator.printValidationResult(validation);
-              }
-            }
-            
-            // 使用简化存储系统保存
-            saveSuccess = this.storageManager.saveMindmap(mindKey, jmData);
-            
-            if (saveSuccess) {
-              console.log('[MindmapController] ✅ 使用简化存储系统保存成功');
-            } else {
-              console.warn('[MindmapController] 简化存储系统保存失败，尝试其他方式');
-            }
-          } catch (error) {
-            console.warn('[MindmapController] 简化存储系统保存异常:', error);
-          }
-        }
-        
-        // 回退：使用传统localStorage保存
-        if (!saveSuccess) {
-          try {
-            this._saveWithLocalStorage(jmData);
-            console.log('[MindmapController] ✅ 使用传统localStorage保存');
-          } catch (error) {
-            console.error('[MindmapController] 所有存储方式都失败:', error);
-          }
+        // 使用统一存储系统保存
+        try {
+          await this._saveWithUnifiedStorage(jmData);
+          console.log('[MindmapController] ✅ 使用统一存储系统保存');
+        } catch (error) {
+          console.error('[MindmapController] 统一存储系统保存失败:', error);
         }
         
         // 降低保存日志频率，避免噪音
@@ -4460,9 +4345,43 @@ try{
                 this.setSelectedNode(data.id);
               }
               
+              // 关键修复：同步保存到统一存储系统，确保数据流一致性
+              try {
+                // 直接使用AutogenUnifiedStorage保存
+                if (this.autogenStorage && data) {
+                  const jmData = {
+                    format: 'node_tree',
+                    data: this.toJsMindTree(data)
+                  };
+                  await this.autogenStorage.store('mindmap', this.localStorageKey, jmData);
+                  console.log('[加载] 数据已同步到AutogenUnifiedStorage');
+                } else {
+                  // 回退到常规保存方法
+                  this.saveMindmapToStorage();
+                  console.log('[加载] 数据已同步到存储系统');
+                }
+              } catch (error) {
+                console.warn('[加载] 同步到存储系统失败:', error);
+              }
+              
               // 选中列表项
               if (window.Registry.cmd) {
                 window.Registry.cmd.select(firstProject.id);
+              }
+              
+              // 触发界面刷新事件，通知其他系统数据已更新
+              try {
+                window.dispatchEvent(new CustomEvent('mindmap:dataLoaded', {
+                  detail: { 
+                    source: 'import',
+                    projectId: firstProject.id,
+                    projectName: firstProject.name,
+                    data: data
+                  }
+                }));
+                console.log('[加载] 已触发数据加载事件');
+              } catch (error) {
+                console.warn('[加载] 触发事件失败:', error);
               }
               
               console.log(`[加载] 已加载第一个项目: ${firstProject.name}`);
