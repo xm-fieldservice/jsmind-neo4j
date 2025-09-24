@@ -9,6 +9,10 @@
       this.rootId = null; // 根ID
       this.perMindStorageKey = null; // 根据根ID动态生成的存储键
 
+      // JSON底座增量同步相关
+      this._jsonBaseSyncTimer = null; // 同步防抖定时器
+      this._lastJsonBaseHash = null; // 上次同步的数据哈希
+
       // 初始化持久化管理器（异步）
       this._initPersistenceManager();
 
@@ -141,6 +145,96 @@
       } catch (error) {
         console.error('[MindmapController] AutogenUnifiedStorage保存异常:', error);
         return false;
+      }
+    }
+
+    // 增量同步到JSON底座（方案A：轻量级增量同步）
+    async _syncToJsonBase(jmData, mindKey) {
+      try {
+        // 防抖机制：避免频繁同步
+        if (!this._jsonBaseSyncTimer) {
+          this._jsonBaseSyncTimer = setTimeout(async () => {
+            await this._performJsonBaseSync(jmData, mindKey);
+            this._jsonBaseSyncTimer = null;
+          }, 2000); // 2秒防抖
+        }
+      } catch (error) {
+        console.warn('[MindmapController] JSON底座同步调度失败:', error);
+      }
+    }
+
+    // 执行JSON底座同步
+    async _performJsonBaseSync(jmData, mindKey) {
+      try {
+        // 检查是否需要同步（简单的变更检测）
+        const currentHash = this._calculateDataHash(jmData);
+        const lastHash = this._lastJsonBaseHash;
+        
+        if (currentHash === lastHash) {
+          // 数据未变更，跳过同步
+          return;
+        }
+
+        // 构建脑图数据结构
+        const mindmapEntry = {
+          id: mindKey,
+          name: (this.data && (this.data.label || this.data.topic)) || '未命名项目',
+          data: jmData,
+          last_modified: new Date().toISOString(),
+          content_hash: currentHash
+        };
+
+        // 调用现有的后端API进行同步
+        const response = await fetch('http://localhost:5001/api/sync-mindmap', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            mindmap: mindmapEntry,
+            sync_mode: 'incremental'
+          })
+        });
+
+        if (response.ok) {
+          this._lastJsonBaseHash = currentHash;
+          if (Math.random() < 0.2) { // 20%概率输出日志
+            console.log('[MindmapController] ✅ JSON底座增量同步成功:', mindKey);
+          }
+          
+          // 触发同步完成事件
+          if (window.AutogenEventBus) {
+            window.AutogenEventBus.emit('mindmap:jsonBaseSynced', {
+              mindKey,
+              hash: currentHash,
+              timestamp: new Date().toISOString()
+            });
+          }
+        } else {
+          console.warn('[MindmapController] JSON底座同步失败:', response.status, response.statusText);
+        }
+
+      } catch (error) {
+        // 网络错误或API不可用时，静默处理，不影响正常保存
+        if (Math.random() < 0.1) { // 10%概率输出警告
+          console.warn('[MindmapController] JSON底座同步异常（不影响本地保存）:', error.message);
+        }
+      }
+    }
+
+    // 计算数据哈希值（用于变更检测）
+    _calculateDataHash(data) {
+      try {
+        const str = JSON.stringify(data);
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          const char = str.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash; // 转换为32位整数
+        }
+        return hash.toString(16);
+      } catch (error) {
+        return 'hash_error_' + Date.now();
       }
     }
 
@@ -2185,6 +2279,10 @@ try{
         try {
           await this._saveWithUnifiedStorage(jmData);
           console.log('[MindmapController] ✅ 使用统一存储系统保存');
+          
+          // 增量同步到JSON底座（方案A：轻量级增量同步）
+          await this._syncToJsonBase(jmData, mindKey);
+          
         } catch (error) {
           console.error('[MindmapController] 统一存储系统保存失败:', error);
         }

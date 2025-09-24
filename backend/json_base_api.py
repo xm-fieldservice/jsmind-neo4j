@@ -79,17 +79,14 @@ def save_json_base():
         # 验证JSON结构
         is_valid, error_msg = validate_json_structure(json_data)
         if not is_valid:
-            return jsonify({'success': False, 'error': f'数据验证失败: {error_msg}'}), 400
+            return jsonify({'success': False, 'error': f'JSON结构验证失败: {error_msg}'}), 400
         
         # 创建备份
         backup_path = create_backup()
         
-        # 更新元数据
-        json_data['export_time'] = datetime.now().isoformat()
-        json_data['total_count'] = len(json_data.get('mindmaps', []))
-        
-        # 保存文件
+        # 保存到指定路径
         target_path = os.path.join(os.path.dirname(__file__), '..', file_path)
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
         
         with open(target_path, 'w', encoding='utf-8') as f:
             json.dump(json_data, f, ensure_ascii=False, indent=2)
@@ -108,6 +105,79 @@ def save_json_base():
         return jsonify({
             'success': False,
             'error': f'保存失败: {str(e)}'
+        }), 500
+
+@app.route('/api/sync-mindmap', methods=['POST'])
+def sync_mindmap():
+    """增量同步单个脑图到JSON底座"""
+    try:
+        request_data = request.get_json()
+        
+        if not request_data:
+            return jsonify({'success': False, 'error': '请求数据为空'}), 400
+        
+        mindmap_data = request_data.get('mindmap')
+        sync_mode = request_data.get('sync_mode', 'incremental')
+        
+        if not mindmap_data:
+            return jsonify({'success': False, 'error': '缺少脑图数据'}), 400
+        
+        # 加载现有JSON底座
+        if os.path.exists(JSON_BASE_PATH):
+            with open(JSON_BASE_PATH, 'r', encoding='utf-8') as f:
+                json_base = json.load(f)
+        else:
+            # 创建新的JSON底座结构
+            json_base = {
+                'export_time': datetime.now().isoformat(),
+                'total_count': 0,
+                'mindmaps': []
+            }
+        
+        # 查找现有脑图
+        mindmap_id = mindmap_data.get('id')
+        existing_index = -1
+        
+        for i, existing_mindmap in enumerate(json_base['mindmaps']):
+            if existing_mindmap.get('id') == mindmap_id:
+                existing_index = i
+                break
+        
+        # 更新或添加脑图
+        if existing_index >= 0:
+            # 更新现有脑图
+            json_base['mindmaps'][existing_index] = mindmap_data
+            logger.info(f'更新脑图: {mindmap_id}')
+        else:
+            # 添加新脑图
+            json_base['mindmaps'].append(mindmap_data)
+            logger.info(f'添加新脑图: {mindmap_id}')
+        
+        # 更新元数据
+        json_base['export_time'] = datetime.now().isoformat()
+        json_base['total_count'] = len(json_base['mindmaps'])
+        
+        # 创建备份（仅在有实际变更时）
+        backup_path = create_backup()
+        
+        # 保存更新后的JSON底座
+        with open(JSON_BASE_PATH, 'w', encoding='utf-8') as f:
+            json.dump(json_base, f, ensure_ascii=False, indent=2)
+        
+        return jsonify({
+            'success': True,
+            'message': f'脑图增量同步成功: {mindmap_data.get("name", mindmap_id)}',
+            'sync_mode': sync_mode,
+            'mindmap_id': mindmap_id,
+            'total_count': json_base['total_count'],
+            'backup_path': backup_path
+        })
+        
+    except Exception as e:
+        logger.error(f'增量同步失败: {e}')
+        return jsonify({
+            'success': False,
+            'error': f'同步失败: {str(e)}'
         }), 500
 
 @app.route('/api/load-json-base', methods=['GET'])
