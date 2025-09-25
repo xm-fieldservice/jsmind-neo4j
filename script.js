@@ -1305,7 +1305,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const runQuery1 = ()=>{
             const titleKw = (document.getElementById('q1-title-input')?.value || '').trim();
             const fulltext = !!document.getElementById('q1-fulltext')?.checked;
-            const selTags = getSelectedTagNames();
+            let selTags = getSelectedTagNames();
+            
+            // 如果有标签过滤器，合并过滤条件
+            if (window.listTagFilter) {
+                const filterTags = window.listTagFilter.getSelectedTags();
+                selTags = [...new Set([...selTags, ...filterTags])];
+            }
+            
             const nodes = collectAllNodes();
             const kw = titleKw.toLowerCase();
             const results = nodes.filter(n=>{
@@ -2151,20 +2158,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             setTimeout(projectFromMind, 200);
         }
-
         // 监听：导入脑图、新建、以及卡片点击时都投射一次
         try{
             window.addEventListener('mindmap:imported', ()=> setTimeout(projectFromMind, 60));
         }catch(_){ }
-        try{
-            const newBtn = document.getElementById('mindmap-new-btn');
-            newBtn && newBtn.addEventListener('click', ()=> setTimeout(projectFromMind, 200));
-        }catch(_){ }
+        // 这里runQuery1不在作用域内，需要移除错误的引用
         try{
             const $catalog = document.getElementById('project-catalog');
             $catalog && $catalog.addEventListener('click', (e)=>{
                 const main = e.target.closest('.proj-card-main');
-                if (main) setTimeout(projectFromMind, 120);
             });
         }catch(_){ }
         try{

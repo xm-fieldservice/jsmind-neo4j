@@ -1,6 +1,6 @@
 {
-  "export_time": "2025-09-25T07:45:53.097825",
-  "total_count": 6,
+  "export_time": "2025-09-25T11:16:53.391535",
+  "total_count": 26,
   "mindmaps": [
     {
       "id": "root-1758490798034-j5",
@@ -17,9 +17,9 @@
           "id": "root-1758490798034-j5",
           "topic": "项目脑图",
           "expanded": true,
-          "content": "# 根节点\n\n在此编写内容...",
+          "content": "标签: 议题\n\n# 根节点\n\n在此编写内容...",
           "data": {
-            "content": "# 根节点\n\n在此编写内容..."
+            "content": "标签: 议题\n\n# 根节点\n\n在此编写内容..."
           },
           "background-color": "#f5f5f5",
           "foreground-color": "#333",
@@ -127,6 +127,190 @@
                       },
                       "background-color": "#f5f5f5",
                       "foreground-color": "#333"
+                    },
+                    {
+                      "id": "97ed176bfba2ed91",
+                      "topic": "标签管理",
+                      "expanded": true,
+                      "content": "",
+                      "data": {
+                        "content": ""
+                      },
+                      "background-color": "#f5f5f5",
+                      "foreground-color": "#333",
+                      "children": [
+                        {
+                          "id": "97ed198c18da0cb2",
+                          "topic": "管理",
+                          "expanded": true,
+                          "content": "",
+                          "data": {
+                            "content": ""
+                          },
+                          "background-color": "#f5f5f5",
+                          "foreground-color": "#333",
+                          "children": [
+                            {
+                              "id": "97ed1a7b4542ec09",
+                              "topic": "目标",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed1b2ac2ae8e5b",
+                              "topic": "规划",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed1bd99133df67",
+                              "topic": "项目",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed1c96de39a323",
+                              "topic": "议题",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed1d3e7b00a604",
+                              "topic": "日程",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "97ed1e7168e38f3c",
+                          "topic": "点评",
+                          "expanded": true,
+                          "content": "",
+                          "data": {
+                            "content": ""
+                          },
+                          "background-color": "#f5f5f5",
+                          "foreground-color": "#333",
+                          "children": [
+                            {
+                              "id": "97ed1faa4386ba54",
+                              "topic": "里程碑",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed21395de58c48",
+                              "topic": "节点",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed22b7e6e84397",
+                              "topic": "难点",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "97ed23b5099275f2",
+                          "topic": "状态",
+                          "expanded": true,
+                          "content": "",
+                          "data": {
+                            "content": ""
+                          },
+                          "background-color": "#f5f5f5",
+                          "foreground-color": "#333",
+                          "children": [
+                            {
+                              "id": "97ed25a2a1eb9c20",
+                              "topic": "发布",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed26a40366e758",
+                              "topic": "进行",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed2702cb4b5dc9",
+                              "topic": "验收",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            },
+                            {
+                              "id": "97ed27d26b09de3c",
+                              "topic": "终端",
+                              "expanded": true,
+                              "content": "",
+                              "data": {
+                                "content": ""
+                              },
+                              "background-color": "#f5f5f5",
+                              "foreground-color": "#333"
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 },
@@ -230,9 +414,9 @@
                   "id": "9619426eb594f316",
                   "topic": "数据",
                   "expanded": true,
-                  "content": "创建: 2025-09-25 02:59:22\n\n",
+                  "content": "",
                   "data": {
-                    "content": "创建: 2025-09-25 02:59:22\n\n"
+                    "content": ""
                   },
                   "background-color": "#f5f5f5",
                   "foreground-color": "#333",
@@ -501,236 +685,6 @@
                           ]
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "id": "97d1837e8e8ab2e5",
-                  "topic": "【系统字典】",
-                  "expanded": true,
-                  "content": "创建: 2025-09-25 03:00:21\n\n",
-                  "data": {
-                    "content": "创建: 2025-09-25 03:00:21\n\n"
-                  },
-                  "background-color": "#f5f5f5",
-                  "foreground-color": "#333",
-                  "children": [
-                    {
-                      "id": "97d1850de5a9b5b5",
-                      "topic": "系统标签",
-                      "expanded": true,
-                      "content": "创建: 2025-09-25 03:00:41\n\n",
-                      "data": {
-                        "content": "创建: 2025-09-25 03:00:41\n\n"
-                      },
-                      "background-color": "#f5f5f5",
-                      "foreground-color": "#333",
-                      "children": [
-                        {
-                          "id": "97d1b89a484c696c",
-                          "topic": "管理",
-                          "expanded": true,
-                          "content": "创建: 2025-09-25 03:03:11\n\n",
-                          "data": {
-                            "content": "创建: 2025-09-25 03:03:11\n\n"
-                          },
-                          "background-color": "#f5f5f5",
-                          "foreground-color": "#333",
-                          "children": [
-                            {
-                              "id": "97d1db9637cb446e",
-                              "topic": "目标",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:07:06\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:07:06\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1da6791489ae7",
-                              "topic": "规划",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:05:35\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:05:35\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1d9296ba5bab2",
-                              "topic": "项目",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:05:41\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:05:41\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1d9de2cc04ee0",
-                              "topic": "议题",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:07:05\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:07:05\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1dc80438757f9",
-                              "topic": "日程",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:07:01\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:07:01\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            }
-                          ]
-                        },
-                        {
-                          "id": "97d1b90e55fb98d2",
-                          "topic": "点评",
-                          "expanded": true,
-                          "content": "创建: 2025-09-25 03:03:17\n\n",
-                          "data": {
-                            "content": "创建: 2025-09-25 03:03:17\n\n"
-                          },
-                          "background-color": "#f5f5f5",
-                          "foreground-color": "#333",
-                          "children": [
-                            {
-                              "id": "97d1d2f83d45b66a",
-                              "topic": "里程碑",
-                              "expanded": true,
-                              "content": "",
-                              "data": {
-                                "content": ""
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1d3c36f4eb865",
-                              "topic": "节点",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:07:36\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:07:36\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1d4abb4d121c8",
-                              "topic": "难点",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:07:46\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:07:46\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            }
-                          ]
-                        },
-                        {
-                          "id": "97d1be3a99d265ae",
-                          "topic": "状态",
-                          "expanded": true,
-                          "content": "创建: 2025-09-25 03:03:30\n\n",
-                          "data": {
-                            "content": "创建: 2025-09-25 03:03:30\n\n"
-                          },
-                          "background-color": "#f5f5f5",
-                          "foreground-color": "#333",
-                          "children": [
-                            {
-                              "id": "97d1c79c26eac21a",
-                              "topic": "计划",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:04:11\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:04:11\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1c1db2dc7d93b",
-                              "topic": "发布",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:04:19\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:04:19\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1c077c37e8cb1",
-                              "topic": "进行",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:04:09\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:04:09\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1c3d6304e98ae",
-                              "topic": "验收",
-                              "expanded": true,
-                              "content": "创建: 2025-09-25 03:04:00\n\n",
-                              "data": {
-                                "content": "创建: 2025-09-25 03:04:00\n\n"
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            },
-                            {
-                              "id": "97d1ce8651800e2c",
-                              "topic": "中断",
-                              "expanded": true,
-                              "content": "",
-                              "data": {
-                                "content": ""
-                              },
-                              "background-color": "#f5f5f5",
-                              "foreground-color": "#333"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "id": "97d1e9b2a81dbd2b",
-                      "topic": "部门",
-                      "expanded": true,
-                      "content": "",
-                      "data": {
-                        "content": ""
-                      },
-                      "background-color": "#f5f5f5",
-                      "foreground-color": "#333"
-                    },
-                    {
-                      "id": "97d1eb030cf0d802",
-                      "topic": "New Node",
-                      "expanded": true,
-                      "content": "",
-                      "data": {
-                        "content": ""
-                      },
-                      "background-color": "#f5f5f5",
-                      "foreground-color": "#333"
                     }
                   ]
                 }
@@ -1220,9 +1174,9 @@
                       "id": "96fea2b994ba45e9",
                       "topic": "注册机制",
                       "expanded": true,
-                      "content": "创建: 2025-09-22 13:37:41\n\n让我检查这个注册记录机制的来源：\n\n让我检查registry目录下的文件，这些是项目自定义的注册机制：\n\n现在让我检查jsMind的原生代码，看看是否有注册机制：\n\n\n\n## 📊 注册记录机制分析结果\n\n**@[d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\data\\mindmap_registry.json] 这个注册记录机制是 `完全自定制的`，不是jsMind的原生机制。**\n\n### 🎯 **详细分析**：\n\n#### **1. jsMind原生机制**：\n- ✅ **只提供脑图渲染**：jsMind是纯粹的脑图可视化库\n- ❌ **没有项目管理**：不包含项目列表、注册表等概念\n- ❌ **没有持久化机制**：不负责数据存储和管理\n- ❌ **没有注册系统**：搜索jsMind源码未发现任何registry相关代码\n\n#### **2. 自定制的注册系统**：\n```javascript\n// 完全自定制的Registry架构\nregistry/\n├── registry_bootstrap.js     // 注册表启动器\n├── registry_repository.js    // 数据仓库（与后端交互）\n├── registry_store.js         // 状态存储\n├── registry_state_machine.js // 状态机\n└── registry_view.js          // 视图层\n```\n\n#### **3. 设计目的**：\n```javascript\n// 注释明确说明这是自定制方案\n// 引导新注册表模块（方案C）\n// Registry Repository：与后端交互（写侧权威 + 拉取源）\n```\n\n### 🏗️ **自定制架构的特点**：\n\n#### **完整的项目管理系统**：\n- **项目注册**：[register()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:39:2-52:4) - 注册新项目\n- **项目列表**：[refresh()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:10:2-25:4) - 获取项目列表  \n- **项目删除**：[remove()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:63:2-73:4) - 删除项目\n- **数据同步**：与后端API交互\n\n#### **状态管理机制**：\n- **Store模式**：集中状态管理\n- **事件总线**：组件间通信\n- **状态机**：管理复杂状态转换\n\n#### **持久化策略**：\n- **后端API**：主要存储方式\n- **localStorage**：本地缓存和降级\n- **JSON文件**：数据备份\n\n### 💡 **为什么需要自定制**：\n\n1. **jsMind功能局限**：\n   - jsMind只是渲染库，不管理项目\n   - 需要额外的项目管理功能\n\n2. **多脑图管理需求**：\n   - 需要管理多个独立脑图\n   - 需要项目列表和切换功能\n\n3. **数据持久化需求**：\n   - 需要保存和恢复脑图数据\n   - 需要跨会话的数据持久化\n\n### 🎯 **结论**：\n\n**这个注册记录机制是项目的核心创新**，它在jsMind基础上构建了完整的项目管理系统：\n\n- ✅ **完全自定制**：从零开始设计的注册表架构\n- ✅ **功能完整**：项目注册、列表管理、数据持久化\n- ✅ **架构清晰**：分层设计，职责分离\n- ✅ **扩展性强**：支持后端API和本地存储\n\n这就是为什么你能看到\"1\"作为独立列表项的原因 - 这个自定制的注册系统提供了jsMind原生不具备的项目管理能力！",
+                      "content": "标签: 议题\n\n创建: 2025-09-22 13:37:41\n\n让我检查这个注册记录机制的来源：\n\n让我检查registry目录下的文件，这些是项目自定义的注册机制：\n\n现在让我检查jsMind的原生代码，看看是否有注册机制：\n\n## 📊 注册记录机制分析结果\n\n**@[d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\data\\mindmap_registry.json] 这个注册记录机制是 `完全自定制的`，不是jsMind的原生机制。**\n\n### 🎯 **详细分析**：\n\n#### **1. jsMind原生机制**：\n- ✅ **只提供脑图渲染**：jsMind是纯粹的脑图可视化库\n- ❌ **没有项目管理**：不包含项目列表、注册表等概念\n- ❌ **没有持久化机制**：不负责数据存储和管理\n- ❌ **没有注册系统**：搜索jsMind源码未发现任何registry相关代码\n\n#### **2. 自定制的注册系统**：\n```javascript\n// 完全自定制的Registry架构\nregistry/\n├── registry_bootstrap.js     // 注册表启动器\n├── registry_repository.js    // 数据仓库（与后端交互）\n├── registry_store.js         // 状态存储\n├── registry_state_machine.js // 状态机\n└── registry_view.js          // 视图层\n```\n\n#### **3. 设计目的**：\n```javascript\n// 注释明确说明这是自定制方案\n// 引导新注册表模块（方案C）\n// Registry Repository：与后端交互（写侧权威 + 拉取源）\n```\n\n### 🏗️ **自定制架构的特点**：\n\n#### **完整的项目管理系统**：\n- **项目注册**：[register()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:39:2-52:4) - 注册新项目\n- **项目列表**：[refresh()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:10:2-25:4) - 获取项目列表  \n- **项目删除**：[remove()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:63:2-73:4) - 删除项目\n- **数据同步**：与后端API交互\n\n#### **状态管理机制**：\n- **Store模式**：集中状态管理\n- **事件总线**：组件间通信\n- **状态机**：管理复杂状态转换\n\n#### **持久化策略**：\n- **后端API**：主要存储方式\n- **localStorage**：本地缓存和降级\n- **JSON文件**：数据备份\n\n### 💡 **为什么需要自定制**：\n\n1. **jsMind功能局限**：\n   - jsMind只是渲染库，不管理项目\n   - 需要额外的项目管理功能\n\n2. **多脑图管理需求**：\n   - 需要管理多个独立脑图\n   - 需要项目列表和切换功能\n\n3. **数据持久化需求**：\n   - 需要保存和恢复脑图数据\n   - 需要跨会话的数据持久化\n\n### 🎯 **结论**：\n\n**这个注册记录机制是项目的核心创新**，它在jsMind基础上构建了完整的项目管理系统：\n\n- ✅ **完全自定制**：从零开始设计的注册表架构\n- ✅ **功能完整**：项目注册、列表管理、数据持久化\n- ✅ **架构清晰**：分层设计，职责分离\n- ✅ **扩展性强**：支持后端API和本地存储\n\n这就是为什么你能看到\"1\"作为独立列表项的原因 - 这个自定制的注册系统提供了jsMind原生不具备的项目管理能力！",
                       "data": {
-                        "content": "创建: 2025-09-22 13:37:41\n\n让我检查这个注册记录机制的来源：\n\n让我检查registry目录下的文件，这些是项目自定义的注册机制：\n\n现在让我检查jsMind的原生代码，看看是否有注册机制：\n\n\n\n## 📊 注册记录机制分析结果\n\n**@[d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\data\\mindmap_registry.json] 这个注册记录机制是 `完全自定制的`，不是jsMind的原生机制。**\n\n### 🎯 **详细分析**：\n\n#### **1. jsMind原生机制**：\n- ✅ **只提供脑图渲染**：jsMind是纯粹的脑图可视化库\n- ❌ **没有项目管理**：不包含项目列表、注册表等概念\n- ❌ **没有持久化机制**：不负责数据存储和管理\n- ❌ **没有注册系统**：搜索jsMind源码未发现任何registry相关代码\n\n#### **2. 自定制的注册系统**：\n```javascript\n// 完全自定制的Registry架构\nregistry/\n├── registry_bootstrap.js     // 注册表启动器\n├── registry_repository.js    // 数据仓库（与后端交互）\n├── registry_store.js         // 状态存储\n├── registry_state_machine.js // 状态机\n└── registry_view.js          // 视图层\n```\n\n#### **3. 设计目的**：\n```javascript\n// 注释明确说明这是自定制方案\n// 引导新注册表模块（方案C）\n// Registry Repository：与后端交互（写侧权威 + 拉取源）\n```\n\n### 🏗️ **自定制架构的特点**：\n\n#### **完整的项目管理系统**：\n- **项目注册**：[register()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:39:2-52:4) - 注册新项目\n- **项目列表**：[refresh()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:10:2-25:4) - 获取项目列表  \n- **项目删除**：[remove()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:63:2-73:4) - 删除项目\n- **数据同步**：与后端API交互\n\n#### **状态管理机制**：\n- **Store模式**：集中状态管理\n- **事件总线**：组件间通信\n- **状态机**：管理复杂状态转换\n\n#### **持久化策略**：\n- **后端API**：主要存储方式\n- **localStorage**：本地缓存和降级\n- **JSON文件**：数据备份\n\n### 💡 **为什么需要自定制**：\n\n1. **jsMind功能局限**：\n   - jsMind只是渲染库，不管理项目\n   - 需要额外的项目管理功能\n\n2. **多脑图管理需求**：\n   - 需要管理多个独立脑图\n   - 需要项目列表和切换功能\n\n3. **数据持久化需求**：\n   - 需要保存和恢复脑图数据\n   - 需要跨会话的数据持久化\n\n### 🎯 **结论**：\n\n**这个注册记录机制是项目的核心创新**，它在jsMind基础上构建了完整的项目管理系统：\n\n- ✅ **完全自定制**：从零开始设计的注册表架构\n- ✅ **功能完整**：项目注册、列表管理、数据持久化\n- ✅ **架构清晰**：分层设计，职责分离\n- ✅ **扩展性强**：支持后端API和本地存储\n\n这就是为什么你能看到\"1\"作为独立列表项的原因 - 这个自定制的注册系统提供了jsMind原生不具备的项目管理能力！"
+                        "content": "标签: 议题\n\n创建: 2025-09-22 13:37:41\n\n让我检查这个注册记录机制的来源：\n\n让我检查registry目录下的文件，这些是项目自定义的注册机制：\n\n现在让我检查jsMind的原生代码，看看是否有注册机制：\n\n## 📊 注册记录机制分析结果\n\n**@[d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\data\\mindmap_registry.json] 这个注册记录机制是 `完全自定制的`，不是jsMind的原生机制。**\n\n### 🎯 **详细分析**：\n\n#### **1. jsMind原生机制**：\n- ✅ **只提供脑图渲染**：jsMind是纯粹的脑图可视化库\n- ❌ **没有项目管理**：不包含项目列表、注册表等概念\n- ❌ **没有持久化机制**：不负责数据存储和管理\n- ❌ **没有注册系统**：搜索jsMind源码未发现任何registry相关代码\n\n#### **2. 自定制的注册系统**：\n```javascript\n// 完全自定制的Registry架构\nregistry/\n├── registry_bootstrap.js     // 注册表启动器\n├── registry_repository.js    // 数据仓库（与后端交互）\n├── registry_store.js         // 状态存储\n├── registry_state_machine.js // 状态机\n└── registry_view.js          // 视图层\n```\n\n#### **3. 设计目的**：\n```javascript\n// 注释明确说明这是自定制方案\n// 引导新注册表模块（方案C）\n// Registry Repository：与后端交互（写侧权威 + 拉取源）\n```\n\n### 🏗️ **自定制架构的特点**：\n\n#### **完整的项目管理系统**：\n- **项目注册**：[register()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:39:2-52:4) - 注册新项目\n- **项目列表**：[refresh()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:10:2-25:4) - 获取项目列表  \n- **项目删除**：[remove()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/registry/registry_repository.js:63:2-73:4) - 删除项目\n- **数据同步**：与后端API交互\n\n#### **状态管理机制**：\n- **Store模式**：集中状态管理\n- **事件总线**：组件间通信\n- **状态机**：管理复杂状态转换\n\n#### **持久化策略**：\n- **后端API**：主要存储方式\n- **localStorage**：本地缓存和降级\n- **JSON文件**：数据备份\n\n### 💡 **为什么需要自定制**：\n\n1. **jsMind功能局限**：\n   - jsMind只是渲染库，不管理项目\n   - 需要额外的项目管理功能\n\n2. **多脑图管理需求**：\n   - 需要管理多个独立脑图\n   - 需要项目列表和切换功能\n\n3. **数据持久化需求**：\n   - 需要保存和恢复脑图数据\n   - 需要跨会话的数据持久化\n\n### 🎯 **结论**：\n\n**这个注册记录机制是项目的核心创新**，它在jsMind基础上构建了完整的项目管理系统：\n\n- ✅ **完全自定制**：从零开始设计的注册表架构\n- ✅ **功能完整**：项目注册、列表管理、数据持久化\n- ✅ **架构清晰**：分层设计，职责分离\n- ✅ **扩展性强**：支持后端API和本地存储\n\n这就是为什么你能看到\"1\"作为独立列表项的原因 - 这个自定制的注册系统提供了jsMind原生不具备的项目管理能力！"
                       },
                       "background-color": "#f5f5f5",
                       "foreground-color": "#333"
@@ -1644,6 +1598,39 @@
                                       },
                                       "background-color": "#f5f5f5",
                                       "foreground-color": "#333"
+                                    },
+                                    {
+                                      "id": "9756ed0a5e5498b9",
+                                      "topic": "New Node",
+                                      "expanded": true,
+                                      "content": "创建: 2025-09-23 15:17:03\n\n",
+                                      "data": {
+                                        "content": "创建: 2025-09-23 15:17:03\n\n"
+                                      },
+                                      "background-color": "#f5f5f5",
+                                      "foreground-color": "#333"
+                                    },
+                                    {
+                                      "id": "9757e1dbe771af79",
+                                      "topic": "New Node",
+                                      "expanded": true,
+                                      "content": "创建: 2025-09-23 15:33:45\n\n",
+                                      "data": {
+                                        "content": "创建: 2025-09-23 15:33:45\n\n"
+                                      },
+                                      "background-color": "#f5f5f5",
+                                      "foreground-color": "#333"
+                                    },
+                                    {
+                                      "id": "975a10bffad04fbb",
+                                      "topic": "New Node",
+                                      "expanded": true,
+                                      "content": "创建: 2025-09-23 16:11:55\n\n",
+                                      "data": {
+                                        "content": "创建: 2025-09-23 16:11:55\n\n"
+                                      },
+                                      "background-color": "#f5f5f5",
+                                      "foreground-color": "#333"
                                     }
                                   ]
                                 }
@@ -1878,27 +1865,14 @@
                           "children": [
                             {
                               "id": "9797fa7b0051771c",
-                              "topic": "总体数据同步的机制：四个机制",
+                              "topic": "总体数据同步的机制：问题以前加大，放在最后",
                               "expanded": true,
-                              "content": "创建: 2025-09-24 10:14:00\n\n你说得对！我需要重新审查代码，找出真正的脑图保存机制。让我仔细检查这两个文件和相关的同步机制：\n\n\n\n现在让我搜索代码中是如何更新这两个文件的：\n\n让我搜索可能的文件写入操作：\n\n让我搜索可能的后端API服务，特别是端口5001：\n\n## 🎯 **找到了！你说得完全正确！**\n\n我之前的分析**完全遗漏了**最重要的第四个保存机制！现在让我重新梳理所有的脑图保存机制：\n\n### 📋 **完整的脑图保存机制（4个机制）**：\n\n#### **1. 本地存储机制** (localStorage/AutogenUnifiedStorage)\n- **触发**：实时编辑，800ms防抖\n- **存储位置**：浏览器localStorage\n- **用途**：主要数据存储\n\n#### **2. 快照系统机制** (localStorage)\n- **触发**：定时（10分钟）+ 手动\n- **存储位置**：localStorage快照索引\n- **用途**：版本备份和恢复\n\n#### **3. Registry注册表机制** ([data/mindmap_registry.json](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/mindmap_registry.json:0:0-0:0))\n- **触发**：节点编辑事件完成后\n- **存储位置**：`d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\data\\mindmap_registry.json`\n- **API**：后端服务器端口8081 (`/registry/save`)\n- **用途**：项目列表管理\n\n#### **4. JSON底座增量同步机制** ([data/all_mindmaps.json](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/all_mindmaps.json:0:0-0:0)) ⭐ **这就是你说的！**\n- **触发**：节点编辑事件完成后，通过[_performJsonBaseSync](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:165:4-222:5)\n- **存储位置**：`d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\data\\all_mindmaps.json`\n- **API**：JSON底座API服务器端口5001 (`/api/sync-mindmap`)\n- **备份机制**：每次同步都创建备份到`data/backups/all_mindmaps_backup_*.json`\n- **用途**：统一JSON底座存储\n\n### 🔍 **关键发现**：\n\n1. **JSON底座API服务** ([backend/json_base_api.py](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/backend/json_base_api.py:0:0-0:0))：\n   - 运行在端口5001\n   - 提供`/api/sync-mindmap`接口\n   - **每次调用都会创建备份文件**（第161行：`backup_path = create_backup()`）\n\n2. **备份文件产生的真正原因**：\n   ```python\n   # backend/json_base_api.py 第30-42行\n   def create_backup():\n       \"\"\"创建JSON底座备份\"\"\"\n       try:\n           ensure_backup_dir()\n           if os.path.exists(JSON_BASE_PATH):\n               timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')\n               backup_path = os.path.join(BACKUP_DIR, f'all_mindmaps_backup_{timestamp}.json')\n               shutil.copy2(JSON_BASE_PATH, backup_path)  # 这里创建备份！\n               logger.info(f'备份创建成功: {backup_path}')\n               return backup_path\n   ```\n\n3. **前端调用机制**：\n   ```javascript\n   // jsmind-controller.js 第188-197行\n   const response = await fetch('http://localhost:5001/api/sync-mindmap', {\n     method: 'POST',\n     headers: { 'Content-Type': 'application/json' },\n     body: JSON.stringify({\n       mindmap: mindmapEntry,\n       sync_mode: 'incremental'\n     })\n   });\n   ```\n\n### 💡 **修正我之前的错误**：\n\n我之前说备份文件是\"后端API的副作用\"，但实际上：\n- **这是一个完整的第四个保存机制**\n- **专门用于增量同步到JSON底座文件**\n- **备份文件是这个机制的安全保障**\n- **确实是由节点编辑事件触发的**\n\n你完全正确！我遗漏了这个重要的保存机制，谢谢你的提醒和纠正！\n\n现在我们有了完整的四个保存机制，其中第3和第4个机制确实会在节点编辑事件完成后更新[data/mindmap_registry.json](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/mindmap_registry.json:0:0-0:0)和[data/all_mindmaps.json](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/all_mindmaps.json:0:0-0:0)文件。",
+                              "content": "创建: 2025-09-24 10:14:00\n\n",
                               "data": {
-                                "content": "创建: 2025-09-24 10:14:00\n\n你说得对！我需要重新审查代码，找出真正的脑图保存机制。让我仔细检查这两个文件和相关的同步机制：\n\n\n\n现在让我搜索代码中是如何更新这两个文件的：\n\n让我搜索可能的文件写入操作：\n\n让我搜索可能的后端API服务，特别是端口5001：\n\n## 🎯 **找到了！你说得完全正确！**\n\n我之前的分析**完全遗漏了**最重要的第四个保存机制！现在让我重新梳理所有的脑图保存机制：\n\n### 📋 **完整的脑图保存机制（4个机制）**：\n\n#### **1. 本地存储机制** (localStorage/AutogenUnifiedStorage)\n- **触发**：实时编辑，800ms防抖\n- **存储位置**：浏览器localStorage\n- **用途**：主要数据存储\n\n#### **2. 快照系统机制** (localStorage)\n- **触发**：定时（10分钟）+ 手动\n- **存储位置**：localStorage快照索引\n- **用途**：版本备份和恢复\n\n#### **3. Registry注册表机制** ([data/mindmap_registry.json](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/mindmap_registry.json:0:0-0:0))\n- **触发**：节点编辑事件完成后\n- **存储位置**：`d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\data\\mindmap_registry.json`\n- **API**：后端服务器端口8081 (`/registry/save`)\n- **用途**：项目列表管理\n\n#### **4. JSON底座增量同步机制** ([data/all_mindmaps.json](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/all_mindmaps.json:0:0-0:0)) ⭐ **这就是你说的！**\n- **触发**：节点编辑事件完成后，通过[_performJsonBaseSync](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/jsmind-controller.js:165:4-222:5)\n- **存储位置**：`d:\\AI-Projects\\project_manager(neo4j+d3.jsECHART)\\data\\all_mindmaps.json`\n- **API**：JSON底座API服务器端口5001 (`/api/sync-mindmap`)\n- **备份机制**：每次同步都创建备份到`data/backups/all_mindmaps_backup_*.json`\n- **用途**：统一JSON底座存储\n\n### 🔍 **关键发现**：\n\n1. **JSON底座API服务** ([backend/json_base_api.py](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/backend/json_base_api.py:0:0-0:0))：\n   - 运行在端口5001\n   - 提供`/api/sync-mindmap`接口\n   - **每次调用都会创建备份文件**（第161行：`backup_path = create_backup()`）\n\n2. **备份文件产生的真正原因**：\n   ```python\n   # backend/json_base_api.py 第30-42行\n   def create_backup():\n       \"\"\"创建JSON底座备份\"\"\"\n       try:\n           ensure_backup_dir()\n           if os.path.exists(JSON_BASE_PATH):\n               timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')\n               backup_path = os.path.join(BACKUP_DIR, f'all_mindmaps_backup_{timestamp}.json')\n               shutil.copy2(JSON_BASE_PATH, backup_path)  # 这里创建备份！\n               logger.info(f'备份创建成功: {backup_path}')\n               return backup_path\n   ```\n\n3. **前端调用机制**：\n   ```javascript\n   // jsmind-controller.js 第188-197行\n   const response = await fetch('http://localhost:5001/api/sync-mindmap', {\n     method: 'POST',\n     headers: { 'Content-Type': 'application/json' },\n     body: JSON.stringify({\n       mindmap: mindmapEntry,\n       sync_mode: 'incremental'\n     })\n   });\n   ```\n\n### 💡 **修正我之前的错误**：\n\n我之前说备份文件是\"后端API的副作用\"，但实际上：\n- **这是一个完整的第四个保存机制**\n- **专门用于增量同步到JSON底座文件**\n- **备份文件是这个机制的安全保障**\n- **确实是由节点编辑事件触发的**\n\n你完全正确！我遗漏了这个重要的保存机制，谢谢你的提醒和纠正！\n\n现在我们有了完整的四个保存机制，其中第3和第4个机制确实会在节点编辑事件完成后更新[data/mindmap_registry.json](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/mindmap_registry.json:0:0-0:0)和[data/all_mindmaps.json](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/data/all_mindmaps.json:0:0-0:0)文件。"
+                                "content": "创建: 2025-09-24 10:14:00\n\n"
                               },
                               "background-color": "#f5f5f5",
-                              "foreground-color": "#333",
-                              "children": [
-                                {
-                                  "id": "97d11065ba9c1d3e",
-                                  "topic": "清理了编辑事件触发的备份机制",
-                                  "expanded": true,
-                                  "content": "创建: 2025-09-25 02:51:43\n\n",
-                                  "data": {
-                                    "content": "创建: 2025-09-25 02:51:43\n\n"
-                                  },
-                                  "background-color": "#f5f5f5",
-                                  "foreground-color": "#333"
-                                }
-                              ]
+                              "foreground-color": "#333"
                             },
                             {
                               "id": "97c992a6d68dd386",
@@ -1918,28 +1892,6 @@
                                   "content": "创建: 2025-09-25 01:27:40\n\n你检查代码，我点击’管‘按键打开’快照弹窗后\n1. 发现没有快照列表；（检查是否快照保存没有进行）\n2. 或者是这个快照管理页面，没有和当前重构后的快照做适配\n3. 检查“恢复快照数据到本地”的功能是否能在页面内实现。“\n\n重复上述表述。并可以适当增补合理的内容。\n\n\n\n---\n\n### 快照管理与新结构适配和回复数据的功能\n2025-09-25 01:31:09\n\n## 📋 快照管理功能检查需求确认\n\n### 🎯 快照管理问题排查：\n\n1. **快照列表显示问题**：\n   - 点击'管'按键打开快照弹窗后，**发现没有快照列表显示**\n   - 需要检查是否快照保存功能没有正常进行\n   - 排查快照创建和存储机制是否工作正常\n\n2. **快照管理页面适配问题**：\n   - 检查快照管理页面是否与**当前重构后的快照系统**做了适配\n   - 验证UI组件与后端存储系统的数据交互\n   - 确认AutogenUnifiedStorage与快照管理器的集成状态\n\n3. **快照恢复功能验证**：\n   - 检查\"**恢复快照数据到本地**\"的功能是否能在页面内正常实现\n   - 验证快照恢复后的数据同步和界面刷新\n   - 确保恢复操作不会影响当前工作状态\n\n### 🔧 补充检查要点：\n\n4. **存储系统兼容性**：\n   - 检查localStorage与AutogenUnifiedStorage的快照存储路径\n   - 验证快照索引文件的读取和更新机制\n   - 确认快照数据格式的向后兼容性\n\n5. **UI交互完整性**：\n   - 验证快照管理器的所有按钮功能（恢复、删除、导出）\n   - 检查快照时间戳显示和排序\n   - 确认快照预览信息的准确性\n\n6. **错误处理机制**：\n   - 检查快照操作失败时的错误提示\n   - 验证异常情况下的系统稳定性\n   - 确保快照损坏时的降级处理\n\n7. **数据一致性验证**：\n   - 确认快照数据与当前脑图数据的格式一致性\n   - 验证快照恢复后的节点ID和关系完整性\n   - 检查快照中的标签和内容数据完整性\n\n我将按照这些要点全面检查快照管理系统的功能状态。",
                                   "data": {
                                     "content": "创建: 2025-09-25 01:27:40\n\n你检查代码，我点击’管‘按键打开’快照弹窗后\n1. 发现没有快照列表；（检查是否快照保存没有进行）\n2. 或者是这个快照管理页面，没有和当前重构后的快照做适配\n3. 检查“恢复快照数据到本地”的功能是否能在页面内实现。“\n\n重复上述表述。并可以适当增补合理的内容。\n\n\n\n---\n\n### 快照管理与新结构适配和回复数据的功能\n2025-09-25 01:31:09\n\n## 📋 快照管理功能检查需求确认\n\n### 🎯 快照管理问题排查：\n\n1. **快照列表显示问题**：\n   - 点击'管'按键打开快照弹窗后，**发现没有快照列表显示**\n   - 需要检查是否快照保存功能没有正常进行\n   - 排查快照创建和存储机制是否工作正常\n\n2. **快照管理页面适配问题**：\n   - 检查快照管理页面是否与**当前重构后的快照系统**做了适配\n   - 验证UI组件与后端存储系统的数据交互\n   - 确认AutogenUnifiedStorage与快照管理器的集成状态\n\n3. **快照恢复功能验证**：\n   - 检查\"**恢复快照数据到本地**\"的功能是否能在页面内正常实现\n   - 验证快照恢复后的数据同步和界面刷新\n   - 确保恢复操作不会影响当前工作状态\n\n### 🔧 补充检查要点：\n\n4. **存储系统兼容性**：\n   - 检查localStorage与AutogenUnifiedStorage的快照存储路径\n   - 验证快照索引文件的读取和更新机制\n   - 确认快照数据格式的向后兼容性\n\n5. **UI交互完整性**：\n   - 验证快照管理器的所有按钮功能（恢复、删除、导出）\n   - 检查快照时间戳显示和排序\n   - 确认快照预览信息的准确性\n\n6. **错误处理机制**：\n   - 检查快照操作失败时的错误提示\n   - 验证异常情况下的系统稳定性\n   - 确保快照损坏时的降级处理\n\n7. **数据一致性验证**：\n   - 确认快照数据与当前脑图数据的格式一致性\n   - 验证快照恢复后的节点ID和关系完整性\n   - 检查快照中的标签和内容数据完整性\n\n我将按照这些要点全面检查快照管理系统的功能状态。"
-                                  },
-                                  "background-color": "#f5f5f5",
-                                  "foreground-color": "#333"
-                                },
-                                {
-                                  "id": "97ccf941b265534c",
-                                  "topic": "检查：‘写’按键是否把所有列表项中的脑图节点都写入一个文档内",
-                                  "expanded": true,
-                                  "content": "创建: 2025-09-25 01:40:38\n\n1. 如果是覆盖，则用增量保存方法\n2. 如果是新文件，则只保存当前脑图到本地\n",
-                                  "data": {
-                                    "content": "创建: 2025-09-25 01:40:38\n\n1. 如果是覆盖，则用增量保存方法\n2. 如果是新文件，则只保存当前脑图到本地\n"
-                                  },
-                                  "background-color": "#f5f5f5",
-                                  "foreground-color": "#333"
-                                },
-                                {
-                                  "id": "97cd2d89adbfc046",
-                                  "topic": "手动保存‘写’不得覆盖JSON数据底座",
-                                  "expanded": true,
-                                  "content": "创建: 2025-09-25 01:44:16\n\n我们指定为：data/all_mindmaps.json",
-                                  "data": {
-                                    "content": "创建: 2025-09-25 01:44:16\n\n我们指定为：data/all_mindmaps.json"
                                   },
                                   "background-color": "#f5f5f5",
                                   "foreground-color": "#333"
@@ -1987,9 +1939,9 @@
                           "id": "9797f374ead7a05d",
                           "topic": "标签面板与标签数据的同步",
                           "expanded": true,
-                          "content": "创建: 2025-09-24 10:13:45\n\n1. 节点详情栏内的“标签面板”与脑图文件内的“系统标签”节点同步；",
+                          "content": "创建: 2025-09-24 10:13:45\n\n",
                           "data": {
-                            "content": "创建: 2025-09-24 10:13:45\n\n1. 节点详情栏内的“标签面板”与脑图文件内的“系统标签”节点同步；"
+                            "content": "创建: 2025-09-24 10:13:45\n\n"
                           },
                           "background-color": "#f5f5f5",
                           "foreground-color": "#333"
@@ -2022,9 +1974,9 @@
                       "id": "979816f661743d9c",
                       "topic": "关系的管理",
                       "expanded": true,
-                      "content": "创建: 2025-09-25 02:10:24\n\n",
+                      "content": "",
                       "data": {
-                        "content": "创建: 2025-09-25 02:10:24\n\n"
+                        "content": ""
                       },
                       "background-color": "#f5f5f5",
                       "foreground-color": "#333",
@@ -2230,31 +2182,6 @@
               "foreground-color": "#333"
             },
             {
-              "id": "97cebc94522ad474",
-              "topic": "工作区",
-              "expanded": true,
-              "direction": "right",
-              "content": "创建: 2025-09-25 02:10:58\n\n",
-              "data": {
-                "content": "创建: 2025-09-25 02:10:58\n\n"
-              },
-              "background-color": "#f5f5f5",
-              "foreground-color": "#333",
-              "children": [
-                {
-                  "id": "97cebedaee0bc123",
-                  "topic": "工作区按键功能修复",
-                  "expanded": true,
-                  "content": "创建: 2025-09-25 02:11:09\n\n我理解你的需求，让我重复确认一下：\n\n## 📋 工作区栏切换按键问题确认\n\n### 🎯 当前问题：\n- **\"工作区\"工作栏切换按键**点击可以打开工作区栏\n- 但是**再次点击不能关闭**工作区栏\n- 这与其他工作栏切换按键的行为不一致\n\n### 🔧 期望行为：\n- **工作区按键**的功能要与其他工作栏切换按键对齐：\n  - **列表**按键：点击打开/关闭列表栏\n  - **脑图**按键：点击打开/关闭脑图栏  \n  - **关系**按键：点击打开/关闭关系栏\n  - **详情**按键：点击打开/关闭详情栏\n\n### 🎯 需要实现：\n- **工作区按键**应该支持：\n  - **第一次点击**：打开工作区栏\n  - **再次点击**：关闭工作区栏\n  - **切换逻辑**：与其他栏位按键保持一致\n\n让我检查当前的工作区切换按键实现，找到问题所在并修复它，使其与其他工作栏切换按键的行为完全一致。\n\n这样理解是否正确？",
-                  "data": {
-                    "content": "创建: 2025-09-25 02:11:09\n\n我理解你的需求，让我重复确认一下：\n\n## 📋 工作区栏切换按键问题确认\n\n### 🎯 当前问题：\n- **\"工作区\"工作栏切换按键**点击可以打开工作区栏\n- 但是**再次点击不能关闭**工作区栏\n- 这与其他工作栏切换按键的行为不一致\n\n### 🔧 期望行为：\n- **工作区按键**的功能要与其他工作栏切换按键对齐：\n  - **列表**按键：点击打开/关闭列表栏\n  - **脑图**按键：点击打开/关闭脑图栏  \n  - **关系**按键：点击打开/关闭关系栏\n  - **详情**按键：点击打开/关闭详情栏\n\n### 🎯 需要实现：\n- **工作区按键**应该支持：\n  - **第一次点击**：打开工作区栏\n  - **再次点击**：关闭工作区栏\n  - **切换逻辑**：与其他栏位按键保持一致\n\n让我检查当前的工作区切换按键实现，找到问题所在并修复它，使其与其他工作栏切换按键的行为完全一致。\n\n这样理解是否正确？"
-                  },
-                  "background-color": "#f5f5f5",
-                  "foreground-color": "#333"
-                }
-              ]
-            },
-            {
               "id": "9665e179afe29e3b",
               "topic": "丢失节点",
               "expanded": true,
@@ -2342,8 +2269,8 @@
           ]
         }
       },
-      "last_modified": "2025-09-24T23:39:27.606Z",
-      "content_hash": "-3e1bdf6a"
+      "last_modified": "2025-09-25T03:16:52.793Z",
+      "content_hash": "2a2f1ed8"
     },
     {
       "id": "root-1758731934614-f9i2",
@@ -2595,7 +2522,7 @@
           ]
         }
       },
-      "last_modified": "2025-09-24T23:39:20.491Z",
+      "last_modified": "2025-09-25T02:51:21.656Z",
       "content_hash": "4a7f58c0"
     },
     {
@@ -2661,6 +2588,1283 @@
       },
       "last_modified": "2025-09-24T23:45:53.083Z",
       "content_hash": "-2778be20"
+    },
+    {
+      "id": "root-1758768516549-ugms",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "mind_id": "root-1758768516549-ugms"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758768516549-ugms",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T02:51:14.090Z",
+      "content_hash": "-5d9757ef"
+    },
+    {
+      "id": "root-1758768525164-8yng",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758768525164-8yng"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758768525164-8yng",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T02:48:47.982Z",
+      "content_hash": "-184f1940"
+    },
+    {
+      "id": "root-1758768549839-csg9",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758768549839-csg9"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758768549839-csg9",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T02:49:12.660Z",
+      "content_hash": "-1c612360"
+    },
+    {
+      "id": "root-1758768608991-2w69",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758768608991-2w69"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758768608991-2w69",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T02:50:11.806Z",
+      "content_hash": "5fdd0400"
+    },
+    {
+      "id": "root-1758768649579-1iro",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758768649579-1iro"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758768649579-1iro",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T02:50:52.390Z",
+      "content_hash": "7ce72280"
+    },
+    {
+      "id": "root-1758768843325-60g0",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758768843325-60g0"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758768843325-60g0",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T02:56:25.729Z",
+      "content_hash": "-303699a0"
+    },
+    {
+      "id": "root-1758769371339-i2vt",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769371339-i2vt"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769371339-i2vt",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:02:55.874Z",
+      "content_hash": "53dab220"
+    },
+    {
+      "id": "root-1758769381531-zeae",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769381531-zeae"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769381531-zeae",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:03:04.358Z",
+      "content_hash": "64bb8d40"
+    },
+    {
+      "id": "root-1758769672313-pufo",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769672313-pufo"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769672313-pufo",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:11:43.411Z",
+      "content_hash": "-36cdff80"
+    },
+    {
+      "id": "root-1758769686869-9att",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769686869-9att"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769686869-9att",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:08:09.699Z",
+      "content_hash": "-6532a420"
+    },
+    {
+      "id": "root-1758769695452-ih3c",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769695452-ih3c"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769695452-ih3c",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:08:18.275Z",
+      "content_hash": "224e6a40"
+    },
+    {
+      "id": "root-1758769704018-0jiy",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769704018-0jiy"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769704018-0jiy",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:08:26.830Z",
+      "content_hash": "-4dbc900"
+    },
+    {
+      "id": "root-1758769752600-1jof",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769752600-1jof"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769752600-1jof",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:09:15.411Z",
+      "content_hash": "16ca9b00"
+    },
+    {
+      "id": "root-1758769894711-azji",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769894711-azji"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769894711-azji",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:11:45.882Z",
+      "content_hash": "6815e0c0"
+    },
+    {
+      "id": "root-1758769932434-e3q1",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769932434-e3q1"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769932434-e3q1",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:12:18.117Z",
+      "content_hash": "-1282220"
+    },
+    {
+      "id": "root-1758769970175-7l1g",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758769970175-7l1g"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758769970175-7l1g",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:12:53.002Z",
+      "content_hash": "-27a07500"
+    },
+    {
+      "id": "root-1758770040985-zi7c",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758770040985-zi7c"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758770040985-zi7c",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:14:03.814Z",
+      "content_hash": "-29ef29e0"
+    },
+    {
+      "id": "root-1758770135561-3inb",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758770135561-3inb"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758770135561-3inb",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:15:38.393Z",
+      "content_hash": "fb9a7a0"
+    },
+    {
+      "id": "root-1758770166163-86j9",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758770166163-86j9"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758770166163-86j9",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:16:08.981Z",
+      "content_hash": "-749c4d80"
+    },
+    {
+      "id": "root-1758770204167-x0n7",
+      "name": "项目脑图",
+      "data": {
+        "meta": {
+          "name": "Project Mindmap",
+          "author": "local",
+          "version": "1.0",
+          "mind_id": "root-1758770204167-x0n7"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "root-1758770204167-x0n7",
+          "topic": "项目脑图",
+          "expanded": true,
+          "content": "# 根节点\n\n在此编写内容...",
+          "data": {
+            "content": "# 根节点\n\n在此编写内容..."
+          },
+          "background-color": "#f5f5f5",
+          "foreground-color": "#333",
+          "children": [
+            {
+              "id": "n1",
+              "topic": "需求",
+              "expanded": true,
+              "direction": "right",
+              "content": "需求说明...",
+              "data": {
+                "content": "需求说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n2",
+              "topic": "设计",
+              "expanded": true,
+              "direction": "right",
+              "content": "设计说明...",
+              "data": {
+                "content": "设计说明..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            },
+            {
+              "id": "n3",
+              "topic": "开发",
+              "expanded": true,
+              "direction": "right",
+              "content": "开发计划...",
+              "data": {
+                "content": "开发计划..."
+              },
+              "background-color": "#f5f5f5",
+              "foreground-color": "#333"
+            }
+          ]
+        }
+      },
+      "last_modified": "2025-09-25T03:16:46.982Z",
+      "content_hash": "-a756160"
     }
   ]
 }

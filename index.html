@@ -423,17 +423,23 @@
                         <div id="detail-node-id" style="font-size:12px;color:#888;margin-top:4px;">未选择节点</div>
                       </div>
 
-                      <!-- 基本信息：仅状态（创建时间已包含在内容中，面板中不再显示） -->
+                      <!-- 标签区域：标签组（左） + 标签（右） -->
                       <div class="detail-item">
-                        <h4>状态</h4>
-                        <p id="node-status">--</p>
-                        <button id="test-export-all-btn" class="mm-btn" style="margin-top: 8px;" title="测试保存全部脑图功能">测试保存全部脑图</button>
-                        <div style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
-                          💡 提示：点击"写"按钮保存所有脑图到JSON文件；点击"读"按钮会清理当前列表并导入JSON文件中的所有内容。
+                        <h4>标签</h4>
+                        <div id="tag-panel" class="tag-panel">
+                          <div class="tag-groups" id="tag-groups"></div>
+                          <div class="tag-list" id="tag-list"></div>
+                        </div>
+                        <div id="tag-panel-empty" class="tag-panel-empty" style="display:none;">未在脑图中找到"标签管理"，将显示默认标签组。</div>
+                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+                          <button id="test-export-all-btn" class="mm-btn" style="font-size: 12px;" title="测试保存全部脑图功能">保存全部脑图</button>
+                          <div style="font-size: 11px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            💡 点击"写"按钮保存所有脑图到JSON文件；点击"读"按钮会清理当前列表并导入JSON文件中的所有内容。
+                          </div>
                         </div>
                       </div>
 
-                      <!-- 2) 内容栏：Markdown 编辑器 + 阅读器（失焦自动保存） -->
+                      <!-- 内容栏：Markdown 编辑器 + 阅读器（失焦自动保存） -->
                       <div class="detail-item">
                         <h4>内容（Markdown）</h4>
                         <textarea id="detail-content-editor" placeholder="在此编写内容..." style="width:100%;height:160px;box-sizing:border-box;"></textarea>
@@ -457,15 +463,6 @@
                         </div>
                       </div>
 
-                      <!-- 3) 标签区域：标签组（左） + 标签（右） -->
-                      <div class="detail-item">
-                        <h4>标签</h4>
-                        <div id="tag-panel" class="tag-panel">
-                          <div class="tag-groups" id="tag-groups"></div>
-                          <div class="tag-list" id="tag-list"></div>
-                        </div>
-                        <div id="tag-panel-empty" class="tag-panel-empty" style="display:none;">未在脑图中找到"标签管理"，将显示默认标签组。</div>
-                      </div>
                         </div>
                     
                     <!-- 测试页面选项卡 -->
@@ -647,6 +644,21 @@
     
     <!-- 标签面板调试（临时） -->
     <script src="debug_tag_panel.js"></script>
+    
+    <!-- 标签面板位置测试（临时） -->
+    <script src="test_tag_panel_position.js"></script>
+    
+    <!-- 标签系统核心功能 -->
+    <script src="fix_refresh_function.js"></script>
+    <script src="create_system_tags.js"></script>
+    <script src="list_tag_filter.js"></script>
+    <script src="tag_interaction.js"></script>
+    
+    <!-- 标签系统测试 -->
+    <script src="test_tag_system.js"></script>
+    
+    <!-- 标签过滤演示 -->
+    <script src="demo_tag_filter.js"></script>
     
     <!-- 笔记栏功能 -->
     <script>

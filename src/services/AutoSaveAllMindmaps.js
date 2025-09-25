@@ -98,21 +98,20 @@
       if (!el) return;
       const mins = Math.max(1, Math.round(STATE.intervalMs/60000));
       const tsStr = STATE.lastTs ? new Date(STATE.lastTs).toLocaleString() : '--';
-      const cntStr = (STATE.lastTs ? String(STATE.lastCount) : '--');
       el.textContent = `自动保存：${STATE.timer?'已启动':'未启动'}\n间隔：${mins}分钟\n上次：${tsStr}\n数量：${cntStr}`;
     }catch(_){ }
   }
 
   function injectToggle(){
-    // 在“节点详情>状态”区域追加一个小按钮
-    const host = document.getElementById('node-status') || document.querySelector('#detail-container h4+ #node-status');
+    // 在"节点详情>标签"区域追加一个小状态显示
+    const host = document.getElementById('test-export-all-btn');
     const para = document.getElementById('autojson-detail-status');
     if (!host && !para) return;
     // 若状态容器不存在则创建
     if (!document.getElementById('autojson-detail-status')){
       const div = document.createElement('div');
       div.id = 'autojson-detail-status';
-      div.style.cssText = 'font-size:12px;color:#555;line-height:1.6;margin-top:4px;white-space:pre-line;';
+      div.style.cssText = 'font-size:11px;color:#555;line-height:1.4;margin-top:4px;white-space:pre-line;';
       div.textContent = '自动保存：未启动';
       const wrap = host ? host.parentElement : document.querySelector('#detail-container .detail-item:nth-child(2)');
       wrap && wrap.appendChild(div);
