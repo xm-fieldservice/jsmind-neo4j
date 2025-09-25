@@ -54,7 +54,7 @@ class NewButtonEnhancer {
                     newBtnClone.disabled = false;
                 }, 1000);
                 
-                // 创建带标签的默认数据
+                // 创建带标签的默认数据 - 只有一个根节点
                 const uid = `root-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
                 const defaultData = {
                     id: uid,
@@ -64,29 +64,7 @@ class NewButtonEnhancer {
                     data: {
                         content: '标签: 议题\n\n# 根节点\n\n在此编写内容...'
                     },
-                    children: [
-                        { 
-                            id: `${uid}-n1`, 
-                            topic: '需求', 
-                            content: '标签: 议题\n\n需求说明...',
-                            data: { content: '标签: 议题\n\n需求说明...' },
-                            children: [] 
-                        },
-                        { 
-                            id: `${uid}-n2`, 
-                            topic: '设计', 
-                            content: '标签: 议题\n\n设计说明...',
-                            data: { content: '标签: 议题\n\n设计说明...' },
-                            children: [] 
-                        },
-                        { 
-                            id: `${uid}-n3`, 
-                            topic: '开发', 
-                            content: '标签: 议题\n\n开发计划...',
-                            data: { content: '标签: 议题\n\n开发计划...' },
-                            children: [] 
-                        },
-                    ],
+                    children: []  // 空的子节点数组，只创建根节点
                 };
                 
                 // 设置数据并渲染
@@ -124,10 +102,10 @@ class NewButtonEnhancer {
                     }));
                 }
                 
-                console.log('✅ 新脑图创建完成，所有节点已包含"议题"标签');
+                console.log('✅ 新脑图创建完成，根节点已包含"议题"标签');
                 
                 // 显示成功通知
-                this.showNotification('新脑图已创建，默认包含"议题"标签', 'success');
+                this.showNotification('新脑图已创建，根节点包含"议题"标签', 'success');
                 
             } catch (error) {
                 console.error('❌ 创建新脑图失败:', error);

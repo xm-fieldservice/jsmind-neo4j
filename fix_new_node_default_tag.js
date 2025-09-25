@@ -22,32 +22,13 @@
             mc.getDefaultData = function() {
                 const uid = `root-${Date.now()}-${Math.random().toString(36).slice(2,6)}`;
                 
-                // 创建包含"议题"标签的默认数据
+                // 创建包含"议题"标签的默认数据 - 只有一个根节点
                 return {
                     id: uid,
                     label: '项目脑图',
                     content: '标签: 议题\n\n# 根节点\n\n在此编写内容...',
                     expanded: true,
-                    children: [
-                        { 
-                            id: 'n1', 
-                            label: '需求', 
-                            content: '标签: 议题\n\n需求说明...', 
-                            children: [] 
-                        },
-                        { 
-                            id: 'n2', 
-                            label: '设计', 
-                            content: '标签: 议题\n\n设计说明...', 
-                            children: [] 
-                        },
-                        { 
-                            id: 'n3', 
-                            label: '开发', 
-                            content: '标签: 议题\n\n开发计划...', 
-                            children: [] 
-                        },
-                    ],
+                    children: []  // 空的子节点数组，只创建根节点
                 };
             };
             

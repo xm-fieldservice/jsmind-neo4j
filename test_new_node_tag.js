@@ -71,9 +71,9 @@ function testNewNodeDefaultTag() {
                                     const hasTag = content.includes('标签: 议题') || content.includes('标签：议题');
                                     
                                     if (hasTag) {
-                                        resolve({ success: true, message: '新建脑图包含"议题"标签' });
+                                        resolve({ success: true, message: '新建脑图根节点包含"议题"标签' });
                                     } else {
-                                        resolve({ success: false, message: '新建脑图不包含"议题"标签' });
+                                        resolve({ success: false, message: '新建脑图根节点不包含"议题"标签' });
                                     }
                                 } else {
                                     resolve({ success: false, message: '无法获取根节点内容' });
