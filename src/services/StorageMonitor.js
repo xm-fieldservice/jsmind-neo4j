@@ -159,27 +159,8 @@ class StorageMonitor {
      */
     updateWorkspaceDisplay(health) {
         try {
-            // 更新存储大小显示
-            const storageSizeEl = document.getElementById('storage-size');
-            if (storageSizeEl) {
-                storageSizeEl.textContent = `${health.usagePercent}% (${(health.totalSize / 1024 / 1024).toFixed(2)}MB)`;
-                
-                // 根据使用率设置颜色
-                storageSizeEl.className = 'stat-value';
-                if (parseFloat(health.usagePercent) >= this.alertThresholds.critical) {
-                    storageSizeEl.classList.add('critical');
-                } else if (parseFloat(health.usagePercent) >= this.alertThresholds.warning) {
-                    storageSizeEl.classList.add('warning');
-                } else if (parseFloat(health.usagePercent) >= this.alertThresholds.caution) {
-                    storageSizeEl.classList.add('caution');
-                }
-            }
-            
-            // 更新项目数量
-            const totalProjectsEl = document.getElementById('total-projects');
-            if (totalProjectsEl) {
-                totalProjectsEl.textContent = health.itemCount;
-            }
+            // 工作区UI元素已移除，仅保留日志记录
+            console.log(`[StorageMonitor] 存储状态: ${health.usagePercent}% 使用率, ${health.itemCount}个项目, ${(health.totalSize / 1024 / 1024).toFixed(2)}MB`);
             
         } catch (error) {
             console.warn('[StorageMonitor] 更新工作区显示失败:', error);

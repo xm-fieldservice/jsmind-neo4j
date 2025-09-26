@@ -1,0 +1,100 @@
+{
+  "export_time": "2025-09-26T10:57:54.607Z",
+  "total_count": 1,
+  "mindmaps": [
+    {
+      "id": "tags_root",
+      "name": "标签管理",
+      "data": {
+        "meta": {
+          "name": "系统标签脑图",
+          "author": "system",
+          "version": "1.0"
+        },
+        "format": "node_tree",
+        "data": {
+          "id": "tags_root",
+          "topic": "标签管理",
+          "expanded": true,
+          "children": [
+            {
+              "id": "tag_group_manage",
+              "topic": "管理",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "tag_target",
+                  "topic": "目标"
+                },
+                {
+                  "id": "tag_plan",
+                  "topic": "规划"
+                },
+                {
+                  "id": "tag_project",
+                  "topic": "项目"
+                },
+                {
+                  "id": "tag_issue",
+                  "topic": "议题"
+                },
+                {
+                  "id": "tag_schedule",
+                  "topic": "日程"
+                }
+              ]
+            },
+            {
+              "id": "tag_group_review",
+              "topic": "点评",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "tag_milestone",
+                  "topic": "里程碑"
+                },
+                {
+                  "id": "tag_node",
+                  "topic": "节点"
+                },
+                {
+                  "id": "tag_difficulty",
+                  "topic": "难点"
+                }
+              ]
+            },
+            {
+              "id": "tag_group_status",
+              "topic": "状态",
+              "expanded": true,
+              "children": [
+                {
+                  "id": "tag_planning",
+                  "topic": "计划"
+                },
+                {
+                  "id": "tag_release",
+                  "topic": "发布"
+                },
+                {
+                  "id": "tag_progress",
+                  "topic": "进行"
+                },
+                {
+                  "id": "tag_accept",
+                  "topic": "验收"
+                },
+                {
+                  "id": "tag_interrupt",
+                  "topic": "中断"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "source": "localStorage",
+      "key": "mm:proj:SYS_TAGS:data"
+    }
+  ]
+}
