@@ -4792,35 +4792,25 @@ async _showMindmapSelectionDialog(mindmaps) {
     }
 
     // 获取所有脑图数据
+    // localStorage扫描功能已移除 - 统一存储后通过AutogenUnifiedStorage和Registry获取数据
     getAllMindmapsFromStorage(){
       const items = [];
       
       try{
-        this.showToast(`正在扫描localStorage中的脑图数据...`);
-        
-        // 从localStorage扫描所有脑图
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith('mm:proj:') && key.endsWith(':data')) {
-            try {
-              const raw = localStorage.getItem(key);
-              if (raw) {
-                const data = JSON.parse(raw);
-                if (data && data.data && data.data.id) {
-                  const id = data.data.id;
-                  const name = data.data.topic || data.data.label || '未命名脑图';
-                  items.push({
-                    id: id,
-                    name: name,
-                    data: data,
-                    source: 'localStorage',
-                    key: key
-                  });
-                }
+        // 从Registry获取所有注册的脑图项目
+        if (window.Registry && window.Registry.repo && window.Registry.repo.store) {
+          const projects = window.Registry.repo.store.state.projects;
+          if (projects && Array.isArray(projects)) {
+            projects.forEach(project => {
+              if (project.payload && project.payload.data) {
+                items.push({
+                  id: project.id,
+                  name: project.name || '未命名脑图',
+                  data: project.payload,
+                  source: 'registry'
+                });
               }
-            } catch(e) {
-              console.warn('解析脑图数据失败:', key, e);
-            }
+            });
           }
         }
         
@@ -4838,8 +4828,8 @@ async _showMindmapSelectionDialog(mindmaps) {
         }
         
       }catch(e){
-        console.error('扫描脑图数据失败:', e);
-        this.showToast('扫描脑图数据失败: ' + e.message, 'error');
+        console.error('获取脑图数据失败:', e);
+        this.showToast('获取脑图数据失败: ' + e.message, 'error');
       }
       
       this.showToast(`找到 ${items.length} 个脑图数据`);
@@ -5383,16 +5373,12 @@ async _showMindmapSelectionDialog(mindmaps) {
           }catch(_){ contentHash = 'unknown'; }
           const KEY='mm_project_catalog_v1';
           try{
-            const raw = localStorage.getItem(KEY);
-            const list = Array.isArray(JSON.parse(raw||'[]'))? JSON.parse(raw||'[]') : [];
+            const list = await window.AutogenUnifiedStorage.retrieve('project_list', 'projects') || [];
             const idx = list.findIndex(x=> x.content_hash === contentHash);
             if (idx >= 0){
               const removed = list.splice(idx,1);
-              if (this.autogenStorage) {
-                this.autogenStorage.store('project_list', 'projects', list).catch(() => {});
-              } else {
-                localStorage.setItem(KEY, JSON.stringify(list));
-              }
+              // 统一使用AutogenUnifiedStorage
+              await window.AutogenUnifiedStorage.store('project_list', 'projects', list);
               try{ console.log('[projects] removed', removed && removed[0] && removed[0].name); }catch(_){ }
               if (window.AutogenEventBus) {
                 window.AutogenEventBus.emit('mindmap:removed', { content_hash: contentHash });
@@ -5562,14 +5548,11 @@ async _showMindmapSelectionDialog(mindmaps) {
         if (obj && typeof obj.maxCount==='number') this._snapConfig.maxCount = Math.min(10, Math.max(1, Math.floor(obj.maxCount)));
       }catch(_){/* ignore */}
     }
-    _saveSnapshotConfig(){
+    async _saveSnapshotConfig(){
       try{
         const cfg = { intervalMs: this._snapConfig.intervalMs, maxCount: Math.min(10, Math.max(1, Math.floor(this._snapConfig.maxCount))) };
-        if (this.autogenStorage) {
-          this.autogenStorage.store('config', 'mindmap_snapshots_config', cfg).catch(() => {});
-        } else {
-          localStorage.setItem('mindmap_snapshots_config', JSON.stringify(cfg));
-        }
+        // 统一使用AutogenUnifiedStorage
+        await window.AutogenUnifiedStorage.store('config', 'mindmap_snapshots_config', cfg);
       }catch(_){/* ignore */}
     }
     async _snapshotIndex(){
@@ -5583,13 +5566,10 @@ async _showMindmapSelectionDialog(mindmaps) {
         return Array.isArray(JSON.parse(raw))? JSON.parse(raw): []; 
       }catch(_){ return []; }
     }
-    _saveSnapshotIndex(list){
+    async _saveSnapshotIndex(list){
       try{ 
-        if (this.autogenStorage) {
-          this.autogenStorage.store('snapshot', 'mindmap_snapshots_index', list).catch(() => {});
-        } else {
-          localStorage.setItem('mindmap_snapshots_index', JSON.stringify(list));
-        }
+        // 统一使用AutogenUnifiedStorage
+        await window.AutogenUnifiedStorage.store('snapshot', 'mindmap_snapshots_index', list);
       }catch(_){/* ignore */}
     }
     async takeSnapshot(){
@@ -5597,25 +5577,19 @@ async _showMindmapSelectionDialog(mindmaps) {
         // 导出当前内部数据为一份全量快照
         const payload = { ts: new Date().toISOString(), data: this.data };
         const id = `snap_${Date.now()}`;
-        if (this.autogenStorage) {
-          this.autogenStorage.store('snapshot', `mindmap_snapshot_${id}`, payload).catch(() => {});
-        } else {
-          localStorage.setItem(`mindmap_snapshot_${id}`, JSON.stringify(payload));
-        }
+        // 统一使用AutogenUnifiedStorage
+        await window.AutogenUnifiedStorage.store('snapshot', `mindmap_snapshot_${id}`, payload);
         // 更新索引并裁剪
         const idx = await this._snapshotIndex();
         idx.unshift({ id, ts: payload.ts });
         const maxN = Math.min(10, Math.max(1, Math.floor(this._snapConfig.maxCount || 5)));
         const drop = idx.splice(maxN);
-        this._saveSnapshotIndex(idx);
+        await this._saveSnapshotIndex(idx);
         // 删除溢出快照
         drop.forEach(x=>{ 
           try{ 
-            if (this.autogenStorage) {
-              this.autogenStorage.remove('snapshot', `mindmap_snapshot_${x.id}`).catch(() => {});
-            } else {
-              localStorage.removeItem(`mindmap_snapshot_${x.id}`);
-            }
+            // 统一使用AutogenUnifiedStorage删除
+            window.AutogenUnifiedStorage.remove('snapshot', `mindmap_snapshot_${x.id}`).catch(() => {});
           }catch(_){/* ignore */} 
         });
         this.showToast('已创建快照');
