@@ -9,9 +9,8 @@
       this.rootId = null; // 根ID
       this.perMindStorageKey = null; // 根据根ID动态生成的存储键
 
-      // JSON底座增量同步相关
-      this._jsonBaseSyncTimer = null; // 同步防抖定时器
-      this._lastJsonBaseHash = null; // 上次同步的数据哈希
+      // 初始化数据管理器
+      this._initDataManager();
 
       // 初始化持久化管理器（异步）
       this._initPersistenceManager();
@@ -59,13 +58,30 @@
       this.init().catch(err => console.error('[MindmapController] 初始化失败:', err));
       
       // 绑定测试按钮
-      this.bindTestButtons();
-      
       // 启动定时快照
       try { this.startSnapshotScheduler(); } catch(_) { /* ignore */ }
     }
 
-    // 初始化存储系统（简化版 - 只使用AutogenUnifiedStorage）
+    // 初始化数据管理器
+    _initDataManager() {
+      try {
+        // 等待MindmapDataManager加载
+        if (typeof window.MindmapDataManager !== 'undefined') {
+          this.dataManager = new window.MindmapDataManager({
+            storage: window.AutogenUnifiedStorage,
+            eventBus: window.AutogenEventBus
+          });
+          console.log('[MindmapController] ✅ 数据管理器初始化成功');
+        } else {
+          // 延迟初始化
+          setTimeout(() => this._initDataManager(), 100);
+        }
+      } catch (error) {
+        console.error('[MindmapController] 数据管理器初始化失败:', error);
+        this.dataManager = null;
+      }
+    }
+
     async _initPersistenceManager() {
       try {
         // 使用AutogenUnifiedStorage统一存储系统
