@@ -589,7 +589,7 @@
       this.wireContextMenu();
       this.wireKeyboardShortcuts();
       this.wireBeforeUnload();
-      this._applyEditorSizeFromStorage();
+      this._applyEditorSizeFromStorage().catch(err => console.error('编辑器尺寸加载失败:', err));
       this.wireContentEditorResizePersistence();
       this._initLogPanelControls();
       
@@ -2332,7 +2332,11 @@ try{
       // 白名单：localStorage持久化的来源集合
       let wl = (typeof window!=='undefined' && window.SAVE_WHITELIST);
       if (!(wl instanceof Set)){
-        try{ const raw=localStorage.getItem('save_whitelist'); wl = new Set(Array.isArray(JSON.parse(raw))? JSON.parse(raw): []); window.SAVE_WHITELIST = wl; }catch(_){ wl = new Set(); window.SAVE_WHITELIST = wl; }
+        try{ 
+          const whitelistData = await window.AutogenUnifiedStorage.retrieve('config', 'save_whitelist');
+          wl = new Set(Array.isArray(whitelistData) ? whitelistData : []); 
+          window.SAVE_WHITELIST = wl; 
+        }catch(_){ wl = new Set(); window.SAVE_WHITELIST = wl; }
       }
       if (wl.has(src)){
         allowed = true;
@@ -2346,11 +2350,8 @@ try{
             if (remember){
               try{ 
                 wl.add(src); 
-                if (this.autogenStorage) {
-                  this.autogenStorage.store('config', 'save_whitelist', Array.from(wl)).catch(() => {});
-                } else {
-                  localStorage.setItem('save_whitelist', JSON.stringify(Array.from(wl)));
-                }
+                // 统一使用AutogenUnifiedStorage
+                await window.AutogenUnifiedStorage.store('config', 'save_whitelist', Array.from(wl));
               }catch(_){ }
             }
           }
@@ -5048,7 +5049,7 @@ async _showMindmapSelectionDialog(mindmaps) {
     }
 
     // —— 内容编辑器大小持久化 ——
-    _applyEditorSizeFromStorage(){
+    async _applyEditorSizeFromStorage(){
       const el = this.dom.contentEditor;
       if (!el) return;
       try{
@@ -5056,24 +5057,20 @@ async _showMindmapSelectionDialog(mindmaps) {
         el.style.resize = 'both';
         el.style.minWidth = '200px';
         el.style.minHeight = '120px';
-        const raw = localStorage.getItem('detail_content_editor_size');
-        if (!raw) return;
-        const size = JSON.parse(raw);
+        const size = await window.AutogenUnifiedStorage.retrieve('ui_state', 'detail_content_editor_size');
+        if (!size) return;
         if (size && typeof size.width === 'number' && typeof size.height === 'number'){
           el.style.width = `${size.width}px`;
           el.style.height = `${size.height}px`;
         }
       }catch(_){}
     }
-    _persistEditorSize(width, height){
+    async _persistEditorSize(width, height){
       try{
         const w = Math.max(200, Math.min(2000, Math.floor(width||0)));
         const h = Math.max(120, Math.min(2000, Math.floor(height||0)));
-        if (this.autogenStorage) {
-          this.autogenStorage.store('ui_state', 'detail_content_editor_size', {width:w, height:h}).catch(() => {});
-        } else {
-          localStorage.setItem('detail_content_editor_size', JSON.stringify({width:w, height:h}));
-        }
+        // 统一使用AutogenUnifiedStorage
+        await window.AutogenUnifiedStorage.store('ui_state', 'detail_content_editor_size', {width:w, height:h});
       }catch(_){}
     }
     wireContentEditorResizePersistence(){
@@ -5086,7 +5083,7 @@ async _showMindmapSelectionDialog(mindmaps) {
           if (!rect) return;
           clearTimeout(this._editorResizeTimer);
           this._editorResizeTimer = setTimeout(()=>{
-            this._persistEditorSize(rect.width, rect.height);
+            this._persistEditorSize(rect.width, rect.height).catch(err => console.error('编辑器尺寸保存失败:', err));
           }, 150);
         });
         ro.observe(el);
@@ -5095,7 +5092,7 @@ async _showMindmapSelectionDialog(mindmaps) {
         // 回退：在 mouseup 时记录一次
         const handler = ()=>{
           const r = el.getBoundingClientRect();
-          this._persistEditorSize(r.width, r.height);
+          this._persistEditorSize(r.width, r.height).catch(err => console.error('编辑器尺寸保存失败:', err));
         };
         el.addEventListener('mouseup', handler);
         el.addEventListener('mouseleave', handler);
