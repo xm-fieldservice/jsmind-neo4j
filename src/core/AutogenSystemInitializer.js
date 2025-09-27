@@ -276,10 +276,10 @@ class AutogenSystemInitializer {
         this.logInfo('开始数据迁移');
         
         try {
-            // 创建迁移工具
-            this.systemComponents.migrationTool = new window.StorageMigrationTool(
-                this.systemComponents.storage
-            );
+            // 迁移工具已完成历史使命，不再需要
+            // this.systemComponents.migrationTool = new window.StorageMigrationTool(
+            //     this.systemComponents.storage
+            // );
             
             // 检查是否需要迁移
             const needsMigration = await this.checkMigrationNeeded();

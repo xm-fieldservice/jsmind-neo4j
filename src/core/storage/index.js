@@ -3,10 +3,11 @@
  * 支持双模式运行：简化存储 + 注册式存储
  */
 
-import SimpleStorageManager from './SimpleStorageManager.js';
+// 移除冗余存储管理器，统一使用AutogenUnifiedStorage
+// import SimpleStorageManager from './SimpleStorageManager.js';
 import SimpleDataValidator from './SimpleDataValidator.js';
 import StorageRegistry from './StorageRegistry.js';
-import FormalStorageManager from './FormalStorageManager.js';
+// import FormalStorageManager from './FormalStorageManager.js';
 import StorageMigrator from './StorageMigrator.js';
 import { registerDefaultTypes } from './DefaultStorageTypes.js';
 
@@ -26,8 +27,8 @@ async function initializeStorage(options = {}) {
     try {
         console.log('[Storage] 开始初始化双模式存储系统...');
 
-        // 1. 初始化简化存储系统（向后兼容）
-        const legacyStorage = new SimpleStorageManager();
+        // 1. 使用AutogenUnifiedStorage替代简化存储系统
+        const legacyStorage = window.AutogenUnifiedStorage || null;
         const legacyValidator = new SimpleDataValidator();
         
         let formalStorage = null;
@@ -45,8 +46,8 @@ async function initializeStorage(options = {}) {
                 const registrationResult = registerDefaultTypes(registry);
                 console.log(`[Storage] 默认类型注册: 成功 ${registrationResult.success}, 失败 ${registrationResult.failed}`);
                 
-                // 创建制式化存储管理器
-                formalStorage = new FormalStorageManager(registry);
+                // 使用AutogenUnifiedStorage替代制式化存储管理器
+                formalStorage = window.AutogenUnifiedStorage || null;
                 
                 // 创建迁移工具
                 migrator = new StorageMigrator(formalStorage, registry);
@@ -170,7 +171,7 @@ async function migrateToFormalStorage(options = {}) {
         const registry = new StorageRegistry();
         registerDefaultTypes(registry);
         
-        const formalStorage = new FormalStorageManager(registry);
+        const formalStorage = window.AutogenUnifiedStorage || null;
         const migrator = new StorageMigrator(formalStorage, registry);
         
         // 执行迁移
@@ -359,7 +360,7 @@ if (typeof window !== 'undefined') {
     window.SimpleStorageManager = SimpleStorageManager;
     window.SimpleDataValidator = SimpleDataValidator;
     window.StorageRegistry = StorageRegistry;
-    window.FormalStorageManager = FormalStorageManager;
+    // window.FormalStorageManager = FormalStorageManager; // 已删除，使用AutogenUnifiedStorage
     window.StorageMigrator = StorageMigrator;
 
     window.initializeStorage = initializeStorage;

@@ -355,9 +355,9 @@
         return global.AutogenEventBus;
     }, { required: true });
     
-    dm.register('StorageMigrationTool', ['AutogenUnifiedStorage'], () => {
-        return global.StorageMigrationTool;
-    }, { required: false });
+    // dm.register('StorageMigrationTool', ['AutogenUnifiedStorage'], () => {
+    //     return global.StorageMigrationTool;
+    // }, { required: false }); // 迁移完成，已删除
     
     dm.register('Registry', ['AutogenUnifiedStorage', 'AutogenEventBus'], () => {
         return global.Registry;
