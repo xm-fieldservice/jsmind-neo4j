@@ -10,7 +10,12 @@
       var eventBus = global.GlobalEventBus || global.EventBus || {
         emit: function(event, data) {
           try {
-            window.dispatchEvent(new CustomEvent(event, { detail: data }));
+            // 统一事件发射：优先使用AutogenEventBus
+            if (window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function') {
+              window.AutogenEventBus.emit(event, data);
+            } else {
+              window.dispatchEvent(new CustomEvent(event, { detail: data }));
+            }
           } catch (e) {
             console.warn('[RegistryBoot] 事件发送失败:', e);
           }

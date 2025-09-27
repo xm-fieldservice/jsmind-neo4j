@@ -5,7 +5,7 @@
   class MindmapController {
     constructor() {
       this.containerId = 'mindmap-container';
-      this.localStorageKey = 'mindmap_data_v1'; // 兼容原有 Key（将按根ID动态重写）
+      this.storageKey = 'mindmap_data_v1'; // 统一存储键（将按根ID动态重写）
       this.rootId = null; // 根ID
       this.perMindStorageKey = null; // 根据根ID动态生成的存储键
 
@@ -153,10 +153,10 @@
       }
       
       try {
-        const success = await this.autogenStorage.store('mindmap', this.localStorageKey, jmData);
+        const success = await this.autogenStorage.store('mindmap', this.storageKey, jmData);
         if (success) {
           if (Math.random() < 0.1) { // 仅10%概率输出日志
-            console.log('[MindmapController] ✅ 已保存到AutogenUnifiedStorage:', this.localStorageKey);
+            console.log('[MindmapController] ✅ 已保存到AutogenUnifiedStorage:', this.storageKey);
           }
           return true;
         } else {
@@ -353,11 +353,7 @@
       this.scheduleAutoFit();
       // 广播渲染完成事件（供注册管理器自举）
       try{ 
-        if (window.AutogenEventBus) {
-          window.AutogenEventBus.emit('mindmap:rendered', { data: this.data });
-        } else {
-          window.dispatchEvent(new CustomEvent('mindmap:rendered', { detail: { data: this.data } }));
-        }
+        this._emitEvent('mindmap:rendered', { data: this.data });
       }catch(_){ }
     }
     // 确保拖拽已启用（仅原生拖拽；不启用软拖拽回退）
@@ -662,7 +658,7 @@
         this.ensureFullSnapshotFromMind(saved);
         this.ensureDragEnabled();
         console.log('[MindmapController] 已从本地存储加载脑图 (format=%s)', saved.format);
-        try{ console.log('[PERSIST][LOAD] legacy ->', { legacyKey: this.localStorageKey }); }catch(_){ }
+        try{ console.log('[PERSIST][LOAD] legacy ->', { legacyKey: this.storageKey }); }catch(_){ }
         // 渲染后应用默认颜色和标签面板等后续步骤
         // 同步内部数据结构，保持与 jsMind 一致
         this.syncJsMindToData();
@@ -833,11 +829,7 @@
       this.scheduleAutoFit();
       // 广播渲染完成事件（供注册管理器自举）
       try{ 
-        if (window.AutogenEventBus) {
-          window.AutogenEventBus.emit('mindmap:rendered', { data: this.data });
-        } else {
-          window.dispatchEvent(new CustomEvent('mindmap:rendered', { detail: { data: this.data } }));
-        }
+        this._emitEvent('mindmap:rendered', { data: this.data });
       }catch(_){ }
     }
 
@@ -2299,7 +2291,7 @@
         }
         
         try {
-          const data = await this.autogenStorage.retrieve('mindmap', this.localStorageKey);
+          const data = await this.autogenStorage.retrieve('mindmap', this.storageKey);
           if (data) {
             console.log('[MindmapController] ✅ 使用AutogenUnifiedStorage加载成功');
             if (data.format === 'node_tree' && data.data) {
@@ -2386,7 +2378,7 @@
         
         // 降低保存日志频率，避免噪音
         if (Math.random() < 0.1) { // 仅10%概率输出日志
-          console.log('[MindmapController] 已保存到localStorage:', this.localStorageKey);
+          console.log('[MindmapController] 已保存到统一存储:', this.storageKey);
         }
         
         // MD文档自动保存已禁用 - 避免频繁备份
@@ -2414,7 +2406,7 @@
         try{
           const sz = (o)=>{ try{ return JSON.stringify(o).length; }catch(_){ return 0; } };
           console.log('[PERSIST][SAVE] done ->', {
-            perKey: this.localStorageKey,
+            perKey: this.storageKey,
             mind_id: mindKey,
             storage_method: 'localStorage'
           });
@@ -4526,7 +4518,7 @@
                     format: 'node_tree',
                     data: this.toJsMindTree(data)
                   };
-                  await this.autogenStorage.store('mindmap', this.localStorageKey, jmData);
+                  await this.autogenStorage.store('mindmap', this.storageKey, jmData);
                   console.log('[加载] 数据已同步到AutogenUnifiedStorage');
                 } else {
                   // 回退到常规保存方法
@@ -4553,14 +4545,12 @@
                   });
                   console.log('[加载] 已通过AutogenEventBus触发数据加载事件');
                 } else {
-                  window.dispatchEvent(new CustomEvent('mindmap:dataLoaded', {
-                    detail: { 
-                      source: 'import',
-                      projectId: firstProject.id,
-                      projectName: firstProject.name,
-                      data: data
-                    }
-                  }));
+                  this._emitEvent('mindmap:dataLoaded', {
+                    source: 'import',
+                    projectId: firstProject.id,
+                    projectName: firstProject.name,
+                    data: data
+                  });
                   console.log('[加载] 已通过CustomEvent触发数据加载事件');
                 }
               } catch (error) {
@@ -5123,11 +5113,7 @@ async _showMindmapSelectionDialog(mindmaps) {
           } else {
             // 最后回退：广播事件，供外部兜底监听
             try { 
-              if (window.AutogenEventBus) {
-                window.AutogenEventBus.emit('mindmap:imported', { name, payload, source:'new' });
-              } else {
-                window.dispatchEvent(new CustomEvent('mindmap:imported', { detail:{ name, payload, source:'new' } }));
-              }
+              this._emitEvent('mindmap:imported', { name, payload, source:'new' });
             } catch(_){ }
           }
           // 视图切换到“脑图”
@@ -5408,11 +5394,7 @@ async _showMindmapSelectionDialog(mindmaps) {
               // 统一使用AutogenUnifiedStorage
               await window.AutogenUnifiedStorage.store('project_list', 'projects', list);
               try{ console.log('[projects] removed', removed && removed[0] && removed[0].name); }catch(_){ }
-              if (window.AutogenEventBus) {
-                window.AutogenEventBus.emit('mindmap:removed', { content_hash: contentHash });
-              } else {
-                window.dispatchEvent(new CustomEvent('mindmap:removed', { detail: { content_hash: contentHash } }));
-              }
+              this._emitEvent('mindmap:removed', { content_hash: contentHash });
               this.showToast('已从列表中移除');
             } else {
               this.showToast('列表中未找到该脑图');
@@ -5776,6 +5758,20 @@ async _showMindmapSelectionDialog(mindmaps) {
     this._toastTimer = setTimeout(() => {
       toast.style.display = 'none';
     }, 2000);
+  };
+
+  // 统一事件发射方法
+  MindmapController.prototype._emitEvent = function(eventName, data) {
+    try {
+      if (window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function') {
+        window.AutogenEventBus.emit(eventName, data);
+      } else {
+        // 回退到原生事件系统
+        window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
+      }
+    } catch (error) {
+      console.warn('[MindmapController] 事件发射失败:', eventName, error);
+    }
   };
   
   // 暴露到全局，保持与原脚本兼容

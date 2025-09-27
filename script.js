@@ -1742,7 +1742,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             // 若是系统标签脑图，广播变化
                             try{
                                 if (it && it.pid === 'SYS_TAGS'){
-                                    window.dispatchEvent(new CustomEvent('tags:system_pack_changed'));
+                                    // 统一事件发射
+                                    if (window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function') {
+                                        window.AutogenEventBus.emit('tags:system_pack_changed');
+                                    } else {
+                                        window.dispatchEvent(new CustomEvent('tags:system_pack_changed'));
+                                    }
                                 }
                             }catch(_){ }
                             
