@@ -54,12 +54,17 @@ class AutogenUnifiedStorage {
             misses: 0,
             errors: 0,
             cleanups: 0,
-            migrations: 0
+            migrations: 0,
+            jsonBaseSyncs: 0,
+            jsonBaseSyncErrors: 0
         };
         
         // 数据版本管理
         this.currentVersion = '2.0.0';
         this.migrationChain = new Map();
+        
+        // 记录初始化时间
+        this.initTime = Date.now();
         
         // 初始化
         this.initialize();
@@ -112,6 +117,11 @@ class AutogenUnifiedStorage {
             
             // 异步存储到持久层
             await this.persistToStorage(storageKey, storageItem);
+            
+            // JSON底座同步（如果启用）
+            if (options.syncToJsonBase !== false) {
+                this.syncToJsonBase(type, key, data, options).catch(() => {}); // 异步，不阻塞主流程
+            }
             
             this.stats.writes++;
             console.log(`[AutogenUnifiedStorage] 存储成功: ${storageKey}`);
@@ -847,6 +857,216 @@ class AutogenUnifiedStorage {
         const totalHits = this.stats.hits.memory + this.stats.hits.localStorage + this.stats.hits.indexedDB;
         const totalRequests = totalHits + this.stats.misses;
         return totalRequests > 0 ? (totalHits / totalRequests) * 100 : 0;
+    }
+    
+    /**
+     * JSON底座同步功能
+     * @param {string} type - 数据类型
+     * @param {string} key - 存储键
+     * @param {*} data - 数据
+     * @param {Object} options - 选项
+     */
+    async syncToJsonBase(type, key, data, options = {}) {
+        try {
+            // 检查是否有JSON底座API
+            if (typeof window === 'undefined' || !window.fetch) {
+                console.warn('[AutogenUnifiedStorage] JSON底座同步跳过：环境不支持');
+                return;
+            }
+            
+            const syncData = {
+                type,
+                key,
+                data,
+                timestamp: Date.now(),
+                source: 'AutogenUnifiedStorage',
+                version: this.currentVersion,
+                metadata: {
+                    storageKey: this.createStorageKey(type, key),
+                    dataSize: JSON.stringify(data).length,
+                    options: options
+                }
+            };
+            
+            // 尝试调用JSON底座API
+            const response = await fetch('/api/json-base/sync', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Storage-Source': 'AutogenUnifiedStorage'
+                },
+                body: JSON.stringify(syncData)
+            });
+            
+            if (response.ok) {
+                this.stats.jsonBaseSyncs++;
+                console.log(`[AutogenUnifiedStorage] JSON底座同步成功: ${type}:${key}`);
+            } else {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+        } catch (error) {
+            this.stats.jsonBaseSyncErrors++;
+            console.warn(`[AutogenUnifiedStorage] JSON底座同步失败: ${type}:${key}`, error.message);
+            
+            // 降级：尝试使用现有的JSON底座同步机制
+            try {
+                if (window.mindmapController && window.mindmapController._syncToJsonBase) {
+                    await window.mindmapController._syncToJsonBase(data, key);
+                    this.stats.jsonBaseSyncs++;
+                    console.log(`[AutogenUnifiedStorage] JSON底座降级同步成功: ${type}:${key}`);
+                }
+            } catch (fallbackError) {
+                console.warn(`[AutogenUnifiedStorage] JSON底座降级同步也失败: ${type}:${key}`, fallbackError.message);
+            }
+        }
+    }
+    
+    /**
+     * 批量存储操作
+     * @param {Array} operations - 操作数组 [{type, key, data, options}, ...]
+     */
+    async batchStore(operations) {
+        const results = [];
+        const startTime = Date.now();
+        
+        for (const op of operations) {
+            try {
+                const result = await this.store(op.type, op.key, op.data, op.options);
+                results.push({ 
+                    success: true, 
+                    type: op.type,
+                    key: op.key,
+                    result 
+                });
+            } catch (error) {
+                results.push({ 
+                    success: false, 
+                    type: op.type,
+                    key: op.key,
+                    error: error.message 
+                });
+            }
+        }
+        
+        const duration = Date.now() - startTime;
+        console.log(`[AutogenUnifiedStorage] 批量存储完成: ${operations.length}个操作，耗时${duration}ms`);
+        
+        return results;
+    }
+    
+    /**
+     * 批量读取操作
+     * @param {Array} requests - 请求数组 [{type, key}, ...]
+     */
+    async batchRetrieve(requests) {
+        const results = [];
+        const startTime = Date.now();
+        
+        for (const req of requests) {
+            try {
+                const data = await this.retrieve(req.type, req.key);
+                results.push({ 
+                    success: true, 
+                    type: req.type,
+                    key: req.key,
+                    data 
+                });
+            } catch (error) {
+                results.push({ 
+                    success: false, 
+                    type: req.type,
+                    key: req.key,
+                    error: error.message 
+                });
+            }
+        }
+        
+        const duration = Date.now() - startTime;
+        console.log(`[AutogenUnifiedStorage] 批量读取完成: ${requests.length}个请求，耗时${duration}ms`);
+        
+        return results;
+    }
+    
+    /**
+     * 按类型查询所有数据
+     * @param {string} type - 数据类型
+     * @param {Object} filter - 过滤条件
+     */
+    async queryByType(type, filter = {}) {
+        const results = [];
+        const startTime = Date.now();
+        
+        // 从内存缓存查询
+        for (const [cacheKey, item] of this.memoryCache) {
+            if (cacheKey.startsWith(`${type}:`)) {
+                if (this.matchesFilter(item.data, filter)) {
+                    results.push({
+                        key: cacheKey.replace(`${type}:`, ''),
+                        data: item.data,
+                        source: 'memory',
+                        timestamp: item.timestamp
+                    });
+                }
+            }
+        }
+        
+        // 从localStorage查询（如果内存中没有）
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(`autogen_${type}:`)) {
+                    const cacheKey = key.replace('autogen_', '');
+                    if (!this.memoryCache.has(cacheKey)) {
+                        const raw = localStorage.getItem(key);
+                        if (raw) {
+                            const item = JSON.parse(raw);
+                            if (this.matchesFilter(item.data, filter)) {
+                                results.push({
+                                    key: cacheKey.replace(`${type}:`, ''),
+                                    data: item.data,
+                                    source: 'localStorage',
+                                    timestamp: item.timestamp
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn(`[AutogenUnifiedStorage] localStorage查询失败: ${type}`, error);
+        }
+        
+        const duration = Date.now() - startTime;
+        console.log(`[AutogenUnifiedStorage] 类型查询完成: ${type}，找到${results.length}条记录，耗时${duration}ms`);
+        
+        return results;
+    }
+    
+    /**
+     * 条件过滤匹配
+     * @param {*} data - 数据
+     * @param {Object} filter - 过滤条件
+     */
+    matchesFilter(data, filter) {
+        for (const [key, value] of Object.entries(filter)) {
+            if (data[key] !== value) return false;
+        }
+        return true;
+    }
+    
+    /**
+     * 获取详细性能报告
+     */
+    getPerformanceReport() {
+        return {
+            ...this.stats,
+            cacheHitRate: this.calculateHitRate(),
+            memoryUsage: this.memoryCache.size,
+            jsonBaseSyncSuccessRate: this.stats.jsonBaseSyncs / (this.stats.jsonBaseSyncs + this.stats.jsonBaseSyncErrors || 1),
+            errorRate: this.stats.errors / (this.stats.reads + this.stats.writes || 1),
+            uptime: Date.now() - (this.initTime || Date.now())
+        };
     }
 }
 
