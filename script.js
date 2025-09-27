@@ -1,12 +1,12 @@
         // 全局常量与助手：供早期函数与目录逻辑共用
         const CKEY = 'mm_project_catalog_v1';
-        const loadCatalog = ()=>{
+        const loadCatalog = async ()=>{
             try{
-                const raw = localStorage.getItem(CKEY);
-                return raw ? JSON.parse(raw) : [];
+                const raw = await window.AutogenUnifiedStorage.retrieve('catalog', CKEY);
+                return raw ? raw : [];
             }catch(_){ return []; }
         };
-        const saveCatalog = (list)=>{ try{ localStorage.setItem(CKEY, JSON.stringify(list)); }catch(_){ } };
+        const saveCatalog = async (list)=>{ try{ await window.AutogenUnifiedStorage.store('catalog', CKEY, list); }catch(_){ } };
         const computeHash = (text)=>{
             try{
                 let h = 0; for (let i=0;i<text.length;i++){ h = (h*31 + text.charCodeAt(i))|0; }
@@ -115,25 +115,24 @@
                 }
             };
         }
-        function ensureSystemTagsStorage(){
+        async function ensureSystemTagsStorage(){
             try{
                 const key = 'mm:proj:SYS_TAGS:data';
-                const raw = localStorage.getItem(key);
+                const raw = await window.AutogenUnifiedStorage.retrieve('system', key);
                 if (!raw){
                     const pack = buildSystemTagsTemplate();
-                    localStorage.setItem(key, JSON.stringify(pack));
+                    await window.AutogenUnifiedStorage.store('system', key, pack);
                     try{ console.debug('[SYS_TAGS] initialized storage'); }catch(_){ }
                 }
             }catch(_){ }
         }
-        function ensureSystemTagsInCatalog(){
+        async function ensureSystemTagsInCatalog(){
             try{
-                ensureSystemTagsStorage();
-                const list = loadCatalog();
+                await ensureSystemTagsStorage();
+                const list = await loadCatalog();
                 let idx = list.findIndex(it=> it && it.pid === 'SYS_TAGS');
                 if (idx === -1){
-                    const sysPackRaw = localStorage.getItem('mm:proj:SYS_TAGS:data');
-                    const pack = sysPackRaw ? JSON.parse(sysPackRaw) : buildSystemTagsTemplate();
+                    const pack = await window.AutogenUnifiedStorage.retrieve('system', 'mm:proj:SYS_TAGS:data') || buildSystemTagsTemplate();
                     const sysItem = {
                         pid: 'SYS_TAGS', id: 'tags_root', name: '系统标签脑图',
                         is_system: true, undeletable: true,
@@ -142,26 +141,24 @@
                     };
                     // 插到列表首位
                     list.unshift(sysItem);
-                    saveCatalog(list);
+                    await saveCatalog(list);
                     try{ console.debug('[SYS_TAGS] injected into catalog'); }catch(_){ }
                 }
             }catch(_){ }
         }
 
         // 验证并修复系统标签包（根必须为“标签管理”）。
-        function validateAndRepairSystemTags(){
+        async function validateAndRepairSystemTags(){
             try{
                 const key = 'mm:proj:SYS_TAGS:data';
-                const raw = localStorage.getItem(key);
-                let pack = raw ? JSON.parse(raw) : null;
+                let pack = await window.AutogenUnifiedStorage.retrieve('system', key);
                 const ok = !!(pack && pack.data && (pack.data.topic === '标签管理'));
                 if (ok){ return true; }
                 // 先尝试从备份恢复
                 try{
-                    const bakRaw = localStorage.getItem('mm:proj:SYS_TAGS:backup');
-                    const bak = bakRaw ? JSON.parse(bakRaw) : null;
+                    const bak = await window.AutogenUnifiedStorage.retrieve('system', 'mm:proj:SYS_TAGS:backup');
                     if (bak && bak.data && bak.data.topic === '标签管理'){
-                        localStorage.setItem(key, JSON.stringify(bak));
+                        await window.AutogenUnifiedStorage.store('system', key, bak);
                         try{ logList('SYS_TAGS recovered from backup'); }catch(_){ }
                         return true;
                     }
@@ -169,8 +166,8 @@
                 // 用模板重建
                 try{
                     const tpl = buildSystemTagsTemplate();
-                    localStorage.setItem(key, JSON.stringify(tpl));
-                    localStorage.setItem('mm:proj:SYS_TAGS:backup', JSON.stringify(tpl));
+                    await window.AutogenUnifiedStorage.store('system', key, tpl);
+                    await window.AutogenUnifiedStorage.store('system', 'mm:proj:SYS_TAGS:backup', tpl);
                     try{ logList('SYS_TAGS rebuilt from template'); }catch(_){ }
                     return true;
                 }catch(_){ }
@@ -206,17 +203,17 @@
         }
 
         // 全局渲染函数：供任何模块调用刷新左侧项目目录
-        function renderCatalog(){
+        async function renderCatalog(){
             try{
                 const $catalog = document.getElementById('project-catalog');
                 if (!$catalog) return;
                 // 确保系统项存在
-                ensureSystemTagsInCatalog();
-                const list = loadCatalog();
+                await ensureSystemTagsInCatalog();
+                const list = await loadCatalog();
                 $catalog.innerHTML = '';
                 const SEL_KEY = 'mm_project_catalog_selected_idx';
                 let selectedIdx = -1;
-                try{ const rawSel = localStorage.getItem(SEL_KEY); if (rawSel!=null) selectedIdx = parseInt(rawSel,10); }catch(_){ }
+                try{ const rawSel = await window.AutogenUnifiedStorage.retrieve('ui', SEL_KEY); if (rawSel!=null) selectedIdx = parseInt(rawSel,10); }catch(_){ }
                 if (!Array.isArray(list) || !list.length){
                     const li = document.createElement('li');
                     li.textContent = '暂无项目（通过“导入脑图”添加）';
@@ -264,7 +261,7 @@ function logList(message, data){
 }
 
 // 将当前脑图导出并写回左侧列表中“激活”的卡片（若存在）
-const saveCurrentMindToActiveCard = ()=>{
+const saveCurrentMindToActiveCard = async ()=>{
     try{
         const mc = window.mindmapController;
         const $catalog = document.getElementById('project-catalog');
@@ -275,7 +272,7 @@ const saveCurrentMindToActiveCard = ()=>{
         const content_hash = computeHash(JSON.stringify(pack.data));
         const activeCard = $catalog.querySelector('.proj-card.active');
         if (!activeCard) return;
-        const list = loadCatalog();
+        const list = await loadCatalog();
         let idx = findIndexForCard(list, activeCard);
         if (idx < 0){
             try{
@@ -295,15 +292,15 @@ const saveCurrentMindToActiveCard = ()=>{
                 updatedAt: Date.now(),
                 content_hash
             });
-            saveCatalog(list);
+            await saveCatalog(list);
             try{ const t = activeCard.querySelector('.proj-title'); if (t && rootTitle) t.textContent = rootTitle; }catch(_){ }
 
             // 将控制器保存的 legacy per-mind 键镜像到 namespaced per-mind 键，避免 id 冲突
             try{
                 const legacyKey = `mm:${pack.data && pack.data.id || 'root'}:data`;
                 const namespacedKey = `mm:proj:${pid}:data`;
-                const raw = localStorage.getItem(legacyKey);
-                if (raw) localStorage.setItem(namespacedKey, raw);
+                const raw = await window.AutogenUnifiedStorage.retrieve('legacy', legacyKey);
+                if (raw) await window.AutogenUnifiedStorage.store('project', namespacedKey, raw);
             }catch(_){ }
         }
     }catch(_){ }
@@ -1051,26 +1048,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!window.__mindFullCache) window.__mindFullCache = null; // {meta, format, data: node_tree} 或 {data: node_tree}
         const LS_KEY_FULL = '__mind_full_cache_v1';
 
-        const tryInitFullCache = ()=>{
+        const tryInitFullCache = async ()=>{
             try{
                 if (window.__mindFullCache) return;
                 const mc = window.mindmapController;
                 if (!mc || !mc.mind || typeof mc.mind.get_data !== 'function') return;
-                const capture = ()=>{
+                const capture = async ()=>{
                     try{
                         const pack = mc.mind.get_data('node_tree');
                         if (pack && pack.data && pack.data.id){
                             const snap = { meta: {}, format: 'node_tree', data: deepClone(pack.data) };
                             // 若本地尚无持久化全图，则写入
                             if (!window.__mindFullCache) window.__mindFullCache = snap;
-                            try{ if (!localStorage.getItem(LS_KEY_FULL)) localStorage.setItem(LS_KEY_FULL, JSON.stringify(snap)); }catch(_){ }
+                            const existing = await window.AutogenUnifiedStorage.retrieve('cache', LS_KEY_FULL);
+                            if (!existing) await window.AutogenUnifiedStorage.store('cache', LS_KEY_FULL, snap);
                         }
                     }catch(_){ }
                 };
                 // 立即尝试一次，并在短延时后重试，确保初次全图渲染完成
                 capture();
-                setTimeout(capture, 150);
-                setTimeout(capture, 400);
+                setTimeout(() => capture(), 150);
+                setTimeout(() => capture(), 400);
             }catch(_){/* ignore */}
         };
 
@@ -1106,16 +1104,16 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // 选中并将节点居中（通用助手）
-        const selectAndCenter = (nodeId)=>{
+        const selectAndCenter = async (nodeId)=>{
             try{
                 const mc = window.mindmapController;
                 if (!mc || !mc.mind) return;
                 const jm = mc.mind;
                 let restoredOnce = false;
-                const doWork = ()=>{
+                const doWork = async ()=>{
                     // 立即选中
                     try{ if (typeof jm.select_node === 'function') jm.select_node(nodeId); }catch(_){ }
-                    const attemptCenter = ()=>{
+                    const attemptCenter = async ()=>{
                         try{
                             if (jm && typeof jm.get_node === 'function'){
                                 const nd = jm.get_node(nodeId);
@@ -1133,19 +1131,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                 } else if (!restoredOnce) {
                                     // 当前视图找不到该节点，极可能在子树中；自动恢复全图后重试
                                     restoredOnce = true;
-                                    tryInitFullCache();
-                                    const raw = localStorage.getItem('__mind_full_cache_v1');
-                                    let snap = null;
-                                    try{ snap = raw ? JSON.parse(raw) : (window.__mindFullCache || null); }catch(_){ snap = window.__mindFullCache || null; }
+                                    await tryInitFullCache();
+                                    let snap = await window.AutogenUnifiedStorage.retrieve('cache', '__mind_full_cache_v1') || window.__mindFullCache || null;
                                     if (snap && snap.data){
                                         try{ if (typeof jm.show === 'function') jm.show({ meta: snap.meta||{}, format: 'node_tree', data: snap.data }); }catch(_){ }
                                         // 延时重试选中+居中
-                                        setTimeout(attemptCenter, 60);
+                                        setTimeout(() => attemptCenter(), 60);
                                         return;
                                     } else {
                                         // 没有快照：走控制器回退渲染全图
                                         try{ mc.renderMindmap && mc.renderMindmap(); }catch(_){ }
-                                        setTimeout(attemptCenter, 80);
+                                        setTimeout(() => attemptCenter(), 80);
                                         return;
                                     }
                                 }
@@ -1155,9 +1151,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         try{ if (typeof mc.setSelectedNode === 'function') mc.setSelectedNode(nodeId); }catch(_){ }
                     };
                     // 多次重试，缓解布局延迟
-                    setTimeout(attemptCenter, 0);
-                    setTimeout(attemptCenter, 50);
-                    setTimeout(attemptCenter, 120);
+                    setTimeout(() => attemptCenter(), 0);
+                    setTimeout(() => attemptCenter(), 50);
+                    setTimeout(() => attemptCenter(), 120);
                 };
                 waitForJMReady(doWork);
             }catch(_){ }
@@ -1188,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return root;
         };
 
-        const focusSubtree = (nodeId)=>{
+        const focusSubtree = async (nodeId)=>{
             try{
                 const mc = window.mindmapController;
                 if (!mc || !mc.mind) return;
@@ -1201,10 +1197,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (pack0 && pack0.data && pack0.data.id){
                             const snap0 = { meta: {}, format: 'node_tree', data: deepClone(pack0.data) };
                             if (!window.__mindFullCache) window.__mindFullCache = snap0;
-                            try{ localStorage.setItem(LS_KEY_FULL, JSON.stringify(snap0)); }catch(_){ }
+                            try{ await window.AutogenUnifiedStorage.store('cache', LS_KEY_FULL, snap0); }catch(_){ }
                         }
                     }catch(_){ }
-                    tryInitFullCache();
+                    await tryInitFullCache();
                     const pack = mc.mind.get_data && mc.mind.get_data('node_tree');
                     if (pack && pack.data){
                         cache = { meta: {}, format: 'node_tree', data: pack.data };
@@ -1238,13 +1234,13 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // 恢复全图显示（从只读缓存渲染）
-        const restoreFullMind = ()=>{
+        const restoreFullMind = async ()=>{
             try{
                 const mc = window.mindmapController;
                 let cache = window.__mindFullCache;
                 if (!mc || !mc.mind) return;
                 if (!cache || !cache.data){
-                    try{ const raw = localStorage.getItem(LS_KEY_FULL); if (raw) cache = JSON.parse(raw); }catch(_){ }
+                    cache = await window.AutogenUnifiedStorage.retrieve('cache', LS_KEY_FULL);
                 }
                 if (!cache || !cache.data){ console.warn('[restoreFullMind] 全图缓存缺失'); return; }
                 const doShow = ()=>{
@@ -1430,15 +1426,17 @@ document.addEventListener('DOMContentLoaded', () => {
         tryInitFullCache();
         window.addEventListener('load', tryInitFullCache, { once: true });
         // 强刷后等待 jsMind 就绪再恢复全图
-        (function(){
+        (async function(){
             try{
-                const raw = localStorage.getItem(LS_KEY_FULL);
+                const snap = await window.AutogenUnifiedStorage.retrieve('cache', LS_KEY_FULL);
                 // 启动模式：snapshot(默认) | init（跳过快照，按控制器初始化数据渲染）
-                const BOOT_MODE = (window.JM_BOOT_MODE || localStorage.getItem('JM_BOOT_MODE') || sessionStorage.getItem('JM_BOOT_MODE') || 'snapshot');
-                const snap = raw ? JSON.parse(raw) : null;
+                const bootMode = await window.AutogenUnifiedStorage.retrieve('config', 'JM_BOOT_MODE') || 
+                                window.JM_BOOT_MODE || 
+                                sessionStorage.getItem('JM_BOOT_MODE') || 
+                                'snapshot';
                 waitForJMReady(()=>{
                     try{
-                        if (BOOT_MODE === 'init'){
+                        if (bootMode === 'init'){
                             try { console.log('[JM boot] mode=init'); } catch(_) {}
                             const mc = window.mindmapController;
                             // 优先尝试控制器的本地持久化加载，否则渲染默认数据
@@ -1500,13 +1498,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const bindCatalogEvents = ($catalog)=>{
             if ($catalog._eventBound) return;
 
-        const loadCatalog = ()=>{
-            try{
-                const raw = localStorage.getItem(CKEY);
-                return raw ? JSON.parse(raw) : [];
-            }catch(_){ return []; }
-        };
-        const saveCatalog = (list)=>{ try{ localStorage.setItem(CKEY, JSON.stringify(list)); }catch(_){ } };
+        // 重复函数定义已删除，使用上方的async版本
 
         const computeHash = (text)=>{
             try{
@@ -1580,11 +1572,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
-            $catalog.addEventListener('click', (e) => {
+            $catalog.addEventListener('click', async (e) => {
                 const card = e.target.closest('.proj-card');
                 if (!card) return;
 
-                const list = loadCatalog();
+                const list = await loadCatalog();
                 // 优先用 DOM 位置解析 idx，避免 data-idx 失效
                 let idx = domIndex(card);
                 if (!(idx >= 0 && idx < list.length)) idx = findIndexForCard(list, card);
@@ -1607,14 +1599,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (!(idx >= 0 && idx < list.length)) idx = domIndex(card);
                             if (idx >= 0 && idx < list.length){
                                 list.splice(idx, 1);
-                                saveCatalog(list);
+                                await saveCatalog(list);
                             }
                             card.closest('li')?.remove();
                             try{ logList('removed by click', { idx }); }catch(_){ }
                         }
                     } else if (action === 'toggle-fav') {
                         item.is_fav = !item.is_fav;
-                        saveCatalog(list);
+                        await saveCatalog(list);
                         actionBtn.classList.toggle('active', item.is_fav);
                         actionBtn.textContent = item.is_fav ? '★' : '☆';
                     } else if (action === 'save-project') {
@@ -1641,13 +1633,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         // 已禁用自动同步：try{ syncActiveCardNameFromRoot(); }catch(_){ }
                         try { logList('saved current mind to storage'); }catch(_){ }
                         // 同时更新当前激活项目的payload
-                        saveCurrentMindToActiveCard();
+                        await saveCurrentMindToActiveCard();
                     }
 
                     // 2. 切换激活状态（并持久化选中下标）
                     document.querySelectorAll('#project-catalog .proj-card.active').forEach(el => el.classList.remove('active'));
                     card.classList.add('active');
-                    try{ localStorage.setItem('mm_project_catalog_selected_idx', String(idx)); }catch(_){ }
+                    try{ await window.AutogenUnifiedStorage.store('ui', 'mm_project_catalog_selected_idx', String(idx)); }catch(_){ }
                     try{ const itNow = (idx>=0 && idx<list.length) ? list[idx] : null; setCurrentDisplayed(itNow && itNow.pid, idx); }catch(_){ }
 
                     // 3. 确保脑图视图可见
@@ -1669,13 +1661,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 4.2) 次选：namespaced per-mind 键（mm:proj:<pid>:data）
                     if (!targetPack && it && it.pid) {
                         try {
-                            const rawPer2 = localStorage.getItem(`mm:proj:${it.pid}:data`);
-                            if (rawPer2) {
-                                const savedPer2 = JSON.parse(rawPer2);
-                                if (savedPer2 && savedPer2.format && savedPer2.data) {
-                                    targetPack = savedPer2;
-                                    try { logList('load from per-mind (namespaced)', { pid: it.pid }); }catch(_){ }
-                                }
+                            const savedPer2 = await window.AutogenUnifiedStorage.retrieve('project', `mm:proj:${it.pid}:data`);
+                            if (savedPer2 && savedPer2.format && savedPer2.data) {
+                                targetPack = savedPer2;
+                                try { logList('load from per-mind (namespaced)', { pid: it.pid }); }catch(_){ }
                             }
                         } catch(_){ }
                     }
@@ -1683,14 +1672,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 4.3) 再次兜底：legacy per-mind 键（mm:<id>:data）
                     if (!targetPack && it && it.id) {
                         try {
-                            const rawPer = localStorage.getItem(`mm:${it.id}:data`);
-                            if (rawPer) {
-                                const savedPer = JSON.parse(rawPer);
-                                if (savedPer && savedPer.format && savedPer.data) {
-                                    targetPack = savedPer;
-                                    try { console.debug('[catalog] loaded from per-mind key:', it.id); } catch(_){ }
-                                    try { logList('load from per-mind (legacy)', { id: it.id }); }catch(_){ }
-                                }
+                            const savedPer = await window.AutogenUnifiedStorage.retrieve('legacy', `mm:${it.id}:data`);
+                            if (savedPer && savedPer.format && savedPer.data) {
+                                targetPack = savedPer;
+                                try { console.debug('[catalog] loaded from per-mind key:', it.id); } catch(_){ }
+                                try { logList('load from per-mind (legacy)', { id: it.id }); }catch(_){ }
                             }
                         } catch(_){ }
                     }
@@ -1698,8 +1684,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 4.3) 再兜底：全局快照
                     if (!targetPack) {
                         try {
-                            const rawSnap = localStorage.getItem('__mind_full_cache_v1');
-                            const snap = rawSnap ? JSON.parse(rawSnap) : (window.__mindFullCache || null);
+                            const snap = await window.AutogenUnifiedStorage.retrieve('cache', '__mind_full_cache_v1') || window.__mindFullCache || null;
                             if (snap && snap.data) {
                                 targetPack = { meta: snap.meta||{}, format: 'node_tree', data: snap.data };
                                 try { console.debug('[catalog] loaded from global snapshot'); } catch(_){ }
@@ -1743,15 +1728,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 if (pid){
                                     // 仅当是系统项时才允许写入 SYS_TAGS 键
                                     if (pid === 'SYS_TAGS' && it && it.is_system === true){
-                                        localStorage.setItem('mm:proj:SYS_TAGS:data', JSON.stringify(targetPack));
-                                        localStorage.setItem('mm:proj:SYS_TAGS:backup', JSON.stringify(targetPack));
+                                        await window.AutogenUnifiedStorage.store('system', 'mm:proj:SYS_TAGS:data', targetPack);
+                                        await window.AutogenUnifiedStorage.store('system', 'mm:proj:SYS_TAGS:backup', targetPack);
                                         try{ logList('write SYS_TAGS', { topic: targetPack?.data?.topic }); }catch(_){ }
                                     } else if (pid !== 'SYS_TAGS') {
-                                        localStorage.setItem(`mm:proj:${pid}:data`, JSON.stringify(targetPack));
+                                        await window.AutogenUnifiedStorage.store('project', `mm:proj:${pid}:data`, targetPack);
                                         try{ logList('write mm:proj', { pid, topic: targetPack?.data?.topic }); }catch(_){ }
                                     }
                                 }
-                                if (targetPack && targetPack.data && targetPack.data.id){ localStorage.setItem(`mm:${targetPack.data.id}:data`, JSON.stringify(targetPack)); }
+                                if (targetPack && targetPack.data && targetPack.data.id){ await window.AutogenUnifiedStorage.store('legacy', `mm:${targetPack.data.id}:data`, targetPack); }
                             }catch(_){ }
 
                             // 若是系统标签脑图，广播变化
@@ -1893,7 +1878,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!nodeId) return [];
             setStatus(`加载中...(${nodeId})`);
             try{
-                const cfgBase = (window.API_BASE || localStorage.getItem('__api_base'));
+                const cfgBase = (window.API_BASE || await window.AutogenUnifiedStorage.retrieve('config', '__api_base'));
                 if (!cfgBase){
                     // 未配置API，静默降级为本地空数据
                     console.debug('[Relations] API未配置，使用本地空数据');
@@ -2049,10 +2034,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const getRootId = ()=>{
             try{ const mc = window.mindmapController; return mc?.mind?.get_root && mc.mind.get_root()?.id; }catch(_){ return null; }
         };
-        const loadAllTagState = ()=>{ try{ const raw = localStorage.getItem(TAG_STATE_KEY); const p = raw? JSON.parse(raw): {}; return (p && typeof p==='object')? p: {}; }catch(_){ return {}; } };
-        const saveAllTagState = (obj)=>{ try{ localStorage.setItem(TAG_STATE_KEY, JSON.stringify(obj||{})); }catch(_){ } };
-        const loadTagStateFor = (rid)=>{ const all = loadAllTagState(); return (rid && all[rid] && Array.isArray(all[rid].selected))? all[rid].selected: []; };
-        const saveTagStateFor = (rid, selectedIds)=>{ if (!rid) return; const all = loadAllTagState(); all[rid] = { selected: Array.from(new Set(selectedIds||[])) }; saveAllTagState(all); };
+        const loadAllTagState = async ()=>{ try{ const p = await window.AutogenUnifiedStorage.retrieve('tags', TAG_STATE_KEY) || {}; return (p && typeof p==='object')? p: {}; }catch(_){ return {}; } };
+        const saveAllTagState = async (obj)=>{ try{ await window.AutogenUnifiedStorage.store('tags', TAG_STATE_KEY, obj||{}); }catch(_){ } };
+        const loadTagStateFor = async (rid)=>{ const all = await loadAllTagState(); return (rid && all[rid] && Array.isArray(all[rid].selected))? all[rid].selected: []; };
+        const saveTagStateFor = async (rid, selectedIds)=>{ if (!rid) return; const all = await loadAllTagState(); all[rid] = { selected: Array.from(new Set(selectedIds||[])) }; await saveAllTagState(all); };
 
         const findNodeByTopic = (root, topic)=>{
             if (!root) return null;
