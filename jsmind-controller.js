@@ -55,7 +55,8 @@
       this._contentDirty = false;
       // 拖拽诊断代码已移除 - jsMind 0.8.7 原生拖拽无需诊断
       this.bindDetailEvents();
-      this.init();
+      // 异步初始化，避免阻塞构造函数
+      this.init().catch(err => console.error('[MindmapController] 初始化失败:', err));
       
       // 绑定测试按钮
       this.bindTestButtons();
@@ -548,7 +549,7 @@
     }
 
     // —— 初始化与渲染 ——
-    init(){
+    async init(){
       this._debugLog('初始化开始');
       
       // 检查容器是否存在
@@ -574,7 +575,7 @@
       }
       this._debugLog('jsMind 实例创建成功');
       
-      const loaded = this.showSavedMindIfAny();
+      const loaded = await this.showSavedMindIfAny();
       if (!loaded) {
         this._debugLog('未找到保存数据，使用默认数据');
         this.renderMindmap();
@@ -597,7 +598,7 @@
 
 
     // —— 持久化：加载并显示 ——
-    showSavedMindIfAny(){
+    async showSavedMindIfAny(){
       try {
         // 1) 优先：每个脑图的独立键 mm:{mindKey}:data
         try{
@@ -606,9 +607,9 @@
             try{ const rid = (this.mind && this.mind.get_root && this.mind.get_root().id) || (this.data && this.data.id); if (rid) return String(rid); }catch(_){ }
             return 'root';
           }).call(this);
-          const rawPer = localStorage.getItem(`mm:${mk}:data`);
-          if (rawPer){
-            const savedPer = JSON.parse(rawPer);
+          // 使用AutogenUnifiedStorage替代localStorage直接调用
+          const savedPer = await window.AutogenUnifiedStorage.retrieve('mindmap', `${mk}:data`);
+          if (savedPer){
             if (savedPer && savedPer.format && savedPer.data){
               this.mind.show(savedPer);
               // 加载后回填并同步
@@ -630,9 +631,8 @@
         }catch(_){ }
 
         // 2) 回退：使用旧的 mindmap_data_v1（可能是子树，但至少能显示）
-        const raw = localStorage.getItem(this.localStorageKey);
-        if (!raw) return false;
-        const saved = JSON.parse(raw);
+        const saved = await window.AutogenUnifiedStorage.retrieve('mindmap', 'mindmap_data_v1');
+        if (!saved) return false;
         if (!saved || !saved.format || !saved.data) return false;
         // 仅接受 jsMind 支持的格式
         const okFormats = ['node_tree','node_array','freemind'];
@@ -875,7 +875,7 @@
 
 
     // —— 标签面板渲染（来源可为：当前脑图 / 系统标签脑图） ——
-    renderTagPanelFromSource(opts={}){
+    async renderTagPanelFromSource(opts={}){
       try{
         const mode = opts && opts.mode ? opts.mode : 'current'; // 'current' | 'system'
         if (!this.$tagGroups) this.$tagGroups = document.getElementById('tag-groups');
@@ -889,8 +889,8 @@
           // 来自系统标签脑图的 pack
           let pack = opts.systemPack || null;
           if (!pack){
-            // 优先从localStorage读取
-            try{ const raw = localStorage.getItem('mm:proj:SYS_TAGS:data'); pack = raw ? JSON.parse(raw) : null; }catch(_){ }
+            // 优先从AutogenUnifiedStorage读取
+            try{ pack = await window.AutogenUnifiedStorage.retrieve('mindmap', 'SYS_TAGS:data'); }catch(_){ }
             
             // 如果localStorage没有，尝试从JSON底座API获取
             if (!pack) {
@@ -898,7 +898,7 @@
                 this._loadSystemTagsFromJsonBase().then(systemPack => {
                   if (systemPack) {
                     // 异步更新标签面板
-                    this.renderTagPanelFromSource({ mode: 'system', systemPack });
+                    this.renderTagPanelFromSource({ mode: 'system', systemPack }).catch(err => console.error('标签面板更新失败:', err));
                   }
                 });
               } catch(_) { }
@@ -1010,7 +1010,7 @@
 
     // 兼容旧接口：始终从"系统标签脑图"解析，与script.js保持一致
     renderTagPanelFromMind(){
-      try{ this.renderTagPanelFromSource({ mode: 'system' }); }catch(_){ }
+      try{ this.renderTagPanelFromSource({ mode: 'system' }).catch(err => console.error('标签面板渲染失败:', err)); }catch(_){ }
     }
 
     // 从JSON底座加载系统标签数据（使用标准查询服务）
