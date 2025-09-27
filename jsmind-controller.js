@@ -107,18 +107,22 @@
       };
     }
 
-    // 获取相关的localStorage键
-    _getLocalStorageKeys() {
+    // 获取相关的存储键
+    async _getLocalStorageKeys() {
       const keys = [];
       try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.startsWith('mm:') || key.includes('mindmap'))) {
-            keys.push(key);
+        // 使用AutogenUnifiedStorage查询所有相关键
+        const storageTypes = ['legacy', 'project', 'system', 'cache', 'catalog'];
+        for (const type of storageTypes) {
+          const typeKeys = await window.AutogenUnifiedStorage.queryByType(type);
+          if (typeKeys && Array.isArray(typeKeys)) {
+            keys.push(...typeKeys.filter(key => 
+              key && (key.startsWith('mm:') || key.includes('mindmap'))
+            ));
           }
         }
       } catch (error) {
-        console.warn('[MindmapController] 获取localStorage键失败:', error);
+        console.warn('[MindmapController] 获取存储键失败:', error);
       }
       return keys;
     }
@@ -4345,27 +4349,36 @@
       try {
         this.showToast('正在清理现有项目列表...');
         
-        // 清理 localStorage 中的项目数据
+        // 清理 AutogenUnifiedStorage 中的项目数据
         const keysToRemove = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (
-            key.startsWith('mm:') || 
-            key.startsWith('mindmap_') || 
-            key === 'mm_project_catalog_v1' ||
-            key === '__mind_full_cache_v1'
-          )) {
-            keysToRemove.push(key);
+        const storageTypes = ['legacy', 'project', 'system', 'cache', 'catalog'];
+        
+        for (const type of storageTypes) {
+          try {
+            const typeKeys = await window.AutogenUnifiedStorage.queryByType(type);
+            if (typeKeys && Array.isArray(typeKeys)) {
+              const relevantKeys = typeKeys.filter(key => 
+                key && (
+                  key.startsWith('mm:') || 
+                  key.startsWith('mindmap_') || 
+                  key === 'mm_project_catalog_v1' ||
+                  key === '__mind_full_cache_v1'
+                )
+              );
+              keysToRemove.push(...relevantKeys.map(key => ({key, type})));
+            }
+          } catch (e) {
+            console.warn(`查询存储类型失败: ${type}`, e);
           }
         }
         
-        keysToRemove.forEach(key => {
+        for (const {key, type} of keysToRemove) {
           try {
-            localStorage.removeItem(key);
+            await window.AutogenUnifiedStorage.remove(type, key);
           } catch (e) {
             console.warn(`清理键失败: ${key}`, e);
           }
-        });
+        }
         
         // 清理注册表（通过设置空数组）
         if (window.Registry && window.Registry.repo && window.Registry.repo.store) {

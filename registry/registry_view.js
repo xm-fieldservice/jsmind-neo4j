@@ -47,13 +47,10 @@
             console.warn('[Registry] 加载归档数据失败:', e);
           });
         } catch(e) {
-          console.warn('[Registry] AutogenUnifiedStorage调用失败，使用localStorage回退:', e);
-          var favRaw = localStorage.getItem('mm:favorites'); if (favRaw){ JSON.parse(favRaw).forEach(function(id){ favSet.add(id); }); }
-          var arcRaw = localStorage.getItem('mm:archived'); if (arcRaw){ JSON.parse(arcRaw).forEach(function(id){ arcSet.add(id); }); }
+          console.warn('[Registry] AutogenUnifiedStorage调用失败:', e);
         }
       } else {
-        var favRaw = localStorage.getItem('mm:favorites'); if (favRaw){ JSON.parse(favRaw).forEach(function(id){ favSet.add(id); }); }
-        var arcRaw = localStorage.getItem('mm:archived'); if (arcRaw){ JSON.parse(arcRaw).forEach(function(id){ arcSet.add(id); }); }
+        console.warn('[Registry] AutogenUnifiedStorage不可用');
       }
     }catch(_){ }
     if (!sorted.length){
@@ -89,11 +86,10 @@
         // 使用AutogenUnifiedStorage保存收藏数据
         if (window.AutogenUnifiedStorage) {
           window.AutogenUnifiedStorage.store('registry', 'favorites', Array.from(favSet)).catch(function(e) {
-            console.warn('[Registry] 保存收藏数据失败，回退到localStorage:', e);
-            try{ localStorage.setItem('mm:favorites', JSON.stringify(Array.from(favSet))); }catch(_){ }
+            console.warn('[Registry] 保存收藏数据失败:', e);
           });
         } else {
-          try{ localStorage.setItem('mm:favorites', JSON.stringify(Array.from(favSet))); }catch(_){ }
+          console.warn('[Registry] AutogenUnifiedStorage不可用，无法保存收藏数据');
         }
         self.render();
       });
@@ -104,11 +100,10 @@
         // 使用AutogenUnifiedStorage保存归档数据
         if (window.AutogenUnifiedStorage) {
           window.AutogenUnifiedStorage.store('registry', 'archived', Array.from(arcSet)).catch(function(e) {
-            console.warn('[Registry] 保存归档数据失败，回退到localStorage:', e);
-            try{ localStorage.setItem('mm:archived', JSON.stringify(Array.from(arcSet))); }catch(_){ }
+            console.warn('[Registry] 保存归档数据失败:', e);
           });
         } else {
-          try{ localStorage.setItem('mm:archived', JSON.stringify(Array.from(arcSet))); }catch(_){ }
+          console.warn('[Registry] AutogenUnifiedStorage不可用，无法保存归档数据');
         }
         self.render();
       });
