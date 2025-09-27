@@ -84,52 +84,68 @@ def find_python_exe() -> str:
     return sys.executable or "python"
 
 
-def start_backend(port: int) -> subprocess.Popen:
-    """启动后端服务并等待健康检查通过，返回进程对象。失败返回 None。"""
+def start_backend_services() -> list:
+    """启动所有必要的后端服务"""
     root = project_root()
-    # 尝试多个可能的后端脚本位置
-    possible_scripts = [
-        root / 'backend_server.py',
-        root / 'backend' / 'start_api.py',
-        root / 'backend' / 'json_base_api.py'
+    backend_dir = root / 'backend'
+    
+    services = [
+        {
+            'name': 'Registry服务',
+            'script': backend_dir / 'registry_server.py',
+            'port': 8081,
+            'work_dir': backend_dir
+        },
+        {
+            'name': 'JSON底座API',
+            'script': backend_dir / 'json_base_api.py', 
+            'port': 5001,
+            'work_dir': backend_dir
+        },
+        {
+            'name': '主API服务',
+            'script': backend_dir / 'start_api.py',
+            'port': 8000,
+            'work_dir': backend_dir
+        }
     ]
     
-    script = None
-    for s in possible_scripts:
-        if s.exists():
-            script = s
-            break
+    processes = []
     
-    if not script:
-        print(f"[启动器] 未找到后端脚本，尝试了: {[str(s) for s in possible_scripts]}")
-        return None
-
-    cmd = [sys.executable, str(script)]
-    # 如果是backend目录下的脚本，需要在backend目录中运行
-    work_dir = root
-    if 'backend' in str(script):
-        work_dir = root / 'backend'
-    
-    print(f"[启动器] 启动后端: {' '.join(cmd)}")
-    print(f"[启动器] 工作目录: {work_dir}")
-    try:
-        process = subprocess.Popen(cmd, cwd=str(work_dir))
-    except Exception as e:
-        print(f"[启动器] 启动后端失败: {e}")
-        return None
-
-    # 健康检查 - 后端实际运行在8000端口
-    actual_port = 8000 if 'backend' in str(script) else port
-    base_url = f"http://127.0.0.1:{actual_port}"
-    if not health_check(base_url, timeout_sec=30):
-        print(f"[启动器] 后端启动超时或健康检查失败")
+    for service in services:
+        if not service['script'].exists():
+            print(f"[启动器] ⚠️ {service['name']} 脚本不存在: {service['script']}")
+            continue
+            
+        print(f"[启动器] 启动{service['name']}...")
+        
+        # 清理端口
+        kill_port(service['port'])
+        
+        cmd = [sys.executable, str(service['script'])]
         try:
-            process.terminate()
-        except Exception:
-            pass
-        return None
-
-    return process
+            process = subprocess.Popen(cmd, cwd=str(service['work_dir']))
+            
+            # 健康检查
+            base_url = f"http://127.0.0.1:{service['port']}"
+            if health_check(base_url, timeout_sec=15):
+                print(f"[启动器] ✅ {service['name']} 启动成功 ({base_url})")
+                processes.append({
+                    'name': service['name'],
+                    'process': process,
+                    'port': service['port']
+                })
+            else:
+                print(f"[启动器] ❌ {service['name']} 健康检查失败")
+                try:
+                    process.terminate()
+                except Exception:
+                    pass
+                    
+        except Exception as e:
+            print(f"[启动器] ❌ {service['name']} 启动失败: {e}")
+    
+    return processes
 
 
 def health_check(base_url: str, timeout_sec: int = 30) -> bool:
@@ -239,13 +255,14 @@ def main():
         
         return
     
-    # 启动后端
-    print(f"[启动器] 后端端口: {args.port}")
-    kill_port(args.port)
-    backend = start_backend(args.port)
-    if not backend:
-        print("[启动器] 后端启动失败，退出。")
+    # 启动所有后端服务
+    print(f"[启动器] 启动后端服务...")
+    backend_processes = start_backend_services()
+    if not backend_processes:
+        print("[启动器] 所有后端服务启动失败，退出。")
         sys.exit(1)
+    
+    print(f"[启动器] ✅ 成功启动 {len(backend_processes)} 个后端服务")
     
     # 完整模式：同时启动前端
     if args.full:
@@ -260,18 +277,25 @@ def main():
             open_browser_delayed(frontend_url, delay=3)
         
         print(f"[启动器] 完整系统运行中:")
-        print(f"[启动器] - 后端: http://127.0.0.1:{args.port}")
+        for bp in backend_processes:
+            print(f"[启动器] - {bp['name']}: http://127.0.0.1:{bp['port']}")
         print(f"[启动器] - 前端: {frontend_url}")
-        print(f"[启动器] 后端 PID={backend.pid}, 前端 PID={frontend_process.pid}")
+        
+        backend_pids = [str(bp['process'].pid) for bp in backend_processes]
+        print(f"[启动器] 后端 PIDs={','.join(backend_pids)}, 前端 PID={frontend_process.pid}")
         print(f"[启动器] 按 Ctrl+C 停止所有服务")
         
         try:
             # 等待任一进程结束
-            while backend.poll() is None and frontend_process.poll() is None:
+            while any(bp['process'].poll() is None for bp in backend_processes) and frontend_process.poll() is None:
                 time.sleep(1)
         except KeyboardInterrupt:
             print("\n[启动器] 正在停止所有服务...")
-            backend.terminate()
+            for bp in backend_processes:
+                try:
+                    bp['process'].terminate()
+                except Exception:
+                    pass
             frontend_process.terminate()
     else:
         # 仅后端模式
@@ -279,7 +303,8 @@ def main():
         print(f"[启动器] 要使用完整功能，请运行: python tools/start.py --full")
         print(f"[启动器] 或手动启动前端: python -m http.server {args.frontend_port}")
         print(f"[启动器] 然后访问: http://127.0.0.1:{args.frontend_port}/index.html")
-        print(f"[启动器] 完成。后端 PID={backend.pid}，如需停止请结束该进程或关闭终端。")
+        backend_pids = [str(bp['process'].pid) for bp in backend_processes]
+        print(f"[启动器] 完成。后端 PIDs={','.join(backend_pids)}，如需停止请结束这些进程或关闭终端。")
 
 
 if __name__ == '__main__':
