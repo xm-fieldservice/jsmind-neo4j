@@ -16,7 +16,6 @@
     
     // 加载适配器脚本
     const scripts = [
-        '/src/persistence/adapters/LocalStorageAdapter.js',
         '/src/persistence/adapters/JsonMirrorAdapter.js', 
         '/src/persistence/adapters/SnapshotAdapter.js',
         '/src/persistence/PersistenceManager.js'
