@@ -1989,7 +1989,7 @@
       }catch(e){ /* ignore */ }
     }
 
-    _applyFsPanePersist(pane){
+    async _applyFsPanePersist(pane){
       try{
         if (this.autogenStorage) {
           this.autogenStorage.retrieve('ui_state', 'mmFsPaneState').then(s => {
@@ -2002,10 +2002,9 @@
           }).catch(() => {});
           return;
         }
-        // 回退到localStorage（兼容性）
-        const raw = localStorage.getItem('mmFsPaneState');
-        if (!raw) return;
-        const s = JSON.parse(raw);
+        // 统一使用AutogenUnifiedStorage
+        const s = await window.AutogenUnifiedStorage.retrieve('ui_state', 'mmFsPaneState');
+        if (!s) return;
         if (s && typeof s === 'object'){
           if (s.width) pane.style.width = Math.max(320, s.width) + 'px';
           if (s.height) pane.style.height = Math.max(220, s.height) + 'px';
@@ -5540,10 +5539,9 @@ async _showMindmapSelectionDialog(mindmaps) {
           if (obj && typeof obj.maxCount==='number') this._snapConfig.maxCount = Math.min(10, Math.max(1, Math.floor(obj.maxCount)));
           return;
         }
-        // 回退到localStorage
-        const raw = localStorage.getItem('mindmap_snapshots_config');
-        if (!raw) return;
-        const obj = JSON.parse(raw);
+        // 统一使用AutogenUnifiedStorage
+        const obj = await window.AutogenUnifiedStorage.retrieve('config', 'mindmap_snapshots_config');
+        if (!obj) return;
         if (obj && typeof obj.intervalMs==='number') this._snapConfig.intervalMs = Math.max(60*1000, obj.intervalMs);
         if (obj && typeof obj.maxCount==='number') this._snapConfig.maxCount = Math.min(10, Math.max(1, Math.floor(obj.maxCount)));
       }catch(_){/* ignore */}
@@ -5561,9 +5559,9 @@ async _showMindmapSelectionDialog(mindmaps) {
           const index = await this.autogenStorage.retrieve('snapshot', 'mindmap_snapshots_index');
           return Array.isArray(index) ? index : [];
         }
-        // 回退到localStorage
-        const raw = localStorage.getItem('mindmap_snapshots_index'); 
-        return Array.isArray(JSON.parse(raw))? JSON.parse(raw): []; 
+        // 统一使用AutogenUnifiedStorage
+        const index = await window.AutogenUnifiedStorage.retrieve('snapshot', 'mindmap_snapshots_index');
+        return Array.isArray(index) ? index : []; 
       }catch(_){ return []; }
     }
     async _saveSnapshotIndex(list){
@@ -5596,7 +5594,7 @@ async _showMindmapSelectionDialog(mindmaps) {
       }catch(e){ console.warn('创建快照失败', e); this.showToast('创建快照失败', 'error'); }
     }
     async listSnapshots(){ return await this._snapshotIndex(); }
-    restoreSnapshot(id){
+    async restoreSnapshot(id){
       try{
         if (this.autogenStorage) {
           this.autogenStorage.retrieve('snapshot', `mindmap_snapshot_${id}`).then(obj => {
@@ -5611,10 +5609,9 @@ async _showMindmapSelectionDialog(mindmaps) {
           });
           return;
         }
-        // 回退到localStorage
-        const raw = localStorage.getItem(`mindmap_snapshot_${id}`);
-        if (!raw){ this.showToast('快照不存在', 'error'); return; }
-        const obj = JSON.parse(raw);
+        // 统一使用AutogenUnifiedStorage
+        const obj = await window.AutogenUnifiedStorage.retrieve('snapshot', `mindmap_snapshot_${id}`);
+        if (!obj){ this.showToast('快照不存在', 'error'); return; }
         if (!obj || !obj.data){ this.showToast('快照格式无效', 'error'); return; }
         this.data = obj.data;
         this.saveMindmapToStorage();
@@ -5632,14 +5629,14 @@ async _showMindmapSelectionDialog(mindmaps) {
           this.showToast('已删除快照');
           return;
         }
-        // 回退到localStorage
-        localStorage.removeItem(`mindmap_snapshot_${id}`);
+        // 统一使用AutogenUnifiedStorage
+        await window.AutogenUnifiedStorage.remove('snapshot', `mindmap_snapshot_${id}`);
         const idx = (await this._snapshotIndex()).filter(x=>x.id!==id);
-        this._saveSnapshotIndex(idx);
+        await this._saveSnapshotIndex(idx);
         this.showToast('已删除快照');
       }catch(_){ this.showToast('删除失败', 'error'); }
     }
-    exportSnapshot(id){
+    async exportSnapshot(id){
       try{
         if (this.autogenStorage) {
           this.autogenStorage.retrieve('snapshot', `mindmap_snapshot_${id}`).then(obj => {
@@ -5655,9 +5652,10 @@ async _showMindmapSelectionDialog(mindmaps) {
           });
           return;
         }
-        // 回退到localStorage
-        const raw = localStorage.getItem(`mindmap_snapshot_${id}`);
-        if (!raw){ this.showToast('快照不存在', 'error'); return; }
+        // 统一使用AutogenUnifiedStorage
+        const obj = await window.AutogenUnifiedStorage.retrieve('snapshot', `mindmap_snapshot_${id}`);
+        if (!obj){ this.showToast('快照不存在', 'error'); return; }
+        const raw = JSON.stringify(obj);
         const blob = new Blob([raw], {type:'application/json'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
