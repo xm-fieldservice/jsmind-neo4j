@@ -2319,49 +2319,7 @@
   }
   
   try {
-// —— 授权闸门（人为/白名单） ——
-try{
-  const policy = (typeof window!=='undefined' && window.INPUT_POLICY) || 'human_or_whitelist';
-  if (policy === 'human_or_whitelist'){
-    const ttl = (typeof window!=='undefined' && Number(window.HUMAN_INPUT_TTL_MS)) || 1500;
-    const lastTs = (typeof window!=='undefined' && Number(window.__HUMAN_TS)) || 0;
-    const humanRecent = lastTs > 0 && (Date.now() - lastTs <= ttl);
-    let allowed = humanRecent;
-    if (!allowed){
-      const src = (typeof window!=='undefined' && (window.__SAVE_SOURCE || 'unknown')) || 'unknown';
-      // 白名单：localStorage持久化的来源集合
-      let wl = (typeof window!=='undefined' && window.SAVE_WHITELIST);
-      if (!(wl instanceof Set)){
-        try{ 
-          const whitelistData = await window.AutogenUnifiedStorage.retrieve('config', 'save_whitelist');
-          wl = new Set(Array.isArray(whitelistData) ? whitelistData : []); 
-          window.SAVE_WHITELIST = wl; 
-        }catch(_){ wl = new Set(); window.SAVE_WHITELIST = wl; }
-      }
-      if (wl.has(src)){
-        allowed = true;
-      } else {
-        // 明示交互：是否放行本次保存
-        if (typeof window!=='undefined' && typeof window.confirm==='function'){
-          const once = window.confirm(`检测到非直接人为的保存请求（来源: ${src}）。是否允许本次保存？`);
-          if (once){
-            allowed = true;
-            const remember = window.confirm('是否将该来源加入白名单，以后自动放行？');
-            if (remember){
-              try{ 
-                wl.add(src); 
-                // 统一使用AutogenUnifiedStorage
-                await window.AutogenUnifiedStorage.store('config', 'save_whitelist', Array.from(wl));
-              }catch(_){ }
-            }
-          }
-        }
-      }
-    }
-    if (!allowed){ return; }
-    try{ window.__SAVE_INTENT = 'human'; }catch(_){ }
-  }
-}catch(_){ /* 忽略授权判定异常，避免影响保存 */ }
+// 白名单授权机制已移除 - 存储系统统一后无需复杂授权控制
     // 全局保存守卫：冷启动/加载中/非当前项目/默认root 一律拒绝
     try{
       if (typeof window !== 'undefined'){
@@ -2444,9 +2402,6 @@ try{
         }catch(_){ }
       } catch(e){
         console.error('[MindmapController] 保存到存储失败', e);
-      } finally {
-        try{ window.__SAVE_INTENT = null; }catch(_){ }
-        try{ window.__SAVE_SOURCE = null; }catch(_){ }
       }
     }
 
