@@ -1,0 +1,76 @@
+/* 项目列表样式 */
+.project-list-container {
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.project-list-item {
+    padding: 8px 12px;
+    margin: 4px 0;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.project-list-item:hover {
+    background: #f0f8ff;
+    border-color: #4CAF50;
+}
+
+.project-list-item.active {
+    background: #e8f5e8;
+    border-color: #4CAF50;
+    font-weight: 500;
+}
+
+.project-list-title {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.project-list-meta {
+    font-size: 12px;
+    color: #666;
+}
+
+.project-list-tags {
+    margin-top: 4px;
+}
+
+.project-list-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    margin: 2px;
+    background: #e3f2fd;
+    color: #1976d2;
+    border-radius: 12px;
+    font-size: 11px;
+}
+
+.project-list-empty {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+}
+
+.project-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.project-list-count {
+    font-size: 12px;
+    color: #666;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
