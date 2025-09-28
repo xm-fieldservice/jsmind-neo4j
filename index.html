@@ -583,9 +583,15 @@
     <!-- JSON底座查询服务 -->
     <script src="src/services/JsonBaseQueryService.js"></script>
     
+    <!-- P1.2: 统一存储服务（整合多套存储系统） -->
+    <script src="src/services/UnifiedStorageService.js"></script>
+    
     <!-- 核心管理组件 - 在基础组件加载后添加 -->
     <script src="src/core/ErrorHandler.js"></script>
     <script src="src/core/DependencyManager.js"></script>
+    
+    <!-- P1.1: 依赖注入容器（减少全局变量依赖） -->
+    <script src="src/core/DependencyContainer.js"></script>
     
     <!-- P0.3: 正式业务层集成器（替代补丁系统） -->
     <script src="src/business/MindmapBusinessLayerIntegrator.js"></script>

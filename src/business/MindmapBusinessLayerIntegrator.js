@@ -1,19 +1,20 @@
 /**
- * 程序员 - P0.3 业务层集成器（正式版）
+ * 程序员 - P1.1 业务层集成器（依赖注入版）
  * 
- * 替代补丁系统，提供正式的业务层集成架构
- * 消除运行时原型链修改，采用组合模式
+ * 基于P0成功经验，增强依赖注入支持
+ * 减少全局变量依赖，提升模块化程度
  */
 
 class MindmapBusinessLayerIntegrator {
-    constructor(controller) {
+    constructor(controller, dependencyContainer = null) {
         this.controller = controller;
+        this.container = dependencyContainer || window.GlobalDependencyContainer;
         this.nodeManager = null;
         this.stateManager = null;
         this.syncManager = null;
         this.initialized = false;
         
-        console.log('[BusinessIntegrator] 初始化业务层集成器');
+        console.log('[BusinessIntegrator] 初始化业务层集成器 (P1.1 依赖注入版)');
     }
     
     /**
@@ -23,31 +24,55 @@ class MindmapBusinessLayerIntegrator {
         try {
             console.log('[BusinessIntegrator] 开始初始化业务层模块...');
             
-            // 初始化NodeManager
-            if (window.MindmapNodeManager) {
-                this.nodeManager = new window.MindmapNodeManager({
-                    eventBus: window.AutogenEventBus,
-                    logger: console
-                });
-                console.log('[BusinessIntegrator] ✅ NodeManager初始化成功');
+            // 确保依赖容器已初始化
+            if (this.container && !this.container.initialized) {
+                this.container.initializeCoreServices();
             }
             
-            // 初始化StateManager
-            if (window.MindmapStateManager) {
-                this.stateManager = new window.MindmapStateManager({
-                    eventBus: window.AutogenEventBus,
-                    logger: console
-                });
-                console.log('[BusinessIntegrator] ✅ StateManager初始化成功');
+            // 使用依赖注入初始化业务模块
+            try {
+                this.nodeManager = this.container ? this.container.resolve('nodeManager') : null;
+                if (this.nodeManager) {
+                    console.log('[BusinessIntegrator] ✅ NodeManager通过依赖注入初始化成功');
+                }
+            } catch (error) {
+                console.warn('[BusinessIntegrator] NodeManager依赖注入失败，使用传统方式:', error);
+                if (window.MindmapNodeManager) {
+                    this.nodeManager = new window.MindmapNodeManager({
+                        eventBus: window.AutogenEventBus,
+                        logger: console
+                    });
+                }
             }
             
-            // 初始化SyncManager
-            if (window.MindmapSyncManager) {
-                this.syncManager = new window.MindmapSyncManager({
-                    eventBus: window.AutogenEventBus,
-                    logger: console
-                });
-                console.log('[BusinessIntegrator] ✅ SyncManager初始化成功');
+            try {
+                this.stateManager = this.container ? this.container.resolve('stateManager') : null;
+                if (this.stateManager) {
+                    console.log('[BusinessIntegrator] ✅ StateManager通过依赖注入初始化成功');
+                }
+            } catch (error) {
+                console.warn('[BusinessIntegrator] StateManager依赖注入失败，使用传统方式:', error);
+                if (window.MindmapStateManager) {
+                    this.stateManager = new window.MindmapStateManager({
+                        eventBus: window.AutogenEventBus,
+                        logger: console
+                    });
+                }
+            }
+            
+            try {
+                this.syncManager = this.container ? this.container.resolve('syncManager') : null;
+                if (this.syncManager) {
+                    console.log('[BusinessIntegrator] ✅ SyncManager通过依赖注入初始化成功');
+                }
+            } catch (error) {
+                console.warn('[BusinessIntegrator] SyncManager依赖注入失败，使用传统方式:', error);
+                if (window.MindmapSyncManager) {
+                    this.syncManager = new window.MindmapSyncManager({
+                        eventBus: window.AutogenEventBus,
+                        logger: console
+                    });
+                }
             }
             
             // 设置业务模块依赖
@@ -155,7 +180,8 @@ class MindmapBusinessLayerIntegrator {
             nodeManager: !!this.nodeManager,
             stateManager: !!this.stateManager,
             syncManager: !!this.syncManager,
-            controller: !!this.controller
+            controller: !!this.controller,
+            dependencyInjection: !!this.container
         };
     }
     
@@ -186,4 +212,4 @@ class MindmapBusinessLayerIntegrator {
 // 全局导出
 window.MindmapBusinessLayerIntegrator = MindmapBusinessLayerIntegrator;
 
-console.log('[BusinessIntegrator] 业务层集成器类已加载');
+console.log('[BusinessIntegrator] 业务层集成器类已加载 (P1.1 依赖注入版)');
