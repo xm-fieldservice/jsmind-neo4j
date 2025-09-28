@@ -145,21 +145,90 @@
           await this.businessIntegrator.initialize();
           
           // 从集成器获取业务模块引用（保持向后兼容）
-          this.nodeManager = this.businessIntegrator.nodeManager;
           this.stateManager = this.businessIntegrator.stateManager;
           this.syncManager = this.businessIntegrator.syncManager;
           
           console.log('[MindmapController] ✅ 业务层集成器初始化成功');
         } else {
-          console.warn('[MindmapController] 业务层集成器未加载，跳过业务层初始化');
+          console.warn('[MindmapController] ⚠️ 业务层集成器不可用，使用传统模式');
         }
+        
+        // P1.3: 初始化标签面板控制器
+        this._initTagPanelController();
         
       } catch (error) {
         console.error('[MindmapController] 业务层模块初始化失败:', error);
-        this.nodeManager = null;
-        this.stateManager = null;
-        this.syncManager = null;
-        this.businessIntegrator = null;
+        // 继续运行，不阻塞主流程
+      }
+    }
+    
+    // P1.3: 初始化标签面板控制器
+    _initTagPanelController() {
+      try {
+        if (typeof window.MindmapTagPanelController !== 'undefined') {
+          // 获取依赖注入容器
+          const container = window.GlobalDependencyContainer;
+          
+          // 创建标签面板控制器实例
+          this.tagPanelController = new window.MindmapTagPanelController(this, container);
+          
+          // 异步初始化标签面板
+          this.tagPanelController.initialize().then(() => {
+            console.log('[MindmapController] ✅ 标签面板控制器初始化成功');
+            
+            // 添加标签面板切换按钮到工具栏
+            this._addTagPanelToggleButton();
+            
+          }).catch(error => {
+            console.error('[MindmapController] 标签面板控制器初始化失败:', error);
+          });
+          
+        } else {
+          console.warn('[MindmapController] ⚠️ 标签面板控制器不可用');
+        }
+      } catch (error) {
+        console.error('[MindmapController] 标签面板控制器初始化异常:', error);
+      }
+    }
+    
+    // 添加标签面板切换按钮
+    _addTagPanelToggleButton() {
+      try {
+        // 查找现有的标签按钮或创建新按钮
+        let tagButton = document.getElementById('mindmap-tag-panel-btn');
+        
+        if (!tagButton) {
+          // 创建标签面板切换按钮
+          tagButton = document.createElement('button');
+          tagButton.id = 'mindmap-tag-panel-btn';
+          tagButton.textContent = '标签管理';
+          tagButton.title = '打开/关闭标签面板';
+          tagButton.style.cssText = `
+            margin: 5px;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+          `;
+          
+          // 添加到页面顶部
+          const toolbar = document.querySelector('.toolbar') || document.body;
+          toolbar.appendChild(tagButton);
+        }
+        
+        // 绑定点击事件
+        tagButton.addEventListener('click', () => {
+          if (this.tagPanelController) {
+            this.tagPanelController.toggle();
+          }
+        });
+        
+        console.log('[MindmapController] ✅ 标签面板切换按钮已添加');
+        
+      } catch (error) {
+        console.error('[MindmapController] 添加标签面板按钮失败:', error);
       }
     }
 
