@@ -89,6 +89,9 @@
         // 初始化表现层模块
         this._initPresentationModules();
         
+        // 初始化业务层模块
+        this._initBusinessModules();
+        
       } catch (error) {
         console.error('[MindmapController] 数据管理器初始化失败:', error);
         this.dataManager = null;
@@ -122,10 +125,6 @@
         
         // 初始化UI控制器
         if (typeof window.MindmapUIController !== 'undefined') {
-          this.uiController = new window.MindmapUIController({
-            eventBus: window.AutogenEventBus,
-            logger: console
-          });
           console.log('[MindmapController] ✅ UI控制器初始化成功');
         }
         
@@ -134,6 +133,51 @@
         this.renderer = null;
         this.eventManager = null;
         this.uiController = null;
+      }
+    }
+    
+    // 初始化业务层模块
+    _initBusinessModules() {
+      try {
+        // 初始化节点管理器
+        if (typeof window.MindmapNodeManager !== 'undefined') {
+          this.nodeManager = new window.MindmapNodeManager({
+            mind: this.mind,
+            dataManager: this.dataManager,
+            eventBus: window.AutogenEventBus,
+            logger: console
+          });
+          console.log('[MindmapController] ✅ 节点管理器初始化成功');
+        }
+        
+        // 初始化状态管理器
+        if (typeof window.MindmapStateManager !== 'undefined') {
+          this.stateManager = new window.MindmapStateManager({
+            mind: this.mind,
+            autogenStorage: window.AutogenUnifiedStorage,
+            eventBus: window.AutogenEventBus,
+            logger: console
+          });
+          console.log('[MindmapController] ✅ 状态管理器初始化成功');
+        }
+        
+        // 初始化同步管理器
+        if (typeof window.MindmapSyncManager !== 'undefined') {
+          this.syncManager = new window.MindmapSyncManager({
+            mind: this.mind,
+            dataManager: this.dataManager,
+            autogenStorage: window.AutogenUnifiedStorage,
+            eventBus: window.AutogenEventBus,
+            logger: console
+          });
+          console.log('[MindmapController] ✅ 同步管理器初始化成功');
+        }
+        
+      } catch (error) {
+        console.error('[MindmapController] 业务层模块初始化失败:', error);
+        this.nodeManager = null;
+        this.stateManager = null;
+        this.syncManager = null;
       }
     }
 

@@ -360,7 +360,17 @@ class MindmapRenderer {
    */
   _performAutoFit() {
     try {
-      if (!this.mind) return;
+      // 检查mind实例是否存在
+      if (!this.mind) {
+        this.logger.warn('[MindmapRenderer] Mind实例未设置，跳过自动适配');
+        return;
+      }
+      
+      // 检查center_node方法是否存在
+      if (typeof this.mind.center_node !== 'function') {
+        this.logger.warn('[MindmapRenderer] center_node方法不存在，跳过自动适配');
+        return;
+      }
       
       // 获取根节点并居中
       const root = this.mind.get_root();
