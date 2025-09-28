@@ -16,11 +16,18 @@
             this.errorCounts = new Map();
             this.lastErrorTime = new Map();
             
+            // P2.2: 集成统一日志系统
+            this.logger = null;
+            this.enableUnifiedLogging = true;
+            
             // 初始化全局错误监听
             this._setupGlobalErrorHandling();
             
             // 注册默认恢复策略
             this._registerDefaultRecoveryStrategies();
+            
+            // P2.2: 延迟集成日志系统
+            setTimeout(() => this._integrateUnifiedLogger(), 100);
         }
         
         /**
@@ -32,12 +39,19 @@
         handle(error, context = {}, options = {}) {
             const errorInfo = this._normalizeError(error, context);
             
-            // 记录错误
+            // P2.2: 使用统一日志系统记录错误
+            this._logErrorUnified(errorInfo, options);
+            
+            // 记录错误（保持向后兼容）
             this._logError(errorInfo);
             
             // 检查是否需要限流（防止错误风暴）
             if (this._shouldThrottle(errorInfo)) {
-                console.warn('[ErrorHandler] 错误被限流，跳过处理');
+                if (this.logger) {
+                    this.logger.warn('system', '错误被限流，跳过处理', { errorInfo });
+                } else {
+                    console.warn('[ErrorHandler] 错误被限流，跳过处理');
+                }
                 return;
             }
             
@@ -373,6 +387,73 @@
                 console.log('[ErrorHandler] 权限错误，尝试降级处理');
                 // 可以在这里实现降级处理逻辑
             });
+        }
+        
+        /**
+         * P2.2: 集成统一日志系统
+         */
+        _integrateUnifiedLogger() {
+            if (typeof global.UnifiedLogger !== 'undefined') {
+                this.logger = global.UnifiedLogger;
+                this.logger.errorHandler = this; // 双向引用
+                console.log('[ErrorHandler] ✅ 已集成统一日志系统');
+            } else {
+                console.warn('[ErrorHandler] ⚠️ 统一日志系统未找到，使用传统日志');
+            }
+        }
+        
+        /**
+         * P2.2: 使用统一日志系统记录错误
+         */
+        _logErrorUnified(errorInfo, options = {}) {
+            if (!this.logger || !this.enableUnifiedLogging) {
+                return;
+            }
+            
+            const category = options.category || 'system';
+            const level = this._getLogLevel(errorInfo.severity);
+            
+            this.logger.log(
+                level,
+                category,
+                errorInfo.message,
+                {
+                    error: errorInfo,
+                    stack: errorInfo.stack,
+                    context: errorInfo.context
+                },
+                {
+                    component: errorInfo.component,
+                    action: errorInfo.action,
+                    userId: errorInfo.userId
+                }
+            );
+        }
+        
+        /**
+         * P2.2: 根据错误严重程度获取日志级别
+         */
+        _getLogLevel(severity) {
+            if (!global.LOG_LEVELS) {
+                return { value: 1, name: 'ERROR' }; // 默认错误级别
+            }
+            
+            switch (severity) {
+                case 'critical':
+                case 'fatal':
+                    return global.LOG_LEVELS.FATAL;
+                case 'high':
+                case 'error':
+                    return global.LOG_LEVELS.ERROR;
+                case 'medium':
+                case 'warning':
+                    return global.LOG_LEVELS.WARN;
+                case 'low':
+                case 'info':
+                    return global.LOG_LEVELS.INFO;
+                default:
+                    return global.LOG_LEVELS.ERROR;
+            }
         }
     }
     
