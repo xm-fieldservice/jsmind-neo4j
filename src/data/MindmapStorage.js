@@ -340,15 +340,16 @@ class MindmapStorage {
     }
 
     /**
-     * 计算数据哈希值（使用公共工具方法）
+     * 计算数据哈希值（使用统一框架工具）
      */
     _calculateDataHash(data) {
-        // 使用公共工具方法，避免代码重复
+        // 使用统一的DataUtils工具
         if (typeof window !== 'undefined' && window.DataUtils) {
             return window.DataUtils.calculateDataHash(data);
         }
         
-        // 回退逻辑
+        console.warn('[MindmapStorage] DataUtils不可用，使用回退逻辑');
+        // 简化的回退逻辑
         try {
             const str = JSON.stringify(data);
             let hash = 0;
