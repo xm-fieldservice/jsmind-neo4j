@@ -11,10 +11,15 @@
  * 参考autogen _cache_store.py的设计模式
  */
 
-// 防止重复定义
-if (typeof window.AutogenUnifiedStorage !== 'undefined') {
-    console.warn('[AutogenUnifiedStorage] 已存在，跳过重复定义');
+// 防止重复定义（但允许重新初始化不完整的实例）
+if (typeof window.AutogenUnifiedStorage !== 'undefined' && 
+    typeof window.AutogenUnifiedStorage.retrieve === 'function' &&
+    typeof window.AutogenUnifiedStorage.store === 'function') {
+    console.warn('[AutogenUnifiedStorage] 完整实例已存在，跳过重复定义');
 } else {
+    if (typeof window.AutogenUnifiedStorage !== 'undefined') {
+        console.warn('[AutogenUnifiedStorage] 发现不完整实例，重新初始化');
+    }
 
 class AutogenUnifiedStorage {
     constructor() {
@@ -118,8 +123,8 @@ class AutogenUnifiedStorage {
             // 异步存储到持久层
             await this.persistToStorage(storageKey, storageItem);
             
-            // JSON底座同步（如果启用）
-            if (options.syncToJsonBase !== false) {
+            // JSON底座同步（显式启用才触发，避免400循环）
+            if (options.syncToJsonBase === true) {
                 this.syncToJsonBase(type, key, data, options).catch(() => {}); // 异步，不阻塞主流程
             }
             

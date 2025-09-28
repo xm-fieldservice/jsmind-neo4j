@@ -199,10 +199,16 @@ class MindmapRenderer {
       return false;
     }
     
-    // 检查是否有有效的标题字段（兼容多种格式）
-    const hasValidTitle = data.topic || data.label || data.name || data.title;
+    // 增强的标题字段检查，防止undefined.name错误
+    const titleFields = [data.topic, data.label, data.name, data.title];
+    const hasValidTitle = titleFields.some(field => field && typeof field === 'string' && field.trim().length > 0);
+    
     if (!hasValidTitle) {
-      this.logger.warn('[MindmapRenderer] 数据验证失败: 缺少标题字段', data);
+      this.logger.warn('[MindmapRenderer] 数据验证失败: 缺少有效标题字段', {
+        data: data,
+        titleFields: titleFields,
+        availableKeys: Object.keys(data)
+      });
       return false;
     }
     
@@ -241,9 +247,9 @@ class MindmapRenderer {
    * 递归转换为jsMind树结构
    */
   _toJsMindTree(node) {
-    // 安全检查
-    if (!node) {
-      console.warn('[MindmapRenderer] 节点为空，使用默认节点');
+    // 增强的安全检查
+    if (!node || typeof node !== 'object') {
+      console.warn('[MindmapRenderer] 节点为空或无效，使用默认节点', node);
       return {
         id: 'default_' + Date.now(),
         topic: '默认节点',
@@ -251,9 +257,19 @@ class MindmapRenderer {
       };
     }
     
+    // 安全获取标题，防止undefined.name错误
+    let topic = '未命名节点';
+    const titleCandidates = [node.topic, node.label, node.name, node.title];
+    for (const candidate of titleCandidates) {
+      if (candidate && typeof candidate === 'string' && candidate.trim().length > 0) {
+        topic = candidate.trim();
+        break;
+      }
+    }
+    
     const result = {
       id: node.id || 'node_' + Date.now(),
-      topic: node.topic || node.label || node.name || '未命名节点',
+      topic: topic,
       expanded: node.expanded !== false
     };
     

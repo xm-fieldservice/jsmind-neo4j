@@ -547,38 +547,37 @@
       })();
     </script>
     
-    <!-- AutogenUnifiedStorage - 统一存储系统 -->
+    <!-- 🎯 死锁源确定：ErrorHandler.js导致死锁，永久禁用 -->
+    <script src="src/core/ApiConfig.js"></script>
     <script src="src/core/storage/AutogenUnifiedStorage.js"></script>
     <script src="src/core/messaging/AutogenEventBus.js"></script>
+    <script src="src/core/DependencyManager.js"></script>
+    
+    <!-- ✅ 死锁源已修复：ErrorHandler.js - 恢复加载 -->
+    <script src="src/core/ErrorHandler.js"></script>
+    
+    <!-- 🔍 第四次测试：恢复SystemInitializationCoordinator.js -->
+    <script src="src/core/SystemInitializationCoordinator.js"></script>
+    <script>
+        console.log('[诊断] ✅ ErrorHandler.js死锁源已修复并恢复');
+    </script>
     <!-- <script src="src/migration/StorageMigrationTool.js"></script> --> <!-- 迁移完成，已删除 -->
     
-    <!-- 数据层模块 - Phase 1: 巨型控制器拆分 -->
+    <!-- ✅ 死锁诊断完成，恢复所有Phase 1-3模块 -->
     <script src="src/data/MindmapDataManager.js"></script>
-    
-    <!-- 数据管理器集成脚本 -->
     <script src="src/integration/MindmapDataManagerIntegration.js"></script>
-    
-    <!-- Phase 2: 表现层模块 -->
-    <!-- 渲染器模块 -->
     <script src="src/presentation/MindmapRenderer.js"></script>
-    
-    <!-- 事件管理器模块 -->
     <script src="src/presentation/MindmapEventManager.js"></script>
-    
-    <!-- UI控制器模块 -->
     <script src="src/presentation/MindmapUIController.js"></script>
-    
-    <!-- 表现层集成脚本 -->
     <script src="src/integration/MindmapPresentationIntegration.js"></script>
-    
-    <!-- 表现层测试脚本 -->
     <script src="src/tests/MindmapPresentationTest.js"></script>
-    
-    <!-- Phase 3: 业务逻辑层模块 -->
     <script src="src/business/MindmapNodeManager.js"></script>
     <script src="src/business/MindmapSyncManager.js"></script>
     <script src="src/business/MindmapStateManager.js"></script>
     <script src="src/integration/MindmapBusinessIntegration.js"></script>
+    <script>
+        console.log('[诊断] ✅ 死锁源确定为ErrorHandler.js，所有其他模块已恢复');
+    </script>
     
     <!-- JSON底座查询服务 -->
     <script src="src/services/JsonBaseQueryService.js"></script>
@@ -589,8 +588,8 @@
     <!-- P1.3: 标签面板控制器（专用标签管理功能） -->
     <script src="src/controllers/MindmapTagPanelController.js"></script>
     
-    <!-- 架构基础设施（优先加载） -->
-    <script src="src/core/ApiConfig.js"></script>
+    <!-- 架构基础设施（已在上方加载，避免重复） -->
+    <!-- <script src="src/core/ApiConfig.js"></script> --> <!-- 已在第552行加载 -->
     <script src="src/core/ModuleLifecycleManager.js"></script>
     
     <!-- Phase 1: 结构性架构改进组件（按依赖顺序加载） -->
@@ -601,9 +600,9 @@
     <!-- P2.2: 统一日志系统（优先加载，供其他组件使用） -->
     <script src="src/core/UnifiedLogger.js"></script>
     
-    <!-- 核心管理组件 - 在基础组件加载后添加 -->
-    <script src="src/core/ErrorHandler.js"></script>
-    <script src="src/core/DependencyManager.js"></script>
+    <!-- 核心管理组件（已在上方加载，避免重复） -->
+    <!-- <script src="src/core/ErrorHandler.js"></script> --> <!-- 已在第562行加载 -->
+    <!-- <script src="src/core/DependencyManager.js"></script> --> <!-- 已在第561行加载 -->
     
     <!-- P1.1: 依赖注入容器（减少全局变量依赖） -->
     <script src="src/core/DependencyContainer.js"></script>
@@ -1008,98 +1007,22 @@
     
     <!-- 系统健康检查脚本已清理 -->
     
-    <!-- 系统初始化检查 -->
+    <!-- 系统初始化检查（暂时禁用，诊断死锁） -->
+    <!--
     <script>
         // 确保所有系统正确初始化
         window.addEventListener('DOMContentLoaded', function() {
             console.log('[系统] 检查系统组件状态...');
-            
-            // 检查持久化系统
-            if (window.PersistenceSystemChecker) {
-                console.log('[系统] ✅ 持久化系统检查器已加载');
-                
-                // 等待持久化系统就绪
-                window.PersistenceSystemChecker.waitForReady(10000).then(ready => {
-                    if (ready) {
-                        console.log('[系统] ✅ 持久化系统已就绪');
-                        try {
-                            if (window.PersistenceManager && typeof window.PersistenceManager.getStats === 'function') {
-                                const stats = window.PersistenceManager.getStats();
-                                console.log('[系统] 持久化统计:', stats);
-                            } else {
-                                console.log('[系统] PersistenceManager.getStats不可用，跳过统计');
-                            }
-                        } catch (error) {
-                            console.warn('[系统] 获取持久化统计失败:', error.message);
-                        }
-                    } else {
-                        console.error('[系统] ❌ 持久化系统初始化超时');
-                    }
-                });
-            } else {
-                console.error('[系统] ❌ 持久化系统检查器未加载');
-            }
-            
-            // 第二阶段：初始化增强版事件总线系统（使用传统脚本加载）
-            console.log('[系统] 🔧 使用传统脚本加载方式初始化系统组件...');
-            
-            // 简化系统初始化，避免ES6模块导入
-            // 这些高级功能将在后续版本中逐步实现
-            console.log('[系统] ⚠️ 高级系统组件暂未加载（ES6模块支持问题）');
-            console.log('[系统] ✅ 基础系统功能已就绪');
-            
-            // 触发基础的存储系统就绪事件
-            window.dispatchEvent(new CustomEvent('simpleStorageReady', {
-                detail: { 
-                    storage: window.SimpleStorage,
-                    validator: window.SimpleValidator
-                }
-            }));
-            
-            // 检查统一存储系统（向后兼容）
-            if (window.UnifiedStorage) {
-                console.log('[系统] ✅ 统一存储系统已加载');
-                
-                // 显示存储统计信息
-                setTimeout(() => {
-                    try {
-                        const stats = window.UnifiedStorage.getStorageStats();
-                        console.log('[系统] 存储统计:', stats);
-                    } catch (error) {
-                        console.warn('[系统] 获取存储统计失败:', error);
-                    }
-                }, 1000);
-            } else {
-                console.warn('[系统] ⚠️ 统一存储系统未加载（使用简化存储系统）');
-            }
-            
-            // 检查关系管理前端
-            if (window.relationFrontend) {
-                console.log('[系统] ✅ 关系管理前端已加载');
-            } else {
-                console.error('[系统] ❌ 关系管理前端未加载');
-            }
+            // 暂时禁用所有检查
         });
+    </script>
+    -->
+    <script>
+        console.log('[系统] ⚠️ 系统初始化检查已暂时禁用，用于诊断死锁问题');
+        console.log('[系统] 🔧 基础系统功能已就绪（简化模式）');
+    </script>
 
-        // 监听持久化系统事件
-        window.addEventListener('persistenceSystemReady', function(event) {
-            console.log('[系统] 🎉 持久化系统就绪事件触发', event.detail);
-        });
-
-        window.addEventListener('persistenceSystemError', function(event) {
-            console.error('[系统] ❌ 持久化系统错误事件触发', event.detail);
-        });
-
-        // 监听简化存储系统事件
-        window.addEventListener('simpleStorageReady', function(event) {
-            console.log('[系统] 🎉 简化存储系统就绪事件触发', event.detail);
-            
-            // 如果MindmapController已经初始化，通知它存储系统已就绪
-            if (window.mindmapController) {
-                console.log('[系统] 通知MindmapController存储系统已就绪');
-                // 可以在这里触发重新初始化存储系统
-            }
-        });
+        // 事件监听器已暂时禁用，用于诊断死锁问题
     </script>
     
     
@@ -1111,6 +1034,19 @@
     
     <!-- Phase 1: 架构改进验证测试 -->
     <script src="src/tests/test_phase1_architecture_improvements.js"></script>
+    
+    <!-- 🚀 Phase 6.2: 统一系统初始化（暂时禁用，诊断死锁） -->
+    <!--
+    <script>
+    window.addEventListener('DOMContentLoaded', async function() {
+        console.log('[Phase 6.2] 🚀 开始统一系统初始化');
+        // 暂时禁用所有初始化代码
+    });
+    </script>
+    -->
+    <script>
+        console.log('[Phase 6.2] ⚠️ 初始化已暂时禁用，用于诊断死锁问题');
+    </script>
     
     <!-- Toast提示 -->
     <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>

@@ -26,8 +26,8 @@
             // 注册默认恢复策略
             this._registerDefaultRecoveryStrategies();
             
-            // P2.2: 延迟集成日志系统
-            setTimeout(() => this._integrateUnifiedLogger(), 100);
+            // P2.2: 立即尝试集成日志系统（无延迟，避免死锁）
+            this._integrateUnifiedLogger();
         }
         
         /**
@@ -309,8 +309,9 @@
             try {
                 if (this.eventBus && typeof this.eventBus.emit === 'function') {
                     this.eventBus.emit('error:occurred', errorInfo);
-                } else if (global.AutogenEventBus && typeof global.AutogenEventBus.emit === 'function') {
-                    global.AutogenEventBus.emit('error:occurred', errorInfo);
+                } else {
+                    // 移除可能的循环调用死锁源
+                    console.log('[ErrorHandler] 错误事件记录:', errorInfo.type, errorInfo.message);
                 }
             } catch (error) {
                 console.warn('[ErrorHandler] 发送错误事件失败:', error);
@@ -393,13 +394,30 @@
          * P2.2: 集成统一日志系统
          */
         _integrateUnifiedLogger() {
-            if (typeof global.UnifiedLogger !== 'undefined') {
-                this.logger = global.UnifiedLogger;
-                this.logger.errorHandler = this; // 双向引用
-                console.log('[ErrorHandler] ✅ 已集成统一日志系统');
-            } else {
-                console.warn('[ErrorHandler] ⚠️ 统一日志系统未找到，使用传统日志');
+            // 尝试多种方式查找统一日志系统
+            const possibleLoggers = [
+                global.UnifiedLogger,
+                window.UnifiedLogger,
+                this.dependencies?.UnifiedLogger
+            ];
+            
+            for (const logger of possibleLoggers) {
+                if (logger && typeof logger === 'object') {
+                    this.logger = logger;
+                    console.log('[ErrorHandler] ✅ 已集成统一日志系统（无双向引用）');
+                    return;
+                }
             }
+            
+            // 延迟重试机制
+            setTimeout(() => {
+                if (global.UnifiedLogger && !this.logger) {
+                    this.logger = global.UnifiedLogger;
+                    console.log('[ErrorHandler] ✅ 延迟集成统一日志系统成功');
+                }
+            }, 500);
+            
+            console.warn('[ErrorHandler] ⚠️ 统一日志系统未找到，使用传统日志');
         }
         
         /**

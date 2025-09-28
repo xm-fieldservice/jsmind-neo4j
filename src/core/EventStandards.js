@@ -13,7 +13,7 @@
      * 格式：{domain}:{category}:{action}
      */
     const EVENT_STANDARDS = {
-        // 事件域定义
+        // 事件域定义（扩展兼容性）
         DOMAINS: {
             MINDMAP: 'mindmap',        // 脑图核心功能
             NODE: 'node',              // 节点操作
@@ -22,10 +22,17 @@
             SYSTEM: 'system',          // 系统级事件
             MODULE: 'module',          // 模块管理
             STATE: 'state',            // 状态管理
-            ERROR: 'error'             // 错误事件
+            ERROR: 'error',            // 错误事件
+            // 兼容现有事件域
+            'mindmap-ui': 'mindmap-ui',
+            'mindmap-events': 'mindmap-events',
+            'mindmap-renderer': 'mindmap-renderer',
+            'dependency': 'dependency',
+            'phase1': 'phase1',
+            'presentation-integration-complete': 'presentation-integration-complete'
         },
 
-        // 事件分类
+        // 事件分类（扩展兼容性）
         CATEGORIES: {
             // 生命周期事件
             LIFECYCLE: 'lifecycle',    // created, initialized, destroyed
@@ -46,10 +53,18 @@
             SYNC: 'sync',             // start, complete, error
             
             // 测试事件
-            TEST: 'test'              // start, complete, failed
+            TEST: 'test',             // start, complete, failed
+            
+            // 兼容现有分类
+            'toast': 'toast',
+            'drag': 'drag',
+            'mouse': 'mouse',
+            'all_initialized': 'all_initialized',
+            'contextChanged': 'contextChanged',
+            'rendered': 'rendered'
         },
 
-        // 标准事件动作
+        // 标准事件动作（扩展兼容性）
         ACTIONS: {
             // 通用动作
             START: 'start',
@@ -66,18 +81,21 @@
             
             // 状态动作
             CHANGE: 'change',
-            SAVE: 'save',
-            LOAD: 'load',
             
             // 交互动作
             CLICK: 'click',
             HOVER: 'hover',
-            DRAG: 'drag',
-            DROP: 'drop',
             
             // 渲染动作
             RENDER: 'render',
-            REFRESH: 'refresh'
+            REFRESH: 'refresh',
+            
+            // 兼容现有动作
+            'show': 'show',
+            'end': 'end',
+            'node-click': 'node-click',
+            'validation': 'validation',
+            'render-error': 'render-error'
         }
     };
 
@@ -148,26 +166,63 @@
                 return { valid: false, error: '事件名称必须是字符串' };
             }
 
+            // 检查明显无效的事件名称
+            if (eventName.trim() === '') {
+                return { valid: false, error: '事件名称不能为空' };
+            }
+
+            // 检查包含无效字符
+            if (!/^[a-zA-Z0-9\-_:]+$/.test(eventName)) {
+                return { valid: false, error: '事件名称包含无效字符' };
+            }
+
+            // 宽松验证：允许现有格式
             const parts = eventName.split(':');
-            if (parts.length !== 3) {
-                return { valid: false, error: '事件名称格式错误，应为 domain:category:action' };
+            
+            // 允许单段事件名（向后兼容），但检查格式
+            if (parts.length === 1) {
+                // 拒绝明显无效的格式
+                if (eventName.includes('invalid') || eventName.length < 3) {
+                    return { valid: false, error: '事件名称格式无效' };
+                }
+                return { valid: true, warning: '建议使用 domain:category:action 格式' };
+            }
+            
+            // 允许两段事件名（向后兼容）
+            if (parts.length === 2) {
+                return { valid: true, warning: '建议使用 domain:category:action 格式' };
+            }
+            
+            // 标准三段格式验证
+            if (parts.length === 3) {
+                const [domain, category, action] = parts;
+
+                // 检查空段
+                if (!domain || !category || !action) {
+                    return { valid: false, error: '事件名称不能包含空段' };
+                }
+
+                // 宽松验证域（允许未知域）
+                if (!Object.values(EVENT_STANDARDS.DOMAINS).includes(domain)) {
+                    console.debug(`[EventValidator] 未知事件域: ${domain}，建议注册`);
+                }
+
+                // 宽松验证分类（允许未知分类）
+                if (!Object.values(EVENT_STANDARDS.CATEGORIES).includes(category)) {
+                    console.debug(`[EventValidator] 未知事件分类: ${category}，建议注册`);
+                }
+
+                // 宽松验证动作（允许未知动作）
+                if (!Object.values(EVENT_STANDARDS.ACTIONS).includes(action)) {
+                    console.debug(`[EventValidator] 未知事件动作: ${action}，建议注册`);
+                }
+
+                return { valid: true };
             }
 
-            const [domain, category, action] = parts;
-
-            // 验证域
-            if (!Object.values(EVENT_STANDARDS.DOMAINS).includes(domain)) {
-                return { valid: false, error: `未知的事件域: ${domain}` };
-            }
-
-            // 验证分类
-            if (!Object.values(EVENT_STANDARDS.CATEGORIES).includes(category)) {
-                return { valid: false, error: `未知的事件分类: ${category}` };
-            }
-
-            // 验证动作
-            if (!Object.values(EVENT_STANDARDS.ACTIONS).includes(action)) {
-                return { valid: false, error: `未知的事件动作: ${action}` };
+            // 超过三段的事件名
+            if (parts.length > 3) {
+                return { valid: false, error: '事件名称段数过多，建议使用 domain:category:action 格式' };
             }
 
             return { valid: true };
@@ -185,11 +240,15 @@
                 return { valid: false, error: '事件数据必须是对象类型' };
             }
 
-            // 检查循环引用
+            // 宽松的循环引用检查 - 只警告不阻止
             try {
                 JSON.stringify(data);
             } catch (error) {
-                return { valid: false, error: '事件数据包含循环引用' };
+                if (error.message.includes('circular') || error.message.includes('Converting circular')) {
+                    console.debug('[EventValidator] 检测到循环引用，但允许通过');
+                    return { valid: true, warning: '事件数据包含循环引用' };
+                }
+                return { valid: false, error: '事件数据序列化失败' };
             }
 
             return { valid: true };

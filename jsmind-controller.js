@@ -73,8 +73,15 @@
           });
           console.log('[MindmapController] ✅ 数据管理器初始化成功');
         } else {
-          // 延迟初始化
-          setTimeout(() => this._initDataManager(), 100);
+          // 🚨 修复：添加重试限制，避免无限循环
+          if (!this._dataManagerRetries) this._dataManagerRetries = 0;
+          if (this._dataManagerRetries < 10) {
+            this._dataManagerRetries++;
+            setTimeout(() => this._initDataManager(), 100);
+            console.log(`[MindmapController] ⚠️ MindmapDataManager未加载，重试 ${this._dataManagerRetries}/10`);
+          } else {
+            console.warn('[MindmapController] ⚠️ MindmapDataManager加载超时，跳过数据管理器初始化');
+          }
         }
         
         // 初始化MindmapStorage
@@ -139,6 +146,12 @@
     // 初始化业务层模块
     async _initBusinessModules() {
       try {
+        // 🚨 修复：防止重复初始化
+        if (this.businessIntegrator) {
+          console.log('[MindmapController] ⚠️ 业务层集成器已初始化，跳过重复初始化');
+          return;
+        }
+        
         // 使用正式的业务层集成器替代补丁系统
         if (typeof window.MindmapBusinessLayerIntegrator !== 'undefined') {
           this.businessIntegrator = new window.MindmapBusinessLayerIntegrator(this);

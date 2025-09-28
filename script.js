@@ -1,12 +1,44 @@
         // 全局常量与助手：供早期函数与目录逻辑共用
         const CKEY = 'mm_project_catalog_v1';
+        
+        // 等待AutogenUnifiedStorage就绪的辅助函数（带超时保护）
+        const waitForStorage = () => {
+            return new Promise((resolve, reject) => {
+                let attempts = 0;
+                const maxAttempts = 500; // 5秒超时 (500 * 10ms)
+                
+                const check = () => {
+                    if (window.AutogenUnifiedStorage && 
+                        typeof window.AutogenUnifiedStorage.retrieve === 'function' &&
+                        typeof window.AutogenUnifiedStorage.store === 'function') {
+                        console.log('[waitForStorage] AutogenUnifiedStorage就绪');
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        console.error('[waitForStorage] 超时：AutogenUnifiedStorage未就绪');
+                        // 不要reject，而是resolve，让程序继续运行
+                        resolve();
+                    } else {
+                        attempts++;
+                        setTimeout(check, 10);
+                    }
+                };
+                check();
+            });
+        };
+        
         const loadCatalog = async ()=>{
             try{
+                await waitForStorage(); // 确保存储系统就绪
                 const raw = await window.AutogenUnifiedStorage.retrieve('catalog', CKEY);
                 return raw ? raw : [];
             }catch(_){ return []; }
         };
-        const saveCatalog = async (list)=>{ try{ await window.AutogenUnifiedStorage.store('catalog', CKEY, list); }catch(_){ } };
+        const saveCatalog = async (list)=>{ 
+            try{ 
+                await waitForStorage(); // 确保存储系统就绪
+                await window.AutogenUnifiedStorage.store('catalog', CKEY, list); 
+            }catch(_){ } 
+        };
         const computeHash = (text)=>{
             try{
                 let h = 0; for (let i=0;i<text.length;i++){ h = (h*31 + text.charCodeAt(i))|0; }
