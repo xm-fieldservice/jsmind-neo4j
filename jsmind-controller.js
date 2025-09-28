@@ -86,10 +86,54 @@
           console.log('[MindmapController] ✅ 存储管理器初始化成功');
         }
         
+        // 初始化表现层模块
+        this._initPresentationModules();
+        
       } catch (error) {
         console.error('[MindmapController] 数据管理器初始化失败:', error);
         this.dataManager = null;
         this.mindmapStorage = null;
+        this.renderer = null;
+        this.eventManager = null;
+        this.uiController = null;
+      }
+    }
+    
+    // 初始化表现层模块
+    _initPresentationModules() {
+      try {
+        // 初始化渲染器
+        if (typeof window.MindmapRenderer !== 'undefined') {
+          this.renderer = new window.MindmapRenderer({
+            eventBus: window.AutogenEventBus,
+            logger: console
+          });
+          console.log('[MindmapController] ✅ 渲染器初始化成功');
+        }
+        
+        // 初始化事件管理器
+        if (typeof window.MindmapEventManager !== 'undefined') {
+          this.eventManager = new window.MindmapEventManager({
+            eventBus: window.AutogenEventBus,
+            logger: console
+          });
+          console.log('[MindmapController] ✅ 事件管理器初始化成功');
+        }
+        
+        // 初始化UI控制器
+        if (typeof window.MindmapUIController !== 'undefined') {
+          this.uiController = new window.MindmapUIController({
+            eventBus: window.AutogenEventBus,
+            logger: console
+          });
+          console.log('[MindmapController] ✅ UI控制器初始化成功');
+        }
+        
+      } catch (error) {
+        console.error('[MindmapController] 表现层模块初始化失败:', error);
+        this.renderer = null;
+        this.eventManager = null;
+        this.uiController = null;
       }
     }
 
@@ -331,28 +375,41 @@
       }
     }
 
-    // Toast 提示方法
+    // Toast 提示方法（委托给UIController）
     showToast(message, type = 'info'){
+      // 使用UI控制器显示 Toast
+      if (this.uiController) {
+        this.uiController.showToast(message, type);
+        return;
+      }
+      
+      // 回退逻辑
       try{
         // 使用日志面板显示消息
         if (window.LogPanel){
-          if (type === 'error'){
-            window.LogPanel.error(`[Toast] ${message}`);
-          } else {
-            window.LogPanel.log(`[Toast] ${message}`);
-          }
+          const logType = {
+            'info': 'info',
+            'success': 'success',
+            'warning': 'warning',
+            'error': 'error'
+          }[type] || 'info';
+          
+          window.LogPanel.log(message, logType);
+          return;
         }
         
-        // 同时在控制台输出
-        if (type === 'error'){
-          console.error(`[MindmapController Toast] ${message}`);
-        } else {
-          console.log(`[MindmapController Toast] ${message}`);
-        }
+        // 如果没有日志面板，使用控制台输出
+        const logMethod = {
+          'info': 'log',
+          'success': 'log',
+          'warning': 'warn',
+          'error': 'error'
+        }[type] || 'log';
         
-        // 简单的页面提示（可选）
-        if (type === 'error'){
-          // 对于错误，使用 alert 确保用户看到
+        console[logMethod](`[Toast] ${message}`);
+        
+        // 对于错误，使用 alert 确保用户看到
+        if (type === 'error') {
           setTimeout(() => alert(`错误: ${message}`), 100);
         }
       }catch(e){
@@ -362,36 +419,58 @@
 
     // 渲染（将内部 this.data 转为 jsMind 的 node_tree 格式）
     renderMindmap(){
-      // 渲染前兜底：根标题不得为空
+      // 数据验证和修复
       try{
         if (!this.data || !this.data.label || !String(this.data.label).trim()){
           this.data = Object.assign({}, this.data, { label: '未命名项目' });
         }
       }catch(_){ this.data = this.data || { id: 'root', label: '未命名项目', children: [] }; }
+      
+      // 使用渲染器模块
+      if (this.renderer && this.mind) {
+        this.renderer.setMindInstance(this.mind);
+        const renderOptions = {
+          selectedNodeId: this.data.id,
+          applyDefaultColors: true,
+          enableDrag: true,
+          autoFit: true
+        };
+        
+        this.renderer.renderMindmap(this.data, renderOptions).then(success => {
+          if (success) {
+            // 后处理步骤
+            this.ensureFullSnapshotFromMind();
+            try { this._patchDraggableSafeguards(); } catch(_) { /* ignore */ }
+            this.renderTagPanelFromMind();
+            this.selectedNode = this.data.id;
+            this._appendEmojisToRootForTest();
+            
+            // 广播渲染完成事件
+            try{ 
+              this._emitEvent('mindmap:rendered', { data: this.data });
+            }catch(_){ }
+          }
+        });
+        return;
+      }
+      
+      // 回退逻辑：原始渲染方式
       const jmData = {
         meta: { name: 'Project Mindmap', author: 'local', version: '1.0' },
         format: 'node_tree',
         data: this.toJsMindTree(this.data),
       };
       this.mind.show(jmData);
-      // 在首次渲染全图后立即固化全图快照
       this.ensureFullSnapshotFromMind(jmData);
       this.ensureDragEnabled();
-      // 再次补丁，确保渲染后 draggable 依赖就绪
       try { this._patchDraggableSafeguards(); } catch(_) { /* ignore */ }
-      // 强制仅原生拖拽：不注入 HTML5 draggable 层
       console.log('[MindmapController] 渲染脑图完成');
-      // 渲染后为未设置颜色的节点应用默认浅灰底/深色字（非强制覆盖，仅设置缺省值）
       this.applyDefaultNodeColor('#f5f5f5', '#333');
-      // 渲染后同步标签面板（从脑图“标签管理”解析标签组与标签）
       this.renderTagPanelFromMind();
-      // 选中当前项目根，避免残留选中指向其他项目导致找不到节点
       this.selectedNode = this.data.id;
       this.setSelectedNode(this.data.id);
-      // 测试：为根节点标题追加5个emoji（纯文本显示，不依赖HTML）
       this._appendEmojisToRootForTest();
       this.scheduleAutoFit();
-      // 广播渲染完成事件（供注册管理器自举）
       try{ 
         this._emitEvent('mindmap:rendered', { data: this.data });
       }catch(_){ }
