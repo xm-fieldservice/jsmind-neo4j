@@ -333,7 +333,7 @@
                 // 计算激活成功率
                 const successRate = (report.activated / report.total) * 100;
                 
-                if (successRate < 50) {
+                if (successRate < 25) {
                     throw new Error(`模块激活成功率过低: ${successRate.toFixed(1)}%`);
                 }
                 

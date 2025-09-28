@@ -148,17 +148,32 @@
             ];
             
             coreModules.forEach(moduleName => {
-                // 检查是否已注册
-                const status = this.dependencyManager.getStatus(moduleName);
-                if (status.status === 'not_registered') {
-                    // 动态注册未注册的核心模块
-                    this._registerModule(moduleName, [], () => {
-                        return window[moduleName] || this._loadModuleFromPath(`src/core/${moduleName}.js`);
-                    }, { required: true, category: 'core' });
+                try {
+                    // 检查模块是否真实存在
+                    if (window[moduleName]) {
+                        // 检查是否已注册
+                        const status = this.dependencyManager.getStatus(moduleName);
+                        if (status.status === 'not_registered') {
+                            // 动态注册未注册的核心模块
+                            this._registerModule(moduleName, [], () => {
+                                return window[moduleName];
+                            }, { required: true, category: 'core' });
+                        }
+                        
+                        this.moduleCategories.core.push(moduleName);
+                        this.activationStatus.activated++;
+                        console.log(`[ModuleActivation] ✅ 核心模块 ${moduleName} 已激活`);
+                    } else {
+                        console.warn(`[ModuleActivation] ⚠️ 核心模块 ${moduleName} 不存在，跳过`);
+                        this.activationStatus.failed++;
+                    }
+                    
+                    this.activationStatus.total++;
+                } catch (error) {
+                    console.error(`[ModuleActivation] ❌ 核心模块 ${moduleName} 激活失败:`, error);
+                    this.activationStatus.failed++;
+                    this.activationStatus.total++;
                 }
-                
-                this.moduleCategories.core.push(moduleName);
-                this.activationStatus.total++;
             });
         }
         

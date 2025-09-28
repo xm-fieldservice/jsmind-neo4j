@@ -225,19 +225,35 @@ class MindmapRenderer {
    * 递归转换为jsMind树结构
    */
   _toJsMindTree(node) {
+    // 安全检查
+    if (!node) {
+      console.warn('[MindmapRenderer] 节点为空，使用默认节点');
+      return {
+        id: 'default_' + Date.now(),
+        topic: '默认节点',
+        expanded: true
+      };
+    }
+    
     const result = {
-      id: node.id,
-      topic: node.label || '未命名节点',
+      id: node.id || 'node_' + Date.now(),
+      topic: node.topic || node.label || node.name || '未命名节点',
       expanded: node.expanded !== false
     };
     
     // 添加样式信息
-    if (node.backgroundColor) result['background-color'] = node.backgroundColor;
-    if (node.foregroundColor) result['foreground-color'] = node.foregroundColor;
+    if (node.backgroundColor || node['background-color']) {
+      result['background-color'] = node.backgroundColor || node['background-color'];
+    }
+    if (node.foregroundColor || node['foreground-color']) {
+      result['foreground-color'] = node.foregroundColor || node['foreground-color'];
+    }
     
     // 递归处理子节点
-    if (node.children && node.children.length > 0) {
-      result.children = node.children.map(child => this._toJsMindTree(child));
+    if (node.children && Array.isArray(node.children) && node.children.length > 0) {
+      result.children = node.children
+        .filter(child => child) // 过滤空子节点
+        .map(child => this._toJsMindTree(child));
     }
     
     return result;
