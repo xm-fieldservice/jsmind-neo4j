@@ -133,6 +133,12 @@ class MindmapRenderer {
       // 转换为jsMind格式
       const jmData = this._convertToJsMindFormat(data);
       
+      // 数据安全检查
+      if (!jmData || !jmData.data) {
+        this.logger.error('[MindmapRenderer] jsMind数据格式错误', { original: data, converted: jmData });
+        throw new Error('jsMind数据转换失败');
+      }
+      
       // 执行渲染
       this.mind.show(jmData);
       this.lastRenderHash = dataHash;

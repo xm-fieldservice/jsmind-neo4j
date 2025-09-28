@@ -1,6 +1,6 @@
 {
-  "export_time": "2025-09-28T17:38:27.524560",
-  "total_count": 26,
+  "export_time": "2025-09-28T19:36:01.786818",
+  "total_count": 38,
   "mindmaps": [
     {
       "id": "tags_root",
@@ -5746,16 +5746,16 @@
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1759052300846-ecxe",
+          "id": "root-1759053046074-fr49",
           "topic": "新建项目",
           "data": {
-            "created": "2025-09-28T09:38:20.846Z",
-            "modified": "2025-09-28T09:38:20.846Z"
+            "created": "2025-09-28T09:50:46.074Z",
+            "modified": "2025-09-28T09:50:46.074Z"
           }
         }
       },
-      "last_modified": "2025-09-28T09:38:22.992Z",
-      "content_hash": "1356393109"
+      "last_modified": "2025-09-28T09:50:48.144Z",
+      "content_hash": "-859651580"
     },
     {
       "name": "新建项目",
@@ -5767,27 +5767,27 @@
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1759052070107-8kp4",
+          "id": "root-1759052703502-pase",
           "topic": "新建项目",
           "data": {
-            "content": "创建: 2025-09-28 17:34:30\n\n",
-            "created": "2025-09-28T09:34:30.107Z",
-            "modified": "2025-09-28T09:34:30.107Z"
+            "content": "创建: 2025-09-28 17:45:03\n\n",
+            "created": "2025-09-28T09:45:03.502Z",
+            "modified": "2025-09-28T09:45:03.502Z"
           }
         }
       },
-      "last_modified": "2025-09-28T09:38:27.105Z",
-      "content_hash": "-1986768511"
+      "last_modified": "2025-09-28T09:45:08.386Z",
+      "content_hash": "-1987617969"
     },
     {
       "id": "detail_content_editor_size",
       "name": "新建项目",
       "data": {
-        "width": 688,
-        "height": 149
+        "width": 310,
+        "height": 154
       },
-      "last_modified": "2025-09-28T08:39:45.025Z",
-      "content_hash": "-565575205"
+      "last_modified": "2025-09-28T09:50:50.921Z",
+      "content_hash": "-227276835"
     },
     {
       "id": "default_mind:data",
@@ -33579,6 +33579,171 @@
       },
       "last_modified": "2025-09-28T09:31:52.947Z",
       "content_hash": "-682886860"
+    },
+    {
+      "id": "mindmap_snapshot_snap_1759053646074",
+      "name": "新建项目",
+      "data": {
+        "ts": "2025-09-28T10:00:46.074Z",
+        "data": {
+          "id": "root-1759052954569-uzem",
+          "label": "新建项目",
+          "children": [],
+          "content": "创建: 2025-09-28 17:49:14\n\n",
+          "attachments": [],
+          "created": "2025-09-28T09:49:14.569Z",
+          "modified": "2025-09-28T09:49:14.569Z"
+        }
+      },
+      "last_modified": "2025-09-28T10:00:48.106Z",
+      "content_hash": "380075387"
+    },
+    {
+      "id": "mindmap_snapshot_snap_1759054246073",
+      "name": "新建项目",
+      "data": {
+        "ts": "2025-09-28T10:10:46.073Z",
+        "data": {
+          "id": "root-1759052954569-uzem",
+          "label": "新建项目",
+          "children": [],
+          "content": "创建: 2025-09-28 17:49:14\n\n",
+          "attachments": [],
+          "created": "2025-09-28T09:49:14.569Z",
+          "modified": "2025-09-28T09:49:14.569Z"
+        }
+      },
+      "last_modified": "2025-09-28T10:10:48.096Z",
+      "content_hash": "1070951547"
+    },
+    {
+      "id": "mindmap_snapshot_snap_1759054846078",
+      "name": "新建项目",
+      "data": {
+        "ts": "2025-09-28T10:20:46.078Z",
+        "data": {
+          "id": "root-1759052954569-uzem",
+          "label": "新建项目",
+          "children": [],
+          "content": "创建: 2025-09-28 17:49:14\n\n",
+          "attachments": [],
+          "created": "2025-09-28T09:49:14.569Z",
+          "modified": "2025-09-28T09:49:14.569Z"
+        }
+      },
+      "last_modified": "2025-09-28T10:20:48.107Z",
+      "content_hash": "-1646005631"
+    },
+    {
+      "id": "mindmap_snapshot_snap_1759055446701",
+      "name": "新建项目",
+      "data": {
+        "ts": "2025-09-28T10:30:46.701Z",
+        "data": {
+          "id": "root-1759052954569-uzem",
+          "label": "新建项目",
+          "children": [],
+          "content": "创建: 2025-09-28 17:49:14\n\n",
+          "attachments": [],
+          "created": "2025-09-28T09:49:14.569Z",
+          "modified": "2025-09-28T09:49:14.569Z"
+        }
+      },
+      "last_modified": "2025-09-28T10:30:49.684Z",
+      "content_hash": "-1374593303"
+    },
+    {
+      "id": "mindmap_snapshot_snap_1759056046695",
+      "name": "新建项目",
+      "data": {
+        "ts": "2025-09-28T10:40:46.695Z",
+        "data": {
+          "id": "root-1759052954569-uzem",
+          "label": "新建项目",
+          "children": [],
+          "content": "创建: 2025-09-28 17:49:14\n\n",
+          "attachments": [],
+          "created": "2025-09-28T09:49:14.569Z",
+          "modified": "2025-09-28T09:49:14.569Z"
+        }
+      },
+      "last_modified": "2025-09-28T10:40:49.686Z",
+      "content_hash": "1581388484"
+    },
+    {
+      "id": "modules.initialization",
+      "name": "新建项目",
+      "data": {
+        "timeout": 30000,
+        "retries": 2,
+        "healthCheck": true
+      },
+      "last_modified": "2025-09-28T11:36:01.736Z",
+      "content_hash": "-595921364"
+    },
+    {
+      "id": "modules.lifecycle",
+      "name": "新建项目",
+      "data": {
+        "autoRestart": true,
+        "healthCheckInterval": 60000
+      },
+      "last_modified": "2025-09-28T11:35:58.723Z",
+      "content_hash": "643272283"
+    },
+    {
+      "id": "api.timeouts",
+      "name": "新建项目",
+      "data": {
+        "request": 30000,
+        "connection": 10000
+      },
+      "last_modified": "2025-09-28T11:35:55.708Z",
+      "content_hash": "1785318731"
+    },
+    {
+      "id": "api.retries",
+      "name": "新建项目",
+      "data": 3,
+      "last_modified": "2025-09-28T11:34:57.804Z",
+      "content_hash": "51"
+    },
+    {
+      "id": "system.monitoring",
+      "name": "新建项目",
+      "data": {
+        "enabled": true,
+        "interval": 30000,
+        "metrics": [
+          "health",
+          "performance",
+          "errors"
+        ]
+      },
+      "last_modified": "2025-09-28T11:35:49.710Z",
+      "content_hash": "2081569535"
+    },
+    {
+      "id": "system.logging",
+      "name": "新建项目",
+      "data": {
+        "level": "info",
+        "console": true,
+        "storage": true
+      },
+      "last_modified": "2025-09-28T11:35:52.726Z",
+      "content_hash": "393615442"
+    },
+    {
+      "id": "api.endpoints",
+      "name": "新建项目",
+      "data": {
+        "jsonBase": "http://127.0.0.1:5001",
+        "registry": "http://127.0.0.1:8081",
+        "mainApi": "http://127.0.0.1:8000"
+      },
+      "last_modified": "2025-09-28T11:35:24.703Z",
+      "content_hash": "1224676971"
     }
   ]
 }

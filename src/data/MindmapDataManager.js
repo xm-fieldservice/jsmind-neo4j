@@ -262,8 +262,12 @@ class MindmapDataManager {
                 content_hash: currentHash
             };
 
-            // 发送到JSON底座API
-            const response = await fetch('http://localhost:5001/api/sync-mindmap', {
+            // 使用统一API配置获取脑图同步URL
+            const syncUrl = window.ApiConfig ? 
+                window.ApiConfig.getMindmapSyncUrl() : 
+                'http://127.0.0.1:5001/api/sync-mindmap'; // 回退方案
+            
+            const response = await fetch(syncUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(mindmapEntry)

@@ -11,9 +11,9 @@
  * 参考autogen AgentRuntime的消息机制
  */
 
-// 防止重复定义
-if (typeof window.AutogenEventBus !== 'undefined') {
-    console.warn('[AutogenEventBus] 已存在，跳过重复定义');
+// 防止重复定义（检查实例而非类）
+if (typeof window !== 'undefined' && window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function') {
+    console.warn('[AutogenEventBus] 实例已存在，跳过重复定义');
 } else {
 
 class AutogenEventBus {

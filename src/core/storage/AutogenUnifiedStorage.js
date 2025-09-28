@@ -888,8 +888,12 @@ class AutogenUnifiedStorage {
                 }
             };
             
-            // 尝试调用JSON底座API
-            const response = await fetch('/api/json-base/sync', {
+            // 使用统一API配置获取正确的同步URL
+            const syncUrl = window.ApiConfig ? 
+                window.ApiConfig.getJsonBaseSyncUrl() : 
+                'http://127.0.0.1:5001/api/json-base/sync'; // 回退方案
+            
+            const response = await fetch(syncUrl, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',

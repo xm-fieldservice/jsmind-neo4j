@@ -589,6 +589,15 @@
     <!-- P1.3: 标签面板控制器（专用标签管理功能） -->
     <script src="src/controllers/MindmapTagPanelController.js"></script>
     
+    <!-- 架构基础设施（优先加载） -->
+    <script src="src/core/ApiConfig.js"></script>
+    <script src="src/core/ModuleLifecycleManager.js"></script>
+    
+    <!-- Phase 1: 结构性架构改进组件（按依赖顺序加载） -->
+    <script src="src/core/EnhancedConfigurationManager.js"></script>
+    <script src="src/core/ErrorProcessingPipeline.js"></script>
+    <script src="src/core/ArchitectureHealthMonitor.js"></script>
+    
     <!-- P2.2: 统一日志系统（优先加载，供其他组件使用） -->
     <script src="src/core/UnifiedLogger.js"></script>
     
@@ -1099,6 +1108,9 @@
     <!-- 测试面板脚本已清理 -->
     
     <!-- 工作记录相关脚本已清理 -->
+    
+    <!-- Phase 1: 架构改进验证测试 -->
+    <script src="src/tests/test_phase1_architecture_improvements.js"></script>
     
     <!-- Toast提示 -->
     <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>
