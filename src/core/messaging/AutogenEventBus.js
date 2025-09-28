@@ -27,6 +27,16 @@ class AutogenEventBus {
         this.messageQueue = [];
         this.processing = false;
         
+        // P2.1: 事件验证和标准化
+        this.enableEventValidation = true;
+        this.enableEventMigration = true;
+        this.eventStats = {
+            emitted: 0,
+            validated: 0,
+            migrated: 0,
+            errors: 0
+        };
+        
         // 中间件系统（参考autogen中间件）
         this.middlewares = [];
         
@@ -149,26 +159,34 @@ class AutogenEventBus {
     }
     
     /**
-     * 发布事件（异步处理）
+     * 发布事件（异步处理）- P2.1增强版本
      * @param {string} event - 事件名称
      * @param {*} data - 事件数据
      * @param {Object} options - 选项
      */
     async emit(event, data = null, options = {}) {
+        // P2.1: 事件验证和迁移
+        const validatedEvent = this._validateAndMigrateEvent(event, data);
+        if (!validatedEvent) {
+            return; // 验证失败，事件被拒绝
+        }
+        
         const message = {
-            event,
-            data,
+            event: validatedEvent.event,
+            data: validatedEvent.data,
             timestamp: Date.now(),
             id: this.generateMessageId(),
             sender: options.sender || 'system',
             priority: options.priority || 0,
-            async: options.async !== false
+            async: options.async !== false,
+            migrated: validatedEvent.migrated || false
         };
         
         this.stats.messagesPublished++;
+        this.eventStats.emitted++;
         
         if (this.debugMode) {
-            console.log(`[AutogenEventBus] 发布事件: ${event}`, { data, options });
+            console.log(`[AutogenEventBus] 发布事件: ${message.event}${message.migrated ? ' (已迁移)' : ''}`, { data, options });
         }
         
         // 应用中间件
@@ -527,6 +545,82 @@ class AutogenEventBus {
     
     publish(event, data) {
         return this.emit(event, data);
+    }
+    
+    /**
+     * P2.1: 事件验证和迁移
+     */
+    _validateAndMigrateEvent(event, data) {
+        try {
+            let finalEvent = event;
+            let migrated = false;
+            
+            // 1. 事件迁移（如果启用）
+            if (this.enableEventMigration && window.EventMigrationTool) {
+                if (window.EventMigrationTool.needsMigration(event)) {
+                    finalEvent = window.EventMigrationTool.getStandardEventName(event);
+                    migrated = true;
+                    this.eventStats.migrated++;
+                    
+                    if (this.debugMode) {
+                        console.log(`[AutogenEventBus] 事件迁移: ${event} -> ${finalEvent}`);
+                    }
+                }
+            }
+            
+            // 2. 事件验证（如果启用）
+            if (this.enableEventValidation && window.EventValidator) {
+                const eventValidation = window.EventValidator.validateEventName(finalEvent);
+                if (!eventValidation.valid) {
+                    console.warn(`[AutogenEventBus] 事件名称验证失败: ${finalEvent} - ${eventValidation.error}`);
+                    this.eventStats.errors++;
+                    return null;
+                }
+                
+                const dataValidation = window.EventValidator.validateEventData(data);
+                if (!dataValidation.valid) {
+                    console.warn(`[AutogenEventBus] 事件数据验证失败: ${finalEvent} - ${dataValidation.error}`);
+                    this.eventStats.errors++;
+                    return null;
+                }
+                
+                this.eventStats.validated++;
+            }
+            
+            return {
+                event: finalEvent,
+                data: data,
+                migrated: migrated
+            };
+            
+        } catch (error) {
+            console.error('[AutogenEventBus] 事件验证和迁移失败:', error);
+            this.eventStats.errors++;
+            return null;
+        }
+    }
+    
+    /**
+     * P2.1: 获取事件统计信息
+     */
+    getEventStats() {
+        return {
+            ...this.eventStats,
+            validationEnabled: this.enableEventValidation,
+            migrationEnabled: this.enableEventMigration
+        };
+    }
+    
+    /**
+     * P2.1: 重置事件统计
+     */
+    resetEventStats() {
+        this.eventStats = {
+            emitted: 0,
+            validated: 0,
+            migrated: 0,
+            errors: 0
+        };
     }
 }
 
