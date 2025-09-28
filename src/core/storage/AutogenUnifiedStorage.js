@@ -1068,6 +1068,42 @@ class AutogenUnifiedStorage {
             uptime: Date.now() - (this.initTime || Date.now())
         };
     }
+    
+    /**
+     * 紧急清理方法 - 清理过期和无效数据
+     */
+    async emergencyCleanup() {
+        console.log('[AutogenUnifiedStorage] 开始紧急清理');
+        
+        try {
+            // 清理localStorage中的过期数据
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.startsWith('temp_') || key.startsWith('cache_'))) {
+                    keysToRemove.push(key);
+                }
+            }
+            
+            keysToRemove.forEach(key => {
+                try {
+                    localStorage.removeItem(key);
+                } catch (error) {
+                    console.warn('[AutogenUnifiedStorage] 清理localStorage项失败:', key, error);
+                }
+            });
+            
+            // 清理内存缓存
+            if (this.cache) {
+                this.cache.clear();
+            }
+            
+            console.log(`[AutogenUnifiedStorage] ✅ 紧急清理完成，清理了${keysToRemove.length}个项目`);
+            
+        } catch (error) {
+            console.error('[AutogenUnifiedStorage] 紧急清理失败:', error);
+        }
+    }
 }
 
 // 创建全局单例

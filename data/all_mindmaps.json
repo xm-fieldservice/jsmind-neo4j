@@ -1,6 +1,6 @@
 {
-  "export_time": "2025-09-28T16:00:47.405306",
-  "total_count": 22,
+  "export_time": "2025-09-28T16:28:40.055648",
+  "total_count": 24,
   "mindmaps": [
     {
       "id": "tags_root",
@@ -5746,16 +5746,16 @@
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1759046442246-6fb8",
+          "id": "root-1759048094061-4p62",
           "topic": "新建项目",
           "data": {
-            "created": "2025-09-28T08:00:42.246Z",
-            "modified": "2025-09-28T08:00:42.246Z"
+            "created": "2025-09-28T08:28:14.061Z",
+            "modified": "2025-09-28T08:28:14.061Z"
           }
         }
       },
-      "last_modified": "2025-09-28T08:00:44.422Z",
-      "content_hash": "436237908"
+      "last_modified": "2025-09-28T08:28:16.166Z",
+      "content_hash": "2027426714"
     },
     {
       "name": "新建项目",
@@ -5767,27 +5767,26 @@
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1759046442246-6fb8",
+          "id": "root-1759048094061-4p62",
           "topic": "新建项目",
           "data": {
-            "content": "创建: 2025-09-28 16:00:42\n\n",
-            "created": "2025-09-28T08:00:42.246Z",
-            "modified": "2025-09-28T08:00:42.246Z"
+            "created": "2025-09-28T08:28:14.061Z",
+            "modified": "2025-09-28T08:28:14.061Z"
           }
         }
       },
-      "last_modified": "2025-09-28T08:00:47.043Z",
-      "content_hash": "-1237480387"
+      "last_modified": "2025-09-28T08:28:24.926Z",
+      "content_hash": "-1166218978"
     },
     {
       "id": "detail_content_editor_size",
       "name": "新建项目",
       "data": {
-        "width": 687,
-        "height": 148
+        "width": 314,
+        "height": 158
       },
-      "last_modified": "2025-09-28T04:19:56.292Z",
-      "content_hash": "-2073127045"
+      "last_modified": "2025-09-28T08:28:39.396Z",
+      "content_hash": "1507963229"
     },
     {
       "id": "default_mind:data",
@@ -33507,6 +33506,42 @@
       },
       "last_modified": "2025-09-28T07:51:49.353Z",
       "content_hash": "1303996930"
+    },
+    {
+      "id": "mindmap_snapshot_snap_1759047042244",
+      "name": "新建项目",
+      "data": {
+        "ts": "2025-09-28T08:10:42.244Z",
+        "data": {
+          "id": "root-1759046442246-6fb8",
+          "label": "新建项目",
+          "children": [],
+          "content": "创建: 2025-09-28 16:00:42\n\n",
+          "attachments": [],
+          "created": "2025-09-28T08:00:42.246Z",
+          "modified": "2025-09-28T08:00:42.246Z"
+        }
+      },
+      "last_modified": "2025-09-28T08:10:44.269Z",
+      "content_hash": "-792415505"
+    },
+    {
+      "id": "mindmap_snapshot_snap_1759047642237",
+      "name": "新建项目",
+      "data": {
+        "ts": "2025-09-28T08:20:42.237Z",
+        "data": {
+          "id": "root-1759046442246-6fb8",
+          "label": "新建项目",
+          "children": [],
+          "content": "创建: 2025-09-28 16:00:42\n\n",
+          "attachments": [],
+          "created": "2025-09-28T08:00:42.246Z",
+          "modified": "2025-09-28T08:00:42.246Z"
+        }
+      },
+      "last_modified": "2025-09-28T08:20:44.247Z",
+      "content_hash": "-1946158508"
     }
   ]
 }

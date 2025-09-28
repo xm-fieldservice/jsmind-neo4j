@@ -136,18 +136,43 @@ class MindmapTagPanelController {
      * 从脑图解析标签
      */
     _parseTagsFromMind() {
-        if (!this.mainController.mind) return;
+        // 安全检查：确保脑图和数据都已加载
+        if (!this.mainController || !this.mainController.mind) {
+            console.log('[TagPanelController] 脑图未加载，跳过标签解析');
+            return;
+        }
         
         try {
+            // 检查脑图是否已完全初始化
+            if (typeof this.mainController.mind.get_data !== 'function') {
+                console.log('[TagPanelController] 脑图API未就绪，延迟解析标签');
+                // 延迟重试
+                setTimeout(() => this._parseTagsFromMind(), 1000);
+                return;
+            }
+            
             const mindData = this.mainController.mind.get_data();
-            if (!mindData || !mindData.data) return;
+            if (!mindData || !mindData.data) {
+                console.log('[TagPanelController] 脑图数据为空，跳过标签解析');
+                return;
+            }
             
             this.tagGroups.clear();
             this._parseNodeTags(mindData.data);
             this._renderTagGroups();
             
+            console.log('[TagPanelController] ✅ 标签解析完成');
+            
         } catch (error) {
             console.error('[TagPanelController] 解析标签失败:', error);
+            // 延迟重试一次
+            setTimeout(() => {
+                try {
+                    this._parseTagsFromMind();
+                } catch (retryError) {
+                    console.error('[TagPanelController] 标签解析重试失败:', retryError);
+                }
+            }, 2000);
         }
     }
     

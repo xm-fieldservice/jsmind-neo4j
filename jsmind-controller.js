@@ -153,8 +153,10 @@
           console.warn('[MindmapController] ⚠️ 业务层集成器不可用，使用传统模式');
         }
         
-        // P1.3: 初始化标签面板控制器
-        this._initTagPanelController();
+        // P1.3: 延迟初始化标签面板控制器（等待脑图加载完成）
+        setTimeout(() => {
+          this._initTagPanelController();
+        }, 1500);
         
       } catch (error) {
         console.error('[MindmapController] 业务层模块初始化失败:', error);
