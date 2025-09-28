@@ -153,7 +153,7 @@
                 if (status.status === 'not_registered') {
                     // 动态注册未注册的核心模块
                     this._registerModule(moduleName, [], () => {
-                        return global[moduleName] || this._loadModuleFromPath(`src/core/${moduleName}.js`);
+                        return window[moduleName] || this._loadModuleFromPath(`src/core/${moduleName}.js`);
                     }, { required: true, category: 'core' });
                 }
                 
@@ -374,8 +374,8 @@
             // 尝试从全局对象获取已加载的模块
             const moduleName = path.split('/').pop().replace('.js', '');
             
-            if (global[moduleName]) {
-                return global[moduleName];
+            if (window[moduleName]) {
+                return window[moduleName];
             }
             
             // 如果模块未加载，返回null，让依赖管理器处理

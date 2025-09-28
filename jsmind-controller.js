@@ -137,40 +137,21 @@
     }
     
     // 初始化业务层模块
-    _initBusinessModules() {
+    async _initBusinessModules() {
       try {
-        // 初始化节点管理器
-        if (typeof window.MindmapNodeManager !== 'undefined') {
-          this.nodeManager = new window.MindmapNodeManager({
-            mind: this.mind,
-            dataManager: this.dataManager,
-            eventBus: window.AutogenEventBus,
-            logger: console
-          });
-          console.log('[MindmapController] ✅ 节点管理器初始化成功');
-        }
-        
-        // 初始化状态管理器
-        if (typeof window.MindmapStateManager !== 'undefined') {
-          this.stateManager = new window.MindmapStateManager({
-            mind: this.mind,
-            autogenStorage: window.AutogenUnifiedStorage,
-            eventBus: window.AutogenEventBus,
-            logger: console
-          });
-          console.log('[MindmapController] ✅ 状态管理器初始化成功');
-        }
-        
-        // 初始化同步管理器
-        if (typeof window.MindmapSyncManager !== 'undefined') {
-          this.syncManager = new window.MindmapSyncManager({
-            mind: this.mind,
-            dataManager: this.dataManager,
-            autogenStorage: window.AutogenUnifiedStorage,
-            eventBus: window.AutogenEventBus,
-            logger: console
-          });
-          console.log('[MindmapController] ✅ 同步管理器初始化成功');
+        // 使用正式的业务层集成器替代补丁系统
+        if (typeof window.MindmapBusinessLayerIntegrator !== 'undefined') {
+          this.businessIntegrator = new window.MindmapBusinessLayerIntegrator(this);
+          await this.businessIntegrator.initialize();
+          
+          // 从集成器获取业务模块引用（保持向后兼容）
+          this.nodeManager = this.businessIntegrator.nodeManager;
+          this.stateManager = this.businessIntegrator.stateManager;
+          this.syncManager = this.businessIntegrator.syncManager;
+          
+          console.log('[MindmapController] ✅ 业务层集成器初始化成功');
+        } else {
+          console.warn('[MindmapController] 业务层集成器未加载，跳过业务层初始化');
         }
         
       } catch (error) {
@@ -178,6 +159,7 @@
         this.nodeManager = null;
         this.stateManager = null;
         this.syncManager = null;
+        this.businessIntegrator = null;
       }
     }
 
