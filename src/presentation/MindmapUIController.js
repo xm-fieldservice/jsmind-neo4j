@@ -730,6 +730,8 @@ class MindmapUIController {
     try {
       if (this.eventBus && typeof this.eventBus.emit === 'function') {
         this.eventBus.emit(`mindmap-ui:${eventName}`, data);
+      } else if (typeof AutogenEventBus !== 'undefined') {
+        AutogenEventBus.emit(`mindmap-ui:${eventName}`, data);
       } else if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent(`mindmap-ui:${eventName}`, { detail: data }));
       }

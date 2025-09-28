@@ -11,8 +11,8 @@
         emit: function(event, data) {
           try {
             // 统一事件发射：优先使用AutogenEventBus
-            if (window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function') {
-              window.AutogenEventBus.emit(event, data);
+            if (typeof AutogenEventBus !== 'undefined' && typeof AutogenEventBus.emit === 'function') {
+              AutogenEventBus.emit(event, data);
             } else {
               window.dispatchEvent(new CustomEvent(event, { detail: data }));
             }

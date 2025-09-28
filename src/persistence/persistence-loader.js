@@ -63,12 +63,19 @@
                 console.log('[PersistenceLoader] ✅ 持久化系统初始化成功');
                 
                 // 触发加载完成事件
-                window.dispatchEvent(new CustomEvent('persistenceSystemReady', {
-                    detail: {
+                if (typeof AutogenEventBus !== 'undefined') {
+                    AutogenEventBus.emit('persistenceSystemReady', {
                         timestamp: new Date().toISOString(),
                         components: ['LocalStorageAdapter', 'JsonMirrorAdapter', 'SnapshotAdapter', 'PersistenceManager']
-                    }
-                }));
+                    });
+                } else {
+                    window.dispatchEvent(new CustomEvent('persistenceSystemReady', {
+                        detail: {
+                            timestamp: new Date().toISOString(),
+                            components: ['LocalStorageAdapter', 'JsonMirrorAdapter', 'SnapshotAdapter', 'PersistenceManager']
+                        }
+                    }));
+                }
                 
                 // 显示系统状态
                 if (window.PersistenceManager.getStats) {
@@ -84,12 +91,19 @@
             console.error('[PersistenceLoader] ❌ 持久化系统加载失败:', error);
             
             // 触发加载失败事件
-            window.dispatchEvent(new CustomEvent('persistenceSystemError', {
-                detail: {
+            if (typeof AutogenEventBus !== 'undefined') {
+                AutogenEventBus.emit('persistenceSystemError', {
                     error: error.message,
                     timestamp: new Date().toISOString()
-                }
-            }));
+                });
+            } else {
+                window.dispatchEvent(new CustomEvent('persistenceSystemError', {
+                    detail: {
+                        error: error.message,
+                        timestamp: new Date().toISOString()
+                    }
+                }));
+            }
         }
     }
     

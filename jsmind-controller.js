@@ -5979,19 +5979,24 @@ async _showMindmapSelectionDialog(mindmaps) {
   // 统一事件发射方法
   MindmapController.prototype._emitEvent = function(eventName, data) {
     try {
-      if (window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function') {
-        window.AutogenEventBus.emit(eventName, data);
+      if (typeof AutogenEventBus !== 'undefined' && typeof AutogenEventBus.emit === 'function') {
+        AutogenEventBus.emit(eventName, data);
       } else {
-        // 回退到原生事件系统
+        // 回退到原生事件系统 (兼容性保证)
         window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
       }
     } catch (error) {
       console.warn('[MindmapController] 事件发射失败:', eventName, error);
+      // 确保事件能够发出，即使AutogenEventBus失败
+      try {
+        window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
+      } catch (fallbackError) {
+        console.error('[MindmapController] 事件发射完全失败:', eventName, fallbackError);
+      }
     }
   };
   
   // 暴露到全局，保持与原脚本兼容
   window.MindmapController = MindmapController;
   // 不再自动创建实例，由 script.js 统一管理
-  // window.mindmapController = new MindmapController();
 })();

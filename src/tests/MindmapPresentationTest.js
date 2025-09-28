@@ -725,7 +725,13 @@ class MindmapPresentationTest {
     });
     
     // 触发测试完成事件
-    if (typeof window !== 'undefined') {
+    if (typeof AutogenEventBus !== 'undefined') {
+      AutogenEventBus.emit('mindmap-presentation-test-complete', {
+        results: this.testResults,
+        duration,
+        passRate
+      });
+    } else if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('mindmap-presentation-test-complete', {
         detail: {
           results: this.testResults,

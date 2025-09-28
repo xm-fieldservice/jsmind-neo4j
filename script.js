@@ -1743,8 +1743,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             try{
                                 if (it && it.pid === 'SYS_TAGS'){
                                     // 统一事件发射
-                                    if (window.AutogenEventBus && typeof window.AutogenEventBus.emit === 'function') {
-                                        window.AutogenEventBus.emit('tags:system_pack_changed');
+                                    if (typeof AutogenEventBus !== 'undefined' && typeof AutogenEventBus.emit === 'function') {
+                                        AutogenEventBus.emit('tags:system_pack_changed');
                                     } else {
                                         window.dispatchEvent(new CustomEvent('tags:system_pack_changed'));
                                     }
