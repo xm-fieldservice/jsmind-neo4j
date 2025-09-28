@@ -109,6 +109,7 @@ def save_json_base():
         }), 500
 
 @app.route('/api/sync-mindmap', methods=['POST'])
+@app.route('/api/json-base/sync', methods=['POST'])  # 兼容前端调用路径
 def sync_mindmap():
     """增量同步单个脑图到JSON底座"""
     try:

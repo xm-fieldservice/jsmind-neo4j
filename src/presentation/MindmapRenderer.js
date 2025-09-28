@@ -188,8 +188,18 @@ class MindmapRenderer {
    * 数据验证
    */
   _validateRenderData(data) {
-    if (!data || typeof data !== 'object') return false;
-    if (!data.id || !data.label) return false;
+    if (!data || typeof data !== 'object') {
+      this.logger.warn('[MindmapRenderer] 数据验证失败: 数据为空或非对象', data);
+      return false;
+    }
+    
+    // 检查是否有有效的标题字段（兼容多种格式）
+    const hasValidTitle = data.topic || data.label || data.name || data.title;
+    if (!hasValidTitle) {
+      this.logger.warn('[MindmapRenderer] 数据验证失败: 缺少标题字段', data);
+      return false;
+    }
+    
     return true;
   }
   

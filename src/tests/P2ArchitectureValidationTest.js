@@ -17,9 +17,10 @@
                 details: []
             };
             
-            this.eventBus = global.AutogenEventBus;
-            this.logger = global.UnifiedLogger;
-            this.errorHandler = global.ErrorHandler;
+            // 使用window对象访问全局实例（浏览器环境）
+            this.eventBus = (typeof window !== 'undefined' ? window : global).AutogenEventBus;
+            this.logger = (typeof window !== 'undefined' ? window : global).UnifiedLogger;
+            this.errorHandler = (typeof window !== 'undefined' ? window : global).ErrorHandler;
             
             console.log('[P2ArchitectureValidationTest] 初始化P2架构验证测试');
         }

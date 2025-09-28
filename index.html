@@ -589,6 +589,9 @@
     <!-- P1.3: 标签面板控制器（专用标签管理功能） -->
     <script src="src/controllers/MindmapTagPanelController.js"></script>
     
+    <!-- P2.2: 统一日志系统（优先加载，供其他组件使用） -->
+    <script src="src/core/UnifiedLogger.js"></script>
+    
     <!-- 核心管理组件 - 在基础组件加载后添加 -->
     <script src="src/core/ErrorHandler.js"></script>
     <script src="src/core/DependencyManager.js"></script>
@@ -598,9 +601,6 @@
     
     <!-- P2.1: 事件系统统一规范 -->
     <script src="src/core/EventStandards.js"></script>
-    
-    <!-- P2.2: 统一日志和错误处理系统 -->
-    <script src="src/core/UnifiedLogger.js"></script>
     
     <!-- P2阶段架构验证测试 -->
     <script src="src/tests/P2ArchitectureValidationTest.js"></script>

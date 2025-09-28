@@ -1,6 +1,6 @@
 {
-  "export_time": "2025-09-28T16:57:31.055454",
-  "total_count": 25,
+  "export_time": "2025-09-28T17:38:27.524560",
+  "total_count": 26,
   "mindmaps": [
     {
       "id": "tags_root",
@@ -5746,16 +5746,16 @@
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1759049848263-9wjy",
+          "id": "root-1759052300846-ecxe",
           "topic": "新建项目",
           "data": {
-            "created": "2025-09-28T08:57:28.263Z",
-            "modified": "2025-09-28T08:57:28.263Z"
+            "created": "2025-09-28T09:38:20.846Z",
+            "modified": "2025-09-28T09:38:20.846Z"
           }
         }
       },
-      "last_modified": "2025-09-28T08:57:30.331Z",
-      "content_hash": "1024438213"
+      "last_modified": "2025-09-28T09:38:22.992Z",
+      "content_hash": "1356393109"
     },
     {
       "name": "新建项目",
@@ -5767,16 +5767,17 @@
         },
         "format": "node_tree",
         "data": {
-          "id": "root-1759048842873-map2",
+          "id": "root-1759052070107-8kp4",
           "topic": "新建项目",
           "data": {
-            "created": "2025-09-28T08:40:42.873Z",
-            "modified": "2025-09-28T08:40:42.873Z"
+            "content": "创建: 2025-09-28 17:34:30\n\n",
+            "created": "2025-09-28T09:34:30.107Z",
+            "modified": "2025-09-28T09:34:30.107Z"
           }
         }
       },
-      "last_modified": "2025-09-28T08:40:48.048Z",
-      "content_hash": "-1092295998"
+      "last_modified": "2025-09-28T09:38:27.105Z",
+      "content_hash": "-1986768511"
     },
     {
       "id": "detail_content_editor_size",
@@ -33560,6 +33561,24 @@
       },
       "last_modified": "2025-09-28T08:54:37.888Z",
       "content_hash": "-2101756162"
+    },
+    {
+      "id": "mindmap_snapshot_snap_1759051910909",
+      "name": "新建项目",
+      "data": {
+        "ts": "2025-09-28T09:31:50.909Z",
+        "data": {
+          "id": "root-1759051310911-ugu6",
+          "label": "新建项目",
+          "children": [],
+          "content": "创建: 2025-09-28 17:21:51\n\n",
+          "attachments": [],
+          "created": "2025-09-28T09:21:50.911Z",
+          "modified": "2025-09-28T09:21:50.911Z"
+        }
+      },
+      "last_modified": "2025-09-28T09:31:52.947Z",
+      "content_hash": "-682886860"
     }
   ]
 }
