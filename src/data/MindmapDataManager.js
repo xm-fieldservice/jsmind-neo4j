@@ -17,6 +17,7 @@ class MindmapDataManager {
         // 依赖注入：避免硬编码全局依赖
         this.storage = dependencies.storage || window.AutogenUnifiedStorage;
         this.eventBus = dependencies.eventBus || window.AutogenEventBus;
+        this.logger = dependencies.logger || console;
         
         if (!this.storage) {
             throw new Error('[MindmapDataManager] AutogenUnifiedStorage未初始化，无法创建数据管理器');
@@ -26,6 +27,10 @@ class MindmapDataManager {
         this._jsonBaseSyncTimer = null;
         this._lastJsonBaseHash = null;
         this._saveDebounceTimer = null;
+        
+        // 当前脑图状态
+        this.currentMindId = null;
+        this.currentStorageKey = null;
         
         console.log('[MindmapDataManager] ✅ 数据层管理器初始化完成');
     }
@@ -290,16 +295,22 @@ class MindmapDataManager {
     }
 
     /**
-     * 计算数据哈希值（用于变更检测）
+     * 计算数据哈希值（使用公共工具方法）
      */
     _calculateDataHash(data) {
+        // 使用公共工具方法，避免代码重复
+        if (typeof window !== 'undefined' && window.DataUtils) {
+            return window.DataUtils.calculateDataHash(data);
+        }
+        
+        // 回退逻辑
         try {
             const str = JSON.stringify(data);
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
                 const char = str.charCodeAt(i);
                 hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // 转换为32位整数
+                hash = hash & hash;
             }
             return hash.toString();
         } catch (error) {
@@ -358,6 +369,87 @@ class MindmapDataManager {
             depth: maxDepth,
             size: JSON.stringify(data).length
         };
+    }
+
+    /**
+     * 获取当前脑图ID（从控制器迁移）
+     */
+    getCurrentMindId(mind, data) {
+        try {
+            const rootId = (mind && mind.get_root && mind.get_root().id) || 
+                          (data && data.id);
+            return rootId ? String(rootId) : 'root';
+        } catch (error) {
+            this.logger.warn('[MindmapDataManager] 获取脑图ID失败:', error);
+            return 'root';
+        }
+    }
+
+    /**
+     * 获取存储系统状态（从控制器迁移）
+     */
+    getStorageSystemStatus() {
+        return {
+            autogenStorage: {
+                available: !!this.storage,
+                type: 'AutogenUnifiedStorage',
+                status: this.storage ? 'active' : 'unavailable'
+            },
+            dataManager: {
+                available: true,
+                currentMindId: this.currentMindId,
+                currentStorageKey: this.currentStorageKey
+            },
+            jsonBaseSync: {
+                lastHash: this._lastJsonBaseHash,
+                syncTimer: !!this._jsonBaseSyncTimer
+            }
+        };
+    }
+
+    /**
+     * 设置当前脑图上下文
+     */
+    setCurrentMindContext(mindId, storageKey) {
+        this.currentMindId = mindId;
+        this.currentStorageKey = storageKey;
+        
+        if (this.eventBus) {
+            this.eventBus.emit('mindmap:contextChanged', {
+                mindId,
+                storageKey,
+                timestamp: Date.now()
+            });
+        }
+    }
+
+    /**
+     * 异步加载初始数据（从控制器迁移）
+     */
+    async loadInitialData(storageKey) {
+        try {
+            const loadedData = await this.loadMindmapData(storageKey);
+            const data = loadedData || this.getDefaultData();
+            
+            // 设置当前上下文
+            this.setCurrentMindContext(data.id, storageKey);
+            
+            // 触发数据加载完成事件
+            if (this.eventBus) {
+                this.eventBus.emit('mindmap:dataLoaded', {
+                    data,
+                    storageKey,
+                    timestamp: Date.now()
+                });
+            }
+            
+            return data;
+        } catch (error) {
+            this.logger.error('[MindmapDataManager] 初始数据加载失败:', error);
+            const defaultData = this.getDefaultData();
+            this.setCurrentMindContext(defaultData.id, storageKey);
+            return defaultData;
+        }
     }
 }
 

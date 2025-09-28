@@ -76,9 +76,20 @@
           // 延迟初始化
           setTimeout(() => this._initDataManager(), 100);
         }
+        
+        // 初始化MindmapStorage
+        if (typeof window.MindmapStorage !== 'undefined') {
+          this.mindmapStorage = new window.MindmapStorage({
+            storage: window.AutogenUnifiedStorage,
+            eventBus: window.AutogenEventBus
+          });
+          console.log('[MindmapController] ✅ 存储管理器初始化成功');
+        }
+        
       } catch (error) {
         console.error('[MindmapController] 数据管理器初始化失败:', error);
         this.dataManager = null;
+        this.mindmapStorage = null;
       }
     }
 
@@ -98,8 +109,12 @@
       }
     }
 
-    // 获取当前脑图ID
+    // 获取当前脑图ID（委托给DataManager）
     _getCurrentMindId() {
+      if (this.dataManager) {
+        return this.dataManager.getCurrentMindId(this.mind, this.data);
+      }
+      // 回退逻辑
       try {
         const rootId = (this.mind && this.mind.get_root && this.mind.get_root().id) || 
                       (this.data && this.data.id);
@@ -109,8 +124,12 @@
       }
     }
 
-    // 获取存储系统状态（简化版）
+    // 获取存储系统状态（委托给DataManager）
     getStorageSystemStatus() {
+      if (this.dataManager) {
+        return this.dataManager.getStorageSystemStatus();
+      }
+      // 回退逻辑
       return {
         autogenStorage: {
           available: !!this.autogenStorage,
@@ -146,7 +165,13 @@
 
     // 统一存储保存方法（完全使用AutogenUnifiedStorage）
     async _saveWithUnifiedStorage(jmData) {
-      // 确保AutogenUnifiedStorage可用
+      // 委托给MindmapStorage
+      if (this.mindmapStorage) {
+        const result = await this.mindmapStorage.saveWithUnifiedStorage(jmData);
+        return result.success;
+      }
+      
+      // 回退逻辑
       if (!this.autogenStorage) {
         console.error('[MindmapController] AutogenUnifiedStorage不可用，无法保存数据');
         return false;
@@ -155,7 +180,7 @@
       try {
         const success = await this.autogenStorage.store('mindmap', this.storageKey, jmData);
         if (success) {
-          if (Math.random() < 0.1) { // 仅10%概率输出日志
+          if (Math.random() < 0.1) {
             console.log('[MindmapController] ✅ 已保存到AutogenUnifiedStorage:', this.storageKey);
           }
           return true;
@@ -169,15 +194,19 @@
       }
     }
 
-    // 增量同步到JSON底座（方案A：轻量级增量同步）
+    // 增量同步到JSON底座（委托给MindmapStorage）
     async _syncToJsonBase(jmData, mindKey) {
+      if (this.mindmapStorage) {
+        return await this.mindmapStorage.syncToJsonBase(jmData, mindKey);
+      }
+      
+      // 回退逻辑
       try {
-        // 防抖机制：避免频繁同步
         if (!this._jsonBaseSyncTimer) {
           this._jsonBaseSyncTimer = setTimeout(async () => {
             await this._performJsonBaseSync(jmData, mindKey);
             this._jsonBaseSyncTimer = null;
-          }, 2000); // 2秒防抖
+          }, 2000);
         }
       } catch (error) {
         console.warn('[MindmapController] JSON底座同步调度失败:', error);
@@ -243,8 +272,12 @@
       }
     }
 
-    // 计算数据哈希值（用于变更检测）
+    // 计算数据哈希值（委托给DataManager）
     _calculateDataHash(data) {
+      if (this.dataManager) {
+        return this.dataManager._calculateDataHash(data);
+      }
+      // 回退逻辑
       try {
         const str = JSON.stringify(data);
         let hash = 0;
@@ -259,11 +292,18 @@
       }
     }
 
-    // 异步加载初始数据
+    // 异步加载初始数据（委托给DataManager）
     async _loadInitialData() {
       try {
-        const loadedData = await this.loadMindmapFromStorage();
-        this.data = loadedData || this.getDefaultData();
+        if (this.dataManager) {
+          // 使用DataManager加载数据
+          const storageKey = this.storageKey || 'mindmap_data_v1';
+          this.data = await this.dataManager.loadInitialData(storageKey);
+        } else {
+          // 回退逻辑
+          const loadedData = await this.loadMindmapFromStorage();
+          this.data = loadedData || this.getDefaultData();
+        }
         
         // 数据加载完成后，如果已经初始化了mind实例，重新渲染
         if (this.mind) {
