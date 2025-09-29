@@ -1048,16 +1048,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     chip.classList.remove('active');
                     chip.addEventListener('click', ()=>{
                         chip.classList.toggle('active');
-                        
-                        // 自动执行查询
-                        setTimeout(runQuery1, 0);
-                        
-                        // 同步到列表过滤器
-                        const tagName = chip.getAttribute('data-tag');
-                        if (tagName && window.listTagFilter) {
-                            window.listTagFilter.toggleTagFilter(tagName);
-                            console.log(`🔄 查询面板标签同步到列表过滤器: ${tagName}`);
-                        }
                     });
                 });
                 dstList.appendChild(clone);
@@ -1417,7 +1407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!box) return [];
             const actives = box.querySelectorAll('.tag-chip.active');
             return Array.from(actives)
-                .map(chip => norm((chip.dataset && chip.dataset.tag ? chip.dataset.tag : chip.textContent)))
+                .map(chip => (chip.dataset && chip.dataset.tag ? chip.dataset.tag : chip.textContent).trim())
                 .filter(Boolean);
         };
 
@@ -1449,8 +1439,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (!tags.length) return false;
             // 需要“包含所有被选标签”
-            const set = new Set(tags.map(norm));
-            return selected.every(t => set.has(norm(t)));
+            const set = new Set(tags.map(t => t.trim()));
+            return selected.every(t => set.has(t.trim()));
         };
 
         const runQuery1 = ()=>{
@@ -1576,15 +1566,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const attachAutoRunToChips = ()=>{
             const box = document.getElementById('q1-tag-list');
             if (!box) return;
+            console.log('🔧 重新绑定查询1标签点击事件...');
+            
             box.querySelectorAll('.tag-chip').forEach(chip=>{
                 chip.addEventListener('click', ()=> {
-                    setTimeout(runQuery1, 0);
+                    console.log(`🏷️ 标签被点击: ${chip.getAttribute('data-tag')}`);
                     
-                    // 同步到列表过滤器
+                    // 1. 自动执行查询
+                    setTimeout(() => {
+                        console.log('🔍 执行查询...');
+                        runQuery1();
+                    }, 0);
+                    
+                    // 2. 同步到列表过滤器（使用启动时相同的逻辑）
                     const tagName = chip.getAttribute('data-tag');
                     if (tagName && window.listTagFilter) {
-                        window.listTagFilter.toggleTagFilter(tagName);
-                        console.log(`🔄 查询面板标签同步到列表过滤器: ${tagName}`);
+                        const isActive = chip.classList.contains('active');
+                        const currentTags = window.listTagFilter.getSelectedTags();
+                        
+                        if (isActive && !currentTags.includes(tagName)) {
+                            // 使用toggleTagFilter方法添加标签
+                            window.listTagFilter.toggleTagFilter(tagName);
+                            console.log(`✅ 添加标签到过滤器: ${tagName}`);
+                        } else if (!isActive && currentTags.includes(tagName)) {
+                            // 使用toggleTagFilter方法移除标签
+                            window.listTagFilter.toggleTagFilter(tagName);
+                            console.log(`✅ 从过滤器移除标签: ${tagName}`);
+                        }
                     }
                 });
             });
