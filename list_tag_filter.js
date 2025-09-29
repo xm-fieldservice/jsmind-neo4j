@@ -228,6 +228,7 @@ class ListTagFilter {
                     <div class="project-id">${node.id}</div>
                 `;
                 li.title = (node.data && node.data.content) ? node.data.content.slice(0, 200) : '';
+                li.dataset.nodeId = node.id;  // 设置节点ID属性
                 
                 // 点击事件
                 li.addEventListener('click', () => {

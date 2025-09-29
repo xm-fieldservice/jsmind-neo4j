@@ -1048,6 +1048,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     chip.classList.remove('active');
                     chip.addEventListener('click', ()=>{
                         chip.classList.toggle('active');
+                        
+                        // 自动执行查询
+                        setTimeout(runQuery1, 0);
+                        
+                        // 同步到列表过滤器
+                        const tagName = chip.getAttribute('data-tag');
+                        if (tagName && window.listTagFilter) {
+                            window.listTagFilter.toggleTagFilter(tagName);
+                            console.log(`🔄 查询面板标签同步到列表过滤器: ${tagName}`);
+                        }
                     });
                 });
                 dstList.appendChild(clone);
@@ -1136,9 +1146,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         
-        // 暴露到全局作用域供调试使用
-        window.collectAllNodes = collectAllNodes;
-
         // 部分加载相关节点（避免加载过多节点）
         const loadPartialRelatedNodes = (targetPack, catalogItem) => {
             try {
@@ -1472,7 +1479,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // 投射到查询结果列表（不影响项目列表）
-            const projectList = document.getElementById('project-list');
+            const projectList = document.getElementById('project-catalog');
             const queryList = document.getElementById('query-results-list');
             
             if (queryList && projectList) {
@@ -1487,6 +1494,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         li.className = 'query-result-item';
                         li.textContent = `${n.topic || '未命名'} (${n.id})`;
                         li.title = (n.data && n.data.content) ? n.data.content.slice(0, 200) : '';
+                        li.dataset.nodeId = n.id;  // 设置节点ID属性
                         
                         li.addEventListener('click', ()=>{
                             // 安全调用selectAndCenter
@@ -1530,6 +1538,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        // 暴露关键函数到全局作用域，供其他模块调用
+        window.runQuery1 = runQuery1;
+        window.collectAllNodes = collectAllNodes;
+        window.getSelectedTagNames = getSelectedTagNames;
+
         // 绑定按钮
         document.getElementById('q1-run')?.addEventListener('click', runQuery1);
         document.getElementById('q1-clear')?.addEventListener('click', ()=>{
@@ -1541,7 +1554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (box){ box.querySelectorAll('.tag-chip.active').forEach(c=> c.classList.remove('active')); }
             
             // 清空查询时返回项目列表
-            const projectList = document.getElementById('project-list');
+            const projectList = document.getElementById('project-catalog');
             const queryList = document.getElementById('query-results-list');
             if (projectList && queryList) {
                 projectList.style.display = 'block';

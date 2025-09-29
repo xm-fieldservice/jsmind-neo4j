@@ -610,17 +610,19 @@
     <!-- P2.1: 事件系统统一规范 -->
     <script src="src/core/EventStandards.js"></script>
     
-    <!-- P2阶段架构验证测试 -->
-    <script src="src/tests/P2ArchitectureValidationTest.js"></script>
+    <!-- P2阶段架构验证测试 - 已禁用，避免生产环境自动运行 -->
+    <!-- <script src="src/tests/P2ArchitectureValidationTest.js"></script> -->
     
     <!-- P0.3: 正式业务层集成器（替代补丁系统） -->
     <script src="src/business/MindmapBusinessLayerIntegrator.js"></script>
-    <script src="src/tests/test_business_layer_integration.js"></script>
+    <!-- 测试脚本已禁用，避免在生产环境自动运行 -->
+    <!-- <script src="src/tests/test_business_layer_integration.js"></script> -->
     
     <!-- Phase 6.1: 模块激活与依赖建立 -->
     <script src="src/integration/ModuleActivation.js"></script>
-    <script src="src/integration/ModuleActivationTest.js"></script>
-    <script src="src/integration/BrowserVerificationTest.js"></script>
+    <!-- 测试脚本已禁用，避免在生产环境自动运行 -->
+    <!-- <script src="src/integration/ModuleActivationTest.js"></script> -->
+    <!-- <script src="src/integration/BrowserVerificationTest.js"></script> -->
     
     <!-- 🚨 快速修复脑图消失问题 - 已清理 -->
     
@@ -1034,8 +1036,11 @@
     
     <!-- 工作记录相关脚本已清理 -->
     
-    <!-- Phase 1: 架构改进验证测试 -->
-    <script src="src/tests/test_phase1_architecture_improvements.js"></script>
+    <!-- 综合功能恢复脚本 -->
+    <script src="restore_complete_functions.js"></script>
+    
+    <!-- Phase 1: 架构改进验证测试 - 已禁用，避免生产环境自动运行 -->
+    <!-- <script src="src/tests/test_phase1_architecture_improvements.js"></script> -->
     
     <!-- 🚀 Phase 6.2: 统一系统初始化（暂时禁用，诊断死锁） -->
     <!--
