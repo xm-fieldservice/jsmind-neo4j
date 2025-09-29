@@ -1514,7 +1514,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const box = document.getElementById('q1-tag-list');
             if (!box) return;
             box.querySelectorAll('.tag-chip').forEach(chip=>{
-                chip.addEventListener('click', ()=> setTimeout(runQuery1, 0));
+                chip.addEventListener('click', ()=> {
+                    setTimeout(runQuery1, 0);
+                    
+                    // 同步到列表过滤器
+                    const tagName = chip.getAttribute('data-tag');
+                    if (tagName && window.listTagFilter) {
+                        window.listTagFilter.toggleTagFilter(tagName);
+                        console.log(`🔄 查询面板标签同步到列表过滤器: ${tagName}`);
+                    }
+                });
             });
         };
         

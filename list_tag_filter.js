@@ -120,6 +120,24 @@ class ListTagFilter {
                 });
             });
         }
+        
+        // 同步到查询面板标签状态
+        this.syncToQueryPanel();
+    }
+    
+    syncToQueryPanel() {
+        setTimeout(() => {
+            const queryTagList = document.getElementById('q1-tag-list');
+            if (!queryTagList) return;
+            
+            queryTagList.querySelectorAll('.tag-chip').forEach(chip => {
+                const tagName = chip.getAttribute('data-tag');
+                const shouldBeActive = this.selectedTags.includes(tagName);
+                chip.classList.toggle('active', shouldBeActive);
+            });
+            
+            console.log(`🔄 列表过滤器状态同步到查询面板: [${this.selectedTags.join(', ')}]`);
+        }, 100);
     }
     
     applyFilter() {
