@@ -85,7 +85,7 @@
             console.log('[Phase1Test] 测试EnhancedConfigurationManager...');
             
             try {
-                const configManager = global.EnhancedConfigurationManager;
+                const configManager = window.EnhancedConfigurationManager;
                 
                 // 1.1 测试组件存在性
                 this._addTestResult(
@@ -145,7 +145,7 @@
             console.log('[Phase1Test] 测试ErrorProcessingPipeline...');
             
             try {
-                const errorPipeline = global.ErrorProcessingPipeline;
+                const errorPipeline = window.ErrorProcessingPipeline;
                 
                 // 2.1 测试组件存在性
                 this._addTestResult(
@@ -207,7 +207,7 @@
             console.log('[Phase1Test] 测试ArchitectureHealthMonitor...');
             
             try {
-                const healthMonitor = global.ArchitectureHealthMonitor;
+                const healthMonitor = window.ArchitectureHealthMonitor;
                 
                 // 3.1 测试组件存在性
                 this._addTestResult(
@@ -281,8 +281,8 @@
             
             try {
                 // 4.1 测试配置管理器与错误处理管道集成
-                const configManager = global.EnhancedConfigurationManager;
-                const errorPipeline = global.ErrorProcessingPipeline;
+                const configManager = window.EnhancedConfigurationManager;
+                const errorPipeline = window.ErrorProcessingPipeline;
                 
                 if (configManager && errorPipeline) {
                     // 通过配置管理器设置错误处理配置
@@ -297,7 +297,7 @@
                 }
                 
                 // 4.2 测试健康监控器与其他组件集成
-                const healthMonitor = global.ArchitectureHealthMonitor;
+                const healthMonitor = window.ArchitectureHealthMonitor;
                 
                 if (healthMonitor && configManager) {
                     const healthResult = await healthMonitor.performHealthCheck();
@@ -312,7 +312,7 @@
                 }
                 
                 // 4.3 测试事件总线集成
-                const eventBus = global.AutogenEventBus;
+                const eventBus = window.AutogenEventBus;
                 
                 if (eventBus) {
                     let eventReceived = false;
@@ -339,7 +339,7 @@
                 }
                 
                 // 4.4 测试存储系统集成
-                const storage = global.AutogenUnifiedStorage;
+                const storage = window.AutogenUnifiedStorage;
                 
                 if (storage && configManager) {
                     // 验证配置是否正确存储到统一存储系统
@@ -403,9 +403,9 @@
             
             console.log('[Phase1Test] ================================================\n');
             
-            // 触发测试完成事件
-            if (global.AutogenEventBus) {
-                global.AutogenEventBus.emit('phase1:test:completed', {
+            // 触发全局事件
+            if (window.AutogenEventBus) {
+                window.AutogenEventBus.emit('phase1:test:completed', {
                     totalTests,
                     passedTests,
                     failedTests,
@@ -439,7 +439,7 @@
     const phase1Test = new Phase1ArchitectureImprovementsTest();
     
     // 全局导出
-    global.Phase1ArchitectureImprovementsTest = phase1Test;
+    window.Phase1ArchitectureImprovementsTest = phase1Test;
     
     // 自动执行测试（延迟执行以确保所有组件加载完成）
     if (typeof window !== 'undefined') {
@@ -456,4 +456,4 @@
     
     console.log('[Phase1Test] Phase 1架构改进验证测试模块加载完成');
     
-})(typeof window !== 'undefined' ? window : global);
+})(typeof window !== 'undefined' ? window : this);

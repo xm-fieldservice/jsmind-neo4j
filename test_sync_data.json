@@ -1,0 +1,23 @@
+{
+  "mindmap": {
+    "id": "test-mindmap-001",
+    "name": "测试脑图001",
+    "data": {
+      "format": "node_tree",
+      "data": {
+        "id": "root",
+        "label": "测试根节点",
+        "children": [
+          {
+            "id": "child1",
+            "label": "测试子节点1",
+            "children": []
+          }
+        ]
+      }
+    },
+    "last_modified": "2025-09-29T09:30:00Z",
+    "content_hash": "test_hash_123"
+  },
+  "sync_mode": "incremental"
+}

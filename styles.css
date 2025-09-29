@@ -445,6 +445,8 @@ body {
 .proj-btn:hover{ background:#f7f7f7; }
 .proj-fav{ color:#b06; border-color:#f0c; }
 .proj-fav.active{ background:#fff1f7; color:#c2185b; border-color:#f48fb1; font-weight:700; }
+.proj-archive{ color:#f57c00; border-color:#ffb74d; }
+.proj-archive.active{ background:#fff8e1; color:#e65100; border-color:#ffab40; font-weight:700; }
 
 .detail-item h4 {
     font-size: 13px;

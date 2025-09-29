@@ -5,3 +5,5 @@ pydantic==1.10.7
 python-dotenv==1.0.0
 starlette==0.26.1
 httpx==0.24.0
+flask==2.3.3
+flask-cors==4.0.0

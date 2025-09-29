@@ -261,7 +261,7 @@
                           <div class="proj-title">${(it.name||`项目 ${idx+1}`)}</div>
                           <div class="proj-meta">${new Date(it.updatedAt||it.createdAt||Date.now()).toLocaleString()}</div>
                         </div>
-                        <div class="proj-actions-row">
+                        <div class="proj-actions">
                           <button class="proj-btn icon-only proj-save" type="button" title="导出" data-action="save-project">💾</button>
                           <button class="proj-btn icon-only proj-fav ${it.is_fav? 'active':''}" type="button" title="收藏" data-action="toggle-fav">${it.is_fav? '★' : '☆'}</button>
                           <button class="proj-btn icon-only proj-del" type="button" title="移除" data-action="remove-project" ${it.undeletable? 'disabled aria-disabled="true"':''}>🗑️</button>
@@ -913,6 +913,15 @@ function initializeWhenReady() {
         try {
             window.mindmapController = new MindmapController();
             console.log('[Init] MindmapController 创建成功');
+            
+            // 初始化 MindmapController
+            if (window.mindmapController.init) {
+                window.mindmapController.init().then(() => {
+                    console.log('[Init] MindmapController 初始化完成');
+                }).catch(e => {
+                    console.error('[Init] MindmapController 初始化失败:', e);
+                });
+            }
         } catch(e) {
             console.error('[Init] MindmapController 创建失败:', e);
         }
@@ -1059,19 +1068,76 @@ document.addEventListener('DOMContentLoaded', () => {
         // 查询实现：收集条件 => 遍历脑图节点 => 结果投射到左侧列表
         const collectAllNodes = ()=>{
             try{
-                const mc = window.mindmapController;
-                if (!mc || !mc.mind) return [];
-                const data = mc.mind.get_data('node_tree');
                 const out = [];
-                const walk = (n)=>{
-                    if (!n) return;
-                    if (n.data){ out.push(n); }
-                    if (n.children && n.children.length){ n.children.forEach(walk); }
+                
+                // 直接从数据底座all_mindmaps.json加载所有节点
+                const loadAllMindmapsData = async () => {
+                    try {
+                        const response = await fetch('./data/all_mindmaps.json');
+                        if (!response.ok) throw new Error('Failed to load all_mindmaps.json');
+                        return await response.json();
+                    } catch (error) {
+                        console.error('加载数据底座失败:', error);
+                        return [];
+                    }
                 };
-                if (data && data.data){ walk(data.data); }
+                
+                // 同步版本：尝试从已加载的数据中获取
+                if (window.__allMindmapsData) {
+                    // 使用缓存的数据
+                    const data = window.__allMindmapsData;
+                    const mindmaps = data.mindmaps || [];
+                    mindmaps.forEach(mindmap => {
+                        if (mindmap && mindmap.data && mindmap.data.data) {
+                            const walk = (n) => {
+                                if (!n) return;
+                                if (n.id && n.topic) {
+                                    out.push(n);
+                                }
+                                if (n.children && n.children.length) {
+                                    n.children.forEach(walk);
+                                }
+                            };
+                            walk(mindmap.data.data);
+                        }
+                    });
+                } else {
+                    // 异步加载数据底座
+                    loadAllMindmapsData().then(data => {
+                        window.__allMindmapsData = data;
+                        console.log('数据底座已加载，请重新执行查询');
+                    });
+                    
+                    // 临时回退：从catalog获取
+                    try {
+                        const catalog = window.loadCatalog ? window.loadCatalog() : [];
+                        catalog.forEach(item => {
+                            if (item && item.payload && item.payload.data) {
+                                const walk = (n)=>{
+                                    if (!n) return;
+                                    if (n.id && n.topic) {
+                                        out.push(n);
+                                    }
+                                    if (n.children && n.children.length){ n.children.forEach(walk); }
+                                };
+                                walk(item.payload.data);
+                            }
+                        });
+                    } catch (e) {
+                        console.warn('catalog回退失败:', e);
+                    }
+                }
+                
+                console.log(`从数据底座收集到 ${out.length} 个节点`);
                 return out;
-            }catch(_){ return []; }
+            }catch(error){ 
+                console.error('collectAllNodes失败:', error);
+                return []; 
+            }
         };
+        
+        // 暴露到全局作用域供调试使用
+        window.collectAllNodes = collectAllNodes;
 
         const norm = (s)=> (s||'').toString().trim();
 
@@ -1452,6 +1518,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
         
+        // 预加载数据底座
+        const preloadAllMindmapsData = async () => {
+            try {
+                const response = await fetch('./data/all_mindmaps.json');
+                if (!response.ok) throw new Error('Failed to load all_mindmaps.json');
+                const data = await response.json();
+                window.__allMindmapsData = data;
+                console.log(`✅ 数据底座已预加载，包含 ${data.length} 个脑图`);
+            } catch (error) {
+                console.error('❌ 预加载数据底座失败:', error);
+            }
+        };
+        
+        // 立即预加载数据底座
+        preloadAllMindmapsData();
+        
         // 首次进入时准备标签镜像
         refreshQuery1Tags();
         // 初始化全图缓存：在任意聚焦子树前尽早建立，并默认在强刷后恢复全图
@@ -1594,7 +1676,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       <div class="proj-title">${(it.name||`项目 ${idx+1}`)}</div>
                       <div class="proj-meta">${new Date(it.updatedAt||it.createdAt||Date.now()).toLocaleString()}</div>
                     </div>
-                    <div class="proj-actions-row">
+                    <div class="proj-actions">
                       <button class="proj-btn icon-only proj-save" type="button" title="导出" data-action="save-project">💾</button>
                       <button class="proj-btn icon-only proj-fav ${it.is_fav? 'active':''}" type="button" title="收藏" data-action="toggle-fav">${it.is_fav? '★' : '☆'}</button>
                       <button class="proj-btn icon-only proj-del" type="button" title="移除" data-action="remove-project">🗑️</button>

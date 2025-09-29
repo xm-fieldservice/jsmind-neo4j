@@ -37,6 +37,8 @@
       this.tagGroups = [];
       this.activeTagGroup = null;
       this.tagGroupThemes = {}; // 分组 -> 主题类名 映射（如 theme-yellow/theme-green/theme-blue）
+      this.selectedTags = new Set();
+      this.filterActive = false;
       this.dom = {
         titleInput: document.getElementById('detail-title-input'),
         contentEditor: document.getElementById('detail-content-editor'),
@@ -47,19 +49,247 @@
         attachList: document.getElementById('detail-attachments-list'),
         attachInput: document.getElementById('fileInputAttachment'),
         toast: document.getElementById('mindmap-toast'),
-        contextMenu: document.getElementById('mindmap-contextmenu'),
-        containerEl: document.getElementById('mindmap-container'),
       };
       // 内容编辑脏标记：用于占位符模式下避免空值误覆盖
-      this._contentDirty = false;
       // 拖拽诊断代码已移除 - jsMind 0.8.7 原生拖拽无需诊断
       this.bindDetailEvents();
-      // 异步初始化，避免阻塞构造函数
-      this.init().catch(err => console.error('[MindmapController] 初始化失败:', err));
+      // 标签面板功能已集成到主控制器中，无需单独初始化
+    }
+
+    // 渲染标签面板（从数据底座同步）
+    async renderTagPanelFromDatastore() {
+      console.log('[MindmapController] 标签面板功能已集成到主控制器中');
       
-      // 绑定测试按钮
-      // 启动定时快照
-      try { this.startSnapshotScheduler(); } catch(_) { /* ignore */ }
+      try {
+        // 从数据底座读取标签管理节点数据
+        const datastoreData = await this._loadDatastoreData();
+        if (!datastoreData) {
+          console.log('[MindmapController] 数据底座为空，跳过标签面板渲染');
+          this._showTagPanelEmpty();
+          return;
+        }
+        
+        // 查找标签管理节点
+        const tagManagementNode = this._findTagManagementNodeInDatastore(datastoreData);
+        if (!tagManagementNode) {
+          console.log('[MindmapController] 未找到标签管理节点，跳过标签面板渲染');
+          this._showTagPanelEmpty();
+          return;
+        }
+        
+        // 解析标签数据并更新面板
+        this._parseAndUpdateTagPanel(tagManagementNode);
+        this._updateTagPanelVisibility(true);
+        
+        console.log('[MindmapController] ✅ 标签面板已从数据底座同步渲染');
+        
+      } catch (error) {
+        console.error('[MindmapController] 渲染标签面板失败:', error);
+        this._showTagPanelEmpty();
+      }
+    }
+    
+    // 显示空标签面板
+    _showTagPanelEmpty() {
+      if (!this.$tagList) return;
+      this.$tagList.innerHTML = '<div class="tag-empty">暂无标签</div>';
+    }
+    
+    // 从数据底座加载数据
+    async _loadDatastoreData() {
+      try {
+        if (!window.AutogenUnifiedStorage) {
+          console.warn('[MindmapController] AutogenUnifiedStorage未就绪');
+          return null;
+        }
+        
+        // 尝试从AutogenUnifiedStorage读取数据底座
+        const data = await window.AutogenUnifiedStorage.retrieve('datastore', 'all_mindmaps');
+        return data;
+        
+      } catch (error) {
+        console.error('[MindmapController] 加载数据底座失败:', error);
+        return null;
+      }
+    }
+    
+    // 保存数据底座数据
+    async _saveDatastoreData(datastoreData) {
+      try {
+        if (!window.AutogenUnifiedStorage) {
+          console.warn('[MindmapController] AutogenUnifiedStorage未就绪');
+          return false;
+        }
+        
+        const success = await window.AutogenUnifiedStorage.store('datastore', 'all_mindmaps', datastoreData);
+        return success;
+        
+      } catch (error) {
+        console.error('[MindmapController] 保存数据底座失败:', error);
+        return false;
+      }
+    }
+    
+    // 查找标签管理节点
+    _findTagManagementNode(node) {
+      if (!node) return null;
+      
+      // 检查当前节点是否是标签管理节点
+      const topic = node.topic || '';
+      if (topic === '标签管理' || topic === '系统标签') {
+        return node;
+      }
+      
+      // 递归查找子节点
+      if (node.children && Array.isArray(node.children)) {
+        for (const child of node.children) {
+          const found = this._findTagManagementNode(child);
+          if (found) return found;
+        }
+      }
+      
+      return null;
+    }
+    
+    // 更新标签面板状态并同步到数据底座
+    async updateTagPanelState(tagGroups) {
+      try {
+        this.tagGroups = tagGroups || [];
+        
+        // 从数据底座获取当前数据
+        const datastoreData = await this._loadDatastoreData();
+        if (!datastoreData || !datastoreData.mindmaps) {
+          console.warn('[MindmapController] 数据底座为空，无法更新标签状态');
+          return;
+        }
+        
+        // 查找并更新标签管理节点
+        let updated = false;
+        for (const mindmap of datastoreData.mindmaps) {
+          if (mindmap.data && mindmap.data.data) {
+            const tagNode = this._findTagManagementNode(mindmap.data.data);
+            if (tagNode) {
+              this._updateTagManagementNodeInDatastore(tagNode);
+              updated = true;
+              break;
+            }
+          }
+        }
+        
+        if (updated) {
+          // 保存更新后的数据到数据底座
+          await this._saveDatastoreData(datastoreData);
+          console.log('[MindmapController] ✅ 标签面板状态已同步到数据底座');
+        }
+        
+      } catch (error) {
+        console.error('[MindmapController] 更新标签面板状态失败:', error);
+      }
+    }
+    
+    // 更新数据底座中的标签管理节点
+    _updateTagManagementNodeInDatastore(tagManagementNode) {
+      // 重建标签管理节点的子节点结构
+      tagManagementNode.children = [];
+      
+      // 根据当前的标签分组创建新的子节点结构
+      this.tagGroups.forEach((tags, groupName) => {
+        const groupNode = {
+          id: `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          topic: groupName,
+          expanded: true,
+          children: []
+        };
+        
+        // 为每个标签创建子节点
+        tags.forEach(tag => {
+          const tagNode = {
+            id: `tag_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            topic: tag.name,
+            expanded: true,
+            'background-color': tag.color,
+            'foreground-color': '#333'
+          };
+          
+          groupNode.children.push(tagNode);
+        });
+        
+        tagManagementNode.children.push(groupNode);
+      });
+    }
+    
+    // 解析标签数据并更新面板（替代原来的tagPanelController方法）
+    _parseAndUpdateTagPanel(tagManagementNode) {
+      if (!tagManagementNode || !tagManagementNode.children) return;
+      
+      const groups = {};
+      const themeOf = (name) => {
+        const n = (name || '').trim();
+        if (/^管理$/.test(n)) return 'theme-blue';
+        if (/^点评$/.test(n)) return 'theme-green';
+        if (/^状态$/.test(n)) return 'theme-yellow';
+        if (/^分类$/.test(n) || /^操作$/.test(n)) return 'theme-blue';
+        if (/^部门$/.test(n)) return 'theme-green';
+        const pool = ['theme-yellow', 'theme-green', 'theme-blue'];
+        let h = 0;
+        for (let i = 0; i < n.length; i++) {
+          h = (h * 31 + n.charCodeAt(i)) >>> 0;
+        }
+        return pool[h % pool.length];
+      };
+
+      // 解析标签管理节点的子节点
+      tagManagementNode.children.forEach(groupNode => {
+        const groupName = (groupNode.topic || '').trim();
+        if (!groupName) return;
+        
+        groups[groupName] = {
+          name: groupName,
+          theme: themeOf(groupName),
+          tags: (groupNode.children || []).map(tagNode => ({
+            name: (tagNode.topic || '').trim(),
+            color: tagNode['background-color'] || '#f0f0f0'
+          })).filter(tag => tag.name)
+        };
+      });
+
+      // 更新标签状态
+      this.tagGroups = groups;
+      this._renderTagPanel();
+    }
+    
+    // 渲染标签面板UI
+    _renderTagPanel() {
+      const groupsEl = document.getElementById('tag-groups');
+      const listEl = document.getElementById('tag-list');
+      
+      if (!groupsEl || !listEl) return;
+      
+      // 渲染分组
+      const groupsHtml = Object.values(this.tagGroups).map(group => 
+        `<button class="tag-group-btn ${group.theme}">
+          <span class="tag-group-name">${group.name}</span>
+         </button>`
+      ).join('');
+      
+      groupsEl.innerHTML = groupsHtml;
+      
+      // 渲染标签列表
+      const tagsHtml = Object.values(this.tagGroups).flatMap(group => 
+        group.tags.map(tag => 
+          `<span class="tag-chip ${group.theme}" data-tag="${tag.name}">${tag.name}</span>`
+        )
+      ).join('');
+      
+      listEl.innerHTML = tagsHtml || '<div class="tag-empty">暂无标签</div>';
+    }
+    
+    // 更新标签面板显示状态
+    _updateTagPanelVisibility(show) {
+      const emptyEl = document.getElementById('tag-panel-empty');
+      const panelEl = document.getElementById('tag-panel');
+      if (emptyEl) emptyEl.style.display = show ? 'none' : 'block';
+      if (panelEl) panelEl.style.display = show ? 'block' : 'none';
     }
 
     // 初始化数据管理器
@@ -166,10 +396,7 @@
           console.warn('[MindmapController] ⚠️ 业务层集成器不可用，使用传统模式');
         }
         
-        // P1.3: 延迟初始化标签面板控制器（等待脑图加载完成）
-        setTimeout(() => {
-          this._initTagPanelController();
-        }, 1500);
+        // P1.3: 标签面板功能已集成到主控制器中，无需单独初始化
         
       } catch (error) {
         console.error('[MindmapController] 业务层模块初始化失败:', error);
@@ -177,73 +404,26 @@
       }
     }
     
-    // P1.3: 初始化标签面板控制器
-    _initTagPanelController() {
-      try {
-        if (typeof window.MindmapTagPanelController !== 'undefined') {
-          // 获取依赖注入容器
-          const container = window.GlobalDependencyContainer;
-          
-          // 创建标签面板控制器实例
-          this.tagPanelController = new window.MindmapTagPanelController(this, container);
-          
-          // 异步初始化标签面板
-          this.tagPanelController.initialize().then(() => {
-            console.log('[MindmapController] ✅ 标签面板控制器初始化成功');
-            
-            // 添加标签面板切换按钮到工具栏
-            this._addTagPanelToggleButton();
-            
-          }).catch(error => {
-            console.error('[MindmapController] 标签面板控制器初始化失败:', error);
-          });
-          
-        } else {
-          console.warn('[MindmapController] ⚠️ 标签面板控制器不可用');
-        }
-      } catch (error) {
-        console.error('[MindmapController] 标签面板控制器初始化异常:', error);
-      }
-    }
+    // P1.3: 标签面板功能已集成到主控制器中，无需单独初始化
     
-    // 添加标签面板切换按钮
-    _addTagPanelToggleButton() {
-      try {
-        // 查找现有的标签按钮或创建新按钮
-        let tagButton = document.getElementById('mindmap-tag-panel-btn');
-        
-        if (!tagButton) {
-          // 创建标签面板切换按钮
-          tagButton = document.createElement('button');
-          tagButton.id = 'mindmap-tag-panel-btn';
-          tagButton.textContent = '标签管理';
-          tagButton.title = '打开/关闭标签面板';
-          tagButton.style.cssText = `
-            margin: 5px;
-            padding: 8px 12px;
-            background: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-          `;
-          
-          // 添加到页面顶部
-          const toolbar = document.querySelector('.toolbar') || document.body;
-          toolbar.appendChild(tagButton);
-        }
-        
-        // 绑定点击事件
-        tagButton.addEventListener('click', () => {
-          if (this.tagPanelController) {
-            this.tagPanelController.toggle();
-          }
-        });
-        
-        console.log('[MindmapController] ✅ 标签面板切换按钮已添加');
-        
-      } catch (error) {
-        console.error('[MindmapController] 添加标签面板按钮失败:', error);
+    // P1.3: 标签面板切换功能（集成到主控制器）
+    toggleTagPanel() {
+      const panelEl = document.getElementById('tag-panel');
+      const emptyEl = document.getElementById('tag-panel-empty');
+      
+      if (!panelEl) {
+        console.warn('[MindmapController] 标签面板DOM不存在');
+        return;
+      }
+      
+      const isVisible = panelEl.style.display !== 'none';
+      
+      if (isVisible) {
+        panelEl.style.display = 'none';
+        if (emptyEl) emptyEl.style.display = 'none';
+      } else {
+        // 显示标签面板并刷新数据
+        this.renderTagPanelFromDatastore();
       }
     }
 
@@ -551,7 +731,7 @@
             // 后处理步骤
             this.ensureFullSnapshotFromMind();
             try { this._patchDraggableSafeguards(); } catch(_) { /* ignore */ }
-            this.renderTagPanelFromMind();
+            this.renderTagPanelFromDatastore();
             this.selectedNode = this.data.id;
             this._appendEmojisToRootForTest();
             
@@ -576,7 +756,7 @@
       try { this._patchDraggableSafeguards(); } catch(_) { /* ignore */ }
       console.log('[MindmapController] 渲染脑图完成');
       this.applyDefaultNodeColor('#f5f5f5', '#333');
-      this.renderTagPanelFromMind();
+      this.renderTagPanelFromDatastore();
       this.selectedNode = this.data.id;
       this.setSelectedNode(this.data.id);
       this._appendEmojisToRootForTest();
@@ -863,7 +1043,7 @@
               // 基础渲染附加步骤
               this.ensureDragEnabled();
               this.applyDefaultNodeColor('#f5f5f5', '#333');
-              this.renderTagPanelFromMind();
+              this.renderTagPanelFromDatastore();
               const selPer = (this.mind.get_selected_node() && this.mind.get_selected_node().id) || (this.mind.get_root() && this.mind.get_root().id);
               if (selPer) this.setSelectedNode(selPer);
               try{ const rid = (this.mind.get_root && this.mind.get_root().id); if (rid){ this.mind.center_node(rid); } }catch(_){ }
@@ -892,7 +1072,7 @@
         // 同步内部数据结构，保持与 jsMind 一致
         this.syncJsMindToData();
         this.applyDefaultNodeColor('#f5f5f5', '#333');
-        this.renderTagPanelFromMind();
+        this.renderTagPanelFromDatastore();
         const sel = (this.mind.get_selected_node() && this.mind.get_selected_node().id) || (this.mind.get_root() && this.mind.get_root().id);
         if (sel) this.setSelectedNode(sel);
         try{ const rid = (this.mind.get_root && this.mind.get_root().id); if (rid){ this.mind.center_node(rid); } }catch(_){ }
@@ -961,6 +1141,8 @@
               }
             } catch(_) { /* ignore */ }
             this.updateNodeDetails(node.id);
+            // 同步标签面板状态
+            this.highlightActiveTagsForSelectedNode();
             // 异步：若内容为空且未处于编辑脏状态，尝试从 IndexedDB 取回最新全文
             try { this._tryHydrateContentFromIDB(node.id); } catch(_) { /* ignore */ }
           }
@@ -1049,7 +1231,7 @@
       // 渲染后为未设置颜色的节点应用默认浅灰底/深色字（非强制覆盖，仅设置缺省值）
       this.applyDefaultNodeColor('#f5f5f5', '#333');
       // 渲染后同步标签面板（从脑图“标签管理”解析标签组与标签）
-      this.renderTagPanelFromMind();
+      this.renderTagPanelFromDatastore();
       // 选中当前选中节点或根
       const sel = this.selectedNode || this.data.id;
       this.setSelectedNode(sel);
@@ -4022,7 +4204,7 @@
       this.syncJsMindToData();
       this.saveMindmapToStorage();
       // 刷新标签面板
-      this.renderTagPanelFromMind();
+      this.renderTagPanelFromDatastore();
       const activate = ()=>{ this.setSelectedNode(newId); this.editNode(newId); };
       if (typeof requestAnimationFrame === 'function') {
         requestAnimationFrame(activate);
@@ -5194,7 +5376,7 @@ async _showMindmapSelectionDialog(mindmaps) {
             this.data = newTree;
             this.saveMindmapToStorage();
             // 数据变更后，刷新标签面板
-            this.renderTagPanelFromMind();
+            this.renderTagPanelFromDatastore();
           }
         }
       }catch(e){ console.warn('[MindmapController] syncFromMind异常:', e); }
@@ -6007,7 +6189,7 @@ async _showMindmapSelectionDialog(mindmaps) {
         console.error('[MindmapController] 事件发射完全失败:', eventName, fallbackError);
       }
     }
-  };
+  }
   
   // 暴露到全局，保持与原脚本兼容
   window.MindmapController = MindmapController;

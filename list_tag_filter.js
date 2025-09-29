@@ -123,23 +123,118 @@ class ListTagFilter {
     }
     
     applyFilter() {
-        // 触发列表刷新 - 使用多种备用方案
-        if (window.refreshProjectList) {
-            window.refreshProjectList();
-        } else if (window.simpleRefreshProjectList) {
-            console.log('🔄 使用简化版刷新函数');
-            window.simpleRefreshProjectList();
+        // 直接执行标签过滤并投射到左侧项目列表
+        if (this.selectedTags.length > 0) {
+            console.log('🔄 执行标签过滤查询');
+            this.executeTagFilter();
         } else {
-            console.warn('⚠️ 刷新函数不存在，使用内置刷新逻辑');
-            this.fallbackRefresh();
+            // 无标签过滤时，显示项目目录
+            if (typeof window.renderCatalog === 'function') {
+                console.log('🔄 使用renderCatalog刷新列表');
+                window.renderCatalog();
+            } else {
+                this.fallbackRefresh();
+            }
         }
         
         console.log('🔍 应用标签过滤:', this.selectedTags);
     }
     
+    executeTagFilter() {
+        try {
+            // 收集所有节点
+            const nodes = window.collectAllNodes ? window.collectAllNodes() : [];
+            console.log(`收集到 ${nodes.length} 个节点`);
+            
+            // 过滤包含选中标签的节点
+            const results = nodes.filter(n => {
+                const content = (n.data && typeof n.data.content === 'string') ? n.data.content : '';
+                
+                // 解析标签
+                let tags = [];
+                try {
+                    const mc = window.mindmapController;
+                    if (mc && typeof mc._getTagsFromContent === 'function') {
+                        tags = mc._getTagsFromContent(content) || [];
+                    } else {
+                        // 本地解析
+                        const lines = content.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+                        if (lines.length) {
+                            const m = lines[0].match(/^标签[:：]\s*(.+)$/);
+                            if (m && m[1]) {
+                                tags = m[1].split(/[，,]/).map(s=>s.trim()).filter(Boolean);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn('标签解析失败:', error);
+                }
+                
+                // 检查是否包含所有选中的标签
+                const tagSet = new Set(tags.map(t => t.trim()));
+                return this.selectedTags.every(selectedTag => tagSet.has(selectedTag.trim()));
+            });
+            
+            console.log(`过滤后得到 ${results.length} 个结果`);
+            
+            // 投射到左侧项目列表
+            this.renderFilteredResults(results);
+            
+        } catch (error) {
+            console.error('标签过滤执行失败:', error);
+            this.fallbackRefresh();
+        }
+    }
+    
+    renderFilteredResults(results) {
+        const projectList = document.getElementById('project-catalog');
+        const queryList = document.getElementById('query-results-list');
+        
+        if (!projectList) {
+            console.warn('项目目录元素未找到');
+            return;
+        }
+        
+        if (results.length > 0) {
+            // 隐藏查询结果列表，显示项目列表
+            if (queryList) queryList.style.display = 'none';
+            projectList.style.display = 'block';
+            
+            // 清空并重新填充项目列表
+            projectList.innerHTML = '';
+            results.forEach(node => {
+                const li = document.createElement('li');
+                li.className = 'project-item filtered-result';
+                li.innerHTML = `
+                    <div class="project-title">${node.topic || '未命名'}</div>
+                    <div class="project-id">${node.id}</div>
+                `;
+                li.title = (node.data && node.data.content) ? node.data.content.slice(0, 200) : '';
+                
+                // 点击事件
+                li.addEventListener('click', () => {
+                    try {
+                        if (window.mindmapController && typeof window.mindmapController.setSelectedNode === 'function') {
+                            window.mindmapController.setSelectedNode(node.id);
+                        }
+                    } catch (error) {
+                        console.error('节点选择失败:', error);
+                    }
+                });
+                
+                projectList.appendChild(li);
+            });
+            
+            console.log(`✅ 已将 ${results.length} 个过滤结果投射到项目列表`);
+        } else {
+            // 无结果时显示提示
+            projectList.innerHTML = '<li class="no-results">未找到匹配的项目</li>';
+        }
+    }
+    
     fallbackRefresh() {
         // 内置的刷新逻辑
-        const projectList = document.getElementById('project-list');
+        const projectList = document.getElementById('project-catalog');
         const queryList = document.getElementById('query-results-list');
         
         if (!projectList || !queryList) return;
@@ -190,6 +285,15 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         listTagFilter = new ListTagFilter();
         window.listTagFilter = listTagFilter;
+        
+        // 默认选择"议题"标签
+        setTimeout(() => {
+            if (listTagFilter && listTagFilter.availableTags.has('议题')) {
+                listTagFilter.toggleTagFilter('议题');
+                console.log('✅ 已默认选择"议题"标签过滤');
+            }
+        }, 500);
+        
         console.log('✅ 列表标签过滤器已初始化');
     }, 2000);
 });
