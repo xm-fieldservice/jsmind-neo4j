@@ -1,34 +1,32 @@
 /**
- * 架构健康监控器 - 临时占位文件
- * 防止404中断页面初始化
+ * 健康监控器 - 基于现有组件getStats()的轻量实现
  */
 
 ;(function(global) {
     'use strict';
     
-    // 简化的架构健康监控器，避免404中断
-    class ArchitectureHealthMonitor {
-        constructor() {
-            this.metrics = {
-                healthy: true,
-                score: 85,
-                lastCheck: Date.now()
+    const HealthMonitor = {
+        async getSystemHealth() {
+            const health = {};
+            
+            // 收集各组件统计
+            if (global.AutogenUnifiedStorage) health.storage = global.AutogenUnifiedStorage.getStats();
+            if (global.AutogenEventBus) health.events = global.AutogenEventBus.getStats();
+            if (global.ErrorHandler) health.errors = global.ErrorHandler.getStats();
+            if (global.UnifiedLogger) health.logs = global.UnifiedLogger.getStats();
+            
+            // 计算总体健康度
+            const components = Object.values(health);
+            const healthyCount = components.filter(c => c.health?.healthy !== false).length;
+            health.overall = { 
+                score: Math.round((healthyCount / components.length) * 100),
+                healthy: healthyCount === components.length
             };
-            console.log('[ArchitectureHealthMonitor] 临时架构监控器已加载');
+            
+            return health;
         }
-        
-        getHealth() {
-            return this.metrics;
-        }
-        
-        checkHealth() {
-            this.metrics.lastCheck = Date.now();
-            console.log('[ArchitectureHealthMonitor] 健康检查完成');
-            return this.metrics;
-        }
-    }
+    };
     
-    // 全局导出
-    global.ArchitectureHealthMonitor = new ArchitectureHealthMonitor();
+    global.ArchitectureHealthMonitor = HealthMonitor;
     
 })(typeof window !== 'undefined' ? window : global);

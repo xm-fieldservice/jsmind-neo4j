@@ -23,37 +23,37 @@ class SystemInitializationCoordinator {
     }
     
     /**
-     * 协调完整的系统初始化流程（紧急安全版本）
+     * 协调完整的系统初始化流程
      */
     async coordinateSystemInitialization() {
-        console.log('[SystemInitializationCoordinator] 🚀 开始系统初始化协调（安全模式）');
+        console.log('[SystemInitializationCoordinator] 🚀 开始系统初始化协调');
         
         try {
-            // 只做最基本的检查，避免复杂操作导致死锁
-            this.logInfo('📋 基本系统检查');
+            // 1. 确保脚本加载顺序正确
+            await this.ensureScriptLoadOrder();
             
-            // 检查关键组件是否存在
-            const criticalComponents = ['AutogenUnifiedStorage', 'AutogenEventBus'];
-            for (const component of criticalComponents) {
-                if (window[component]) {
-                    this.logInfo(`✅ ${component} 可用`);
-                } else {
-                    this.logWarning(`⚠️ ${component} 不可用`);
-                }
-            }
+            // 2. 初始化现有系统（使用修复后的AutogenSystemInitializer）
+            await this.initializeExistingSystem();
             
-            // 跳过AutogenSystemInitializer调用，避免死锁
-            this.logWarning('🔧 跳过AutogenSystemInitializer调用，避免死锁');
+            // 3. 协调HTML初始化时序
+            await this.coordinateHTMLInitialization();
             
-            this.logSuccess('✅ 系统初始化协调完成（安全模式）');
+            // 4. 验证系统就绪状态
+            await this.verifySystemReady();
+            
+            this.logSuccess('✅ 系统初始化协调完成');
             return {
                 success: true,
-                mode: 'safe',
+                mode: 'full',
                 log: this.initializationLog
             };
             
         } catch (error) {
             this.logError('❌ 系统初始化协调失败', error);
+            
+            // 启动错误恢复机制
+            await this.handleInitializationFailure(error);
+            
             return {
                 success: false,
                 error: error.message,
@@ -101,10 +101,10 @@ class SystemInitializationCoordinator {
     }
     
     /**
-     * 初始化现有系统（使用AutogenSystemInitializer）
+     * 初始化现有系统（使用修复后的AutogenSystemInitializer）
      */
     async initializeExistingSystem() {
-        this.logInfo('🔧 使用现有AutogenSystemInitializer');
+        this.logInfo('🔧 使用修复后的AutogenSystemInitializer');
         
         // 获取现有的AutogenSystemInitializer实例
         this.existingInitializer = window.AutogenSystemInitializer;
@@ -114,23 +114,41 @@ class SystemInitializationCoordinator {
             return;
         }
         
-        // 使用现有初始化器进行系统初始化（带强制超时保护）
+        // 使用修复后的初始化器进行系统初始化
         try {
-            const result = await Promise.race([
-                this.existingInitializer.initialize(),
-                new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('初始化超时')), this.timeout)
-                )
-            ]);
+            this.logInfo('🚀 开始AutogenSystemInitializer初始化');
+            const result = await this.existingInitializer.initialize();
             
             if (result && result.success) {
                 this.logSuccess('✅ AutogenSystemInitializer初始化成功');
+                this.logInfo(`📊 初始化组件: ${Object.keys(result.components).join(', ')}`);
             } else {
                 this.logWarning('⚠️ AutogenSystemInitializer初始化失败，但继续协调');
+                if (result && result.error) {
+                    this.logError('初始化错误详情', new Error(result.error));
+                }
             }
         } catch (error) {
             this.logError('❌ AutogenSystemInitializer初始化异常', error);
-            this.logWarning('🔧 跳过AutogenSystemInitializer，继续协调');
+            
+            // 检查是否是超时错误，如果是则使用超时保护
+            if (error.message.includes('timeout') || error.message.includes('超时')) {
+                this.logWarning('🔧 检测到超时，启用超时保护机制');
+                try {
+                    const result = await Promise.race([
+                        this.existingInitializer.initialize(),
+                        new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('初始化超时保护')), this.timeout)
+                        )
+                    ]);
+                    
+                    if (result && result.success) {
+                        this.logSuccess('✅ 超时保护下初始化成功');
+                    }
+                } catch (timeoutError) {
+                    this.logWarning('⚠️ 超时保护也失败，继续协调');
+                }
+            }
         }
     }
     

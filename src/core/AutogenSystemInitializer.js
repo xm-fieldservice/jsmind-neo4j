@@ -100,11 +100,23 @@ class AutogenSystemInitializer {
         this.logInfo('初始化AutogenUnifiedStorage');
         
         try {
-            // 创建统一存储实例
-            this.systemComponents.storage = new window.AutogenUnifiedStorage();
-            
-            // 等待存储系统初始化完成
-            await this.systemComponents.storage.initialize();
+            // 检查是否已有存储实例（避免重复初始化）
+            if (window.AutogenUnifiedStorage && typeof window.AutogenUnifiedStorage === 'object') {
+                // 使用现有实例
+                this.systemComponents.storage = window.AutogenUnifiedStorage;
+                this.logInfo('使用现有AutogenUnifiedStorage实例');
+            } else if (window.AutogenUnifiedStorage && typeof window.AutogenUnifiedStorage === 'function') {
+                // 创建新实例
+                this.systemComponents.storage = new window.AutogenUnifiedStorage();
+                this.logInfo('创建新AutogenUnifiedStorage实例');
+                
+                // 等待存储系统初始化完成
+                if (typeof this.systemComponents.storage.initialize === 'function') {
+                    await this.systemComponents.storage.initialize();
+                }
+            } else {
+                throw new Error('AutogenUnifiedStorage不可用');
+            }
             
             // 验证存储系统功能
             await this.validateStorageSystem();
@@ -112,8 +124,10 @@ class AutogenSystemInitializer {
             this.initializationState.storage = true;
             this.logSuccess('存储系统初始化完成');
             
-            // 将存储系统暴露到全局
-            window.AutogenStorage = this.systemComponents.storage;
+            // 将存储系统暴露到全局（如果尚未暴露）
+            if (!window.AutogenStorage) {
+                window.AutogenStorage = this.systemComponents.storage;
+            }
             
         } catch (error) {
             this.logError('存储系统初始化失败', error);
@@ -165,28 +179,40 @@ class AutogenSystemInitializer {
         this.logInfo('初始化AutogenEventBus');
         
         try {
-            // 创建事件总线实例
-            this.systemComponents.eventBus = new window.AutogenEventBus();
-            
-            // 设置调试模式（开发环境）
-            if (this.isDevelopmentMode()) {
-                this.systemComponents.eventBus.setDebugMode(true);
+            // 检查是否已有事件总线实例（避免重复初始化）
+            if (window.AutogenEventBus && typeof window.AutogenEventBus === 'object') {
+                // 使用现有实例
+                this.systemComponents.eventBus = window.AutogenEventBus;
+                this.logInfo('使用现有AutogenEventBus实例');
+            } else if (window.AutogenEventBus && typeof window.AutogenEventBus === 'function') {
+                // 创建新实例
+                this.systemComponents.eventBus = new window.AutogenEventBus();
+                this.logInfo('创建新AutogenEventBus实例');
+                
+                // 设置调试模式（开发环境）
+                if (this.isDevelopmentMode()) {
+                    if (typeof this.systemComponents.eventBus.setDebugMode === 'function') {
+                        this.systemComponents.eventBus.setDebugMode(true);
+                    }
+                }
+                
+                // 添加系统中间件
+                this.setupEventBusMiddlewares();
+                
+                // 添加错误处理器
+                this.setupEventBusErrorHandlers();
+                
+                // 将事件总线暴露到全局
+                window.AutogenEventBus = this.systemComponents.eventBus;
+            } else {
+                throw new Error('AutogenEventBus不可用');
             }
-            
-            // 添加系统中间件
-            this.setupEventBusMiddlewares();
-            
-            // 添加错误处理器
-            this.setupEventBusErrorHandlers();
             
             // 验证事件总线功能
             await this.validateEventBus();
             
             this.initializationState.eventBus = true;
             this.logSuccess('事件总线初始化完成');
-            
-            // 将事件总线暴露到全局
-            window.AutogenEventBus = this.systemComponents.eventBus;
             
         } catch (error) {
             this.logError('事件总线初始化失败', error);
@@ -273,36 +299,32 @@ class AutogenSystemInitializer {
      * 执行数据迁移
      */
     async performMigration() {
-        this.logInfo('开始数据迁移');
+        this.logInfo('开始数据迁移检查');
         
         try {
-            // 迁移工具已完成历史使命，不再需要
-            // this.systemComponents.migrationTool = new window.StorageMigrationTool(
-            //     this.systemComponents.storage
-            // );
-            
             // 检查是否需要迁移
             const needsMigration = await this.checkMigrationNeeded();
             
             if (needsMigration) {
-                this.logInfo('检测到旧数据，开始迁移流程');
+                this.logInfo('检测到旧数据，但迁移工具已废弃');
                 
                 // 发布迁移开始事件
-                this.systemComponents.eventBus.emit('system:migration_start');
+                if (this.systemComponents.eventBus && typeof this.systemComponents.eventBus.emit === 'function') {
+                    this.systemComponents.eventBus.emit('system:migration_start');
+                }
                 
-                // 执行迁移
-                const migrationResult = await this.systemComponents.migrationTool.performFullMigration();
+                // 简化迁移：仅标记旧数据
+                await this.markLegacyData();
                 
-                if (migrationResult.success) {
-                    this.logSuccess('数据迁移完成');
-                    
-                    // 发布迁移完成事件
-                    this.systemComponents.eventBus.emit('system:migration_complete', migrationResult);
-                } else {
-                    this.logError('数据迁移失败', migrationResult.error);
-                    
-                    // 发布迁移失败事件
-                    this.systemComponents.eventBus.emit('system:migration_failed', migrationResult);
+                this.logInfo('数据迁移检查完成（简化版）');
+                
+                // 发布迁移完成事件
+                if (this.systemComponents.eventBus && typeof this.systemComponents.eventBus.emit === 'function') {
+                    this.systemComponents.eventBus.emit('system:migration_complete', {
+                        success: true,
+                        type: 'simplified',
+                        message: '旧数据已标记，建议手动清理'
+                    });
                 }
             } else {
                 this.logInfo('无需数据迁移');
@@ -312,7 +334,8 @@ class AutogenSystemInitializer {
             
         } catch (error) {
             this.logError('迁移流程失败', error);
-            throw error;
+            // 不抛出错误，允许系统继续初始化
+            this.initializationState.migration = true;
         }
     }
     
@@ -335,6 +358,42 @@ class AutogenSystemInitializer {
         }
         
         return false;
+    }
+    
+    /**
+     * 标记旧数据（简化迁移）
+     */
+    async markLegacyData() {
+        try {
+            const legacyKeys = [];
+            const legacyPrefixes = ['mind:', 'reg:', 'mindmap_', 'relation_'];
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && !key.includes('_migrated')) {
+                    for (const prefix of legacyPrefixes) {
+                        if (key.startsWith(prefix)) {
+                            legacyKeys.push(key);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // 标记发现的旧数据
+            if (legacyKeys.length > 0) {
+                localStorage.setItem('legacy_data_found', JSON.stringify({
+                    keys: legacyKeys,
+                    timestamp: Date.now(),
+                    marked: true
+                }));
+                
+                this.logInfo(`标记了 ${legacyKeys.length} 个旧数据键`);
+            }
+            
+        } catch (error) {
+            this.logWarning('标记旧数据失败', error);
+        }
     }
     
     /**

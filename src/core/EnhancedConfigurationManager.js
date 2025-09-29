@@ -1,31 +1,21 @@
 /**
- * 增强配置管理器 - 临时占位文件
- * 防止404中断页面初始化
+ * 配置管理器 - 基于AutogenUnifiedStorage的轻量实现
  */
 
 ;(function(global) {
     'use strict';
     
-    // 简化的配置管理器，避免404中断
-    class EnhancedConfigurationManager {
-        constructor() {
-            this.config = {
-                version: '1.0.0',
-                initialized: true
-            };
-            console.log('[EnhancedConfigurationManager] 临时配置管理器已加载');
-        }
+    const ConfigManager = {
+        async get(path, defaultValue) {
+            return await global.AutogenUnifiedStorage.retrieve('app_config', path) || defaultValue;
+        },
         
-        getConfig(key) {
-            return this.config[key];
+        async set(path, value) {
+            await global.AutogenUnifiedStorage.store('app_config', path, value);
+            global.AutogenEventBus.emit('config:changed', { path, value });
         }
-        
-        setConfig(key, value) {
-            this.config[key] = value;
-        }
-    }
+    };
     
-    // 全局导出
-    global.EnhancedConfigurationManager = new EnhancedConfigurationManager();
+    global.EnhancedConfigurationManager = ConfigManager;
     
 })(typeof window !== 'undefined' ? window : global);

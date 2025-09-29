@@ -1,35 +1,17 @@
 /**
- * 错误处理管道 - 临时占位文件
- * 防止404中断页面初始化
+ * 错误处理管道 - 基于ErrorHandler+UnifiedLogger的轻量实现
  */
 
 ;(function(global) {
     'use strict';
     
-    // 简化的错误处理管道，避免404中断
-    class ErrorProcessingPipeline {
-        constructor() {
-            this.handlers = [];
-            console.log('[ErrorProcessingPipeline] 临时错误处理管道已加载');
+    const ErrorProcessor = {
+        async processError(error, context) {
+            global.UnifiedLogger.error(error.message, { error, context });
+            return await global.ErrorHandler.handle(error, context);
         }
-        
-        addHandler(handler) {
-            this.handlers.push(handler);
-        }
-        
-        process(error) {
-            console.error('[ErrorProcessingPipeline] 处理错误:', error);
-            this.handlers.forEach(handler => {
-                try {
-                    handler(error);
-                } catch (e) {
-                    console.error('[ErrorProcessingPipeline] 处理器错误:', e);
-                }
-            });
-        }
-    }
+    };
     
-    // 全局导出
-    global.ErrorProcessingPipeline = new ErrorProcessingPipeline();
+    global.ErrorProcessingPipeline = ErrorProcessor;
     
 })(typeof window !== 'undefined' ? window : global);
