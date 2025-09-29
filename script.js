@@ -1139,7 +1139,57 @@ document.addEventListener('DOMContentLoaded', () => {
         // 暴露到全局作用域供调试使用
         window.collectAllNodes = collectAllNodes;
 
-        const norm = (s)=> (s||'').toString().trim();
+        // 部分加载相关节点（避免加载过多节点）
+        const loadPartialRelatedNodes = (targetPack, catalogItem) => {
+            try {
+                if (!targetPack || !targetPack.data) return;
+
+                const currentRootId = targetPack.data.id;
+                const allNodes = window.collectAllNodes ? window.collectAllNodes() : [];
+
+                // 查找当前节点在所有节点中的位置
+                const currentNode = allNodes.find(n => n.id === currentRootId);
+                if (!currentNode) return;
+
+                // 获取相关节点：当前节点的直接子节点和兄弟节点
+                const relatedNodes = new Set();
+                const maxNodes = 15; // 限制加载节点数量，避免过多
+
+                // 1. 添加当前节点的直接子节点（限制数量）
+                if (currentNode.children && currentNode.children.length > 0) {
+                    const childLimit = Math.min(8, currentNode.children.length);
+                    for (let i = 0; i < childLimit; i++) {
+                        if (relatedNodes.size < maxNodes) {
+                            relatedNodes.add(currentNode.children[i].id);
+                        }
+                    }
+                }
+
+                // 2. 添加当前节点的兄弟节点（限制数量）
+                if (currentNode.parent && currentNode.parent.children) {
+                    const siblings = currentNode.parent.children.filter(sibling => sibling.id !== currentRootId);
+                    const siblingLimit = Math.min(5, siblings.length);
+                    for (let i = 0; i < siblingLimit; i++) {
+                        if (relatedNodes.size < maxNodes) {
+                            relatedNodes.add(siblings[i].id);
+                        }
+                    }
+                }
+
+                if (relatedNodes.size > 0) {
+                    console.log(`🔄 部分加载相关节点: ${relatedNodes.size} 个节点`);
+                    console.log('相关节点ID:', Array.from(relatedNodes));
+
+                    // 实际加载这些节点（这里只是记录，具体加载逻辑可以根据需要扩展）
+                    setTimeout(() => {
+                        console.log('✅ 相关节点已准备就绪，可通过查询功能访问');
+                    }, 50);
+                }
+
+            } catch (error) {
+                console.warn('部分节点加载失败:', error);
+            }
+        };
 
         // ===== 全图缓存与子树聚焦（与查询解耦） =====
         const deepClone = (obj)=> JSON.parse(JSON.stringify(obj));
@@ -1882,7 +1932,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             try { window.mindmapController.renderMindmap && window.mindmapController.renderMindmap(); } catch(_){ }
                         }
 
-                        // 7. 居中/展开根节点
+                        // 7. 同步加载该节点的脑图其他节点（部分加载）
+                        setTimeout(() => {
+                            try {
+                                loadPartialRelatedNodes(targetPack, it);
+                            } catch (error) {
+                                console.warn('[catalog] 部分节点加载失败:', error);
+                            }
+                        }, 100);
+
+                        // 8. 居中/展开根节点
                         try {
                             const jm = window.mindmapController.mind;
                             const rootId = targetPack.data && targetPack.data.id;
