@@ -496,7 +496,8 @@
          */
         async _loadWarehouse() {
             try {
-                const data = await global.AutogenUnifiedStorage.get(this.STORAGE_KEY);
+                const result = await global.AutogenUnifiedStorage.retrieve('config', this.STORAGE_KEY);
+                const data = result ? result.data : null;
                 
                 if (data) {
                     // 恢复仓库数据
@@ -534,7 +535,7 @@
                     savedAt: new Date().toISOString()
                 };
                 
-                await global.AutogenUnifiedStorage.set(this.STORAGE_KEY, data);
+                await global.AutogenUnifiedStorage.store('config', this.STORAGE_KEY, data);
                 
             } catch (error) {
                 console.error('[ColumnWarehouse] 保存失败:', error);

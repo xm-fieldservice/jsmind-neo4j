@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理视图</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+      // 简化配置：只保留必要的设置
+      console.log('[系统] 使用简化持久化服务');
+      
+      // 统一脚本加载器 - 消除重复的load函数
+      window.loadScript = function(src, cb) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.defer = true;
+        s.onload = function() { cb && cb(); };
+        s.onerror = function() { cb && cb(new Error('fail ' + src)); };
+        document.head.appendChild(s);
+      };
+    </script>
+    <!-- 关系管理样式 -->
+    <link rel="stylesheet" href="relation_styles.css">
+    <!-- 项目列表样式 -->
+    <link rel="stylesheet" href="project_list_styles.css">
+    <!-- 工作区样式 -->
+    <link rel="stylesheet" href="workspace_styles.css">
+    <!-- 工作栏仓库样式 -->
+    <link rel="stylesheet" href="css/column-warehouse.css">
+    <!-- D3.js 图形可视化库 -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- jsMind 样式与脚本（本地优先，CDN 兜底） -->
+    <link rel="stylesheet" href="vendor/jsmind/style/jsmind.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/jsmind/style/jsmind.css'">
+    <script>
+      (function(){
+        var local = ['vendor/jsmind/js/jsmind.js','vendor/jsmind/js/jsmind.draggable-node.js'];
+        var cdn   = ['https://unpkg.com/jsmind@0.8.7/es6/jsmind.js','https://unpkg.com/jsmind@0.8.7/es6/jsmind.draggable-node.js'];
+        var i=0; (function next(){ if(i>=local.length){
+            // 运行时校验 jsMind 是否可用，否则回退到 CDN
+            if (typeof window.jsMind === 'undefined'){ window.loadScript(cdn[0], function(){ if (typeof window.jsMind==='undefined'){ console.error('jsMind 加载失败'); } }); }
+            return;
+          }
+          window.loadScript(local[i], function(err){ if(err){ window.loadScript(cdn[i], function(){ i++; next(); }); } else { i++; next(); } });
+        })();
+      })();
+    </script>
+    <!-- 启用原生拖拽功能 -->
+    <script>
+      (function(){
+        function whenReady(cb){ if (window.jsMind) { cb(); } else { setTimeout(function(){ whenReady(cb); }, 50); } }
+        whenReady(function(){
+          console.log('[init] jsMind 原生拖拽功能已启用');
+        });
+      })();
+    </script>
+    <!-- Markdown 渲染与样式（本地优先，CDN 兜底） -->
+    <script>
+      (function(){
+        // 先尝试本地，再检测 window.marked，不存在则兜底到 CDN
+        window.loadScript('vendor/marked/marked.min.js', function(){
+          if (typeof window.marked === 'undefined'){
+            window.loadScript('https://cdn.jsdelivr.net/npm/marked/marked.min.js');
+          }
+        });
+      })();
+    </script>
+    <link rel="stylesheet" href="vendor/github-markdown/github-markdown.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown.min.css'">
+    <!-- 使用iconfont图标库（本地优先，CDN 兜底） -->
+    <link rel="stylesheet" href="vendor/iconfont/iconfont.css" onerror="this.onerror=null;this.href='https://at.alicdn.com/t/font_2616996_po7xxw0dged.css'">
+    
+</head>
+<body>
+    <!-- 顶部系统栏 -->
+    <div class="system-bar">
+        <div class="view-toggles">
+            <button class="view-toggle" data-view="workspace">工作区</button>
+            <button class="view-toggle active" data-view="list">列表</button>
+            <button class="view-toggle active" data-view="mindmap">脑图</button>
+            <button class="view-toggle" data-view="notes">笔记</button>
+            <button class="view-toggle" data-view="relation">关系</button>
+            <button class="view-toggle active" data-view="detail">详情</button>
+        </div>
+        <!-- 系统工具按钮 -->
+        <div style="display:flex;align-items:center;gap:12px;margin-left:auto;">
+            <button id="open-warehouse-btn" style="padding:8px 16px;background:linear-gradient(135deg,#6366f1 0%,#4f46e5 100%);color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;transition:all 0.2s;" title="打开工作栏仓库">
+                🏪 仓库
+            </button>
+            <!-- 添加存储健康指示器 -->
+            <div id="storage-health-indicator" class="healthy" title="存储系统正常"></div>
+        </div>
+    </div>
+    
+        <!-- 内容区容器（空容器，由ColumnRegistry动态填充工作栏） -->
+    <div class="content-container" id="columns-container">
+        <!--  工作栏将由ColumnRegistry动态注入 -->
+        <!-- 通过ColumnWarehouse仓库管理：上传、上线、下线、删除工作栏 -->
+    </div>
+    
+    <!-- 全局日志面板（保留原列表栏的日志功能） -->
+    <div id="global-log-panel-container" style="position:fixed;bottom:20px;right:20px;width:400px;max-height:300px;z-index:9999;background:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+        <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;padding:8px;">
+            <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;">MD保存</button>
+            <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
+            <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
+        </div>
+        <div id="list-log-panel" data-collapsed="true" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
+            <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
+                <span style="font-size:12px;color:#6b7280;">系统日志</span>
+                <span id="list-log-caret" style="font-size:12px;color:#9ca3af;"></span>
+            </button>
+            <pre id="list-log-body" style="display:none;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
+        </div>
+    </div>
+
+    <!-- 脚本区域 -->
+    <!-- 隐藏文件选择框：用于导入脑图 -->
+    <input type="file" id="fileInputMindmap" accept=".json,.mindmap.json" style="display:none" />
+    <!-- 隐藏文件选择框：用于附件上传（多选） -->
+    <input type="file" id="fileInputAttachment" multiple style="display:none" />
+    <!-- 隐藏文件选择框：用于选择智能体文件 -->
+    <input type="file" id="fileInputAgent" accept=".agt,.team,.json" style="display:none" />
+    
+    
+    
+    
+    
+    
+    
+    
+    <!-- 统一日志面板工具：将运行/调试信息输出到左侧“列表日志”框 -->
+    <script>
+      (function(){
+        const pad = n => (n<10? '0':'') + n;
+        function ts(){ const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+        function ensureInit(){
+          const panel = document.getElementById('list-log-panel');
+          const header = document.getElementById('list-log-header');
+          const caret = document.getElementById('list-log-caret');
+          const body = document.getElementById('list-log-body');
+          const btnClear = document.getElementById('list-log-clear');
+          const btnCopy = document.getElementById('list-log-copy');
+          if (!panel || !header || !body) return false;
+          if (!header.__bound){
+            header.__bound = true;
+            header.addEventListener('click', function(){
+              const collapsed = panel.getAttribute('data-collapsed') !== 'false';
+              if (collapsed){
+                panel.setAttribute('data-collapsed','false');
+                body.style.display = 'block';
+                caret.textContent = '▾';
+              } else {
+                panel.setAttribute('data-collapsed','true');
+                body.style.display = 'none';
+                caret.textContent = '▸';
+              }
+            });
+          }
+          btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
+          btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(body.textContent||''); alert('日志已复制'); }catch(_){ } }));
+          
+          return true;
+        }
+        function append(level, message){
+          if (!ensureInit()) return;
+          const body = document.getElementById('list-log-body');
+          const line = `[${ts()}][${level}] ${message}`;
+          body.textContent += (body.textContent ? "\n" : "") + line;
+          body.scrollTop = body.scrollHeight;
+        }
+        const LogPanel = {
+          log: (m)=>append('INFO', String(m)),
+          warn: (m)=>append('WARN', String(m)),
+          error: (m)=>append('ERROR', String(m)),
+          json: (title, obj)=>append('INFO', `${title}: ${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`)
+        };
+        window.LogPanel = LogPanel;
+        // Tee console 输出到日志面板
+        ['log','info','warn','error'].forEach(fn=>{
+          const orig = console[fn].bind(console);
+          console[fn] = function(){ try{ LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); }catch(_){}; return orig.apply(console, arguments); };
+        });
+        // 全局错误捕获
+        window.addEventListener('error', e=>{ LogPanel.error(`WindowError: ${e.message}`); });
+        window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
+        // 初始一条
+        setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
+        
+        // 清理逻辑已移至StorageService，避免重复执行
+      })();
+    </script>
+    
+    <!-- 🎯 死锁源确定：ErrorHandler.js导致死锁，永久禁用 -->
+    <script src="src/core/ApiConfig.js"></script>
+    <script src="src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="src/core/messaging/AutogenEventBus.js"></script>
+    <script src="src/core/DependencyManager.js"></script>
+    
+    <!-- ✅ 死锁源已修复：ErrorHandler.js - 恢复加载 -->
+    <script src="src/core/ErrorHandler.js"></script>
+    
+    <!-- 🔍 第四次测试：恢复SystemInitializationCoordinator.js -->
+    <script src="src/core/SystemInitializationCoordinator.js"></script>
+    <script>
+        console.log('[诊断] ✅ ErrorHandler.js死锁源已修复并恢复');
+    </script>
+    <!-- <script src="src/migration/StorageMigrationTool.js"></script> --> <!-- 迁移完成，已删除 -->
+    
+    <!-- ✅ 死锁诊断完成，恢复所有Phase 1-3模块 -->
+    <script src="src/data/MindmapDataManager.js"></script>
+    <script src="src/integration/MindmapDataManagerIntegration.js"></script>
+    <script src="src/presentation/MindmapRenderer.js"></script>
+    <script src="src/presentation/MindmapEventManager.js"></script>
+    <script src="src/presentation/MindmapUIController.js"></script>
+    <script src="src/integration/MindmapPresentationIntegration.js"></script>
+    <script src="src/tests/MindmapPresentationTest.js"></script>
+    <script src="src/business/MindmapNodeManager.js"></script>
+    <script src="src/business/MindmapSyncManager.js"></script>
+    <script src="src/business/MindmapStateManager.js"></script>
+    <script src="src/integration/MindmapBusinessIntegration.js"></script>
+    <script>
+        console.log('[诊断] ✅ 死锁源确定为ErrorHandler.js，所有其他模块已恢复');
+    </script>
+    
+    <!-- JSON底座查询服务 -->
+    <script src="src/services/JsonBaseQueryService.js"></script>
+    
+    <!-- P1.2: 统一存储服务（整合多套存储系统） -->
+    <script src="src/services/UnifiedStorageService.js"></script>
+    
+    <!-- P1.3: 标签面板控制器（专用标签管理功能） -->
+    <script src="src/controllers/MindmapTagPanelController.js"></script>
+    
+    <!-- 架构基础设施（已在上方加载，避免重复） -->
+    <!-- <script src="src/core/ApiConfig.js"></script> --> <!-- 已在第552行加载 -->
+    <script src="src/core/ModuleLifecycleManager.js"></script>
+    
+    <!-- Phase 1: 结构性架构改进组件（按依赖顺序加载） -->
+    <script src="src/core/EnhancedConfigurationManager.js"></script>
+    <script src="src/core/ErrorProcessingPipeline.js"></script>
+    <script src="src/core/ArchitectureHealthMonitor.js"></script>
+    
+    <!-- P2.2: 统一日志系统（优先加载，供其他组件使用） -->
+    <script src="src/core/UnifiedLogger.js"></script>
+    
+    <!-- 核心管理组件（已在上方加载，避免重复） -->
+    <!-- <script src="src/core/ErrorHandler.js"></script> --> <!-- 已在第562行加载 -->
+    <!-- <script src="src/core/DependencyManager.js"></script> --> <!-- 已在第561行加载 -->
+    
+    <!-- P1.1: 依赖注入容器（减少全局变量依赖） -->
+    <script src="src/core/DependencyContainer.js"></script>
+    
+    <!-- P2.1: 事件系统统一规范 -->
+    <script src="src/core/EventStandards.js"></script>
+    
+    <!-- 🆕 工作栏生态系统：ColumnRegistry核心组件 -->
+    <script src="js/core/column-registry.js?v=20251001"></script>
+    
+    <!-- 🆕 工作栏生态系统：ColumnWarehouse仓库管理器 -->
+    <script src="js/core/column-warehouse.js?v=20251001-fix"></script>
+    
+    <!-- 🆕 工作栏生态系统：ColumnWarehouse UI -->
+    <script src="js/core/column-warehouse-ui.js?v=20251001"></script>
+    
+    <!-- 🆕 ColumnRegistry自动演示（临时启用，验证功能） -->
+    <!-- <script src="js/core/column-registry-demo.js"></script> -->
+    
+    <!-- P2阶段架构验证测试 - 已禁用，避免生产环境自动运行 -->
+    <!-- <script src="src/tests/P2ArchitectureValidationTest.js"></script> -->
+    
+    <!-- P0.3: 正式业务层集成器（替代补丁系统） -->
+    <script src="src/business/MindmapBusinessLayerIntegrator.js"></script>
+    <!-- 测试脚本已禁用，避免在生产环境自动运行 -->
+    <!-- <script src="src/tests/test_business_layer_integration.js"></script> -->
+    
+    <!-- Phase 6.1: 模块激活与依赖建立 -->
+    <script src="src/integration/ModuleActivation.js"></script>
+    <!-- 测试脚本已禁用，避免在生产环境自动运行 -->
+    <!-- <script src="src/integration/ModuleActivationTest.js"></script> -->
+    <!-- <script src="src/integration/BrowserVerificationTest.js"></script> -->
+    
+    <!-- 🚨 快速修复脑图消失问题 - 已清理 -->
+    
+    <!-- ES6模块修复脚本已清理 -->
+    
+    <!-- 存储监控工具已清理 -->
+    <!-- Registry系统 - 必需用于界面刷新 -->
+    <script src="registry/registry_store.js"></script>
+    <script src="registry/registry_state_machine.js"></script>
+    <script src="registry/registry_repository.js"></script>
+    <script src="registry/command_bus.js"></script>
+    <script src="registry/registry_view.js"></script>
+    <script src="registry/registry_bootstrap.js"></script>
+    
+    <!-- 原有脑图控制器（保持不变） -->
+    <script src="jsmind-controller.js?v=1758295844"></script>
+    
+    <!-- 关系管理前端已清理 -->
+    
+    <!-- MD转换工具 -->
+    <script src="src/services/MDToMindmap.js?v=1758295377"></script>
+    
+    <!-- 临时测试脚本已清理 -->
+    
+    <!-- 标签系统核心功能 -->
+    <script src="list_tag_filter.js"></script>
+    <script src="tag_list_filter_enhancement.js"></script>
+    <script src="debug_tag_query.js"></script>
+    
+    <!-- 测试和演示脚本已清理 -->
+    
+    <!-- 新节点默认标签功能已清理 -->
+    
+    <!-- 关系管理模块集成检查已清理 -->
+    
+    <!-- 系统初始化审查已清理 -->
+    
+    <!-- 持久化初始化修复已清理 -->
+    
+    <!-- 关系模块冗余脚本已清理 -->
+    
+    <!-- 脑图集成评估器已清理 -->
+    
+    <!-- 实施记录补录到脑图已清理 -->
+    
+    <!-- 调试脚本已清理 -->
+    
+    <!-- 修复脑图子节点问题已清理 -->
+    
+    <!-- 修复存储API问题已清理 -->
+    
+    <!-- 关系模块阶段脚本已清理 -->
+    
+    <!-- 笔记栏功能（已禁用 - DOM元素已删除） -->\r\n    <!-- <script>
+        // 笔记栏功能
+        window.addEventListener('DOMContentLoaded', function() {
+            let notes = JSON.parse(localStorage.getItem('notes_data') || '[]');
+            let selectedAgent = null;
+            
+            function renderNotes() {
+                const display = document.getElementById('notes-display');
+                const count = document.querySelector('.notes-count');
+                
+                if (notes.length === 0) {
+                    display.innerHTML = '<div class="notes-empty">暂无笔记，在下方输入框中添加笔记</div>';
+                } else {
+                    display.innerHTML = notes.map(note => `
+                        <div class="notes-item">
+                            <div class="notes-item-time">${new Date(note.time).toLocaleString()}</div>
+                            <div class="notes-item-content">${note.content}</div>
+                            ${note.type ? `<div class="notes-item-type">[${note.type}]</div>` : ''}
+                        </div>
+                    `).join('');
+                }
+                
+                count.textContent = `${notes.length} 条笔记`;
+            }
+            
+            function saveNotes() {
+                localStorage.setItem('notes_data', JSON.stringify(notes));
+            }
+            
+            function addNote(content, type = 'note') {
+                notes.unshift({
+                    id: Date.now(),
+                    content: content,
+                    time: Date.now(),
+                    type: type
+                });
+                renderNotes();
+                saveNotes();
+            }
+            
+            function updateAgentStatus(status, text) {
+                const statusEl = document.getElementById('agent-status');
+                statusEl.className = `agent-status ${status}`;
+                statusEl.textContent = text;
+            }
+            
+            // Agent API调用函数 - 调用外部脚本，不使用自定义运行机制
+            async function callAgentAPI(agent, userInput) {
+                try {
+                    // 调用后端API，后端会使用外部脚本运行
+                    const response = await fetch('http://127.0.0.1:8081/api/agent/run', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            agent_config: agent.data,
+                            user_input: userInput,
+                            agent_type: detectAgentType(agent.data)
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        return {
+                            success: true,
+                            result: result.response || result.output || '智能体响应为空'
+                        };
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                } catch (networkError) {
+                    // 网络错误时，尝试使用Python脚本作为备选方案
+                    console.warn('后端API不可用，尝试备选方案:', networkError.message);
+                    
+                    try {
+                        // 返回指导信息
+                        return {
+                            success: false,
+                            message: `后端API不可用，请检查：
+1.  服务器是否正在运行
+2. 环境变量已正确配置
+3. AutoGen模块已安装`,
+                            error: networkError.message
+                        };
+                        
+                    } catch (fallbackError) {
+                        return {
+                            success: false,
+                            error: `Agent调用失败: ${networkError.message}`
+                        };
+                    }
+                }
+            }
+            
+            // 检测Agent类型
+            function detectAgentType(agentData) {
+                if (!agentData) return 'agent';
+                
+                // 检测Team特征
+                if (agentData.members || agentData.participants) {
+                    return 'team';
+                }
+                
+                if (agentData.config) {
+                    if (agentData.config.participants || agentData.config.members) {
+                        return 'team';
+                    }
+                }
+                
+                // 默认为agent
+                return 'agent';
+            }
+            
+            // 智能体选择
+            document.getElementById('agent-select-btn')?.addEventListener('click', function() {
+                document.getElementById('fileInputAgent').click();
+            });
+            
+            // 文件选择处理
+            document.getElementById('fileInputAgent')?.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        try {
+                            const agentData = JSON.parse(event.target.result);
+                            selectedAgent = {
+                                name: file.name,
+                                path: file.name,
+                                data: agentData
+                            };
+                            updateAgentStatus('selected', `已选择: ${file.name}`);
+                            addNote(`智能体已选择: ${file.name}`, 'system');
+                        } catch (error) {
+                            alert('智能体文件格式错误: ' + error.message);
+                            updateAgentStatus('', '选择失败');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+            
+            // 发送给智能体
+            document.getElementById('notes-send-btn')?.addEventListener('click', async function() {
+                const input = document.getElementById('notes-input-text');
+                const content = input.value.trim();
+                
+                if (!selectedAgent) {
+                    alert('请先选择一个智能体');
+                    return;
+                }
+                
+                if (!content) {
+                    alert('请输入要发送给智能体的内容');
+                    return;
+                }
+                
+                // 添加用户输入到笔记
+                addNote(`[用户] ${content}`, 'user');
+                
+                // 开始处理
+                updateAgentStatus('processing', '处理中...');
+                
+                try {
+                    // 调用后端API运行Agent
+                    const response = await callAgentAPI(selectedAgent, content);
+                    
+                    if (response.success) {
+                        addNote(`[${selectedAgent.name}] ${response.result}`, 'agent');
+                        updateAgentStatus('selected', `已选择: ${selectedAgent.name}`);
+                    } else {
+                        addNote(`[错误] ${response.error}`, 'system');
+                        updateAgentStatus('selected', `已选择: ${selectedAgent.name} (上次调用失败)`);
+                    }
+                    
+                    input.value = '';
+                    
+                } catch (error) {
+                    addNote(`[系统错误] Agent调用失败: ${error.message}`, 'system');
+                    updateAgentStatus('selected', `已选择: ${selectedAgent.name} (连接失败)`);
+                }
+            });
+            
+            // 添加笔记
+            document.getElementById('notes-add-btn')?.addEventListener('click', function() {
+                const input = document.getElementById('notes-input-text');
+                const content = input.value.trim();
+                
+                if (content) {
+                    addNote(content, 'note');
+                    input.value = '';
+                }
+            });
+            
+            // 清空输入
+            document.getElementById('notes-clear-input-btn')?.addEventListener('click', function() {
+                document.getElementById('notes-input-text').value = '';
+            });
+            
+            // 清空所有笔记
+            document.getElementById('notes-clear-btn')?.addEventListener('click', function() {
+                if (confirm('确定要清空所有笔记吗？')) {
+                    notes = [];
+                    renderNotes();
+                    saveNotes();
+                }
+            });
+            
+            // 保存笔记
+            document.getElementById('notes-save-btn')?.addEventListener('click', function() {
+                saveNotes();
+                alert('笔记已保存');
+            });
+            
+            // 回车发送给智能体
+            document.getElementById('notes-input-text')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    if (selectedAgent) {
+                        document.getElementById('notes-send-btn').click();
+                    } else {
+                        document.getElementById('notes-add-btn').click();
+                    }
+                }
+            });
+            
+            // 初始化显示
+            renderNotes();\r\n        });\r\n    </script> -->\r\n    \r\n    <!-- 工作区功能 -->
+    <script>
+        // 工作区功能（已简化）
+        window.addEventListener('DOMContentLoaded', function() {
+            // 工作区刷新按钮 - 仅保留基本功能
+            document.getElementById('workspace-refresh-btn')?.addEventListener('click', function() {
+                console.log('[工作区] 刷新按钮被点击');
+                // 可以在这里添加刷新逻辑
+            });
+            
+            // 仓库按钮 - 打开工作栏仓库管理界面
+            document.getElementById('open-warehouse-btn')?.addEventListener('click', function() {
+                console.log('[仓库] 打开仓库管理界面');
+                if (window.ColumnWarehouseUI) {
+                    window.ColumnWarehouseUI.show();
+                } else {
+                    alert('  仓库UI未初始化，请稍后再试');
+                }
+            });
+        });
+    </script>
+    
+    <!-- 本地后端 API 基址配置（必须在注册管理器之前设置） -->
+    <script>
+      // 如需更换端口，请修改此处端口号
+      window.__REGISTRY_API_BASE = window.__REGISTRY_API_BASE || 'http://127.0.0.1:8081';
+      // 简易连通性检测
+      (function(){
+        try{
+          fetch(window.__REGISTRY_API_BASE + '/health', { method:'GET' })
+            .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)))
+            .then(()=>{ window.LogPanel && window.LogPanel.log('后端健康检查通过'); })
+            .catch((err)=>{ window.LogPanel && window.LogPanel.warn('后端健康检查失败：' + (err&&err.message?err.message:String(err))); });
+        }catch(_){ /* ignore */ }
+      })();
+    </script>
+    
+    <!-- 核心状态管理系统 -->
+    <script src="src/core/StateManager.js"></script>
+    
+    <!-- 关系管理系统 -->
+    <script src="src/relations/RelationDataManager.js"></script>
+    
+    <!-- 可视化组件 -->
+    <script src="src/visualization/D3RelationGraph.js"></script>
+    
+    <!-- 挂载确认 -->
+    <script>
+      // 检查核心组件是否加载成功
+      if (window.EventBus) {
+        console.log('✅ EventBus 挂载成功');
+      } else {
+        console.error('❌ EventBus 挂载失败');
+      }
+      
+      if (window.StateManager) {
+        console.log('✅ StateManager 挂载成功');
+      } else {
+        console.error('❌ StateManager 挂载失败');
+      }
+      
+      if (window.AutogenUnifiedStorage) {
+        console.log('✅ AutogenUnifiedStorage 挂载成功');
+      } else {
+        console.error('❌ AutogenUnifiedStorage 挂载失败');
+      }
+    </script>
+    
+    <!-- 统一调试面板 -->
+    <script src="src/debug/DebugPanel.js?v=20250918"></script>
+    <!-- debug-mindmap-naming.js 已清理 -->
+    
+    <!-- 统一数据修复工具 -->
+    <script src="src/tools/dataRecovery.js?v=20250918"></script>
+    
+    
+    <!-- 主脚本（保持不变） -->
+    <script src="script.js?v=1758295844"></script>
+    <!-- 简易状态脚本：查询 IndexedDB 计数并弹窗显示 -->
+    <script>
+      (function(){
+        const btn = document.getElementById('mindmap-idb-status-btn');
+        if (btn){
+          btn.addEventListener('click', async ()=>{
+            try{
+              if (!window.MindmapStorage || typeof window.MindmapStorage.getStatus !== 'function'){
+                alert('本地内容库适配器未加载或不支持 getStatus');
+                return;
+              }
+              const s = await window.MindmapStorage.getStatus();
+              alert(`IndexedDB 状态\nNodes: ${s.nodes}\nContents: ${s.contents}\nVersions: ${s.versions}`);
+            }catch(e){
+              alert('查询失败：' + (e && e.message ? e.message : String(e)));
+            }
+          });
+        }
+      })();
+    </script>
+    
+    <!-- 持久化和存储系统已由AutogenUnifiedStorage统一管理 -->
+    
+    <!-- 脑图关系提取器 -->
+    <script src="src/relations/MindmapRelationExtractor.js"></script>
+    
+    <!-- 系统健康检查脚本已清理 -->
+    
+    <!-- 系统初始化检查（暂时禁用，诊断死锁） -->
+    <!--
+    <script>
+        // 确保所有系统正确初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('[系统] 检查系统组件状态...');
+            // 暂时禁用所有检查
+        });
+    </script>
+    -->
+    <script>
+        console.log('[系统] ⚠️ 系统初始化检查已暂时禁用，用于诊断死锁问题');
+        console.log('[系统] 🔧 基础系统功能已就绪（简化模式）');
+    </script>
+
+        // 事件监听器已暂时禁用，用于诊断死锁问题
+    </script>
+    
+    
+    <!-- 数据备份工具已清理 -->
+    
+    <!-- 测试面板脚本已清理 -->
+    
+    <!-- 工作记录相关脚本已清理 -->
+    
+    <!-- 综合功能恢复脚本 -->
+    <script src="restore_complete_functions.js"></script>
+    
+    <!-- Phase 1: 架构改进验证测试 - 已禁用，避免生产环境自动运行 -->
+    <!-- <script src="src/tests/test_phase1_architecture_improvements.js"></script> -->
+    
+    <!-- 🚀 Phase 6.2: 统一系统初始化（暂时禁用，诊断死锁） -->
+    <!--
+    <script>
+    window.addEventListener('DOMContentLoaded', async function() {
+        console.log('[Phase 6.2] 🚀 开始统一系统初始化');
+        // 暂时禁用所有初始化代码
+    });
+    </script>
+    -->
+    <script>
+        console.log('[Phase 6.2] ⚠️ 初始化已暂时禁用，用于诊断死锁问题');
+    </script>
+    
+    <!-- Toast提示 -->
+    <div id="mindmap-toast" class="mindmap-toast" style="display:none;"></div>
+</body>
+</html>
