@@ -494,6 +494,8 @@ class ColumnManager {
             const column = document.getElementById(`${view}-column`);
             if (column) {
                 column.classList.add('visible');
+                // 🔧 移除内联样式，避免 style="display:none" 覆盖 .visible 类
+                column.style.display = '';
                 console.log('[ColumnManager] updateLayout 显示视图:', view);
                 
                 // 如果是脑图视图被激活，确保脑图正确渲染并选中根节点
@@ -607,7 +609,26 @@ class ColumnManager {
         });
     }
     
+    /**
+     * 动态添加视图（由ColumnRegistry调用）
+     * @param {string} viewId - 视图ID
+     */
+    addView(viewId) {
+        if (!this.views.includes(viewId)) {
+            this.views.push(viewId);
+            console.log(`[ColumnManager] ✅ 已添加视图: ${viewId}`);
+        }
+    }
     
+    /**
+     * 动态移除视图（由ColumnRegistry调用）
+     * @param {string} viewId - 视图ID
+     */
+    removeView(viewId) {
+        this.views = this.views.filter(v => v !== viewId);
+        this.activeViews = this.activeViews.filter(v => v !== viewId);
+        console.log(`[ColumnManager] ✅ 已移除视图: ${viewId}`);
+    }
 
     /**
      * 创建拖拽覆盖层

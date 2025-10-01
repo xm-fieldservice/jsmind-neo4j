@@ -26,6 +26,8 @@
     <link rel="stylesheet" href="project_list_styles.css">
     <!-- 工作区样式 -->
     <link rel="stylesheet" href="workspace_styles.css">
+    <!-- 工作栏仓库样式 -->
+    <link rel="stylesheet" href="css/column-warehouse.css">
     <!-- D3.js 图形可视化库 -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     
@@ -80,8 +82,14 @@
             <button class="view-toggle" data-view="relation">关系</button>
             <button class="view-toggle active" data-view="detail">详情</button>
         </div>
-        <!-- 添加存储健康指示器 -->
-        <div id="storage-health-indicator" class="healthy" title="存储系统正常"></div>
+        <!-- 系统工具按钮 -->
+        <div style="display:flex;align-items:center;gap:12px;margin-left:auto;">
+            <button id="open-warehouse-btn" style="padding:8px 16px;background:linear-gradient(135deg,#6366f1 0%,#4f46e5 100%);color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;transition:all 0.2s;" title="打开工作栏仓库">
+                🏪 仓库
+            </button>
+            <!-- 添加存储健康指示器 -->
+            <div id="storage-health-indicator" class="healthy" title="存储系统正常"></div>
+        </div>
     </div>
     
     <!-- 内容区容器 -->
@@ -610,6 +618,18 @@
     <!-- P2.1: 事件系统统一规范 -->
     <script src="src/core/EventStandards.js"></script>
     
+    <!-- 🆕 工作栏生态系统：ColumnRegistry核心组件 -->
+    <script src="js/core/column-registry.js"></script>
+    
+    <!-- 🆕 工作栏生态系统：ColumnWarehouse仓库管理器 -->
+    <script src="js/core/column-warehouse.js"></script>
+    
+    <!-- 🆕 工作栏生态系统：ColumnWarehouse UI -->
+    <script src="js/core/column-warehouse-ui.js"></script>
+    
+    <!-- 🆕 ColumnRegistry自动演示（临时启用，验证功能） -->
+    <!-- <script src="js/core/column-registry-demo.js"></script> -->
+    
     <!-- P2阶段架构验证测试 - 已禁用，避免生产环境自动运行 -->
     <!-- <script src="src/tests/P2ArchitectureValidationTest.js"></script> -->
     
@@ -919,10 +939,14 @@
                 // 可以在这里添加刷新逻辑
             });
             
-            // 工作区设置按钮 - 仅保留基本功能
-            document.getElementById('workspace-settings-btn')?.addEventListener('click', function() {
-                console.log('[工作区] 设置按钮被点击');
-                // 可以在这里添加设置逻辑
+            // 仓库按钮 - 打开工作栏仓库管理界面
+            document.getElementById('open-warehouse-btn')?.addEventListener('click', function() {
+                console.log('[仓库] 打开仓库管理界面');
+                if (window.ColumnWarehouseUI) {
+                    window.ColumnWarehouseUI.show();
+                } else {
+                    alert('  仓库UI未初始化，请稍后再试');
+                }
             });
         });
     </script>
