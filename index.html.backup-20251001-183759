@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="zh-CN">
 <head>
@@ -92,27 +92,274 @@
         </div>
     </div>
     
-        <!-- 内容区容器（空容器，由ColumnRegistry动态填充工作栏） -->
-    <div class="content-container" id="columns-container">
-        <!--  工作栏将由ColumnRegistry动态注入 -->
-        <!-- 通过ColumnWarehouse仓库管理：上传、上线、下线、删除工作栏 -->
-    </div>
-    
-    <!-- 全局日志面板（保留原列表栏的日志功能） -->
-    <div id="global-log-panel-container" style="position:fixed;bottom:20px;right:20px;width:400px;max-height:300px;z-index:9999;background:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-        <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;padding:8px;">
-            <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;">MD保存</button>
-            <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
-            <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
+    <!-- 内容区容器 -->
+    <div class="content-container">
+        <!-- 工作区栏 -->
+        <div class="column" id="workspace-column" data-column="workspace">
+            <div class="column-header">
+                <h3>工作区</h3>
+                <div class="workspace-toolbar">
+                    <button id="workspace-refresh-btn" class="workspace-btn" title="刷新工作区">🔄</button>
+                    <button id="workspace-settings-btn" class="workspace-btn" title="工作区设置">⚙️</button>
+                </div>
+            </div>
+            <div class="column-content">
+                <div class="workspace-container">
+                    <!-- 工作区栏内容已清空 -->
+                    <div class="workspace-empty">
+                        <div style="text-align: center; color: #888; padding: 40px 20px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+                            <div style="font-size: 16px; margin-bottom: 8px;">工作区栏</div>
+                            <div style="font-size: 14px;">UI元素已移除</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="list-log-panel" data-collapsed="true" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
-            <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
-                <span style="font-size:12px;color:#6b7280;">系统日志</span>
-                <span id="list-log-caret" style="font-size:12px;color:#9ca3af;"></span>
-            </button>
-            <pre id="list-log-body" style="display:none;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
+
+        <!-- 工作区与列表分割线 -->
+        <div class="column-divider" id="workspace-list-divider">
+            <div class="divider-handle"></div>
         </div>
-    </div>
+
+        <!-- 列表栏 -->
+        <div class="column" id="list-column" data-column="list">
+            <div class="column-header">
+                <h3>列表栏</h3>
+            </div>
+            <div class="column-content">
+                <!-- 左侧选项卡：查询结果（单一选项卡） -->
+                <div class="tabs" id="list-tabs">
+                  <div class="tabs-nav" id="list-tabs-nav">
+                    <button class="tab-btn active" data-tab="results">查询结果</button>
+                  </div>
+                  <div class="tabs-content" id="list-tabs-content" style="height:100%;">
+                    <div class="tab-pane active" data-tab="results">
+                      <div class="list-container" style="display:flex;flex-direction:column;height:100%;min-height:0;">
+                        <!-- 项目统计信息 -->
+                        <div class="project-stats" id="project-stats">
+                          <div class="project-stats-grid">
+                            <div class="project-stats-item">
+                              <span class="project-stats-value" id="total-projects">0</span>
+                              <span class="project-stats-label">总项目</span>
+                            </div>
+                            <div class="project-stats-item">
+                              <span class="project-stats-value" id="storage-type">本地</span>
+                              <span class="project-stats-label">存储模式</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 项目列表头部 -->
+                        <div class="project-list-header">
+                          <span class="project-list-title">脑图项目</span>
+                          <span class="project-count" id="project-count">0 个项目</span>
+                        </div>
+                        
+                        <!-- 项目列表 -->
+                        <ul id="project-catalog" style="flex:1 1 auto;overflow:auto;min-height:0;"></ul>
+                        
+                        <!-- 查询结果列表（隐藏，仅在查询时显示） -->
+                        <ul id="query-results-list" style="flex:1 1 auto;overflow:auto;min-height:0;display:none;"></ul>
+                        <!-- 日志控制按钮（框外） -->
+                        <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;">
+                          <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;" title="测试MD文档保存">MD保存</button>
+                          <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
+                          <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
+                        </div>
+                        
+                        <!-- 列表栏日志面板（默认折叠，仅标题栏） -->
+                        <div id="list-log-panel" data-collapsed="true" style="margin-top:auto;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
+                          <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
+                            <span style="font-size:12px;color:#6b7280;">列表日志</span>
+                            <span id="list-log-caret" aria-hidden="true" style="font-size:12px;color:#9ca3af;">▸</span>
+                          </button>
+                          <pre id="list-log-body" style="display:none;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 列表与脑图分割线 -->
+        <div class="column-divider" id="list-mindmap-divider">
+            <div class="divider-handle"></div>
+        </div>
+
+        <!-- 脑图栏 -->
+        <div class="column" id="mindmap-column" data-column="mindmap">
+            <div class="column-header">
+                <h3>脑图栏</h3>
+                <div class="mindmap-toolbar">
+                    <button id="mindmap-import-btn" class="mm-btn mm-wide mm-green" title="清理当前列表并导入JSON文件中的所有脑图">读</button>
+                    <button id="mindmap-export-btn" class="mm-btn mm-wide mm-blue" title="保存全部脑图到单个JSON文件 - 会弹出文件保存对话框">写</button>
+                    <button id="mindmap-new-btn" class="mm-btn mm-wide" title="新建一个空白脑图">新</button>
+                </div>
+            </div>
+            <div class="column-content">
+                <div id="mindmap-container" class="jsmind-mindmap-container">
+                    <!-- jsMind 将在此处渲染脑图 -->
+                </div>
+                
+                <!-- 全屏模式下的工具栏 -->
+                <div id="mindmap-fullscreen-toolbar" class="hidden">
+                    <div class="toolbar-group">
+                        <button data-action="add-child" title="添加子节点 (Tab)"><i class="iconfont icon-add-child"></i></button>
+                        <button data-action="add-sibling" title="添加同级节点 (Enter)"><i class="iconfont icon-add-sibling"></i></button>
+                        <button data-action="remove" title="删除节点 (Delete)"><i class="iconfont icon-delete"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button data-action="copy" title="复制 (Ctrl+C)"><i class="iconfont icon-copy"></i></button>
+                        <button data-action="cut" title="剪切 (Ctrl+X)"><i class="iconfont icon-cut"></i></button>
+                        <button data-action="paste" title="粘贴 (Ctrl+V)"><i class="iconfont icon-paste"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button data-action="zoom-in" title="放大"><i class="iconfont icon-zoom-in"></i></button>
+                        <button data-action="zoom-out" title="缩小"><i class="iconfont icon-zoom-out"></i></button>
+                        <button data-action="fit" title="适应屏幕"><i class="iconfont icon-fit"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button data-action="exit-fullscreen" title="退出全屏"><i class="iconfont icon-exit-fullscreen"></i></button>
+                    </div>
+                </div>
+                
+                <!-- 右键菜单 -->
+                <div id="mindmap-contextmenu" class="mindmap-contextmenu hidden">
+                    <ul>
+                        <li data-action="add-child">添加子节点 (Tab)</li>
+                        <li data-action="add-sibling">添加同级节点 (Enter)</li>
+                        <li data-action="edit">编辑节点 (F2)</li>
+                        <li class="divider"></li>
+                        <li data-action="copy-title">复制标题</li>
+                        <li data-action="copy-full">复制标题+内容</li>
+                        <li data-action="paste">粘贴 (Ctrl+V)</li>
+                        <li class="divider"></li>
+                        <li data-action="remove-from-list">从列表中移除（仅限根节点）</li>
+                        <li class="divider"></li>
+                        <li data-action="remove">删除节点 (Delete)</li>
+                    </ul>
+                </div>
+                
+                <!-- 节点编辑表单 -->
+                <div id="node-editor" class="node-editor hidden">
+                    <input type="text" id="node-editor-input">
+                    <div class="node-editor-actions">
+                        <button id="node-editor-save">保存</button>
+                        <button id="node-editor-cancel">取消</button>
+                    </div>
+                </div>
+                
+                <!-- 提示消息 -->
+                <div id="mindmap-toast" class="mindmap-toast hidden"></div>
+            </div>
+        </div>
+
+        <!-- 脑图与笔记分割线 -->
+        <div class="column-divider" id="mindmap-notes-divider">
+            <div class="divider-handle"></div>
+        </div>
+        
+        <!-- 笔记栏 -->
+        <div class="column" id="notes-column" data-column="notes">
+            <div class="column-header">
+                <h3>笔记栏</h3>
+                <div class="notes-toolbar">
+                    <button id="notes-save-btn" class="notes-btn" title="保存笔记">💾</button>
+                    <button id="notes-clear-btn" class="notes-btn" title="清空笔记">🗑️</button>
+                </div>
+            </div>
+            <div class="column-content">
+                <div class="notes-container">
+                    <!-- 输出框（上半部分） -->
+                    <div class="notes-output">
+                        <div class="notes-output-header">
+                            <span>笔记内容</span>
+                            <span class="notes-count">0 条笔记</span>
+                        </div>
+                        <div class="notes-display" id="notes-display">
+                            <div class="notes-empty">暂无笔记，在下方输入框中添加笔记</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 输入框（下半部分） -->
+                    <div class="notes-input">
+                        <div class="notes-input-header">
+                            <span>智能体输入</span>
+                            <div class="agent-selector">
+                                <button id="agent-select-btn" class="notes-btn" title="选择智能体">🤖 选择智能体</button>
+                                <span id="agent-status" class="agent-status">未选择</span>
+                            </div>
+                        </div>
+                        <div class="notes-input-area">
+                            <textarea 
+                                id="notes-input-text" 
+                                class="notes-input-editor" 
+                                placeholder="在这里输入智能体的问题或指令..."
+                                rows="4"></textarea>
+                            <div class="notes-input-actions">
+                                <button id="notes-send-btn" class="notes-btn notes-btn-primary">发送给智能体</button>
+                                <button id="notes-add-btn" class="notes-btn">添加笔记</button>
+                                <button id="notes-clear-input-btn" class="notes-btn">清空输入</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 笔记与关系分割线 -->
+        <div class="column-divider" id="notes-relation-divider">
+            <div class="divider-handle"></div>
+        </div>
+        
+        <!-- 关系图栏 -->
+        <div class="column" id="relation-column" data-column="relation">
+            <div class="column-header">
+                <h3>关系图栏</h3>
+            </div>
+            <div class="column-content">
+                <div class="relation-container">
+                    <!-- 关系管理工具栏 -->
+                    <div class="relation-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+                        <button id="relation-test-btn" style="background:#4CAF50;color:white;border:none;padding:5px 10px;border-radius:3px;">🧪 模拟数据</button>
+                        <button id="relation-real-test-btn" style="background:#2196F3;color:white;border:none;padding:5px 10px;border-radius:3px;">📊 真实数据</button>
+                        <button id="relation-refresh-btn">刷新</button>
+                        <button id="relation-sync-btn" title="将当前脑图数据同步到Neo4j数据库">同步到Neo4j</button>
+                        <span id="relation-status" style="font-size:12px;color:#888;margin-left:8px;">未激活</span>
+                    </div>
+                    
+                    <!-- 关系视图区域（分为两个部分：列表和可视化） -->
+                    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
+                        <!-- 关系列表区域 -->
+                        <div id="relation-list" style="flex:1;border:1px solid #eee;border-radius:6px;padding:8px;overflow:auto;margin-bottom:8px;">
+                            <div style="color:#888;">请选择左侧脑图中的一个节点以加载关系列表</div>
+                        </div>
+                        
+                        <!-- D3.js关系图可视化区域 -->
+                        <div id="relation-d3-container" style="flex:1;min-height:300px;position:relative;border:1px solid #eee;border-radius:6px;overflow:hidden;">
+                            <div id="relation-d3-placeholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ccc;font-size:14px;text-align:center;">
+                                <div>🔗 关系图可视化</div>
+                                <div style="font-size:12px;margin-top:8px;">选择脑图节点查看关系</div>
+                            </div>
+                            <!-- D3.js SVG将在这里动态创建 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关系与详情分割线 -->
+        <div class="column-divider" id="relation-detail-divider">
+            <div class="divider-handle"></div>
+        </div>
+        
+        <!-- 节点详情栏 -->
+        <div class="column" id="detail-column" data-column="detail" data-queries-count="3">
+          <div class="column-header">
+            <h3>节点详情</h3>
+          </div>
           <div class="column-content">
                 <!-- 选项卡容器：包含"详情"与若干"查询"页 -->
                 <div id="detail-tabs" class="tabs">

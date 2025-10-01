@@ -1,0 +1,120 @@
+<!-- 
+日志面板组件 - 独立备份
+从原index.html的列表栏中提取
+可作为独立工作栏使用
+-->
+
+<!-- 日志面板HTML -->
+<div class="log-panel-container">
+    <!-- 日志控制按钮 -->
+    <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;">
+        <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;" title="测试MD文档保存">MD保存</button>
+        <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
+        <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
+    </div>
+    
+    <!-- 列表栏日志面板（默认折叠，仅标题栏） -->
+    <div id="list-log-panel" data-collapsed="true" style="margin-top:auto;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
+        <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
+            <span style="font-size:12px;color:#6b7280;">列表日志</span>
+            <span id="list-log-caret" aria-hidden="true" style="font-size:12px;color:#9ca3af;">▸</span>
+        </button>
+        <pre id="list-log-body" style="display:none;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
+    </div>
+</div>
+
+<!-- 日志面板JavaScript -->
+<script>
+/**
+ * 统一日志面板工具
+ * 将运行/调试信息输出到日志框
+ * 
+ * 功能：
+ * - 时间戳日志
+ * - 折叠/展开
+ * - 清空日志
+ * - 复制日志
+ * - 拦截console输出
+ * - 全局错误捕获
+ */
+(function(){
+    const pad = n => (n<10? '0':'') + n;
+    
+    function ts(){ 
+        const d=new Date(); 
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; 
+    }
+    
+    function ensureInit(){
+        const panel = document.getElementById('list-log-panel');
+        const header = document.getElementById('list-log-header');
+        const caret = document.getElementById('list-log-caret');
+        const body = document.getElementById('list-log-body');
+        const btnClear = document.getElementById('list-log-clear');
+        const btnCopy = document.getElementById('list-log-copy');
+        
+        if (!panel || !header || !body) return false;
+        
+        if (!header.__bound){
+            header.__bound = true;
+            header.addEventListener('click', function(){
+                const collapsed = panel.getAttribute('data-collapsed') !== 'false';
+                if (collapsed){
+                    panel.setAttribute('data-collapsed','false');
+                    body.style.display = 'block';
+                    caret.textContent = '▾';
+                } else {
+                    panel.setAttribute('data-collapsed','true');
+                    body.style.display = 'none';
+                    caret.textContent = '▸';
+                }
+            });
+        }
+        
+        btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
+        btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ 
+            try{ 
+                navigator.clipboard.writeText(body.textContent||''); 
+                alert('日志已复制'); 
+            }catch(_){ } 
+        }));
+        
+        return true;
+    }
+    
+    function append(level, message){
+        if (!ensureInit()) return;
+        const body = document.getElementById('list-log-body');
+        const line = `[${ts()}][${level}] ${message}`;
+        body.textContent += (body.textContent ? "\n" : "") + line;
+        body.scrollTop = body.scrollHeight;
+    }
+    
+    const LogPanel = {
+        log: (m)=>append('INFO', String(m)),
+        warn: (m)=>append('WARN', String(m)),
+        error: (m)=>append('ERROR', String(m)),
+        json: (title, obj)=>append('INFO', `${title}: ${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`)
+    };
+    
+    window.LogPanel = LogPanel;
+    
+    // Tee console 输出到日志面板
+    ['log','info','warn','error'].forEach(fn=>{
+        const orig = console[fn].bind(console);
+        console[fn] = function(){ 
+            try{ 
+                LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); 
+            }catch(_){}; 
+            return orig.apply(console, arguments); 
+        };
+    });
+    
+    // 全局错误捕获
+    window.addEventListener('error', e=>{ LogPanel.error(`WindowError: ${e.message}`); });
+    window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
+    
+    // 初始化提示
+    setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
+})();
+</script>
