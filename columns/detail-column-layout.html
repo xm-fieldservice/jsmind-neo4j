@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>节点详情工作栏</title>
+    
+    <!-- Markdown渲染库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <link rel="stylesheet" href="detail-column-styles.css">
+</head>
+<body>
+    <div class="detail-column" id="detail-column">
+        <div class="column-header">
+            <h3>📝 节点详情</h3>
+            <div class="header-actions">
+                <button class="header-btn" id="fullscreen-btn" title="全屏编辑模式">
+                    🔲 全屏
+                </button>
+                <button class="header-btn" id="paste-icon-btn" title="粘贴图标">
+                    📋 粘贴图标
+                </button>
+            </div>
+        </div>
+        
+        <!-- 选项卡容器 -->
+        <div id="detail-tabs" class="tabs">
+            <div class="tabs-nav" id="detail-tabs-nav">
+                <button class="tab-btn active" data-tab="detail">详情</button>
+                <button class="tab-btn" data-tab="query-1">查询1</button>
+                <button class="tab-btn" data-tab="query-2">查询2</button>
+                <button class="tab-btn" data-tab="query-3">查询3</button>
+            </div>
+            
+            <div class="tabs-content" id="detail-tabs-content">
+                <!-- 详情面板 -->
+                <div class="tab-pane active" data-tab="detail">
+                    <!-- 标题栏 -->
+                    <div class="detail-item">
+                        <h4>标题</h4>
+                        <input type="text" id="detail-title-input" placeholder="输入节点标题" />
+                        <div class="node-id" id="detail-node-id">未选择节点</div>
+                    </div>
+                    
+                    <!-- 标签区域 -->
+                    <div class="detail-item">
+                        <h4>标签</h4>
+                        <div class="tag-panel" id="tag-panel">
+                            <div class="tag-chip">重要</div>
+                            <div class="tag-chip">紧急</div>
+                            <div class="tag-chip">进行中</div>
+                            <div class="tag-chip">已完成</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 内容编辑器 -->
+                    <div class="detail-item">
+                        <h4>内容（Markdown）</h4>
+                        <textarea id="detail-content-editor" placeholder="在此编写内容...
+
+# 示例标题
+这是一段示例文本。
+
+## 会话1
+这里是第一个会话的内容。
+支持Markdown格式。
+
+## 会话2
+这里是第二个会话的内容。
+可以包含代码、列表等。"></textarea>
+                        <div style="margin-top:8px;display:flex;gap:8px;">
+                            <button class="btn btn-primary" id="preview-toggle">预览</button>
+                            <button class="btn btn-secondary" id="save-content">保存</button>
+                        </div>
+                        <div class="markdown-body" id="content-preview" style="display:none;margin-top:12px;">
+                            预览内容将显示在这里
+                        </div>
+                    </div>
+                    
+                    <!-- 附件区域 -->
+                    <div class="detail-item">
+                        <h4>附件</h4>
+                        <button class="btn btn-secondary" id="add-attachment">➕ 添加附件</button>
+                        <ul class="attachments-list" id="attachments-list" style="margin-top:12px;">
+                            <!-- 附件列表将动态生成 -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 查询1面板 -->
+                <div class="tab-pane" data-tab="query-1">
+                    <div class="detail-item">
+                        <h4>查询1</h4>
+                        <div class="query-box">
+                            <input type="text" class="query-input" id="q1-title-input" placeholder="按标题查询（输入关键字）" />
+                            <label style="display:flex;align-items:center;gap:6px;">
+                                <input type="checkbox" id="q1-fulltext" /> 全文本
+                            </label>
+                            <button class="btn btn-primary" id="q1-run">执行</button>
+                            <button class="btn btn-secondary" id="q1-clear">清空</button>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <h4>标签筛选</h4>
+                        <div class="tag-panel" id="q1-tag-panel">
+                            <div class="tag-chip">重要</div>
+                            <div class="tag-chip">紧急</div>
+                            <div class="tag-chip">进行中</div>
+                        </div>
+                        <div style="font-size:12px;color:#999;margin-top:8px;">
+                            💡 点击标签进行选择，组合后作为筛选条件
+                        </div>
+                    </div>
+                    
+                    <div class="query-result" id="q1-result">
+                        暂无查询结果
+                    </div>
+                </div>
+                
+                <!-- 查询2面板 -->
+                <div class="tab-pane" data-tab="query-2">
+                    <div class="detail-item">
+                        <h4>查询2</h4>
+                        <p style="color:#6b7280;">查询功能开发中...</p>
+                    </div>
+                </div>
+                
+                <!-- 查询3面板 -->
+                <div class="tab-pane" data-tab="query-3">
+                    <div class="detail-item">
+                        <h4>查询3</h4>
+                        <p style="color:#6b7280;">查询功能开发中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 全屏模式覆盖层 -->
+    <div class="mm-fs-overlay" id="mm-fs-overlay">
+        <!-- 编辑器面板 -->
+        <div class="mm-fs-pane" id="mm-fs-pane">
+            <div class="mm-toolbar">
+                <div class="left">
+                    <button class="mm-btn" id="fs-exit">退出全屏</button>
+                    <button class="mm-btn" id="fs-save">💾 保存</button>
+                </div>
+                <div class="right">
+                    <button class="mm-btn" id="fs-preview">👁️ 预览</button>
+                    <button class="mm-btn" id="fs-zoom-in">A+</button>
+                    <button class="mm-btn" id="fs-zoom-out">A-</button>
+                    <button class="mm-btn" id="fs-zoom-reset">重置</button>
+                </div>
+            </div>
+            <textarea class="mm-editor" id="mm-fs-editor"></textarea>
+            <div class="mm-preview markdown-body" id="mm-fs-preview"></div>
+        </div>
+        
+        <!-- 会话列表面板 -->
+        <div class="mm-fs-sessions" id="mm-fs-sessions">
+            <div class="mm-session-header">
+                <label class="mm-sel-all" title="全选/全不选">
+                    <input type="checkbox" class="mm-sel-all-cb" id="mm-sel-all-cb" /> 全选
+                </label>
+                <div style="flex:1"></div>
+                <button type="button" class="mm-btn" id="add-session">➕ 新增</button>
+                <button type="button" class="mm-btn" id="copy-selected" title="复制所选会话为Markdown">📋 复制</button>
+            </div>
+            <div class="mm-session-items" id="mm-session-items">
+                <!-- 会话列表将动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 隐藏文件选择框 -->
+    <input type="file" id="file-input-attachment" multiple style="display:none" />
+    
+    <!-- 加载JS模块 -->
+    <script src="detail-column-core.js"></script>
+    <script src="detail-column-sessions.js"></script>
+    <script src="detail-column-fullscreen.js"></script>
+    
+    <script>
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.detailColumn = new DetailColumnCore();
+            console.log('[DetailColumn] 系统初始化完成');
+        });
+    </script>
+</body>
+</html>
