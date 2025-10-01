@@ -50,12 +50,12 @@
             <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
             <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
         </div>
-        <div id="list-log-panel" data-collapsed="true" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
+        <div id="list-log-panel" data-collapsed="false" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
             <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
                 <span style="font-size:12px;color:#6b7280;">系统日志</span>
-                <span id="list-log-caret" style="font-size:12px;color:#9ca3af;">▸</span>
+                <span id="list-log-caret" style="font-size:12px;color:#9ca3af;">▾</span>
             </button>
-            <pre id="list-log-body" style="display:none;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
+            <pre id="list-log-body" style="display:block;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
         </div>
     </div>
 
@@ -127,27 +127,47 @@
     <script src="src/core/messaging/AutogenEventBus.js"></script>
     <script src="src/core/DependencyManager.js"></script>
     <script src="src/core/ErrorHandler.js"></script>
+    <script src="src/core/SystemInitializationCoordinator.js"></script>
     
     <!-- 工作栏生态系统核心 -->
     <script src="js/core/column-registry.js?v=20251001"></script>
-    <script src="js/core/column-warehouse.js?v=20251001-fix"></script>
+    <script src="js/core/column-warehouse.js?v=20251001-fix-final"></script>
     <script src="js/core/column-warehouse-ui.js?v=20251001"></script>
     
     <!-- 主控制器（必需） -->
     <script src="jsmind-controller.js"></script>
     <script src="script.js"></script>
     
-    <!-- 初始化脚本 -->
+    <!-- 初始化脚本 - 使用SystemInitializationCoordinator -->
     <script>
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('[系统] 🚀 工作栏生态系统启动');
+        window.addEventListener('DOMContentLoaded', async function() {
+            console.log('[系统] 🚀 使用SystemInitializationCoordinator统一初始化');
+            
+            // 使用现有的SystemInitializationCoordinator
+            if (window.SystemInitializationCoordinator) {
+                try {
+                    const result = await window.SystemInitializationCoordinator.coordinateSystemInitialization();
+                    
+                    if (result.success) {
+                        console.log('[系统] ✅ 系统初始化完成');
+                    } else {
+                        console.error('[系统] ⚠️ 系统初始化失败，但继续运行');
+                    }
+                } catch (error) {
+                    console.error('[系统] ❌ SystemInitializationCoordinator执行异常:', error);
+                }
+            } else {
+                console.warn('[系统] ⚠️ SystemInitializationCoordinator未加载，使用简单初始化');
+            }
             
             // 绑定仓库按钮
             document.getElementById('open-warehouse-btn')?.addEventListener('click', function() {
-                console.log('[仓库] 打开仓库管理界面');
+                console.log('[仓库] 点击仓库按钮');
                 if (window.ColumnWarehouseUI) {
+                    console.log('[仓库] 调用 ColumnWarehouseUI.show()');
                     window.ColumnWarehouseUI.show();
                 } else {
+                    console.error('[仓库] ❌ ColumnWarehouseUI未初始化');
                     alert('仓库UI未初始化，请稍后再试');
                 }
             });
@@ -156,6 +176,18 @@
             setTimeout(() => {
                 console.log('[系统] ✅ 系统已就绪');
                 console.log('[提示] 点击 🏪 仓库按钮管理工作栏');
+                
+                // 显示已注册的工作栏
+                if (window.ColumnRegistry) {
+                    const columns = Array.from(window.ColumnRegistry.columns?.keys() || []);
+                    console.log('[工作栏] 已注册工作栏:', columns.length, columns);
+                }
+                
+                // 显示仓库中的工作栏
+                if (window.ColumnWarehouse) {
+                    const warehouseColumns = Array.from(window.ColumnWarehouse.warehouseColumns?.keys() || []);
+                    console.log('[仓库] 仓库中的工作栏:', warehouseColumns.length, warehouseColumns);
+                }
             }, 1000);
         });
     </script>

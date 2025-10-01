@@ -133,20 +133,27 @@
                     global.columnManager.addView(config.id);
                 }
                 
-                // 执行渲染函数
-                const container = document.querySelector(`#${config.id}-column .column-content`);
-                if (container) {
-                    try {
-                        config.renderFn(container);
-                    } catch (err) {
-                        console.error(`[ColumnRegistry] 渲染失败: ${config.id}`, err);
-                        this._audit('RENDER_ERROR', {
-                            columnId: config.id,
-                            error: err.message,
-                            stack: err.stack
-                        });
+                // 延迟执行渲染函数（等待DOM生效）
+                setTimeout(() => {
+                    const container = document.querySelector(`#${config.id}-column .column-content`);
+                    if (container) {
+                        console.log(`[ColumnRegistry] 找到容器，执行renderFn: ${config.id}`);
+                        try {
+                            config.renderFn(container);
+                            console.log(`[ColumnRegistry] ✅ renderFn执行成功: ${config.id}`);
+                        } catch (err) {
+                            console.error(`[ColumnRegistry] 渲染失败: ${config.id}`, err);
+                            this._audit('RENDER_ERROR', {
+                                columnId: config.id,
+                                error: err.message,
+                                stack: err.stack
+                            });
+                        }
+                    } else {
+                        console.error(`[ColumnRegistry] ❌ 找不到容器: #${config.id}-column .column-content`);
+                        console.error('[ColumnRegistry] 所有.column元素:', document.querySelectorAll('.column'));
                     }
-                }
+                }, 100);
                 
                 // 触发注册事件（使用现有AutogenEventBus）
                 this._emitEvent('column:registered', {
@@ -245,9 +252,16 @@
         _injectColumn(config) {
             const container = document.querySelector('.content-container');
             if (!container) {
-                console.error('[ColumnRegistry] 找不到.content-container');
+                console.error(`[ColumnRegistry] ❌ 找不到.content-container，无法注入工作栏: ${config.id}`);
+                console.error('[ColumnRegistry] DOM状态:', {
+                    readyState: document.readyState,
+                    body: !!document.body,
+                    allElements: document.querySelectorAll('*').length
+                });
                 return;
             }
+            
+            console.log(`[ColumnRegistry] ✅ 开始注入工作栏: ${config.id}`);
             
             // 解析插入位置
             const position = this._parsePosition(config.position);
@@ -271,18 +285,29 @@
             if (position.type === 'after') {
                 const refColumn = document.getElementById(`${position.ref}-column`);
                 const refDivider = document.getElementById(`${position.ref}-divider`);
+                console.log(`[ColumnRegistry] 查找参考位置: #${position.ref}-column, #${position.ref}-divider`);
+                console.log(`[ColumnRegistry] 找到: refColumn=${!!refColumn}, refDivider=${!!refDivider}`);
                 if (refDivider) {
                     refDivider.insertAdjacentHTML('afterend', columnHTML);
+                    console.log(`[ColumnRegistry] 已插入到divider之后`);
                 } else if (refColumn) {
                     refColumn.insertAdjacentHTML('afterend', columnHTML);
+                    console.log(`[ColumnRegistry] 已插入到column之后`);
+                } else {
+                    console.warn(`[ColumnRegistry] 找不到参考元素，追加到末尾`);
+                    container.insertAdjacentHTML('beforeend', columnHTML);
                 }
             } else if (position.type === 'before') {
                 const refColumn = document.getElementById(`${position.ref}-column`);
                 if (refColumn) {
                     refColumn.insertAdjacentHTML('beforebegin', columnHTML);
+                } else {
+                    console.warn(`[ColumnRegistry] 找不到参考元素，追加到末尾`);
+                    container.insertAdjacentHTML('beforeend', columnHTML);
                 }
             } else {
                 // 默认追加到末尾
+                console.log(`[ColumnRegistry] 追加到.content-container末尾`);
                 container.insertAdjacentHTML('beforeend', columnHTML);
             }
             
@@ -290,6 +315,9 @@
             if (global.columnManager && typeof global.columnManager.initDividerDrag === 'function') {
                 global.columnManager.initDividerDrag();
             }
+            
+            console.log(`[ColumnRegistry] DOM注入完成，返回true`);
+            return true;
         }
         
         /**

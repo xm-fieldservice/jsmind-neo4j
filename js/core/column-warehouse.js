@@ -170,9 +170,10 @@
         /**
          * 上线工作栏（从仓库部署到页面）
          * @param {string} columnId - 工作栏ID
+         * @param {boolean} forceReload - 强制重新执行代码（用于刷新恢复）
          * @returns {Promise<boolean>} 是否成功
          */
-        async bringOnline(columnId) {
+        async bringOnline(columnId, forceReload = false) {
             try {
                 const columnData = this.warehouseColumns.get(columnId);
                 
@@ -180,9 +181,14 @@
                     throw new Error(`工作栏不存在: ${columnId}`);
                 }
                 
-                if (columnData.status === 'online') {
+                // 如果已上线且不强制重载，直接返回
+                if (columnData.status === 'online' && !forceReload) {
                     console.warn(`[ColumnWarehouse] 工作栏已上线: ${columnId}`);
                     return true;
+                }
+                
+                if (forceReload) {
+                    console.log(`[ColumnWarehouse] 🔄 强制重新加载: ${columnId}`);
                 }
                 
                 // 执行工作栏代码（动态执行）
@@ -190,6 +196,26 @@
                 
                 if (!success) {
                     throw new Error('工作栏代码执行失败');
+                }
+                
+                // 使用DependencyManager注册工作栏为模块
+                if (global.DependencyManager) {
+                    try {
+                        // 注册工作栏为一个模块，依赖ColumnRegistry
+                        global.DependencyManager.register(columnId, ['ColumnRegistry'], () => {
+                            return global.ColumnRegistry && global.ColumnRegistry.has(columnId) ? 
+                                   global.ColumnRegistry : null;
+                        });
+                        
+                        // 等待模块初始化（最多3秒）
+                        const initResult = await this._waitForModuleInit(columnId, 3000);
+                        
+                        if (!initResult) {
+                            console.warn(`[ColumnWarehouse] ⚠️ 工作栏初始化超时: ${columnId}`);
+                        }
+                    } catch (error) {
+                        console.warn(`[ColumnWarehouse] ⚠️ DependencyManager注册失败:`, error);
+                    }
                 }
                 
                 // 更新状态
@@ -238,14 +264,24 @@
                     return true;
                 }
                 
-                // 调用ColumnRegistry注销
+                // 使用架构组件注销工作栏
+                // 1. 从ColumnRegistry注销
                 if (global.ColumnRegistry) {
                     const success = global.ColumnRegistry.unregister(columnId);
                     if (!success) {
-                        throw new Error('ColumnRegistry注销失败');
+                        console.warn(`[ColumnWarehouse] ⚠️ 工作栏未在Registry中注册: ${columnId}`);
                     }
                 } else {
-                    throw new Error('ColumnRegistry不可用');
+                    console.warn('[ColumnWarehouse] ⚠️ ColumnRegistry不可用');
+                }
+                
+                // 2. 从DependencyManager注销（如果已注册为模块）
+                if (global.DependencyManager) {
+                    const status = global.DependencyManager.getStatus(columnId);
+                    if (status.status !== 'not_registered') {
+                        console.log(`[ColumnWarehouse] 从DependencyManager注销模块: ${columnId}`);
+                        // DependencyManager没有unregister方法，只需记录即可
+                    }
                 }
                 
                 // 更新状态
@@ -474,13 +510,57 @@
         }
         
         /**
+         * 等待模块初始化（使用DependencyManager）
+         * @private
+         * @param {string} columnId - 工作栏ID
+         * @param {number} timeout - 超时时间（毫秒）
+         * @returns {Promise<boolean>} 是否初始化成功
+         */
+        async _waitForModuleInit(columnId, timeout = 3000) {
+            return new Promise((resolve) => {
+                const startTime = Date.now();
+                
+                const check = () => {
+                    // 使用DependencyManager检查模块状态
+                    if (global.DependencyManager) {
+                        const status = global.DependencyManager.getStatus(columnId);
+                        
+                        if (status.status === 'initialized') {
+                            console.log(`[ColumnWarehouse] ✅ 工作栏模块已初始化: ${columnId}`);
+                            resolve(true);
+                            return;
+                        } else if (status.status === 'error') {
+                            console.error(`[ColumnWarehouse] ❌ 工作栏模块初始化失败: ${columnId}`);
+                            resolve(false);
+                            return;
+                        }
+                    }
+                    
+                    // 超时检查
+                    if (Date.now() - startTime > timeout) {
+                        console.warn(`[ColumnWarehouse] ⏰ 模块初始化超时: ${columnId}`);
+                        resolve(false);
+                        return;
+                    }
+                    
+                    // 继续等待
+                    setTimeout(check, 100);
+                };
+                
+                check();
+            });
+        }
+        
+        /**
          * 等待AutogenUnifiedStorage就绪
          * @private
          */
         async _waitForStorage() {
             return new Promise((resolve) => {
                 const check = () => {
-                    if (global.AutogenUnifiedStorage && global.AutogenUnifiedStorage._initialized) {
+                    // ✅ 修复：AutogenUnifiedStorage没有_initialized标志，只检查存在性和retrieve方法
+                    if (global.AutogenUnifiedStorage && typeof global.AutogenUnifiedStorage.retrieve === 'function') {
+                        console.log('[ColumnWarehouse] ✅ 存储系统已就绪');
                         resolve();
                     } else {
                         setTimeout(check, 100);
@@ -496,16 +576,46 @@
          */
         async _loadWarehouse() {
             try {
-                const result = await global.AutogenUnifiedStorage.retrieve('config', this.STORAGE_KEY);
-                const data = result ? result.data : null;
+                console.log('[ColumnWarehouse] 从存储加载数据...');
+                console.log('[ColumnWarehouse] 存储键:', this.STORAGE_KEY);
+                
+                // ⚠️ 临时绕过buggy的AutogenUnifiedStorage.retrieve
+                // 直接从LocalStorage读取并手动解析
+                let data = null;
+                const lsKey = `autogen:config:${this.STORAGE_KEY}`;
+                const lsValue = localStorage.getItem(lsKey);
+                
+                console.log('[ColumnWarehouse] LocalStorage读取:', lsValue ? '有数据' : '无数据');
+                
+                if (lsValue) {
+                    try {
+                        const parsed = JSON.parse(lsValue);
+                        // LocalStorage格式：{type, data, metadata}
+                        data = parsed.data || parsed; // 优先使用data字段
+                        console.log('[ColumnWarehouse] ✅ 直接从LocalStorage解析成功');
+                    } catch (e) {
+                        console.error('[ColumnWarehouse] ❌ LocalStorage解析失败:', e);
+                    }
+                }
+                
+                console.log('[ColumnWarehouse] 最终data:', data);
+                console.log('[ColumnWarehouse] data判断:', !!data);
                 
                 if (data) {
+                    console.log('[ColumnWarehouse] ✅ 进入data判断块');
+                    console.log('[ColumnWarehouse] 找到保存的数据:', {
+                        columns: data.columns?.length || 0,
+                        auditLog: data.auditLog?.length || 0,
+                        savedAt: data.savedAt
+                    });
+                    
                     // 恢复仓库数据
                     if (data.columns) {
                         data.columns.forEach(col => {
                             this.warehouseColumns.set(col.id, col);
                             if (col.status === 'online') {
                                 this.onlineColumns.set(col.id, col);
+                                console.log(`[ColumnWarehouse] 恢复已上线工作栏: ${col.id} (${col.name})`);
                             }
                         });
                     }
@@ -515,11 +625,14 @@
                         this.auditLog = data.auditLog;
                     }
                     
-                    console.log(`[ColumnWarehouse] 加载 ${this.warehouseColumns.size} 个工作栏`);
+                    console.log(`[ColumnWarehouse] ✅ 加载完成: ${this.warehouseColumns.size} 个工作栏 (${this.onlineColumns.size} 个已上线)`);
+                } else {
+                    console.log('[ColumnWarehouse] 没有找到保存的数据，初始化空仓库');
                 }
                 
             } catch (error) {
-                console.error('[ColumnWarehouse] 加载失败:', error);
+                console.error('[ColumnWarehouse] ❌ 加载失败:', error);
+                throw error;
             }
         }
         
@@ -535,10 +648,15 @@
                     savedAt: new Date().toISOString()
                 };
                 
+                console.log(`[ColumnWarehouse] 保存仓库数据: ${data.columns.length} 个工作栏`);
+                
                 await global.AutogenUnifiedStorage.store('config', this.STORAGE_KEY, data);
                 
+                console.log('[ColumnWarehouse] ✅ 保存成功');
+                
             } catch (error) {
-                console.error('[ColumnWarehouse] 保存失败:', error);
+                console.error('[ColumnWarehouse] ❌ 保存失败:', error);
+                throw error; // 重新抛出错误，方便调用方处理
             }
         }
         
@@ -584,6 +702,40 @@
         getAuditLog() {
             return [...this.auditLog];
         }
+        
+        /**
+         * 🚨 强制清空仓库（用于紧急清理）
+         * @returns {Promise<boolean>} 是否成功
+         */
+        async forceCleanup() {
+            try {
+                console.warn('[ColumnWarehouse] 🚨 执行强制清空');
+                
+                // 清空内存数据
+                this.warehouseColumns.clear();
+                this.onlineColumns.clear();
+                
+                // 清空存储
+                if (global.AutogenUnifiedStorage) {
+                    await global.AutogenUnifiedStorage.remove(this.STORAGE_KEY);
+                }
+                
+                // 清空LocalStorage（双保险）
+                localStorage.removeItem(this.STORAGE_KEY);
+                
+                // 审计日志
+                this._audit('FORCE_CLEANUP', {
+                    timestamp: new Date().toISOString()
+                });
+                
+                console.log('[ColumnWarehouse] ✅ 强制清空完成');
+                return true;
+                
+            } catch (error) {
+                console.error('[ColumnWarehouse] ❌ 强制清空失败:', error);
+                return false;
+            }
+        }
     }
     
     // 在DOM加载后初始化
@@ -600,7 +752,20 @@
         
         // 延迟初始化，等待AutogenUnifiedStorage
         setTimeout(() => {
-            warehouse.init();
+            console.log('[ColumnWarehouse] 开始初始化...');
+            warehouse.init().then(() => {
+                console.log('[ColumnWarehouse] 初始化完成');
+                
+                // 自动加载已上线的工作栏（强制重新执行代码）
+                warehouse.onlineColumns.forEach((col, id) => {
+                    console.log(`[ColumnWarehouse] 自动上线工作栏: ${id}`);
+                    warehouse.bringOnline(id, true).catch(err => {
+                        console.error(`[ColumnWarehouse] 自动上线失败: ${id}`, err);
+                    });
+                });
+            }).catch(err => {
+                console.error('[ColumnWarehouse] 初始化失败:', err);
+            });
         }, 500);
     });
     
