@@ -212,6 +212,10 @@ def main():
     parser.add_argument('--frontend-port', type=int, default=DEFAULT_FRONTEND_PORT, help='前端端口（默认 8082）')
     parser.add_argument('--full', action='store_true', help='启动完整系统（后端+前端+浏览器）')
     parser.add_argument('--frontend', action='store_true', help='仅启动前端HTTP服务器')
+    parser.add_argument('--column', action='store_true', help='启动工作栏前端服务器（8000端口）')
+    parser.add_argument('--column-port', type=int, default=8000, help='工作栏前端端口（默认 8000）')
+    parser.add_argument('--detail', action='store_true', help='启动工作栏并打开详情页')
+    parser.add_argument('--test', action='store_true', help='启动工作栏并打开测试台')
     parser.add_argument('--no-browser', action='store_true', help='不自动打开浏览器')
     args = parser.parse_args()
 

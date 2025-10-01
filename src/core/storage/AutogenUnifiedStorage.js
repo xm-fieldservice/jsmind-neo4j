@@ -27,11 +27,23 @@ class AutogenUnifiedStorage {
         this.storageHierarchy = {
             MEMORY: 'memory',
             LOCAL_STORAGE: 'localStorage', 
-            INDEXED_DB: 'indexedDB'
+            INDEXED_DB: 'indexedDB',
+            JSON_BASE: 'jsonBase'  // JSON数据底座
+        };
+        
+        // JSON数据底座配置
+        this.jsonBaseConfig = {
+            enabled: true,  // 是否启用JSON底座同步
+            endpoint: '/api/data',  // API端点（未来实现）
+            filePath: './data/nodes.json',  // JSON文件路径
+            syncMode: 'auto',  // auto: 自动同步 | manual: 手动同步
+            syncDelay: 1000,  // 同步延迟（毫秒，防抖）
+            syncTypes: ['node']  // 需要同步到JSON底座的数据类型
         };
         
         // 数据类型配置
         this.dataTypes = {
+            NODE: 'node',  // 节点数据（同步到JSON底座）
             MINDMAP: 'mindmap',
             PROJECT: 'project',
             RELATION: 'relation',
@@ -41,6 +53,7 @@ class AutogenUnifiedStorage {
         
         // TTL配置（毫秒）
         this.ttlConfig = {
+            [this.dataTypes.NODE]: 3600000,         // 1小时
             [this.dataTypes.MINDMAP]: 1800000,      // 30分钟
             [this.dataTypes.PROJECT]: 3600000,      // 1小时
             [this.dataTypes.RELATION]: 300000,      // 5分钟
@@ -123,9 +136,11 @@ class AutogenUnifiedStorage {
             // 异步存储到持久层
             await this.persistToStorage(storageKey, storageItem);
             
-            // JSON底座同步（显式启用才触发，避免400循环）
-            if (options.syncToJsonBase === true) {
-                this.syncToJsonBase(type, key, data, options).catch(() => {}); // 异步，不阻塞主流程
+            // JSON底座同步（自动判断是否需要同步）
+            if (options.skipJsonBase !== true && this.jsonBaseConfig.syncTypes.includes(type)) {
+                this.syncToJsonBase(type, key, data).catch(err => {
+                    console.warn('[AutogenUnifiedStorage] JSON底座同步失败（异步）:', err);
+                }); // 异步，不阻塞主流程
             }
             
             this.stats.writes++;
@@ -1111,6 +1126,294 @@ class AutogenUnifiedStorage {
             
         } catch (error) {
             console.error('[AutogenUnifiedStorage] 紧急清理失败:', error);
+        }
+    }
+    
+    // ==================== JSON数据底座同步方法 ====================
+    
+    /**
+     * 同步数据到JSON数据底座
+     * @param {string} type - 数据类型
+     * @param {string} key - 数据键
+     * @param {Object} data - 数据内容
+     * @returns {Promise<boolean>} 是否同步成功
+     */
+    async syncToJsonBase(type, key, data) {
+        // 检查是否启用JSON底座
+        if (!this.jsonBaseConfig.enabled) {
+            return true;
+        }
+        
+        // 检查数据类型是否需要同步
+        if (!this.jsonBaseConfig.syncTypes.includes(type)) {
+            return true;
+        }
+        
+        try {
+            console.log(`[JSON数据底座] 开始同步: ${type}:${key}`);
+            
+            // 步骤1：检查节点是否存在
+            const exists = await this.checkExistsInJsonBase(type, key);
+            
+            // 步骤2：加载现有数据底座
+            const jsonBaseData = await this.loadJsonBase();
+            
+            // 步骤3：更新或新增节点
+            if (exists) {
+                // 更新现有节点
+                const nodeIndex = jsonBaseData.nodes.findIndex(n => n.id === key);
+                if (nodeIndex !== -1) {
+                    jsonBaseData.nodes[nodeIndex] = {
+                        ...data,
+                        updated_at: new Date().toISOString()
+                    };
+                    console.log(`[JSON数据底座] 更新节点: ${key}`);
+                }
+            } else {
+                // 新增节点
+                jsonBaseData.nodes.push({
+                    ...data,
+                    id: key,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                });
+                console.log(`[JSON数据底座] 新增节点: ${key}`);
+            }
+            
+            // 步骤4：更新元数据
+            jsonBaseData.meta.updated_at = new Date().toISOString();
+            jsonBaseData.meta.total_nodes = jsonBaseData.nodes.length;
+            
+            // 步骤5：重建索引
+            this.rebuildJsonBaseIndexes(jsonBaseData);
+            
+            // 步骤6：保存到文件（通过API）
+            await this.saveJsonBase(jsonBaseData);
+            
+            // 步骤7：触发事件
+            if (window.AutogenEventBus) {
+                window.AutogenEventBus.emit('jsonBase.synced', {
+                    type: type,
+                    key: key,
+                    operation: exists ? 'update' : 'insert',
+                    timestamp: Date.now()
+                });
+            }
+            
+            this.stats.jsonBaseSyncs++;
+            console.log(`[JSON数据底座] 同步成功: ${key}`);
+            return true;
+            
+        } catch (error) {
+            this.stats.jsonBaseSyncErrors++;
+            console.error(`[JSON数据底座] 同步失败:`, error);
+            
+            // 标记为待同步
+            this.markForLaterSync(type, key, data);
+            return false;
+        }
+    }
+    
+    /**
+     * 检查节点是否存在于JSON数据底座
+     * @param {string} type - 数据类型
+     * @param {string} key - 数据键
+     * @returns {Promise<boolean>} 是否存在
+     */
+    async checkExistsInJsonBase(type, key) {
+        try {
+            const jsonBaseData = await this.loadJsonBase();
+            const exists = jsonBaseData.nodes.some(n => n.id === key);
+            return exists;
+        } catch (error) {
+            console.warn(`[JSON数据底座] 检查失败，假定不存在:`, error);
+            return false;
+        }
+    }
+    
+    /**
+     * 加载JSON数据底座
+     * @returns {Promise<Object>} JSON底座数据
+     */
+    async loadJsonBase() {
+        try {
+            // 方式1：尝试从API加载（未来实现）
+            // const response = await fetch(this.jsonBaseConfig.endpoint);
+            // if (response.ok) {
+            //     return await response.json();
+            // }
+            
+            // 方式2：从文件加载（当前实现）
+            const response = await fetch(this.jsonBaseConfig.filePath);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data;
+            
+        } catch (error) {
+            console.error('[JSON数据底座] 加载失败:', error);
+            // 返回空数据结构
+            return {
+                meta: {
+                    version: "2.0",
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                    total_nodes: 0
+                },
+                nodes: [],
+                indexes: {
+                    by_tag: {},
+                    by_date: {},
+                    root_nodes: []
+                }
+            };
+        }
+    }
+    
+    /**
+     * 保存JSON数据底座
+     * @param {Object} data - JSON底座数据
+     * @returns {Promise<boolean>} 是否保存成功
+     */
+    async saveJsonBase(data) {
+        try {
+            // 方式1：通过API保存（需要后端支持）
+            const response = await fetch(this.jsonBaseConfig.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`保存失败: HTTP ${response.status}`);
+            }
+            
+            console.log('[JSON数据底座] 保存成功');
+            return true;
+            
+        } catch (error) {
+            console.warn('[JSON数据底座] API保存失败，数据已在内存中更新:', error);
+            // 注意：浏览器无法直接写文件，需要后端API支持
+            // 这里只是模拟，实际需要后端接口
+            return false;
+        }
+    }
+    
+    /**
+     * 重建JSON数据底座索引
+     * @param {Object} jsonBaseData - JSON底座数据
+     */
+    rebuildJsonBaseIndexes(jsonBaseData) {
+        // 清空现有索引
+        jsonBaseData.indexes = {
+            by_tag: {},
+            by_date: {},
+            root_nodes: []
+        };
+        
+        // 遍历所有节点重建索引
+        jsonBaseData.nodes.forEach(node => {
+            // 按标签索引
+            if (node.tags && Array.isArray(node.tags)) {
+                node.tags.forEach(tag => {
+                    if (!jsonBaseData.indexes.by_tag[tag]) {
+                        jsonBaseData.indexes.by_tag[tag] = [];
+                    }
+                    if (!jsonBaseData.indexes.by_tag[tag].includes(node.id)) {
+                        jsonBaseData.indexes.by_tag[tag].push(node.id);
+                    }
+                });
+            }
+            
+            // 按日期索引
+            if (node.created_at) {
+                const date = node.created_at.split('T')[0];  // YYYY-MM-DD
+                if (!jsonBaseData.indexes.by_date[date]) {
+                    jsonBaseData.indexes.by_date[date] = [];
+                }
+                if (!jsonBaseData.indexes.by_date[date].includes(node.id)) {
+                    jsonBaseData.indexes.by_date[date].push(node.id);
+                }
+            }
+            
+            // 根节点索引
+            if (node.parent_id === null || node.parent_id === undefined) {
+                if (!jsonBaseData.indexes.root_nodes.includes(node.id)) {
+                    jsonBaseData.indexes.root_nodes.push(node.id);
+                }
+            }
+        });
+        
+        console.log('[JSON数据底座] 索引重建完成');
+    }
+    
+    /**
+     * 标记数据待稍后同步（离线支持）
+     * @param {string} type - 数据类型
+     * @param {string} key - 数据键
+     * @param {Object} data - 数据内容
+     */
+    markForLaterSync(type, key, data) {
+        try {
+            const pendingKey = 'pending_sync';
+            let pending = this.retrieve('system', pendingKey) || [];
+            
+            // 检查是否已经在待同步列表中
+            const existingIndex = pending.findIndex(
+                item => item.type === type && item.key === key
+            );
+            
+            if (existingIndex !== -1) {
+                // 更新现有项
+                pending[existingIndex] = {
+                    type: type,
+                    key: key,
+                    data: data,
+                    timestamp: Date.now()
+                };
+            } else {
+                // 添加新项
+                pending.push({
+                    type: type,
+                    key: key,
+                    data: data,
+                    timestamp: Date.now()
+                });
+            }
+            
+            this.store('system', pendingKey, pending, { skipJsonBase: true });
+            console.log(`[JSON数据底座] 已标记待同步: ${type}:${key}`);
+            
+        } catch (error) {
+            console.error('[JSON数据底座] 标记待同步失败:', error);
+        }
+    }
+    
+    /**
+     * 从JSON数据底座读取节点
+     * @param {string} type - 数据类型
+     * @param {string} key - 数据键
+     * @returns {Promise<Object|null>} 节点数据
+     */
+    async retrieveFromJsonBase(type, key) {
+        try {
+            const jsonBaseData = await this.loadJsonBase();
+            const node = jsonBaseData.nodes.find(n => n.id === key);
+            
+            if (node) {
+                console.log(`[JSON数据底座] 读取成功: ${type}:${key}`);
+                return node;
+            }
+            
+            return null;
+            
+        } catch (error) {
+            console.error(`[JSON数据底座] 读取失败:`, error);
+            return null;
         }
     }
 }

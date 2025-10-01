@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作栏测试台</title>
+    <link rel="stylesheet" href="test-harness.css">
+</head>
+<body>
+    <div class="test-harness">
+        <!-- 头部 -->
+        <div class="test-header">
+            <h1>🧪 工作栏测试台</h1>
+            <div class="test-info">
+                <span id="column-name">未加载</span>
+                <button onclick="closeTestHarness()" class="btn-close">✕ 关闭</button>
+            </div>
+        </div>
+
+        <!-- 主体布局：左右分栏 -->
+        <div class="test-body">
+            <!-- 左侧：测试控制面板 -->
+            <div class="test-panel">
+                <!-- 步骤1：选择测试节点 -->
+                <div class="test-section">
+                    <h2>📥 步骤1：选择测试节点</h2>
+                    <div class="node-list-container">
+                        <div class="input-help">
+                            <p>💡 提示：<strong>直接点击节点</strong>即可发送到详情页（自动触发事件）</p>
+                        </div>
+                        <div id="node-list" class="node-list">
+                            <div class="node-list-loading">加载测试节点中...</div>
+                        </div>
+                        <div class="input-actions" style="margin-top: 15px;">
+                            <button onclick="sendSelectedNode()" class="btn-secondary" title="重新发送当前选中的节点">🔄 重新发送</button>
+                            <button onclick="sendAllNodes()" class="btn-secondary" title="依次自动发送所有节点（间隔1秒）">📤 依次发送全部</button>
+                            <button onclick="toggleManualInput()" class="btn-secondary">⌨️ 手动输入</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 手动输入区域（默认隐藏） -->
+                    <div id="manual-input-container" class="input-container" style="display: none; margin-top: 15px;">
+                        <textarea id="input-data" rows="8" placeholder='{\n  "nodeId": "node_123"\n}'></textarea>
+                        <div class="input-actions">
+                            <button onclick="sendInputData()" class="btn-primary">📤 发送</button>
+                            <button onclick="clearInput()" class="btn-secondary">🗑️ 清空</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤2：输出监控 -->
+                <div class="test-section">
+                    <h2>📤 步骤2：输出监控</h2>
+                    
+                    <div class="output-container">
+                        <h3>输出数据：</h3>
+                        <pre id="output-data" class="output-display">等待工作栏输出...</pre>
+                        
+                        <h3>事件触发：</h3>
+                        <div id="event-log" class="event-log">
+                            <div class="event-item event-waiting">等待事件触发...</div>
+                        </div>
+                        
+                        <button onclick="clearOutputs()" class="btn-secondary btn-small">🗑️ 清空输出</button>
+                    </div>
+                </div>
+
+                <!-- 步骤3：验收与生成接口 -->
+                <div class="test-section">
+                    <h2>✅ 步骤3：验收与生成</h2>
+                    
+                    <div class="acceptance-container">
+                        <p>📝 测试结果评估：</p>
+                        <div class="acceptance-actions">
+                            <button onclick="acceptTest()" class="btn-success">✅ 验收通过 - 生成接口</button>
+                            <button onclick="rejectTest()" class="btn-danger">❌ 测试失败</button>
+                        </div>
+                        
+                        <div id="test-result" class="test-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：工作栏预览 -->
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h2>👁️ 工作栏实时预览</h2>
+                    <div class="preview-status">
+                        <span id="preview-status" class="status-waiting">⏳ 等待加载</span>
+                    </div>
+                </div>
+                <div id="column-preview" class="preview-container">
+                    <!-- 工作栏内容将在这里渲染 -->
+                    <div class="preview-placeholder">
+                        <p>📋 工作栏预览区域</p>
+                        <p>点击"发送到工作栏"后将显示工作栏内容</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 接口定义编辑器模态框 -->
+    <div id="interface-editor-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 接口定义草稿 - 请补充描述信息</h2>
+                <button onclick="closeInterfaceEditor()" class="btn-close">✕</button>
+            </div>
+            <div class="modal-body" id="interface-editor-body">
+                <!-- 动态生成接口编辑表单 -->
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveInterface()" class="btn-success">💾 保存接口定义</button>
+                <button onclick="closeInterfaceEditor()" class="btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="interface-generator.js"></script>
+    <script src="test-harness.js"></script>
+</body>
+</html>

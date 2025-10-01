@@ -35,6 +35,25 @@ body {
     font-weight: 600;
 }
 
+/* 测试按钮 */
+.btn-test {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-test:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
 .header-actions {
     display: flex;
     gap: 8px;

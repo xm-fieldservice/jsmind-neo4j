@@ -1,0 +1,98 @@
+{
+  "export_time": "2025-10-01T15:30:00.000000",
+  "total_count": 5,
+  "description": "详情页工作栏测试数据底座",
+  "nodes": [
+    {
+      "id": "test_node_001",
+      "topic": "项目管理系统重构",
+      "content": "# 项目管理系统重构\n\n## 背景\n当前系统存在以下问题：\n- 架构混乱，代码重复\n- 存储系统不统一\n- 事件系统混乱\n\n## 目标\n1. 统一存储系统\n2. 统一事件总线\n3. 提升代码质量\n\n## 进度\n- [x] P0阶段完成\n- [x] P1阶段完成\n- [x] P2阶段完成\n- [ ] 工作栏生态建设\n\n## 会话1：架构设计\n经过深入分析，决定采用三层架构：\n- 核心层：AutogenUnifiedStorage、AutogenEventBus\n- 业务层：MindmapBusinessLayerIntegrator\n- 展示层：UI组件\n\n## 会话2：实施计划\n分三个阶段实施：\n1. 第一阶段：基础设施重构（2周）\n2. 第二阶段：业务逻辑解耦（3周）\n3. 第三阶段：架构优化（2周）",
+      "tags": ["重要", "进行中", "项目"],
+      "images": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100'%3E%3Crect fill='%23667eea' width='200' height='100'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='white' font-size='20'%3E架构图%3C/text%3E%3C/svg%3E"
+      ],
+      "attachments": [
+        {
+          "name": "架构设计文档.md",
+          "type": "markdown",
+          "size": "15.2 KB",
+          "url": "#"
+        }
+      ],
+      "created_at": "2025-09-15T10:30:00",
+      "updated_at": "2025-10-01T15:20:00"
+    },
+    {
+      "id": "test_node_002",
+      "topic": "工作栏生态系统设计",
+      "content": "# 工作栏生态系统设计\n\n## 核心理念\n建立一个可扩展的工作栏生态系统，支持动态加载和热插拔。\n\n## 技术架构\n\n### 1. ColumnRegistry（注册中心）\n负责工作栏的注册、管理和生命周期控制。\n\n### 2. ColumnWarehouse（工作栏仓库）\n存储所有可用的工作栏，支持上传、下载、版本管理。\n\n### 3. 标准接口\n所有工作栏必须实现统一的接口：\n- `renderFn(container)` - 渲染函数\n- `onDataReceived(inputName, data)` - 数据接收\n- `onActivated()` - 激活回调\n- `onDeactivated()` - 停用回调\n\n## 会话1：接口设计讨论\n经过讨论，确定了标准接口规范，包括：\n- 输入参数定义\n- 输出参数定义\n- 事件触发机制\n\n## 会话2：测试工具开发\n开发了配套的测试工具：\n- 测试台（Test Harness）\n- 接口生成器（Interface Generator）\n- 封装脚本（Package Script）",
+      "tags": ["紧急", "进行中", "架构"],
+      "images": [],
+      "attachments": [
+        {
+          "name": "工作栏开发规范.pdf",
+          "type": "pdf",
+          "size": "2.3 MB",
+          "url": "#"
+        },
+        {
+          "name": "接口定义示例.js",
+          "type": "javascript",
+          "size": "8.5 KB",
+          "url": "#"
+        }
+      ],
+      "created_at": "2025-09-20T14:00:00",
+      "updated_at": "2025-10-01T15:30:00"
+    },
+    {
+      "id": "test_node_003",
+      "topic": "详情页工作栏开发",
+      "content": "# 详情页工作栏开发\n\n## 功能清单\n\n### 已实现\n- ✅ 标题编辑\n- ✅ Markdown内容编辑\n- ✅ 标签系统（分组+复选）\n- ✅ 图片粘贴和管理\n- ✅ 附件管理\n- ✅ 全屏编辑模式\n- ✅ 会话管理\n- ✅ 保存到本地文件\n\n### 待实现\n- [ ] 自动持久化\n- [ ] 接口定义完善\n- [ ] 封装为单文件\n- [ ] 上传到仓库\n\n## 技术亮点\n\n### 1. 图片粘贴功能\n支持直接粘贴图片到编辑器，自动转换为Base64存储。\n\n### 2. 会话管理\n支持多会话切换，每个会话独立管理内容。\n\n### 3. 全屏编辑\n提供专注的全屏编辑模式，支持实时预览。\n\n## 会话1：UI设计\n经过多次迭代，最终确定了简洁的UI设计：\n- 头部：标题 + 测试按钮\n- 标签区：分组显示，点击切换\n- 内容区：Markdown编辑器\n- 附件区：图片和文件管理\n\n## 会话2：测试反馈\n用户反馈非常积极：\n> \"界面简洁美观，操作流畅！\"\n> \"标签分组的设计很棒！\"\n> \"图片粘贴功能太方便了！\"",
+      "tags": ["一般", "已完成", "开发"],
+      "images": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%234caf50' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='white' font-size='24'%3EUI截图%3C/text%3E%3C/svg%3E",
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%232196f3' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='white' font-size='20'%3E全屏模式%3C/text%3E%3C/svg%3E"
+      ],
+      "attachments": [],
+      "created_at": "2025-09-25T09:00:00",
+      "updated_at": "2025-10-01T14:00:00"
+    },
+    {
+      "id": "test_node_004",
+      "topic": "接口定义强制验证机制",
+      "content": "# 接口定义强制验证机制\n\n## 设计背景\n用户提出了一个重要问题：\n> \"每个工作栏的职能不一样，导入数据肯定也不可能一样。\n> 这就要在设计阶段，提醒我们把这个部分'自动'的不能遗忘。\"\n\n## 解决方案\n\n### 三重验证机制\n\n#### 验证点1：接口定义文件内置验证\n每个工作栏必须包含 `*-interface-definition.js` 文件，内置自动验证逻辑。\n\n#### 验证点2：封装脚本强制验证\n封装前自动调用验证工具，验证失败=立即中止封装。\n\n#### 验证点3：上传阶段验证\n上传到仓库时再次验证接口定义，缺失或不完整=拒绝上传。\n\n## 技术实现\n\n### 接口生成器\n开发了自动接口生成器，可以：\n- 分析输入数据结构\n- 分析输出数据结构  \n- 捕获事件触发\n- 生成接口定义草稿\n\n### 测试台集成\n在测试台中集成了接口生成功能：\n1. 发送测试数据\n2. 观察工作栏输出\n3. 点击验收通过\n4. 自动生成接口定义\n5. 用户补充描述信息\n6. 保存接口文件\n\n## 会话1：技术讨论\n与用户深入讨论了自动生成的可行性：\n- ✅ 类型推断：完全可行\n- ✅ 结构分析：完全可行\n- ⚠️ 描述信息：需要用户补充\n\n## 会话2：实施计划\n确定了实施步骤：\n1. 创建接口定义模板\n2. 开发验证工具\n3. 开发封装脚本（内置验证）\n4. 开发测试台（集成接口生成）\n5. 测试验证流程",
+      "tags": ["重要", "进行中", "架构"],
+      "images": [],
+      "attachments": [
+        {
+          "name": "接口验证机制设计文档.md",
+          "type": "markdown",
+          "size": "12.8 KB",
+          "url": "#"
+        }
+      ],
+      "created_at": "2025-10-01T10:00:00",
+      "updated_at": "2025-10-01T15:00:00"
+    },
+    {
+      "id": "test_node_005",
+      "topic": "测试驱动开发实践",
+      "content": "# 测试驱动开发实践\n\n## TDD核心理念\n先写测试，再写代码，确保代码质量。\n\n## 在工作栏开发中的应用\n\n### 测试台的设计\n专门开发了测试台工具，支持：\n- 输入测试数据\n- 实时观察输出\n- 捕获事件触发\n- 生成接口定义\n\n### 工作流程\n```\n1. 设计接口（定义输入输出）\n2. 编写测试用例\n3. 开发工作栏功能\n4. 在测试台中测试\n5. 验收通过后生成接口文件\n6. 封装并上传\n```\n\n## 优势\n\n### 1. 质量保证\n通过测试确保功能正确实现。\n\n### 2. 接口明确\n测试过程中明确了接口定义。\n\n### 3. 文档自动化\n测试记录即文档。\n\n## 会话1：测试用例设计\n设计了完整的测试用例：\n- 正常输入测试\n- 边界值测试\n- 异常输入测试\n- 性能测试\n\n## 会话2：自动化测试\n计划开发自动化测试工具：\n- 自动执行测试用例\n- 生成测试报告\n- 集成到CI/CD流程\n\n## 下一步计划\n- [ ] 完善测试用例库\n- [ ] 开发自动化测试框架\n- [ ] 建立测试覆盖率标准\n- [ ] 集成性能测试",
+      "tags": ["一般", "待处理", "测试"],
+      "images": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23ff9800' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='white' font-size='32'%3ETDD流程图%3C/text%3E%3C/svg%3E"
+      ],
+      "attachments": [
+        {
+          "name": "测试用例库.xlsx",
+          "type": "excel",
+          "size": "156 KB",
+          "url": "#"
+        }
+      ],
+      "created_at": "2025-10-01T12:00:00",
+      "updated_at": "2025-10-01T15:30:00"
+    }
+  ]
+}

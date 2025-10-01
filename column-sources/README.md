@@ -2,6 +2,28 @@
 
 本目录存放所有工作栏的**原料页面**（开发中的页面和封装后的工作栏文件）。
 
+## 🚀 快速启动
+
+### **方式1：一键启动（推荐）** ⭐
+双击项目根目录的 `启动工作栏.bat`，自动启动HTTP服务器并打开详情页。
+
+### **方式2：命令行启动**
+```bash
+# 启动HTTP服务器（8000端口）
+python tools/start_column_frontend.py --detail
+```
+
+### **方式3：手动启动**
+```bash
+# 在项目根目录运行
+python -m http.server 8000
+
+# 然后访问
+http://localhost:8000/column-sources/detail/detail-column-layout.html
+```
+
+⚠️ **重要**: 必须通过HTTP服务器访问，不要直接双击HTML文件（会遇到CORS错误）！
+
 ---
 
 ## 📁 目录结构

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON数据底座测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin: 15px 0;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .info {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗄️ JSON数据底座测试</h1>
+        
+        <div class="section">
+            <h3>测试1：保存节点到JSON底座</h3>
+            <button onclick="testSaveNode()">保存测试节点</button>
+            <button onclick="testSaveMultipleNodes()">保存多个节点</button>
+            <div id="save-result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>测试2：从JSON底座读取节点</h3>
+            <button onclick="testLoadNode()">读取节点</button>
+            <button onclick="testLoadAllNodes()">读取所有节点</button>
+            <div id="load-result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>测试3：更新节点</h3>
+            <button onclick="testUpdateNode()">更新节点</button>
+            <div id="update-result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>测试4：索引查询</h3>
+            <button onclick="testQueryByTag()">按标签查询</button>
+            <button onclick="testQueryByDate()">按日期查询</button>
+            <div id="query-result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>测试5：查看统计信息</h3>
+            <button onclick="testGetStats()">查看统计</button>
+            <div id="stats-result" class="result"></div>
+        </div>
+    </div>
+
+    <!-- 引入AutogenUnifiedStorage -->
+    <script src="../src/core/storage/AutogenUnifiedStorage.js"></script>
+    
+    <script>
+        // 等待AutogenUnifiedStorage初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('[测试] 页面加载完成');
+            
+            // 等待AutogenUnifiedStorage初始化
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            if (window.AutogenUnifiedStorage) {
+                console.log('[测试] ✅ AutogenUnifiedStorage已加载');
+                log('save-result', '<span class="success">✅ AutogenUnifiedStorage已初始化</span>');
+            } else {
+                console.error('[测试] ❌ AutogenUnifiedStorage未加载');
+                log('save-result', '<span class="error">❌ AutogenUnifiedStorage未加载</span>');
+            }
+        });
+        
+        // 日志辅助函数
+        function log(elementId, message) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `[${timestamp}] ${message}\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+        
+        function clearLog(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+        
+        // 测试1：保存节点
+        async function testSaveNode() {
+            clearLog('save-result');
+            log('save-result', '<span class="info">📝 开始测试：保存节点...</span>');
+            
+            try {
+                const nodeData = {
+                    id: 'test_node_001',
+                    topic: '测试节点1',
+                    content: '# 测试节点\n\n这是一个测试节点的内容。',
+                    tags: ['测试', '重要'],
+                    parent_id: null,
+                    children_ids: [],
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+                
+                log('save-result', `节点数据:\n${JSON.stringify(nodeData, null, 2)}`);
+                
+                // 保存到AutogenUnifiedStorage（会自动同步到JSON底座）
+                const success = await window.AutogenUnifiedStorage.store('node', 'test_node_001', nodeData);
+                
+                if (success) {
+                    log('save-result', '<span class="success">✅ 节点保存成功！</span>');
+                    log('save-result', '<span class="info">💡 数据已自动同步到JSON底座</span>');
+                } else {
+                    log('save-result', '<span class="error">❌ 节点保存失败</span>');
+                }
+                
+            } catch (error) {
+                log('save-result', `<span class="error">❌ 错误: ${error.message}</span>`);
+                console.error(error);
+            }
+        }
+        
+        // 保存多个节点
+        async function testSaveMultipleNodes() {
+            clearLog('save-result');
+            log('save-result', '<span class="info">📝 开始测试：保存多个节点...</span>');
+            
+            try {
+                const nodes = [
+                    {
+                        id: 'node_001',
+                        topic: '项目管理系统',
+                        content: '# 项目管理系统\n\n这是项目的根节点。',
+                        tags: ['项目', '重要'],
+                        parent_id: null,
+                        children_ids: ['node_002', 'node_003']
+                    },
+                    {
+                        id: 'node_002',
+                        topic: '需求分析',
+                        content: '## 需求分析\n\n功能需求列表...',
+                        tags: ['需求', '进行中'],
+                        parent_id: 'node_001',
+                        children_ids: []
+                    },
+                    {
+                        id: 'node_003',
+                        topic: '技术架构',
+                        content: '## 技术架构\n\n架构设计...',
+                        tags: ['架构', '规划'],
+                        parent_id: 'node_001',
+                        children_ids: []
+                    }
+                ];
+                
+                for (const node of nodes) {
+                    const nodeData = {
+                        ...node,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    await window.AutogenUnifiedStorage.store('node', node.id, nodeData);
+                    log('save-result', `✅ 已保存: ${node.topic}`);
+                }
+                
+                log('save-result', `<span class="success">✅ 成功保存${nodes.length}个节点！</span>`);
+                
+            } catch (error) {
+                log('save-result', `<span class="error">❌ 错误: ${error.message}</span>`);
+            }
+        }
+        
+        // 测试2：读取节点
+        async function testLoadNode() {
+            clearLog('load-result');
+            log('load-result', '<span class="info">📖 开始测试：读取节点...</span>');
+            
+            try {
+                const nodeData = await window.AutogenUnifiedStorage.retrieve('node', 'test_node_001');
+                
+                if (nodeData) {
+                    log('load-result', '<span class="success">✅ 节点读取成功！</span>');
+                    log('load-result', `节点数据:\n${JSON.stringify(nodeData, null, 2)}`);
+                } else {
+                    log('load-result', '<span class="error">❌ 节点不存在</span>');
+                }
+                
+            } catch (error) {
+                log('load-result', `<span class="error">❌ 错误: ${error.message}</span>`);
+            }
+        }
+        
+        // 读取所有节点
+        async function testLoadAllNodes() {
+            clearLog('load-result');
+            log('load-result', '<span class="info">📖 开始测试：读取所有节点...</span>');
+            
+            try {
+                const allNodes = await window.AutogenUnifiedStorage.list('node');
+                
+                log('load-result', `<span class="success">✅ 找到${allNodes.length}个节点</span>`);
+                
+                allNodes.forEach((item, index) => {
+                    log('load-result', `\n节点 ${index + 1}: ${item.data.topic}`);
+                    log('load-result', `  ID: ${item.data.id}`);
+                    log('load-result', `  标签: ${item.data.tags ? item.data.tags.join(', ') : '无'}`);
+                });
+                
+            } catch (error) {
+                log('load-result', `<span class="error">❌ 错误: ${error.message}</span>`);
+            }
+        }
+        
+        // 测试3：更新节点
+        async function testUpdateNode() {
+            clearLog('update-result');
+            log('update-result', '<span class="info">✏️ 开始测试：更新节点...</span>');
+            
+            try {
+                // 读取现有节点
+                const existingNode = await window.AutogenUnifiedStorage.retrieve('node', 'test_node_001');
+                
+                if (!existingNode) {
+                    log('update-result', '<span class="error">❌ 节点不存在，请先创建节点</span>');
+                    return;
+                }
+                
+                // 更新节点
+                const updatedNode = {
+                    ...existingNode,
+                    topic: '测试节点1（已更新）',
+                    content: existingNode.content + '\n\n## 更新内容\n\n这是更新后的内容。',
+                    tags: [...(existingNode.tags || []), '已更新'],
+                    updated_at: new Date().toISOString()
+                };
+                
+                await window.AutogenUnifiedStorage.store('node', 'test_node_001', updatedNode);
+                
+                log('update-result', '<span class="success">✅ 节点更新成功！</span>');
+                log('update-result', `更新后的数据:\n${JSON.stringify(updatedNode, null, 2)}`);
+                
+            } catch (error) {
+                log('update-result', `<span class="error">❌ 错误: ${error.message}</span>`);
+            }
+        }
+        
+        // 测试4：按标签查询
+        async function testQueryByTag() {
+            clearLog('query-result');
+            log('query-result', '<span class="info">🔍 开始测试：按标签查询...</span>');
+            
+            try {
+                // 加载JSON底座数据
+                const jsonBase = await window.AutogenUnifiedStorage.loadJsonBase();
+                
+                log('query-result', `数据底座信息:`);
+                log('query-result', `  版本: ${jsonBase.meta.version}`);
+                log('query-result', `  节点总数: ${jsonBase.meta.total_nodes}`);
+                log('query-result', `  更新时间: ${jsonBase.meta.updated_at}`);
+                
+                // 按标签查询
+                const tag = '重要';
+                const nodeIds = jsonBase.indexes.by_tag[tag] || [];
+                
+                log('query-result', `\n<span class="success">✅ 标签"${tag}"的节点: ${nodeIds.length}个</span>`);
+                
+                nodeIds.forEach(id => {
+                    const node = jsonBase.nodes.find(n => n.id === id);
+                    if (node) {
+                        log('query-result', `  - ${node.topic} (${node.id})`);
+                    }
+                });
+                
+            } catch (error) {
+                log('query-result', `<span class="error">❌ 错误: ${error.message}</span>`);
+            }
+        }
+        
+        // 按日期查询
+        async function testQueryByDate() {
+            clearLog('query-result');
+            log('query-result', '<span class="info">🔍 开始测试：按日期查询...</span>');
+            
+            try {
+                const jsonBase = await window.AutogenUnifiedStorage.loadJsonBase();
+                
+                // 今天的日期
+                const today = new Date().toISOString().split('T')[0];
+                const nodeIds = jsonBase.indexes.by_date[today] || [];
+                
+                log('query-result', `<span class="success">✅ 日期"${today}"的节点: ${nodeIds.length}个</span>`);
+                
+                nodeIds.forEach(id => {
+                    const node = jsonBase.nodes.find(n => n.id === id);
+                    if (node) {
+                        log('query-result', `  - ${node.topic} (${node.id})`);
+                    }
+                });
+                
+                // 显示所有日期索引
+                log('query-result', '\n所有日期索引:');
+                Object.keys(jsonBase.indexes.by_date).forEach(date => {
+                    log('query-result', `  ${date}: ${jsonBase.indexes.by_date[date].length}个节点`);
+                });
+                
+            } catch (error) {
+                log('query-result', `<span class="error">❌ 错误: ${error.message}</span>`);
+            }
+        }
+        
+        // 测试5：查看统计
+        async function testGetStats() {
+            clearLog('stats-result');
+            log('stats-result', '<span class="info">📊 开始测试：查看统计信息...</span>');
+            
+            try {
+                const stats = window.AutogenUnifiedStorage.getStats();
+                
+                log('stats-result', '存储统计信息:');
+                log('stats-result', `  读取次数: ${stats.reads}`);
+                log('stats-result', `  写入次数: ${stats.writes}`);
+                log('stats-result', `  命中统计:`);
+                log('stats-result', `    - 内存缓存: ${stats.hits.memory}`);
+                log('stats-result', `    - LocalStorage: ${stats.hits.localStorage}`);
+                log('stats-result', `    - IndexedDB: ${stats.hits.indexedDB}`);
+                log('stats-result', `  未命中: ${stats.misses}`);
+                log('stats-result', `  错误: ${stats.errors}`);
+                log('stats-result', `  清理次数: ${stats.cleanups}`);
+                log('stats-result', `  <span class="success">JSON底座同步: ${stats.jsonBaseSyncs}</span>`);
+                log('stats-result', `  <span class="error">JSON底座同步错误: ${stats.jsonBaseSyncErrors}</span>`);
+                
+                // 缓存效率
+                const totalHits = stats.hits.memory + stats.hits.localStorage + stats.hits.indexedDB;
+                const hitRate = totalHits > 0 ? (totalHits / (totalHits + stats.misses) * 100).toFixed(2) : 0;
+                log('stats-result', `\n<span class="info">缓存命中率: ${hitRate}%</span>`);
+                
+            } catch (error) {
+                log('stats-result', `<span class="error">❌ 错误: ${error.message}</span>`);
+            }
+        }
+    </script>
+</body>
+</html>

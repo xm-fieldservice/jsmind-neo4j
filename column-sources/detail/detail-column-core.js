@@ -1,10 +1,11 @@
 /**
  * 节点详情工作栏 - 核心逻辑模块
- * 负责基础功能：选项卡切换、预览、标签、附件、查询
+ * 负责基础功能：选项卡切换、预览、标签、附件、查询、数据加载
  */
 class DetailColumnCore {
     constructor() {
         this.currentNode = null;
+        this.testDataUrl = 'test-data.json'; // 测试数据底座
         this.init();
     }
     
@@ -19,7 +20,218 @@ class DetailColumnCore {
         // 图片存储
         this.pastedImages = new Map(); // 存储粘贴的图片
         
+        // ⭐ 监听节点选择事件（模拟真实业务流程）
+        this.listenNodeSelection();
+        
         console.log('[DetailColumnCore] 核心模块初始化完成');
+    }
+    
+    /**
+     * 监听节点选择事件
+     * 模拟真实场景：其他页面（如脑图、列表）点击节点后触发此事件
+     */
+    listenNodeSelection() {
+        console.log('[DetailColumn] 开始注册事件监听器...');
+        
+        // 方式1：监听自定义事件（window级别）
+        const eventHandler = async (event) => {
+            console.log(`[DetailColumn] ✓ 接收到 node:selected 事件`, event);
+            const nodeId = event.detail?.nodeId;
+            if (nodeId) {
+                console.log(`[DetailColumn] 节点ID: ${nodeId}`);
+                await this.handleNodeSelection(nodeId);
+            } else {
+                console.warn(`[DetailColumn] ⚠️ 事件中缺少 nodeId`, event.detail);
+            }
+        };
+        
+        window.addEventListener('node:selected', eventHandler);
+        console.log('[DetailColumn] ✓ 已注册 window.addEventListener("node:selected")');
+        
+        // 方式2：监听AutogenEventBus事件（如果可用）
+        if (window.AutogenEventBus) {
+            window.AutogenEventBus.on('node:selected', async (data) => {
+                console.log(`[DetailColumn] ✓ 通过EventBus接收到事件`, data);
+                const nodeId = data?.nodeId;
+                if (nodeId) {
+                    console.log(`[DetailColumn] EventBus节点ID: ${nodeId}`);
+                    await this.handleNodeSelection(nodeId);
+                }
+            });
+            console.log('[DetailColumn] ✓ 已注册 AutogenEventBus.on("node:selected")');
+        } else {
+            console.log('[DetailColumn] ℹ️ AutogenEventBus 不可用');
+        }
+        
+        console.log('[DetailColumn] ✅ 所有节点选择监听器注册完成');
+        
+        // 测试：手动触发一次事件确认监听器工作正常
+        console.log('[DetailColumn] 💡 测试监听器：可在控制台运行以下代码测试:');
+        console.log('window.dispatchEvent(new CustomEvent("node:selected", {detail: {nodeId: "test_node_001"}}))');
+    }
+    
+    /**
+     * 处理节点选择
+     * @param {string} nodeId - 节点ID
+     */
+    async handleNodeSelection(nodeId) {
+        try {
+            console.log(`[DetailColumn] 开始处理节点选择: ${nodeId}`);
+            
+            // 从数据底座加载节点数据
+            await this.loadNodeFromTestData(nodeId);
+            
+            console.log(`[DetailColumn] 节点处理完成: ${nodeId}`);
+            
+        } catch (error) {
+            console.error('[DetailColumn] 处理节点选择失败:', error);
+            alert(`❌ 加载节点失败：\n${error.message}`);
+        }
+    }
+    
+    /**
+     * 从测试数据底座加载节点数据
+     * @param {string} nodeId - 节点ID
+     */
+    async loadNodeFromTestData(nodeId) {
+        try {
+            console.log(`[DetailColumnCore] 加载节点数据: ${nodeId}`);
+            
+            // 加载测试数据
+            const response = await fetch(this.testDataUrl);
+            if (!response.ok) {
+                throw new Error(`加载失败: ${response.status}`);
+            }
+            
+            const testData = await response.json();
+            
+            // 查找指定ID的节点
+            const node = testData.nodes.find(n => n.id === nodeId);
+            if (!node) {
+                throw new Error(`节点不存在: ${nodeId}`);
+            }
+            
+            // 加载到详情页
+            this.loadNodeData(node);
+            
+            console.log(`[DetailColumnCore] 节点加载成功:`, node);
+            
+            // 通知测试台（如果存在）
+            if (window.TestHarnessRecordOutput) {
+                window.TestHarnessRecordOutput('currentNode', node);
+            }
+            
+            return node;
+            
+        } catch (error) {
+            console.error('[DetailColumnCore] 加载节点失败:', error);
+            alert(`❌ 加载节点失败：\n${error.message}`);
+            throw error;
+        }
+    }
+    
+    /**
+     * 加载节点数据到UI
+     * @param {Object} node - 节点数据对象
+     */
+    loadNodeData(node) {
+        this.currentNode = node;
+        
+        // 加载标题
+        const titleInput = document.getElementById('detail-title-input');
+        if (titleInput) {
+            titleInput.value = node.topic || '';
+        }
+        
+        // 显示节点ID
+        const nodeIdEl = document.getElementById('detail-node-id');
+        if (nodeIdEl) {
+            nodeIdEl.textContent = `ID: ${node.id}`;
+        }
+        
+        // 加载内容
+        const contentEditor = document.getElementById('detail-content-editor');
+        if (contentEditor) {
+            contentEditor.value = node.content || '';
+        }
+        
+        // 加载标签（高亮显示）
+        if (node.tags && node.tags.length > 0) {
+            this.loadTags(node.tags);
+        }
+        
+        // 加载图片
+        if (node.images && node.images.length > 0) {
+            this.loadImages(node.images);
+        }
+        
+        // 加载附件
+        if (node.attachments && node.attachments.length > 0) {
+            this.loadAttachments(node.attachments);
+        }
+        
+        console.log('[DetailColumnCore] UI数据已加载');
+    }
+    
+    /**
+     * 加载标签到UI（高亮显示）
+     */
+    loadTags(tags) {
+        const tagChips = document.querySelectorAll('.tag-chip');
+        
+        // 先清除所有选中状态
+        tagChips.forEach(chip => chip.classList.remove('selected'));
+        
+        // 高亮匹配的标签
+        tags.forEach(tag => {
+            tagChips.forEach(chip => {
+                if (chip.dataset.tag === tag) {
+                    chip.classList.add('selected');
+                }
+            });
+        });
+        
+        console.log('[DetailColumnCore] 标签已加载:', tags);
+    }
+    
+    /**
+     * 加载图片到附件列表
+     */
+    loadImages(images) {
+        const attachmentsList = document.getElementById('attachments-list');
+        if (!attachmentsList) return;
+        
+        images.forEach((imageUrl, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <img src="${imageUrl}" alt="图片${index + 1}" style="max-width: 100px; max-height: 100px; cursor: pointer;" onclick="window.open('${imageUrl}', '_blank')">
+                <span>图片${index + 1}</span>
+                <button class="btn-remove" onclick="this.parentElement.remove()">删除</button>
+            `;
+            attachmentsList.appendChild(li);
+        });
+        
+        console.log('[DetailColumnCore] 图片已加载:', images.length);
+    }
+    
+    /**
+     * 加载附件到附件列表
+     */
+    loadAttachments(attachments) {
+        const attachmentsList = document.getElementById('attachments-list');
+        if (!attachmentsList) return;
+        
+        attachments.forEach(attachment => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>📎 ${attachment.name}</span>
+                <span style="color: #999; font-size: 12px;">${attachment.size}</span>
+                <button class="btn-remove" onclick="this.parentElement.remove()">删除</button>
+            `;
+            attachmentsList.appendChild(li);
+        });
+        
+        console.log('[DetailColumnCore] 附件已加载:', attachments.length);
     }
     
     /**

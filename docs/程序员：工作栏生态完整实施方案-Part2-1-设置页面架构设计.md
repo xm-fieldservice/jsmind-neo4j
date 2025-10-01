@@ -483,6 +483,53 @@ class SystemConfigTab {
         `;
     }
     
+    /**
+     * 🆕 渲染标签样式配置
+     */
+    _renderTagStylesConfig() {
+        const tagStyles = window.ConfigManager?.get('tagStyles') || {};
+        
+        return `
+            <div class="config-section">
+                <h4>🏷️ 标签样式管理</h4>
+                <div id="tag-styles-list">
+                    ${Object.entries(tagStyles).map(([name, style]) => `
+                        <div class="tag-style-item">
+                            <span class="tag-preview" style="
+                                background: ${style.color};
+                                border: 2px solid ${style.nodeStyle?.borderColor || style.color};
+                            ">${name}</span>
+                            <button class="btn-edit" data-tag="${name}">编辑</button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    /**
+     * 🆕 渲染布局配置
+     */
+    _renderLayoutConfig() {
+        const layoutMode = window.ConfigManager?.get('columnLayout.mode') || 'equal';
+        
+        return `
+            <div class="config-section">
+                <h4>📐 工作栏布局</h4>
+                <label class="config-item">
+                    <input type="radio" name="layout-mode" value="equal" 
+                           ${layoutMode === 'equal' ? 'checked' : ''}>
+                    <span>等宽自适应</span>
+                </label>
+                <label class="config-item">
+                    <input type="radio" name="layout-mode" value="custom"
+                           ${layoutMode === 'custom' ? 'checked' : ''}>
+                    <span>自定义宽度</span>
+                </label>
+            </div>
+        `;
+    }
+    
     // ... 其他方法
 }
 ```

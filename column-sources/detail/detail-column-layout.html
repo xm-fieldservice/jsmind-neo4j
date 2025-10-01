@@ -14,6 +14,9 @@
     <div class="detail-column" id="detail-column">
         <div class="column-header">
             <h3>📝 详情</h3>
+            <button class="btn-test" onclick="openTestHarness()" title="打开测试台进行接口测试">
+                🧪 测试
+            </button>
         </div>
         
         <!-- 选项卡容器 -->
@@ -142,6 +145,13 @@
             window.detailColumn = new DetailColumnCore();
             console.log('[DetailColumn] 系统初始化完成');
         });
+        
+        // 打开测试台
+        function openTestHarness() {
+            const testUrl = '../_test-harness/test-harness.html?column=detail&title=详情页工作栏&dir=../detail';
+            window.open(testUrl, '_blank', 'width=1400,height=900');
+            console.log('[DetailColumn] 打开测试台');
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "项目管理数据底座Schema",
+  "description": "定义nodes.json的数据格式",
+  "type": "object",
+  "required": ["meta", "nodes", "indexes"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "数据格式版本"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "数据底座创建时间"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最后更新时间"
+        },
+        "total_nodes": {
+          "type": "integer",
+          "description": "节点总数"
+        },
+        "description": {
+          "type": "string",
+          "description": "数据描述"
+        }
+      },
+      "required": ["version", "created_at", "updated_at", "total_nodes"]
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "topic", "parent_id", "children_ids", "created_at", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "节点唯一ID"
+          },
+          "topic": {
+            "type": "string",
+            "description": "节点标题"
+          },
+          "content": {
+            "type": "string",
+            "description": "节点内容（Markdown格式）"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "标签数组"
+          },
+          "parent_id": {
+            "type": ["string", "null"],
+            "description": "父节点ID，null表示根节点"
+          },
+          "children_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "子节点ID数组"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      }
+    },
+    "indexes": {
+      "type": "object",
+      "properties": {
+        "by_tag": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": "按标签索引"
+        },
+        "by_date": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": "按日期索引"
+        },
+        "root_nodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "根节点列表"
+        }
+      },
+      "required": ["by_tag", "by_date", "root_nodes"]
+    }
+  }
+}
