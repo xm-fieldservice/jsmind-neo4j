@@ -313,6 +313,182 @@ interface ChangelogEntry {
 
 ---
 
+## 🔄 **自动持久化接入规范**
+
+### **接入要求**
+
+所有工作栏都**建议接入**自动持久化功能，实现数据的自动保存和恢复。
+
+### **接入步骤（仅需10行代码）**
+
+#### **步骤1：定义数据结构**
+
+```javascript
+class YourColumn {
+    constructor() {
+        this.columnId = 'your-column';  // 工作栏唯一ID
+        this.data = {
+            // 定义需要持久化的数据
+            field1: '',
+            field2: [],
+            // ...
+        };
+    }
+}
+```
+
+#### **步骤2：监听数据恢复事件（5行代码）**
+
+```javascript
+init() {
+    // 监听数据恢复事件
+    window.AutogenEventBus.on('column.dataRestored', (event) => {
+        if (event.columnId === this.columnId) {
+            this.loadData(event.data);
+        }
+    });
+    
+    // ... 其他初始化代码
+}
+```
+
+#### **步骤3：触发数据变化事件（5行代码）**
+
+```javascript
+// 在数据变更时调用
+notifyDataChanged() {
+    window.AutogenEventBus.emit('column.dataChanged', {
+        columnId: this.columnId,
+        data: this.data
+    });
+}
+
+// 示例：输入框变化时
+titleInput.addEventListener('input', () => {
+    this.data.title = titleInput.value;
+    this.notifyDataChanged();  // 触发保存
+});
+```
+
+#### **步骤4：实现数据加载方法**
+
+```javascript
+loadData(data) {
+    this.data = data;
+    
+    // 恢复到UI
+    document.getElementById('your-input').value = data.field1 || '';
+    // ... 恢复其他字段
+    
+    console.log('[YourColumn] 数据已恢复');
+}
+```
+
+---
+
+### **完整接入示例**
+
+```javascript
+(function(global) {
+    'use strict';
+    
+    class SwimlaneBoard {
+        constructor() {
+            this.columnId = 'swimlane-board';
+            this.data = {
+                selectedProject: null,
+                filterDepartment: null,
+                viewMode: 'board'
+            };
+        }
+        
+        init() {
+            // ✅ 接入自动持久化（监听恢复）
+            window.AutogenEventBus.on('column.dataRestored', (event) => {
+                if (event.columnId === this.columnId) {
+                    this.loadData(event.data);
+                }
+            });
+            
+            // 绑定UI事件
+            this.bindEvents();
+        }
+        
+        bindEvents() {
+            // 项目选择变化时
+            document.getElementById('project-select').addEventListener('change', (e) => {
+                this.data.selectedProject = e.target.value;
+                this.notifyDataChanged();  // ✅ 触发保存
+            });
+            
+            // 部门过滤变化时
+            document.getElementById('department-filter').addEventListener('change', (e) => {
+                this.data.filterDepartment = e.target.value;
+                this.notifyDataChanged();  // ✅ 触发保存
+            });
+        }
+        
+        // ✅ 通知数据变化
+        notifyDataChanged() {
+            window.AutogenEventBus.emit('column.dataChanged', {
+                columnId: this.columnId,
+                data: this.data
+            });
+        }
+        
+        // ✅ 加载恢复的数据
+        loadData(data) {
+            this.data = data;
+            
+            // 恢复UI状态
+            if (data.selectedProject) {
+                document.getElementById('project-select').value = data.selectedProject;
+            }
+            if (data.filterDepartment) {
+                document.getElementById('department-filter').value = data.filterDepartment;
+            }
+            if (data.viewMode) {
+                this.switchViewMode(data.viewMode);
+            }
+            
+            console.log('[SwimlaneBoard] 数据已恢复:', data);
+        }
+    }
+    
+    // ... 注册工作栏
+})(window || this);
+```
+
+---
+
+### **自动持久化机制说明**
+
+#### **保存机制**
+- **防抖保存**：输入后1秒无变化才保存（避免频繁写入）
+- **定时保存**：每5秒自动同步一次（防止意外丢失）
+- **最终保存**：工作栏卸载时立即保存
+
+#### **存储分层**
+- 小数据（<5MB）→ LocalStorage
+- 大数据（>5MB）→ IndexedDB
+- 热数据 → 内存缓存
+
+#### **恢复时机**
+- 工作栏注册时自动恢复
+- 页面刷新后自动恢复
+
+---
+
+### **接入优势**
+
+✅ **极简接入**：只需10行代码  
+✅ **零配置**：无需额外配置  
+✅ **自动分层**：根据数据大小自动选择存储方式  
+✅ **智能防抖**：避免频繁写入影响性能  
+✅ **完全可选**：工作栏可选择是否接入
+
+---
+
 ## 📖 **文档编写规范**
 
 ### **必须包含的文档内容**

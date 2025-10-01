@@ -294,18 +294,32 @@ class FullscreenManager {
      * 渲染Markdown
      */
     renderMarkdown(markdown) {
+        if (!markdown) return '<p style="color:#9ca3af;">无内容</p>';
+        
+        // 先替换图片引用为实际URL（使用主控制器的图片映射）
+        let processedMarkdown = markdown;
+        
+        if (window.detailColumn && window.detailColumn.pastedImages) {
+            processedMarkdown = processedMarkdown.replace(/!\[([^\]]*)\]\((img_\d+)\)/g, (match, alt, imageId) => {
+                const imageData = window.detailColumn.pastedImages.get(imageId);
+                if (imageData) {
+                    return `![${alt}](${imageData.blobUrl})`;
+                }
+                return match;
+            });
+        }
+        
         // 使用marked.js渲染，如果可用
         if (window.marked) {
-            return marked.parse(markdown);
+            return marked.parse(processedMarkdown);
         }
         
         // 简单的Markdown渲染（回退）
-        if (!markdown) return '<p style="color:#9ca3af;">无内容</p>';
-        
-        return markdown
+        return processedMarkdown
             .replace(/^### (.*$)/gim, '<h3>$1</h3>')
             .replace(/^## (.*$)/gim, '<h2>$1</h2>')
             .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;height:auto;border-radius:4px;margin:8px 0;" />')
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/`(.*?)`/g, '<code>$1</code>')

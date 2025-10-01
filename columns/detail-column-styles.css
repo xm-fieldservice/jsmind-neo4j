@@ -55,40 +55,7 @@ body {
     background: rgba(255,255,255,0.3);
 }
 
-/* ========== 选项卡样式 ========== */
-.tabs {
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.tabs-nav {
-    display: flex;
-    padding: 0 20px;
-    gap: 4px;
-    background: #f9fafb;
-}
-
-.tab-btn {
-    padding: 12px 20px;
-    border: none;
-    background: transparent;
-    color: #6b7280;
-    font-size: 14px;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-}
-
-.tab-btn:hover {
-    color: #374151;
-    background: rgba(0,0,0,0.02);
-}
-
-.tab-btn.active {
-    color: #667eea;
-    border-bottom-color: #667eea;
-    font-weight: 500;
-}
-
+/* ========== 内容区域样式 ========== */
 .tabs-content {
     padding: 20px;
     max-height: 600px;
@@ -96,10 +63,6 @@ body {
 }
 
 .tab-pane {
-    display: none;
-}
-
-.tab-pane.active {
     display: block;
 }
 
@@ -146,13 +109,30 @@ body {
 }
 
 /* ========== 标签面板 ========== */
-.tag-panel {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+#tag-groups-container {
     padding: 12px;
     background: #f9fafb;
     border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tag-group-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.tag-group-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 60px;
 }
 
 .tag-chip {
@@ -163,17 +143,25 @@ body {
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
+    user-select: none;
 }
 
 .tag-chip:hover {
     border-color: #667eea;
     color: #667eea;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .tag-chip.active {
     background: #667eea;
     color: white;
     border-color: #667eea;
+    font-weight: 500;
+}
+
+.tag-chip.active::before {
+    content: '✓ ';
 }
 
 /* ========== 按钮样式 ========== */

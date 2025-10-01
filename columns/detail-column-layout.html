@@ -13,25 +13,12 @@
 <body>
     <div class="detail-column" id="detail-column">
         <div class="column-header">
-            <h3>📝 节点详情</h3>
-            <div class="header-actions">
-                <button class="header-btn" id="fullscreen-btn" title="全屏编辑模式">
-                    🔲 全屏
-                </button>
-                <button class="header-btn" id="paste-icon-btn" title="粘贴图标">
-                    📋 粘贴图标
-                </button>
-            </div>
+            <h3>📝 详情</h3>
         </div>
         
         <!-- 选项卡容器 -->
         <div id="detail-tabs" class="tabs">
-            <div class="tabs-nav" id="detail-tabs-nav">
-                <button class="tab-btn active" data-tab="detail">详情</button>
-                <button class="tab-btn" data-tab="query-1">查询1</button>
-                <button class="tab-btn" data-tab="query-2">查询2</button>
-                <button class="tab-btn" data-tab="query-3">查询3</button>
-            </div>
+            <!-- 选项卡导航已移除 -->
             
             <div class="tabs-content" id="detail-tabs-content">
                 <!-- 详情面板 -->
@@ -39,18 +26,34 @@
                     <!-- 标题栏 -->
                     <div class="detail-item">
                         <h4>标题</h4>
-                        <input type="text" id="detail-title-input" placeholder="输入节点标题" />
-                        <div class="node-id" id="detail-node-id">未选择节点</div>
+                        <input type="text" id="detail-title-input" placeholder="输入标题" />
+                        <div class="node-id" id="detail-node-id">未选择</div>
                     </div>
                     
                     <!-- 标签区域 -->
                     <div class="detail-item">
-                        <h4>标签</h4>
-                        <div class="tag-panel" id="tag-panel">
-                            <div class="tag-chip">重要</div>
-                            <div class="tag-chip">紧急</div>
-                            <div class="tag-chip">进行中</div>
-                            <div class="tag-chip">已完成</div>
+                        <h4>标签（点击选择，选中的标签会自动添加到内容开头）</h4>
+                        <div id="tag-groups-container">
+                            <div class="tag-group-row">
+                                <span class="tag-group-name">优先级</span>
+                                <div class="tag-chip" data-group="优先级" data-tag="重要">重要</div>
+                                <div class="tag-chip" data-group="优先级" data-tag="紧急">紧急</div>
+                                <div class="tag-chip" data-group="优先级" data-tag="一般">一般</div>
+                            </div>
+                            <div class="tag-group-row">
+                                <span class="tag-group-name">状态</span>
+                                <div class="tag-chip" data-group="状态" data-tag="进行中">进行中</div>
+                                <div class="tag-chip" data-group="状态" data-tag="已完成">已完成</div>
+                                <div class="tag-chip" data-group="状态" data-tag="待处理">待处理</div>
+                                <div class="tag-chip" data-group="状态" data-tag="已取消">已取消</div>
+                            </div>
+                            <div class="tag-group-row">
+                                <span class="tag-group-name">类型</span>
+                                <div class="tag-chip" data-group="类型" data-tag="项目">项目</div>
+                                <div class="tag-chip" data-group="类型" data-tag="任务">任务</div>
+                                <div class="tag-chip" data-group="类型" data-tag="目标">目标</div>
+                                <div class="tag-chip" data-group="类型" data-tag="想法">想法</div>
+                            </div>
                         </div>
                     </div>
                     
@@ -70,68 +73,19 @@
 这里是第二个会话的内容。
 可以包含代码、列表等。"></textarea>
                         <div style="margin-top:8px;display:flex;gap:8px;">
-                            <button class="btn btn-primary" id="preview-toggle">预览</button>
-                            <button class="btn btn-secondary" id="save-content">保存</button>
-                        </div>
-                        <div class="markdown-body" id="content-preview" style="display:none;margin-top:12px;">
-                            预览内容将显示在这里
+                            <button class="btn btn-secondary" id="save-content" title="保存内容到本地文件">💾 保存到本地</button>
+                            <button class="btn btn-secondary" id="fullscreen-btn" title="全屏编辑模式">🔲 全屏</button>
+                            <button class="btn btn-secondary" id="paste-icon-btn" title="粘贴图标">📋 粘贴图标</button>
                         </div>
                     </div>
                     
-                    <!-- 附件区域 -->
+                    <!-- 附件区域（包含图片和其他文件） -->
                     <div class="detail-item">
-                        <h4>附件</h4>
+                        <h4>附件（图片和文件）</h4>
                         <button class="btn btn-secondary" id="add-attachment">➕ 添加附件</button>
                         <ul class="attachments-list" id="attachments-list" style="margin-top:12px;">
-                            <!-- 附件列表将动态生成 -->
+                            <!-- 附件列表将动态生成，包括粘贴的图片 -->
                         </ul>
-                    </div>
-                </div>
-                
-                <!-- 查询1面板 -->
-                <div class="tab-pane" data-tab="query-1">
-                    <div class="detail-item">
-                        <h4>查询1</h4>
-                        <div class="query-box">
-                            <input type="text" class="query-input" id="q1-title-input" placeholder="按标题查询（输入关键字）" />
-                            <label style="display:flex;align-items:center;gap:6px;">
-                                <input type="checkbox" id="q1-fulltext" /> 全文本
-                            </label>
-                            <button class="btn btn-primary" id="q1-run">执行</button>
-                            <button class="btn btn-secondary" id="q1-clear">清空</button>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <h4>标签筛选</h4>
-                        <div class="tag-panel" id="q1-tag-panel">
-                            <div class="tag-chip">重要</div>
-                            <div class="tag-chip">紧急</div>
-                            <div class="tag-chip">进行中</div>
-                        </div>
-                        <div style="font-size:12px;color:#999;margin-top:8px;">
-                            💡 点击标签进行选择，组合后作为筛选条件
-                        </div>
-                    </div>
-                    
-                    <div class="query-result" id="q1-result">
-                        暂无查询结果
-                    </div>
-                </div>
-                
-                <!-- 查询2面板 -->
-                <div class="tab-pane" data-tab="query-2">
-                    <div class="detail-item">
-                        <h4>查询2</h4>
-                        <p style="color:#6b7280;">查询功能开发中...</p>
-                    </div>
-                </div>
-                
-                <!-- 查询3面板 -->
-                <div class="tab-pane" data-tab="query-3">
-                    <div class="detail-item">
-                        <h4>查询3</h4>
-                        <p style="color:#6b7280;">查询功能开发中...</p>
                     </div>
                 </div>
             </div>
