@@ -1036,11 +1036,359 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ---
 
+---
+
+## 🎯 **Part 1补充：数据底座与知识回流架构** ⭐⭐⭐
+
+### **7. 数据底座设计哲学说明** ⏱️ 文档补充
+
+#### **7.1 核心设计哲学："万物皆任务"/"万物皆笔记"**
+
+**设计理念** ⭐⭐⭐：
+```
+错误做法：为每种数据创建专门的类型 ❌
+- WorkflowData、TaskData、FormData... 15种类型
+- 结果：架构复杂，难以扩展
+
+正确做法：统一的数据结构 ✅
+- 一种结构表示一切
+- 通过meta.itemType区分语义
+- 结果：简洁优雅，无限扩展
+```
+
+**统一数据结构**：
+```javascript
+const universalData = {
+  id: "唯一ID",
+  topic: "标题/名称",
+  meta: {
+    itemType: "类型标识",  // ⭐ 关键：通过这里区分
+    createdAt: 时间戳,
+    status: "状态",
+    ... // 任意元数据
+  },
+  data: {
+    content: "内容",
+    ... // 任意业务字段
+  },
+  children: [...] // 递归子节点
+};
+```
+
+**itemType标准值参考**（可扩展）：
+```javascript
+// 基础类型
+'mindmap', 'note', 'memo'
+
+// 任务管理
+'project', 'task', 'goal', 'plan', 'milestone'
+
+// 工作流 ⭐
+'workflow',              // 工作流模板
+'workflow_instance',     // 工作流实例  
+'workflow_node',         // 工作流节点
+'form_submission'        // 表单提交 ⭐⭐⭐ 知识回流核心
+
+// 知识回流 ⭐⭐⭐
+'extracted_entity',      // 提取的实体
+'extracted_relation',    // 提取的关系
+'property_change',       // 属性变更记录
+'decision_record',       // 决策记录
+'experience'             // 经验总结
+
+// 问题解决
+'problem', 'solution', 'bug'
+
+// 其他...无限扩展
+```
+
+#### **7.2 与AutogenUnifiedStorage的集成**
+
+**数据存储示例**：
+```javascript
+// 所有数据都通过AutogenUnifiedStorage存储
+// 使用统一的数据结构
+
+// 示例1：泳道卡片
+await window.AutogenUnifiedStorage.store('card_001', {
+  topic: "修复登录Bug",
+  meta: {
+    itemType: 'task',
+    status: '进行中',
+    assignee: '张三',
+    priority: '高'
+  },
+  data: {
+    content: "修复Session过期漏洞",
+    workHours: 8
+  }
+}, 'MEMORY');
+
+// 示例2：工作流实例
+await window.AutogenUnifiedStorage.store('workflow_inst_001', {
+  topic: "项目审批流程实例",
+  meta: {
+    itemType: 'workflow_instance',
+    templateId: 'workflow_template_001',
+    status: 'running'
+  },
+  data: {
+    currentNodeId: 'node_approve',
+    instanceData: {...}
+  }
+}, 'MEMORY');
+
+// 示例3：表单提交（知识回流入口）⭐⭐⭐
+await window.AutogenUnifiedStorage.store('form_001', {
+  topic: "任务完成反馈",
+  meta: {
+    itemType: 'form_submission',
+    submittedBy: '张三',
+    workflowInstanceId: 'workflow_inst_001'
+  },
+  data: {
+    content: "遇到Session过期漏洞，采用Token刷新机制解决...",
+    fields: {...}
+  },
+  children: [
+    // 提取的知识作为子节点 ⭐
+    {
+      topic: "Session过期漏洞",
+      meta: { itemType: 'extracted_entity', entityType: 'problem' }
+    },
+    {
+      topic: "Token刷新机制",
+      meta: { itemType: 'extracted_entity', entityType: 'solution' }
+    }
+  ]
+}, 'MEMORY');
+```
+
+---
+
+### **8. 知识回流机制架构支持** ⏱️ 0.5天 ⭐⭐⭐
+
+#### **8.1 知识回流概述**
+
+**核心认知**：
+```
+项目执行过程中，人的交互产生的知识往往比初始输入更重要：
+- 泳道拖拽：状态变更 → 项目进展知识
+- 笔记补充：会议记录 → 决策知识  
+- 评论反馈：问题讨论 → 协作知识
+- 表单提交：任务完成 → 执行经验知识 ⭐⭐⭐
+
+必须建立回流机制，形成真正的闭环！
+```
+
+#### **8.2 知识回流捕获器**
+
+**新增组件**：`js/core/knowledge-feedback-capture.js` (200行)
+
+**核心功能**：
+```javascript
+class KnowledgeFeedbackCapture {
+    constructor() {
+        this.captureQueue = [];
+        this.init();
+    }
+    
+    init() {
+        // 监听知识回流事件
+        window.AutogenEventBus.on('property.changed', this.onPropertyChange.bind(this));
+        window.AutogenEventBus.on('content.updated', this.onContentUpdate.bind(this));
+        window.AutogenEventBus.on('form.submitted', this.onFormSubmit.bind(this)); // ⭐ 最重要
+        window.AutogenEventBus.on('collaboration.event', this.onCollaboration.bind(this));
+    }
+    
+    // 捕获属性变更（泳道拖拽）
+    onPropertyChange(event) {
+        const feedbackData = {
+            topic: `属性变更：${event.propertyName}`,
+            meta: {
+                itemType: 'property_change',
+                targetId: event.targetId,
+                propertyName: event.propertyName,
+                oldValue: event.oldValue,
+                newValue: event.newValue,
+                changedBy: event.user,
+                feedbackSource: 'swimlane_drag'
+            },
+            timestamp: Date.now()
+        };
+        
+        this.captureQueue.push(feedbackData);
+        this._processQueue();
+    }
+    
+    // 捕获表单提交（最重要的回流入口）⭐⭐⭐
+    onFormSubmit(event) {
+        const feedbackData = {
+            topic: event.formTitle || "表单提交",
+            meta: {
+                itemType: 'form_submission',
+                submittedBy: event.user,
+                workflowInstanceId: event.workflowInstanceId,
+                nodeId: event.nodeId,
+                feedbackProcessing: 'pending'
+            },
+            data: {
+                fields: event.fields,
+                content: event.richTextContent  // 富文本内容
+            },
+            timestamp: Date.now()
+        };
+        
+        this.captureQueue.push(feedbackData);
+        this._processQueue();
+        
+        // 触发知识提取（后续由Autogen智能体处理）
+        window.AutogenEventBus.emit('feedback.captured', {
+            feedbackId: feedbackData.id,
+            type: 'form_submission'
+        });
+    }
+    
+    // 处理队列（批量保存）
+    async _processQueue() {
+        if (this.captureQueue.length === 0) return;
+        
+        const batch = this.captureQueue.splice(0, 10); // 批量处理
+        
+        for (const feedback of batch) {
+            try {
+                // 保存到统一存储
+                await window.AutogenUnifiedStorage.store(
+                    `feedback_${Date.now()}_${Math.random()}`,
+                    feedback,
+                    'LOCAL_STORAGE'
+                );
+                
+                console.log('[KnowledgeFeedback] 知识回流数据已捕获', feedback);
+            } catch (error) {
+                console.error('[KnowledgeFeedback] 保存失败', error);
+            }
+        }
+    }
+}
+
+// 全局单例
+window.KnowledgeFeedbackCapture = new KnowledgeFeedbackCapture();
+```
+
+#### **8.3 工作栏集成知识回流**
+
+**泳道工作栏示例**：
+```javascript
+// 在泳道拖拽时触发知识回流
+onCardDrop(cardId, fromLane, toLane) {
+    // 更新卡片状态
+    this.updateCardStatus(cardId, toLane.status);
+    
+    // ⭐ 触发知识回流事件
+    window.AutogenEventBus.emit('property.changed', {
+        targetId: cardId,
+        propertyName: 'status',
+        oldValue: fromLane.status,
+        newValue: toLane.status,
+        user: this.currentUser,
+        timestamp: Date.now()
+    });
+}
+```
+
+**表单工作栏示例**（工作流管理栏中使用）：
+```javascript
+// 表单提交时触发知识回流
+onFormSubmit(formData) {
+    // ⭐⭐⭐ 触发知识回流事件（最重要）
+    window.AutogenEventBus.emit('form.submitted', {
+        formTitle: "任务完成反馈",
+        user: this.currentUser,
+        workflowInstanceId: this.workflowId,
+        nodeId: this.currentNodeId,
+        fields: formData.fields,
+        richTextContent: formData.richTextContent,  // 富文本内容
+        timestamp: Date.now()
+    });
+}
+```
+
+#### **8.4 知识回流数据流**
+
+```
+人的交互操作
+  ↓
+KnowledgeFeedbackCapture捕获
+  ↓
+AutogenUnifiedStorage存储
+  ↓
+触发feedback.captured事件
+  ↓
+（后续）Autogen智能体分析
+  ↓
+（后续）提取知识（实体/关系）
+  ↓
+（后续）回流到Neo4j图数据库
+  ↓
+知识图谱增强 → 持续循环 ♻️
+```
+
+#### **8.5 集成到系统**
+
+**修改文件**：`index.html`
+
+```html
+<!-- 知识回流捕获器 -->
+<script src="js/core/knowledge-feedback-capture.js"></script>
+```
+
+---
+
+## ✅ **Part 1 完整验收标准**（包含补充）
+
+### **功能验收**
+- ✅ 生命周期钩子完整实现
+- ✅ AutogenUnifiedStorage 支持统一数据结构
+- ✅ ConfigManager 统一配置管理可用
+- ✅ ColumnAutoPersistence 自动持久化可用
+- ✅ **数据底座设计哲学已文档化** ⭐
+- ✅ **KnowledgeFeedbackCapture 知识回流捕获可用** ⭐⭐⭐
+- ✅ **property.changed / form.submitted 事件正常触发**
+- ✅ **回流数据正确存储到AutogenUnifiedStorage**
+
+### **质量验收**
+- ✅ 所有新增代码通过测试
+- ✅ 零架构冲突
+- ✅ **知识回流机制不影响现有功能**
+- ✅ **事件触发和处理机制稳定**
+
+---
+
+## 📅 **实施时间表**（更新）
+
+| 任务 | 预计时间 | 负责人 |
+|------|---------|--------|
+| ColumnRegistry 生命周期增强 | 0.5天 | 程序员 |
+| AutogenUnifiedStorage 扩展 | 2小时 | 程序员 |
+| ConfigManager 实现 | 2.5小时 | 程序员 |
+| 标签应用功能 | 1小时 | 程序员 |
+| ColumnWarehouse 文档管理 | 0.5天 | 程序员 |
+| ColumnAutoPersistence 实现 | 2小时 | 程序员 |
+| **数据底座设计文档化** | **1小时** | **程序员** |
+| **KnowledgeFeedbackCapture 实现** | **3小时** | **程序员** ⭐ |
+| 系统集成和测试 | 0.5天 | 程序员 |
+| **总计** | **2.75天** | |
+
+---
+
 ## 🔄 **下一步**
 
 完成 Part 1 后，进入：
-- **Part 2: 设置页面开发** (2-3天)
-- **Part 3: 工作栏开发规范** (1-2天)
-- **Part 4: 泳道看板封装示例** (2天)
+- **Part 2: 设置页面开发** (1.5天)
+- **Part 3: 工作栏开发规范** (1天)
+- **Part 4: 泳道看板封装示例** (1天)
+- **Part 5: 工作流管理栏实施** (2天) ⭐⭐⭐ 新增
+- **Part 6: 可视化层补齐规划** (1天) ⭐⭐ 新增
 
 **程序员**
