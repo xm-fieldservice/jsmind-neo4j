@@ -149,6 +149,54 @@
             z-index: 9999;
             background: white;
         }
+
+        /* 右侧内容侧栏 */
+        .content-sidebar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 340px;
+            height: 100%;
+            background: #ffffff;
+            border-left: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            z-index: 5000;
+        }
+        .content-sidebar .sidebar-header {
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .content-sidebar input[type="text"] {
+            margin: 10px 12px 0 12px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .content-sidebar textarea {
+            flex: 1;
+            margin: 10px 12px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 120px;
+        }
+        .content-sidebar .sidebar-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            padding: 10px 12px;
+            border-top: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -213,6 +261,16 @@
             <div class="loading" id="loading">
                 <div class="loading-spinner"></div>
                 <div>加载中...</div>
+            </div>
+            <!-- 右侧内容侧栏（临时，用于节点内容编辑） -->
+            <div id="contentSidebar" class="content-sidebar">
+                <div class="sidebar-header">📝 节点内容（临时侧栏）</div>
+                <input id="nodeTitleEditor" type="text" placeholder="节点标题" />
+                <textarea id="nodeContentEditor" placeholder="在此编辑选中节点的内容..."></textarea>
+                <div class="sidebar-actions">
+                    <button class="btn" id="contentCancelBtn" title="清空编辑框">清空</button>
+                    <button class="btn btn-primary" id="contentSaveBtn" title="保存内容">保存内容</button>
+                </div>
             </div>
         </div>
 
@@ -281,9 +339,86 @@
         </div>
     </div>
 
+    <!-- 全局日志面板（从 index.html 复制） -->
+    <div id="global-log-panel-container" style="position:fixed;bottom:20px;right:20px;width:400px;max-height:300px;z-index:9999;background:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+        <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;padding:8px;">
+            <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;">MD保存</button>
+            <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
+            <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
+        </div>
+        <div id="list-log-panel" data-collapsed="false" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
+            <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
+                <span style="font-size:12px;color:#6b7280;">系统日志</span>
+                <span id="list-log-caret" style="font-size:12px;color:#9ca3af;">▾</span>
+            </button>
+            <pre id="list-log-body" style="display:block;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
+        </div>
+    </div>
+
+    <!-- 日志面板脚本（从 index.html 复制） -->
+    <script>
+      (function(){
+        const pad = n => (n<10? '0':'') + n;
+        function ts(){ const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+        function ensureInit(){
+          const panel = document.getElementById('list-log-panel');
+          const header = document.getElementById('list-log-header');
+          const caret = document.getElementById('list-log-caret');
+          const body = document.getElementById('list-log-body');
+          const btnClear = document.getElementById('list-log-clear');
+          const btnCopy = document.getElementById('list-log-copy');
+          if (!panel || !header || !body) return false;
+          if (!header.__bound){
+            header.__bound = true;
+            header.addEventListener('click', function(){
+              const collapsed = panel.getAttribute('data-collapsed') !== 'false';
+              if (collapsed){
+                panel.setAttribute('data-collapsed','false');
+                body.style.display = 'block';
+                caret.textContent = '▾';
+              } else {
+                panel.setAttribute('data-collapsed','true');
+                body.style.display = 'none';
+                caret.textContent = '▸';
+              }
+            });
+          }
+          btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
+          btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(body.textContent||''); alert('日志已复制'); }catch(_){ } }));
+          return true;
+        }
+        function append(level, message){
+          if (!ensureInit()) return;
+          const body = document.getElementById('list-log-body');
+          const line = `[${ts()}][${level}] ${message}`;
+          body.textContent += (body.textContent ? "\n" : "") + line;
+          body.scrollTop = body.scrollHeight;
+        }
+        const LogPanel = {
+          log: (m)=>append('INFO', String(m)),
+          warn: (m)=>append('WARN', String(m)),
+          error: (m)=>append('ERROR', String(m)),
+          json: (title, obj)=>append('INFO', `${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`)
+        };
+        window.LogPanel = LogPanel;
+        ['log','info','warn','error'].forEach(fn=>{
+          const orig = console[fn].bind(console);
+          console[fn] = function(){ try{ LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); }catch(_){}; return orig.apply(console, arguments); };
+        });
+        window.addEventListener('error', e=>{ LogPanel.error(`WindowError: ${e.message}`); });
+        window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
+        setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
+      })();
+    </script>
+
     <!-- jsMind 库 -->
     <script src="../../vendor/jsmind/js/jsmind.js"></script>
     <script src="../../vendor/jsmind/js/jsmind.draggable-node.js"></script>
+
+    <!-- Autogen 框架组件（事件总线与统一存储） -->
+    <script src="../../src/core/messaging/AutogenEventBus.js"></script>
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="../../src/core/ErrorHandler.js"></script>
 
     <script>
         // 脑图工作栏核心逻辑
@@ -297,7 +432,7 @@
                 this.init();
             }
 
-            init() {
+            async init() {
                 // 初始化jsMind
                 const options = {
                     container: 'jsmind_container',
@@ -315,16 +450,38 @@
 
                 this.jm = new jsMind(options);
                 
-                // 加载测试数据
-                this.loadTestData();
+                // 优先从统一存储加载，失败回退到测试数据
+                await this.loadInitialData();
                 
                 // 绑定事件
                 this.bindEvents();
+                this.initContentSidebar();
                 
                 // 隐藏加载状态
                 document.getElementById('loading').style.display = 'none';
                 
                 console.log('[脑图工作栏] 初始化完成');
+            }
+
+            async loadInitialData() {
+                try {
+                    if (typeof AutogenUnifiedStorage !== 'undefined' && AutogenUnifiedStorage.retrieve) {
+                        const stored = await AutogenUnifiedStorage.retrieve('mindmap', this.mindmapId);
+                        if (stored && stored.data) {
+                            this.jm.show(stored.data);
+                            this.updateNodeCount();
+                            console.log('[脑图工作栏] 已从AutogenUnifiedStorage加载数据');
+                            return;
+                        }
+                    }
+                    console.warn('[脑图工作栏] 未在统一存储找到数据，加载测试数据');
+                } catch (e) {
+                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
+                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'loadInitialData' }, { silent: true });
+                    }
+                    console.error('[脑图工作栏] 从统一存储加载失败，回退到测试数据:', e);
+                }
+                this.loadTestData();
             }
 
             loadTestData() {
@@ -400,6 +557,31 @@
                         this.onNodeSelected(node);
                     }
                 });
+            }
+
+            initContentSidebar() {
+                const editor = document.getElementById('nodeContentEditor');
+                const titleInput = document.getElementById('nodeTitleEditor');
+                const btnSave = document.getElementById('contentSaveBtn');
+                const btnClear = document.getElementById('contentCancelBtn');
+                if (btnSave && !btnSave.__bound) {
+                    btnSave.__bound = true;
+                    btnSave.addEventListener('click', () => this.saveContentFromSidebar());
+                }
+                if (btnClear && !btnClear.__bound) {
+                    btnClear.__bound = true;
+                    btnClear.addEventListener('click', () => { if (editor) editor.value = ''; });
+                }
+                if (titleInput && !titleInput.__bound) {
+                    titleInput.__bound = true;
+                    // 回车直接保存标题
+                    titleInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            this.saveContentFromSidebar();
+                        }
+                    });
+                }
             }
 
             addNode() {
@@ -483,12 +665,14 @@
                 setTimeout(() => this.jm.view.reset(), 100);
             }
 
-            save() {
+            async save() {
                 const data = this.jm.get_data();
                 console.log('[脑图工作栏] 保存数据:', data);
                 
-                // 调用模拟存储
-                this.mockStorage();
+                // 保存到统一存储（失败时降级不抛出）
+                await this.saveToUnifiedStorage(data).catch(err => {
+                    console.error('[脑图工作栏] 统一存储保存失败:', err);
+                });
                 
                 // 触发保存事件
                 this.emitEvent('mindmap.data.saved', {
@@ -504,6 +688,22 @@
                 this.currentNodeId = node.id;
                 document.getElementById('currentNode').textContent = node.topic;
                 console.log('[脑图工作栏] 节点选中:', node);
+                // 将节点内容加载到右侧编辑器
+                try {
+                    const editor = document.getElementById('nodeContentEditor');
+                    const titleInput = document.getElementById('nodeTitleEditor');
+                    if (editor) {
+                        const content = (node.data && (node.data.content || (node.data.meta && node.data.meta.content))) || '';
+                        editor.value = String(content || '');
+                    }
+                    if (titleInput) {
+                        titleInput.value = node.topic || '';
+                    }
+                } catch (e) {
+                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
+                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'onNodeSelected:loadContent' }, { silent: true });
+                    }
+                }
                 
                 // 触发节点选中事件
                 this.emitEvent('mindmap.node.selected', {
@@ -512,6 +712,46 @@
                     mindmapId: this.mindmapId,
                     data: node.data
                 });
+            }
+
+            async saveContentFromSidebar() {
+                try {
+                    const node = this.jm.get_selected_node();
+                    if (!node) {
+                        alert('请先选择一个节点');
+                        return;
+                    }
+                    const editor = document.getElementById('nodeContentEditor');
+                    const titleInput = document.getElementById('nodeTitleEditor');
+                    const text = editor ? editor.value : '';
+                    const newTitle = titleInput ? titleInput.value.trim() : '';
+                    // 标题变更则更新节点标题
+                    if (newTitle && newTitle !== node.topic) {
+                        this.jm.update_node(node.id, newTitle);
+                        document.getElementById('currentNode').textContent = newTitle;
+                        this.emitEvent('mindmap.node.title.updated', { nodeId: node.id, title: newTitle });
+                    }
+                    if (!node.data) node.data = {};
+                    // 统一放在 data.content 字段
+                    node.data.content = text;
+                    this.updateLastModified();
+                    console.log('[脑图工作栏] 节点内容已更新');
+                    // 触发内容更新事件
+                    this.emitEvent('mindmap.node.content.updated', {
+                        nodeId: node.id,
+                        topic: node.topic,
+                        content: text
+                    });
+                    // 持久化整个脑图数据
+                    const data = this.jm.get_data();
+                    await this.saveToUnifiedStorage(data).catch(() => {});
+                    alert('节点内容已保存');
+                } catch (e) {
+                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
+                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'saveContentFromSidebar' }, { silent: false });
+                    }
+                    console.error('[脑图工作栏] 保存节点内容失败:', e);
+                }
             }
 
             updateNodeCount() {
@@ -675,25 +915,39 @@
                 this.currentEditingNode = null;
             }
 
-            // 模拟事件发射（未来集成AutogenEventBus）
+            // 统一事件发射（AutogenEventBus 集成）
             emitEvent(eventName, data) {
-                console.log(`[脑图工作栏] 触发事件: ${eventName}`, data);
-                // TODO: 集成AutogenEventBus
-                // AutogenEventBus.emit(eventName, data);
+                try {
+                    console.log(`[脑图工作栏] 触发事件: ${eventName}`, data);
+                    if (typeof AutogenEventBus !== 'undefined' && AutogenEventBus.emit) {
+                        AutogenEventBus.emit(eventName, data);
+                    } else {
+                        console.warn('[脑图工作栏] AutogenEventBus 未加载，事件仅记录到控制台');
+                    }
+                } catch (e) {
+                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
+                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'emitEvent', eventName }, { silent: true });
+                    }
+                    console.error('[脑图工作栏] 事件发射失败:', e);
+                }
             }
 
-            // 模拟存储（未来集成AutogenUnifiedStorage）
-            mockStorage() {
-                const data = this.getData();
-                const storageKey = `mindmap_${this.mindmapId}`;
-                
+            // 统一存储保存（AutogenUnifiedStorage 集成）
+            async saveToUnifiedStorage(data) {
                 try {
-                    localStorage.setItem(storageKey, JSON.stringify(data));
-                    console.log(`[脑图工作栏] 数据已保存到 localStorage: ${storageKey}`);
-                    // TODO: 集成AutogenUnifiedStorage
-                    // await AutogenUnifiedStorage.store('mindmap', this.mindmapId, data);
+                    if (typeof AutogenUnifiedStorage !== 'undefined' && AutogenUnifiedStorage.store) {
+                        await AutogenUnifiedStorage.store('mindmap', this.mindmapId, data);
+                        console.log('[脑图工作栏] 已保存到AutogenUnifiedStorage:', this.mindmapId);
+                        return true;
+                    }
+                    console.warn('[脑图工作栏] AutogenUnifiedStorage 未加载，跳过统一存储保存');
+                    return false;
                 } catch (err) {
-                    console.error('[脑图工作栏] 存储失败:', err);
+                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
+                        window.ErrorHandler.handle(err, { component: 'MindmapColumn', action: 'saveToUnifiedStorage' }, { silent: true });
+                    }
+                    console.error('[脑图工作栏] 保存到统一存储异常:', err);
+                    throw err;
                 }
             }
         }
