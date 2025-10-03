@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脑图工作栏 - 单页面测试</title>
+    
+    <!-- jsMind CSS -->
+    <link rel="stylesheet" href="../../vendor/jsmind/style/jsmind.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #f5f7fa;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .toolbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #374151;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* 脑图容器 */
+        .mindmap-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: white;
+        }
+
+        #jsmind_container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 状态面板 */
+        .status-panel {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 8px 16px;
+            font-size: 12px;
+            color: #6b7280;
+            display: flex;
+            gap: 16px;
+        }
+
+        .status-item {
+            display: flex;
+            gap: 4px;
+        }
+
+        .status-label {
+            font-weight: 500;
+        }
+
+        /* 加载状态 */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 全屏模式 */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mindmapColumn">
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-title">🧠 脑图工作栏</div>
+            
+            <!-- 搜索框 -->
+            <input type="text" id="searchInput" placeholder="🔍 搜索节点..." 
+                   style="padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; width: 200px;">
+            
+            <div style="border-left: 1px solid #e5e7eb; height: 24px; margin: 0 4px;"></div>
+            
+            <button class="btn" id="addNodeBtn" title="添加子节点">
+                ➕ 添加节点
+            </button>
+            <button class="btn" id="editNodeBtn" title="编辑节点">
+                ✏️ 编辑
+            </button>
+            <button class="btn" id="editPropertiesBtn" title="编辑属性">
+                🏷️ 属性
+            </button>
+            <button class="btn btn-danger" id="deleteNodeBtn" title="删除节点">
+                🗑️ 删除
+            </button>
+            
+            <div style="border-left: 1px solid #e5e7eb; height: 24px; margin: 0 4px;"></div>
+            
+            <button class="btn" id="expandAllBtn" title="全部展开">
+                📂 展开
+            </button>
+            <button class="btn" id="collapseAllBtn" title="全部折叠">
+                📁 折叠
+            </button>
+            
+            <div style="border-left: 1px solid #e5e7eb; height: 24px; margin: 0 4px;"></div>
+            
+            <button class="btn" id="zoomInBtn" title="放大">
+                🔍+
+            </button>
+            <button class="btn" id="zoomOutBtn" title="缩小">
+                🔍-
+            </button>
+            <button class="btn" id="resetBtn" title="重置视图">
+                🎯 重置
+            </button>
+            
+            <div style="border-left: 1px solid #e5e7eb; height: 24px; margin: 0 4px;"></div>
+            
+            <button class="btn" id="fullscreenBtn" title="全屏">
+                ⛶ 全屏
+            </button>
+            <button class="btn btn-primary" id="saveBtn" title="保存">
+                💾 保存
+            </button>
+        </div>
+
+        <!-- 脑图容器 -->
+        <div class="mindmap-wrapper">
+            <div id="jsmind_container"></div>
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div>加载中...</div>
+            </div>
+        </div>
+
+        <!-- 属性编辑面板 -->
+        <div id="propertiesPanel" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000; min-width: 500px; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin: 0 0 16px 0; font-size: 18px;">🏷️ 节点属性编辑</h3>
+            <div id="propertiesForm">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 13px;">节点类型 (itemType)</label>
+                    <select id="propItemType" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;">
+                        <option value="task">任务 (task)</option>
+                        <option value="project">项目 (project)</option>
+                        <option value="phase">阶段 (phase)</option>
+                        <option value="subtask">子任务 (subtask)</option>
+                        <option value="issue">问题 (issue)</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 13px;">状态 (status)</label>
+                    <select id="propStatus" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;">
+                        <option value="pending">待办 (pending)</option>
+                        <option value="in_progress">进行中 (in_progress)</option>
+                        <option value="completed">已完成 (completed)</option>
+                        <option value="on_hold">暂停 (on_hold)</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 13px;">优先级 (priority)</label>
+                    <select id="propPriority" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;">
+                        <option value="low">低 (low)</option>
+                        <option value="medium">中 (medium)</option>
+                        <option value="high">高 (high)</option>
+                        <option value="urgent">紧急 (urgent)</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 13px;">负责人 (assignee)</label>
+                    <input type="text" id="propAssignee" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="输入负责人">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 13px;">标签 (tags) - 逗号分隔</label>
+                    <input type="text" id="propTags" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="标签1, 标签2">
+                </div>
+                <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="cancelPropertiesBtn">取消</button>
+                    <button class="btn btn-primary" id="savePropertiesBtn">保存</button>
+                </div>
+            </div>
+        </div>
+        <div id="propertiesOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999;"></div>
+
+        <!-- 状态栏 -->
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-label">当前节点:</span>
+                <span id="currentNode">未选择</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">节点总数:</span>
+                <span id="nodeCount">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">最后修改:</span>
+                <span id="lastModified">-</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- jsMind 库 -->
+    <script src="../../vendor/jsmind/js/jsmind.js"></script>
+    <script src="../../vendor/jsmind/js/jsmind.draggable-node.js"></script>
+
+    <script>
+        // 脑图工作栏核心逻辑
+        class MindmapColumn {
+            constructor() {
+                this.jm = null;
+                this.currentNodeId = null;
+                this.mindmapId = 'mindmap_test_001';
+                this.isFullscreen = false;
+                
+                this.init();
+            }
+
+            init() {
+                // 初始化jsMind
+                const options = {
+                    container: 'jsmind_container',
+                    editable: true,
+                    theme: 'primary',
+                    mode: 'full',
+                    support_html: false,
+                    view: {
+                        hmargin: 100,
+                        vmargin: 50,
+                        line_width: 2,
+                        line_color: '#558'
+                    }
+                };
+
+                this.jm = new jsMind(options);
+                
+                // 加载测试数据
+                this.loadTestData();
+                
+                // 绑定事件
+                this.bindEvents();
+                
+                // 隐藏加载状态
+                document.getElementById('loading').style.display = 'none';
+                
+                console.log('[脑图工作栏] 初始化完成');
+            }
+
+            loadTestData() {
+                const mind = {
+                    meta: {
+                        name: '测试脑图',
+                        author: 'test',
+                        version: '1.0'
+                    },
+                    format: 'node_tree',
+                    data: {
+                        id: 'root',
+                        topic: '中心主题',
+                        expanded: true,
+                        children: [
+                            {
+                                id: 'sub1',
+                                topic: '子主题1',
+                                direction: 'right',
+                                expanded: true,
+                                children: [
+                                    { id: 'sub11', topic: '子主题1-1' },
+                                    { id: 'sub12', topic: '子主题1-2' }
+                                ]
+                            },
+                            {
+                                id: 'sub2',
+                                topic: '子主题2',
+                                direction: 'right',
+                                children: [
+                                    { id: 'sub21', topic: '子主题2-1' }
+                                ]
+                            },
+                            {
+                                id: 'sub3',
+                                topic: '子主题3',
+                                direction: 'left'
+                            }
+                        ]
+                    }
+                };
+
+                this.jm.show(mind);
+                this.updateNodeCount();
+            }
+
+            bindEvents() {
+                // 工具栏按钮
+                document.getElementById('addNodeBtn').addEventListener('click', () => this.addNode());
+                document.getElementById('editNodeBtn').addEventListener('click', () => this.editNode());
+                document.getElementById('editPropertiesBtn').addEventListener('click', () => this.editProperties());
+                document.getElementById('deleteNodeBtn').addEventListener('click', () => this.deleteNode());
+                document.getElementById('expandAllBtn').addEventListener('click', () => this.expandAll());
+                document.getElementById('collapseAllBtn').addEventListener('click', () => this.collapseAll());
+                document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
+                document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
+                document.getElementById('resetBtn').addEventListener('click', () => this.resetView());
+                document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
+                document.getElementById('saveBtn').addEventListener('click', () => this.save());
+
+                // 搜索功能
+                document.getElementById('searchInput').addEventListener('input', (e) => this.searchNodes(e.target.value));
+
+                // 属性编辑面板
+                document.getElementById('savePropertiesBtn').addEventListener('click', () => this.saveProperties());
+                document.getElementById('cancelPropertiesBtn').addEventListener('click', () => this.closePropertiesPanel());
+                document.getElementById('propertiesOverlay').addEventListener('click', () => this.closePropertiesPanel());
+
+                // 节点选中事件 - 使用标准addEventListener
+                document.getElementById('jsmind_container').addEventListener('click', (e) => {
+                    const node = this.jm.get_selected_node();
+                    if (node) {
+                        this.onNodeSelected(node);
+                    }
+                });
+            }
+
+            addNode() {
+                const selectedNode = this.jm.get_selected_node();
+                if (!selectedNode) {
+                    alert('请先选择一个节点');
+                    return;
+                }
+
+                const topic = prompt('输入新节点名称:', '新节点');
+                if (topic) {
+                    const nodeId = 'node_' + Date.now();
+                    this.jm.add_node(selectedNode, nodeId, topic);
+                    this.updateNodeCount();
+                    this.updateLastModified();
+                }
+            }
+
+            editNode() {
+                const selectedNode = this.jm.get_selected_node();
+                if (!selectedNode) {
+                    alert('请先选择一个节点');
+                    return;
+                }
+
+                if (selectedNode.id === 'root') {
+                    alert('根节点不可编辑');
+                    return;
+                }
+
+                const newTopic = prompt('修改节点名称:', selectedNode.topic);
+                if (newTopic && newTopic !== selectedNode.topic) {
+                    this.jm.update_node(selectedNode.id, newTopic);
+                    this.updateLastModified();
+                }
+            }
+
+            deleteNode() {
+                const selectedNode = this.jm.get_selected_node();
+                if (!selectedNode) {
+                    alert('请先选择一个节点');
+                    return;
+                }
+
+                if (selectedNode.id === 'root') {
+                    alert('根节点不可删除');
+                    return;
+                }
+
+                if (confirm(`确定删除节点"${selectedNode.topic}"吗？`)) {
+                    this.jm.remove_node(selectedNode.id);
+                    this.updateNodeCount();
+                    this.updateLastModified();
+                }
+            }
+
+            zoomIn() {
+                this.jm.view.zoomIn();
+            }
+
+            zoomOut() {
+                this.jm.view.zoomOut();
+            }
+
+            resetView() {
+                this.jm.view.reset();
+            }
+
+            toggleFullscreen() {
+                const container = document.getElementById('mindmapColumn');
+                if (!this.isFullscreen) {
+                    container.classList.add('fullscreen');
+                    document.getElementById('fullscreenBtn').textContent = '⛶ 退出全屏';
+                } else {
+                    container.classList.remove('fullscreen');
+                    document.getElementById('fullscreenBtn').textContent = '⛶ 全屏';
+                }
+                this.isFullscreen = !this.isFullscreen;
+                
+                // 重新渲染以适应新尺寸
+                setTimeout(() => this.jm.view.reset(), 100);
+            }
+
+            save() {
+                const data = this.jm.get_data();
+                console.log('[脑图工作栏] 保存数据:', data);
+                
+                // 调用模拟存储
+                this.mockStorage();
+                
+                // 触发保存事件
+                this.emitEvent('mindmap.data.saved', {
+                    mindmapId: this.mindmapId,
+                    nodeCount: this.countNodes(data.data)
+                });
+                
+                alert('数据已保存！\n查看控制台(F12)了解详情');
+                this.updateLastModified();
+            }
+
+            onNodeSelected(node) {
+                this.currentNodeId = node.id;
+                document.getElementById('currentNode').textContent = node.topic;
+                console.log('[脑图工作栏] 节点选中:', node);
+                
+                // 触发节点选中事件
+                this.emitEvent('mindmap.node.selected', {
+                    nodeId: node.id,
+                    topic: node.topic,
+                    mindmapId: this.mindmapId,
+                    data: node.data
+                });
+            }
+
+            updateNodeCount() {
+                const data = this.jm.get_data();
+                const count = this.countNodes(data.data);
+                document.getElementById('nodeCount').textContent = count;
+            }
+
+            countNodes(node) {
+                let count = 1;
+                if (node.children) {
+                    node.children.forEach(child => {
+                        count += this.countNodes(child);
+                    });
+                }
+                return count;
+            }
+
+            updateLastModified() {
+                const now = new Date();
+                const time = now.toLocaleTimeString('zh-CN');
+                document.getElementById('lastModified').textContent = time;
+            }
+
+            // === 工作栏接口 ===
+            loadData(data) {
+                if (data && data.data) {
+                    this.jm.show(data.data);
+                    this.updateNodeCount();
+                }
+            }
+
+            getData() {
+                return this.jm.get_data();
+            }
+
+            destroy() {
+                // 清理资源
+                this.jm = null;
+            }
+
+            // ========== 新增功能 ==========
+
+            // 搜索节点
+            searchNodes(keyword) {
+                if (!keyword || keyword.trim() === '') {
+                    // 清空高亮
+                    this.clearHighlight();
+                    return;
+                }
+
+                const data = this.jm.get_data();
+                const results = this.findNodesByKeyword(data.data, keyword.trim().toLowerCase());
+                
+                if (results.length > 0) {
+                    console.log(`[脑图工作栏] 搜索到 ${results.length} 个节点:`, results.map(n => n.topic));
+                    // 选中第一个结果
+                    this.jm.select_node(results[0].id);
+                } else {
+                    console.log('[脑图工作栏] 未找到匹配节点');
+                }
+            }
+
+            findNodesByKeyword(node, keyword) {
+                let results = [];
+                
+                if (node.topic && node.topic.toLowerCase().includes(keyword)) {
+                    results.push(node);
+                }
+                
+                if (node.children) {
+                    node.children.forEach(child => {
+                        results = results.concat(this.findNodesByKeyword(child, keyword));
+                    });
+                }
+                
+                return results;
+            }
+
+            clearHighlight() {
+                // 清除高亮（如果有实现的话）
+            }
+
+            // 展开全部节点
+            expandAll() {
+                this.jm.expand_all();
+                console.log('[脑图工作栏] 全部展开');
+            }
+
+            // 折叠全部节点
+            collapseAll() {
+                this.jm.collapse_all();
+                console.log('[脑图工作栏] 全部折叠');
+            }
+
+            // 编辑节点属性
+            editProperties() {
+                const selectedNode = this.jm.get_selected_node();
+                if (!selectedNode) {
+                    alert('请先选择一个节点');
+                    return;
+                }
+
+                this.currentEditingNode = selectedNode;
+                
+                // 获取节点的data和meta
+                const nodeData = selectedNode.data || {};
+                const nodeMeta = (nodeData.meta || nodeData) || {};
+
+                // 填充表单
+                document.getElementById('propItemType').value = nodeMeta.itemType || 'task';
+                document.getElementById('propStatus').value = nodeMeta.status || 'pending';
+                document.getElementById('propPriority').value = nodeMeta.priority || 'medium';
+                document.getElementById('propAssignee').value = nodeMeta.assignee || '';
+                document.getElementById('propTags').value = (nodeMeta.tags || []).join(', ');
+
+                // 显示面板
+                document.getElementById('propertiesPanel').style.display = 'block';
+                document.getElementById('propertiesOverlay').style.display = 'block';
+            }
+
+            // 保存属性
+            saveProperties() {
+                if (!this.currentEditingNode) return;
+
+                const properties = {
+                    itemType: document.getElementById('propItemType').value,
+                    status: document.getElementById('propStatus').value,
+                    priority: document.getElementById('propPriority').value,
+                    assignee: document.getElementById('propAssignee').value.trim(),
+                    tags: document.getElementById('propTags').value.split(',').map(t => t.trim()).filter(t => t)
+                };
+
+                // 更新节点data
+                if (!this.currentEditingNode.data) {
+                    this.currentEditingNode.data = {};
+                }
+                if (!this.currentEditingNode.data.meta) {
+                    this.currentEditingNode.data.meta = {};
+                }
+                
+                Object.assign(this.currentEditingNode.data.meta, properties);
+
+                console.log('[脑图工作栏] 属性已保存:', properties);
+                
+                this.closePropertiesPanel();
+                this.updateLastModified();
+                
+                // 触发模拟事件
+                this.emitEvent('mindmap.node.properties.updated', {
+                    nodeId: this.currentEditingNode.id,
+                    topic: this.currentEditingNode.topic,
+                    properties: properties
+                });
+            }
+
+            // 关闭属性面板
+            closePropertiesPanel() {
+                document.getElementById('propertiesPanel').style.display = 'none';
+                document.getElementById('propertiesOverlay').style.display = 'none';
+                this.currentEditingNode = null;
+            }
+
+            // 模拟事件发射（未来集成AutogenEventBus）
+            emitEvent(eventName, data) {
+                console.log(`[脑图工作栏] 触发事件: ${eventName}`, data);
+                // TODO: 集成AutogenEventBus
+                // AutogenEventBus.emit(eventName, data);
+            }
+
+            // 模拟存储（未来集成AutogenUnifiedStorage）
+            mockStorage() {
+                const data = this.getData();
+                const storageKey = `mindmap_${this.mindmapId}`;
+                
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(data));
+                    console.log(`[脑图工作栏] 数据已保存到 localStorage: ${storageKey}`);
+                    // TODO: 集成AutogenUnifiedStorage
+                    // await AutogenUnifiedStorage.store('mindmap', this.mindmapId, data);
+                } catch (err) {
+                    console.error('[脑图工作栏] 存储失败:', err);
+                }
+            }
+        }
+
+        // 启动
+        const mindmapColumn = new MindmapColumn();
+        
+        // 暴露到全局（方便调试）
+        window.mindmapColumn = mindmapColumn;
+    </script>
+</body>
+</html>
