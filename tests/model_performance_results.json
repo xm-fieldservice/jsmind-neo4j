@@ -1,0 +1,98 @@
+{
+  "DeepSeek Reasoner": [
+    {
+      "query": "显示张三负责的所有任务",
+      "cypher": "MATCH (p:Person {name:\"张三\"})-[:ASSIGNED_TO]->(t:Task) RETURN t",
+      "time": 11.93312382698059,
+      "success": true
+    },
+    {
+      "query": "找出项目管理系统包含的任务",
+      "cypher": "MATCH (p:Project {name:\"项目管理系统\"})-[:CONTAINS]->(t:Task) RETURN t",
+      "time": 18.413097858428955,
+      "success": true
+    },
+    {
+      "query": "统计有多少个任务",
+      "cypher": "MATCH (t:Task) RETURN COUNT(t)",
+      "time": 19.29736590385437,
+      "success": true
+    },
+    {
+      "query": "显示任务A依赖的所有任务",
+      "cypher": "",
+      "time": 21.985111474990845,
+      "success": false
+    },
+    {
+      "query": "找出所有高优先级的任务",
+      "cypher": "",
+      "time": 21.501426458358765,
+      "success": false
+    }
+  ],
+  "DeepSeek Chat": [
+    {
+      "query": "显示张三负责的所有任务",
+      "cypher": "MATCH (p:Person {name:\"张三\"})-[:ASSIGNED_TO]->(t:Task) RETURN t",
+      "time": 2.566551923751831,
+      "success": true
+    },
+    {
+      "query": "找出项目管理系统包含的任务",
+      "cypher": "MATCH (p:Project {name:\"项目管理系统\"})-[:CONTAINS]->(t:Task) RETURN t",
+      "time": 2.5005171298980713,
+      "success": true
+    },
+    {
+      "query": "统计有多少个任务",
+      "cypher": "MATCH (t:Task) RETURN count(t)",
+      "time": 2.454500675201416,
+      "success": true
+    },
+    {
+      "query": "显示任务A依赖的所有任务",
+      "cypher": "MATCH (t:Task {name:\"任务A\"})-[:DEPENDS_ON]->(dep:Task) RETURN dep",
+      "time": 2.831209421157837,
+      "success": true
+    },
+    {
+      "query": "找出所有高优先级的任务",
+      "cypher": "MATCH (t:Task) WHERE t.priority = \"高\" RETURN t",
+      "time": 2.1091887950897217,
+      "success": true
+    }
+  ],
+  "Qwen Turbo": [
+    {
+      "query": "显示张三负责的所有任务",
+      "cypher": "MATCH (p:Person {name:\"张三\"})-[:ASSIGNED_TO]->(t:Task) RETURN t",
+      "time": 1.0305862426757812,
+      "success": true
+    },
+    {
+      "query": "找出项目管理系统包含的任务",
+      "cypher": "MATCH (p:Project {name:\"项目管理系统\"})-[:CONTAINS]->(t:Task) RETURN t",
+      "time": 0.8705427646636963,
+      "success": true
+    },
+    {
+      "query": "统计有多少个任务",
+      "cypher": "MATCH (t:Task) RETURN count(t) AS taskCount",
+      "time": 0.7481138706207275,
+      "success": true
+    },
+    {
+      "query": "显示任务A依赖的所有任务",
+      "cypher": "MATCH (t:Task {name:\"任务A\"})-[:DEPENDS_ON]->(dep:Task) RETURN dep",
+      "time": 1.0202417373657227,
+      "success": true
+    },
+    {
+      "query": "找出所有高优先级的任务",
+      "cypher": "MATCH (t:Task) WHERE t.priority = \"高\" RETURN t",
+      "time": 0.7734127044677734,
+      "success": true
+    }
+  ]
+}

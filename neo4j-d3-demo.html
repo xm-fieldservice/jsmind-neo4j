@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neo4j + D3.js 知识图谱演示</title>
+    <link rel="stylesheet" href="neo4j-d3-demo.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧控制面板 -->
+        <div class="control-panel">
+            <div class="panel-section">
+                <h1 style="font-size: 24px; color: #667eea; margin-bottom: 8px;">🧠 Neo4j + D3.js</h1>
+                <p style="font-size: 14px; color: #6b7280;">知识图谱可视化演示系统</p>
+            </div>
+            
+            <!-- 文档上传 -->
+            <div class="panel-section">
+                <div class="panel-title">📁 文档上传</div>
+                <p class="section-subtitle">支持 JSON、Markdown、TXT 格式</p>
+                <div class="upload-area" id="uploadArea">
+                    <div style="font-size: 36px; margin-bottom: 8px;">📄</div>
+                    <div style="font-size: 14px; color: #6b7280;">点击或拖拽文件到此处</div>
+                    <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">自动解析文档内容并构建知识图谱</div>
+                </div>
+                <input type="file" id="fileInput" accept=".json,.md,.txt,.mindmap.json" style="display: none;">
+                <!-- 文件信息显示 -->
+                <div id="fileInfo" style="display: none; margin-top: 8px; padding: 8px; background: #f3f4f6; border-radius: 4px; font-size: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📎</span>
+                        <div style="flex: 1;">
+                            <div id="fileName" style="font-weight: 500; color: #374151;"></div>
+                            <div id="fileSize" style="color: #6b7280; font-size: 11px;"></div>
+                        </div>
+                        <button id="removeFileBtn" style="background: none; border: none; cursor: pointer; font-size: 18px;" title="移除文件">❌</button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="uploadBtn" style="margin-top: 12px; width: 100%;">
+                    <span>📤</span> <span>上传并解析</span>
+                </button>
+            </div>
+            
+            <!-- 文本粘贴 -->
+            <div class="panel-section">
+                <div class="panel-title">✏️ 文本输入</div>
+                <p class="section-subtitle">粘贴文本，AI自动分析关系</p>
+                <textarea id="textInput" placeholder="在此粘贴文本内容，系统将自动提取实体和关系...&#10;&#10;示例：&#10;张三是项目经理，负责产品开发。&#10;李四是开发工程师，向张三汇报。&#10;产品开发依赖于技术架构设计。"></textarea>
+                <button class="btn btn-success" id="analyzeBtn" style="margin-top: 12px;">
+                    <span>🔍</span> <span>智能分析</span>
+                </button>
+            </div>
+            
+            <!-- AI智能查询 -->
+            <div class="panel-section">
+                <div class="panel-title">🤖 AI智能查询</div>
+                <p class="section-subtitle">用自然语言提问，AI自动生成Cypher</p>
+                
+                <!-- 查询历史下拉 -->
+                <div style="margin-bottom: 8px;">
+                    <select id="queryHistorySelect" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                        <option value="">📜 选择历史查询...</option>
+                    </select>
+                </div>
+                
+                <textarea id="aiQueryInput" placeholder="示例：&#10;- 显示张三负责的所有任务&#10;- 找出项目管理系统包含的任务&#10;- 统计有多少个高优先级任务" style="width: 100%; height: 80px; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; resize: vertical;"></textarea>
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                    <button class="btn btn-primary" id="aiQueryBtn" style="flex: 1;">
+                        <span>🧠</span> <span>AI查询</span>
+                    </button>
+                    <button class="btn btn-secondary" id="clearHistoryBtn" title="清空历史">
+                        <span>🗑️</span>
+                    </button>
+                </div>
+                
+                <!-- 生成的Cypher显示 -->
+                <div id="generatedCypherPanel" style="display: none; margin-top: 12px; padding: 12px; background: #f9fafb; border-radius: 4px; border: 1px solid #e5e7eb;">
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 6px; font-weight: 500;">生成的Cypher：</div>
+                    <pre id="cypherCode" style="background: #1f2937; color: #10b981; padding: 10px; border-radius: 4px; font-size: 11px; overflow-x: auto; margin: 0; font-family: 'Consolas', monospace;"></pre>
+                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                        <button class="btn btn-success" id="executeCypherBtn" style="flex: 1;">
+                            <span>▶️</span> <span>执行查询</span>
+                        </button>
+                        <button class="btn btn-secondary" id="copyCypherBtn" style="flex: 1;">
+                            <span>📋</span> <span>复制</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 图谱查询 -->
+            <div class="panel-section">
+                <div class="panel-title">🔎 参数化查询</div>
+                <div class="query-params">
+                    <div class="param-row">
+                        <label>节点ID:</label>
+                        <input type="text" id="nodeId" placeholder="留空查询全图">
+                    </div>
+                    <div class="param-row">
+                        <label>关系深度:</label>
+                        <select id="depth">
+                            <option value="1">1层</option>
+                            <option value="2" selected>2层</option>
+                            <option value="3">3层</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <label>最大节点:</label>
+                        <input type="number" id="limit" value="100" min="10" max="500">
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="queryBtn" style="margin-top: 12px;">
+                    <span>🔄</span> <span>加载图谱</span>
+                </button>
+            </div>
+            
+            <!-- 图谱操作 -->
+            <div class="panel-section">
+                <div class="panel-title">⚙️ 图谱操作</div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="fitBtn" title="适应画布">🎯</button>
+                    <button class="btn btn-secondary" id="zoomInBtn" title="放大">🔍+</button>
+                    <button class="btn btn-secondary" id="zoomOutBtn" title="缩小">🔍-</button>
+                </div>
+                <div class="btn-group" style="margin-top: 8px;">
+                    <button class="btn btn-secondary" id="exportBtn"><span>💾</span> 导出</button>
+                    <button class="btn btn-danger" id="clearBtn"><span>🗑️</span> 清空</button>
+                </div>
+            </div>
+            
+            <!-- 统计信息 -->
+            <div class="panel-section">
+                <div class="panel-title">📊 统计信息</div>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="nodeCount">0</div>
+                        <div class="stat-label">节点数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="linkCount">0</div>
+                        <div class="stat-label">关系数量</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 运行日志 -->
+            <div class="panel-section">
+                <div class="panel-title">📝 运行日志</div>
+                <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+                    <button class="btn btn-secondary btn-sm" id="clearLogsBtn" style="flex: 1; font-size: 11px;">
+                        <span>🗑️</span> <span>清空</span>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="copyLogsBtn" style="flex: 1; font-size: 11px;">
+                        <span>📋</span> <span>复制</span>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="exportLogsBtn" style="flex: 1; font-size: 11px;">
+                        <span>💾</span> <span>导出</span>
+                    </button>
+                </div>
+                <div id="logPreview" style="background: #1f2937; color: #10b981; padding: 8px; border-radius: 4px; font-size: 10px; height: 100px; overflow-y: auto; font-family: 'Consolas', monospace;"></div>
+            </div>
+        </div>
+        
+        <!-- 右侧可视化区域 -->
+        <div class="visualization-area">
+            <div class="viz-header">
+                <div class="viz-title">知识图谱可视化</div>
+                <div class="viz-controls">
+                    <button class="viz-btn" id="pauseBtn">⏸️ 暂停</button>
+                    <button class="viz-btn" id="resetBtn">🔄 重置</button>
+                </div>
+            </div>
+            <div id="graph-container"></div>
+            
+            <!-- 状态指示器 -->
+            <div class="status-indicator" id="statusIndicator">
+                <div class="status-dot connected" id="statusDot"></div>
+                <span id="statusText">Neo4j 已连接</span>
+            </div>
+            
+            <!-- 节点类型图例 -->
+            <div class="legend">
+                <div class="legend-title">节点类型</div>
+                <div class="legend-item"><div class="legend-color" style="background: #ff6b6b;"></div><span>项目</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #4ecdc4;"></div><span>任务</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #45b7d1;"></div><span>人员</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #96ceb4;"></div><span>资源</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #feca57;"></div><span>里程碑</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #95a5a6;"></div><span>其他</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="src/visualization/D3RelationGraph.js"></script>
+    <script>
+        // 配置API密钥（从.env文件复制）
+        window.DEEPSEEK_API_KEY = 'sk-32e50fbc519e400a8f1fb1bcdb728a76';
+    </script>
+    <script src="src/utils/LogCollector.js"></script>
+    <script src="src/ai/SemanticTranslator.js"></script>
+    <script src="neo4j-d3-demo.js"></script>
+</body>
+</html>
