@@ -1,14 +1,22 @@
-from fastapi import FastAPI, Query, HTTPException, Depends, Body
+from fastapi import FastAPI, Query, HTTPException, Depends, Body, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import os
+from pathlib import Path
 from app.database import get_neo4j_driver
 from app.models import RelationshipEdge, RelationshipResponse
 from app.extractors import RelationshipExtractor
+from app.document_parser import MarkdownDocumentParser
 
 # 创建FastAPI应用
 app = FastAPI(title="脑图关系API", description="提供脑图节点关系的查询和管理")
+
+# 挂载静态文件目录
+static_dir = Path(__file__).parent.parent.parent
+app.mount("/column-sources", StaticFiles(directory=str(static_dir / "column-sources")), name="column-sources")
+app.mount("/src", StaticFiles(directory=str(static_dir / "src")), name="src")
 
 # 添加CORS中间件，允许前端页面调用API
 app.add_middleware(
@@ -28,14 +36,14 @@ async def health_check():
 # 关系查询接口
 @app.get("/api/relations", response_model=RelationshipResponse)
 async def get_relations(
-    node_id: str = Query(..., description="节点ID"),
-    driver = Depends(get_neo4j_driver)
+    node_id: str = Query(..., description="节点ID")
 ):
     """
     查询与特定节点相关的所有关系
     """
     try:
         # 连接到Neo4j
+        driver = get_neo4j_driver()
         with driver.session() as session:
             # 查询语句：查找与node_id相关的所有关系
             query = """
@@ -86,13 +94,13 @@ async def get_relations(
 # 新增关系接口
 @app.post("/api/relations", status_code=201)
 async def create_relation(
-    relation: RelationshipEdge,
-    driver = Depends(get_neo4j_driver)
+    relation: RelationshipEdge
 ):
     """
     创建一个新的关系
     """
     try:
+        driver = get_neo4j_driver()
         with driver.session() as session:
             # 先确保两个节点存在
             create_nodes_query = """
@@ -129,13 +137,13 @@ async def create_relation(
 # 删除关系接口
 @app.delete("/api/relations/{relation_id}")
 async def delete_relation(
-    relation_id: str,
-    driver = Depends(get_neo4j_driver)
+    relation_id: str
 ):
     """
     删除一个关系
     """
     try:
+        driver = get_neo4j_driver()
         with driver.session() as session:
             delete_query = """
             MATCH ()-[r]-() 
@@ -160,14 +168,14 @@ async def delete_relation(
 async def get_graph_data(
     node_id: Optional[str] = Query(None, description="中心节点ID，如果不指定则返回全图"),
     depth: int = Query(2, description="关系深度，默认为2层"),
-    limit: int = Query(100, description="最大节点数量，默认100"),
-    driver = Depends(get_neo4j_driver)
+    limit: int = Query(100, description="最大节点数量，默认100")
 ):
     """
     获取D3.js可视化所需的图形数据
     返回格式: {nodes: [...], links: [...]}
     """
     try:
+        driver = get_neo4j_driver()
         with driver.session() as session:
             if node_id:
                 # 查询指定节点周围的关系网络（不依赖APOC）
@@ -264,6 +272,92 @@ async def get_graph_data(
             ]
         }
 
+# 执行Cypher查询接口
+@app.post("/api/neo4j/execute-cypher")
+async def execute_cypher(
+    cypher_query: Dict[str, str] = Body(...)
+):
+    """
+    执行Cypher查询并返回图形数据
+    请求格式: {"cypher": "MATCH (n) RETURN n LIMIT 10"}
+    返回格式: {nodes: [...], links: [...]}
+    """
+    try:
+        cypher = cypher_query.get("cypher", "")
+        if not cypher:
+            raise HTTPException(status_code=400, detail="Cypher查询不能为空")
+        
+        # 每次都获取新的驱动
+        driver = get_neo4j_driver()
+        with driver.session() as session:
+            result = session.run(cypher)
+            
+            nodes_dict = {}
+            links = []
+            
+            # 处理查询结果
+            for record in result:
+                for key in record.keys():
+                    value = record[key]
+                    
+                    # 处理节点
+                    if hasattr(value, 'labels'):  # Neo4j节点
+                        node_id = value.get('id', str(value.id))
+                        if node_id not in nodes_dict:
+                            nodes_dict[node_id] = {
+                                "id": node_id,
+                                "label": value.get('label') or value.get('name') or node_id,
+                                "type": value.get('type', 'default'),
+                                "description": value.get('description', ''),
+                                "properties": dict(value.items())
+                            }
+                    
+                    # 处理关系
+                    elif hasattr(value, 'type'):  # Neo4j关系
+                        start_node = value.start_node
+                        end_node = value.end_node
+                        
+                        # 添加起始节点
+                        start_id = start_node.get('id', str(start_node.id))
+                        if start_id not in nodes_dict:
+                            nodes_dict[start_id] = {
+                                "id": start_id,
+                                "label": start_node.get('label') or start_node.get('name') or start_id,
+                                "type": start_node.get('type', 'default'),
+                                "description": start_node.get('description', ''),
+                                "properties": dict(start_node.items())
+                            }
+                        
+                        # 添加结束节点
+                        end_id = end_node.get('id', str(end_node.id))
+                        if end_id not in nodes_dict:
+                            nodes_dict[end_id] = {
+                                "id": end_id,
+                                "label": end_node.get('label') or end_node.get('name') or end_id,
+                                "type": end_node.get('type', 'default'),
+                                "description": end_node.get('description', ''),
+                                "properties": dict(end_node.items())
+                            }
+                        
+                        # 添加关系
+                        links.append({
+                            "source": start_id,
+                            "target": end_id,
+                            "type": value.type,
+                            "label": value.get('label', value.type),
+                            "value": value.get('weight', 1),
+                            "properties": dict(value.items())
+                        })
+            
+            return {
+                "nodes": list(nodes_dict.values()),
+                "links": links
+            }
+            
+    except Exception as e:
+        print(f"执行Cypher查询出错: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"执行Cypher查询时出错: {str(e)}")
+
 # 同步脑图数据到Neo4j接口
 @app.post("/api/sync-mindmap")
 async def sync_mindmap_data(
@@ -282,3 +376,68 @@ async def sync_mindmap_data(
     except Exception as e:
         print(f"同步脑图数据出错: {str(e)}")
         raise HTTPException(status_code=500, detail=f"同步脑图数据时出错: {str(e)}")
+
+# 清空Neo4j数据库接口
+@app.delete("/api/neo4j/clear-database")
+async def clear_database():
+    """清空Neo4j数据库中的所有数据"""
+    try:
+        driver = get_neo4j_driver()
+        with driver.session() as session:
+            # 删除所有节点和关系
+            session.run("MATCH (n) DETACH DELETE n")
+            
+        return {
+            "status": "success",
+            "message": "数据库已清空"
+        }
+    except Exception as e:
+        print(f"清空数据库出错: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"清空数据库时出错: {str(e)}")
+
+# 上传Markdown文档并导入Neo4j接口
+@app.post("/api/upload-document")
+async def upload_document(file: UploadFile = File(...)):
+    """
+    上传Markdown文档并自动解析导入到Neo4j
+    - 解析文档结构（标题、列表、任务）
+    - 提取实体（项目、任务、人员）
+    - 识别关系（包含、依赖、负责）
+    - 导入到Neo4j数据库
+    """
+    try:
+        # 检查文件类型
+        if not file.filename.endswith(('.md', '.markdown', '.txt')):
+            raise HTTPException(status_code=400, detail="只支持Markdown文件(.md, .markdown, .txt)")
+        
+        # 读取文件内容
+        content = await file.read()
+        text_content = content.decode('utf-8')
+        
+        # 创建文档解析器
+        parser = MarkdownDocumentParser()
+        
+        # 解析文档
+        parsed_data = parser.parse_document(text_content)
+        
+        # 导入到Neo4j
+        import_result = parser.import_to_neo4j(parsed_data)
+        
+        # 返回结果
+        return {
+            "status": "success",
+            "filename": file.filename,
+            "parsed": {
+                "tasks": len(parsed_data['entities']['tasks']),
+                "projects": len(parsed_data['entities']['projects']),
+                "persons": len(parsed_data['entities']['persons']),
+                "relationships": len(parsed_data['relationships'])
+            },
+            "import_result": import_result
+        }
+        
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="文件编码错误，请确保使用UTF-8编码")
+    except Exception as e:
+        print(f"上传文档出错: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"上传文档时出错: {str(e)}")
