@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脑图功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-button { padding: 8px 16px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .test-button:hover { background: #0056b3; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🧠 脑图功能测试页面</h1>
+    
+    <div class="test-section">
+        <h2>📋 测试清单</h2>
+        <div id="testResults"></div>
+        <button class="test-button" onclick="runAllTests()">🚀 运行所有测试</button>
+        <button class="test-button" onclick="openMindmap()">📖 打开脑图页面</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 手动测试</h2>
+        <p>请按以下步骤手动测试脑图功能：</p>
+        <ol>
+            <li>点击"打开脑图页面"按钮</li>
+            <li>验证脑图正常显示</li>
+            <li>测试添加节点功能</li>
+            <li>测试编辑节点功能</li>
+            <li>测试删除节点功能</li>
+            <li>测试保存功能</li>
+            <li>刷新页面验证数据持久化</li>
+        </ol>
+    </div>
+
+    <script>
+        function addStatus(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            resultsDiv.appendChild(statusDiv);
+        }
+
+        function runAllTests() {
+            addStatus('开始运行测试...', 'info');
+            
+            // 测试1: 检查文件是否存在
+            fetch('./mindmap-standalone.html')
+                .then(response => {
+                    if (response.ok) {
+                        addStatus('✅ 脑图HTML文件存在', 'success');
+                    } else {
+                        addStatus('❌ 脑图HTML文件不存在', 'error');
+                    }
+                })
+                .catch(err => {
+                    addStatus('❌ 无法访问脑图文件: ' + err.message, 'error');
+                });
+
+            // 测试2: 检查依赖文件
+            const dependencies = [
+                '../../vendor/jsmind/js/jsmind.js',
+                '../../src/core/storage/AutogenUnifiedStorage.js',
+                '../../src/core/messaging/AutogenEventBus.js',
+                '../../src/core/ErrorHandler.js'
+            ];
+
+            dependencies.forEach(dep => {
+                fetch(dep)
+                    .then(response => {
+                        if (response.ok) {
+                            addStatus(`✅ 依赖文件存在: ${dep}`, 'success');
+                        } else {
+                            addStatus(`❌ 依赖文件缺失: ${dep}`, 'error');
+                        }
+                    })
+                    .catch(err => {
+                        addStatus(`❌ 无法访问依赖: ${dep}`, 'error');
+                    });
+            });
+
+            addStatus('测试完成！请查看上方结果。', 'info');
+        }
+
+        function openMindmap() {
+            window.open('./mindmap-standalone.html', '_blank');
+        }
+
+        // 页面加载时自动运行测试
+        window.addEventListener('load', () => {
+            addStatus('测试页面已加载', 'success');
+        });
+    </script>
+</body>
+</html>

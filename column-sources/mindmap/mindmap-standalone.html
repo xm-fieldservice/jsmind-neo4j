@@ -8,6 +8,11 @@
     <!-- jsMind CSS -->
     <link rel="stylesheet" href="../../vendor/jsmind/style/jsmind.css">
     
+    <!-- Autogen 架构组件 -->
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="../../src/core/messaging/AutogenEventBus.js"></script>
+    <script src="../../src/core/ErrorHandler.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -415,10 +420,6 @@
     <script src="../../vendor/jsmind/js/jsmind.js"></script>
     <script src="../../vendor/jsmind/js/jsmind.draggable-node.js"></script>
 
-    <!-- Autogen 框架组件（事件总线与统一存储） -->
-    <script src="../../src/core/messaging/AutogenEventBus.js"></script>
-    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
-    <script src="../../src/core/ErrorHandler.js"></script>
 
     <script>
         // 脑图工作栏核心逻辑
@@ -426,7 +427,7 @@
             constructor() {
                 this.jm = null;
                 this.currentNodeId = null;
-                this.mindmapId = 'mindmap_test_001';
+                this.mindmapId = 'mindmap_column_standalone';
                 this.isFullscreen = false;
                 
                 this.init();
@@ -455,7 +456,6 @@
                 
                 // 绑定事件
                 this.bindEvents();
-                this.initContentSidebar();
                 
                 // 隐藏加载状态
                 document.getElementById('loading').style.display = 'none';
@@ -468,7 +468,7 @@
                     if (typeof AutogenUnifiedStorage !== 'undefined' && AutogenUnifiedStorage.retrieve) {
                         const stored = await AutogenUnifiedStorage.retrieve('mindmap', this.mindmapId);
                         if (stored && stored.data) {
-                            this.jm.show(stored.data);
+                            this.jm.show(stored);
                             this.updateNodeCount();
                             console.log('[脑图工作栏] 已从AutogenUnifiedStorage加载数据');
                             return;
@@ -557,6 +557,41 @@
                         this.onNodeSelected(node);
                     }
                 });
+
+                // 添加jsMind事件监听器来捕获快捷键操作
+                this.jm.add_event_listener((type, data) => {
+                    console.log('[脑图工作栏] jsMind事件:', type, data);
+                    
+                    if (type === jsMind.event_type.select) {
+                        // 节点选择事件
+                        const node = this.jm.get_selected_node();
+                        if (node) {
+                            this.onNodeSelected(node);
+                        }
+                    } else if (type === jsMind.event_type.edit) {
+                        // 节点编辑事件
+                        console.log('[脑图工作栏] 节点编辑事件，触发自动保存');
+                        this.autoSave();
+                    } else if (type === jsMind.event_type.show) {
+                        // 脑图显示事件，不需要保存
+                        console.log('[脑图工作栏] 脑图显示事件');
+                    } else {
+                        // 其他事件（包括快捷键添加/删除节点）
+                        console.log('[脑图工作栏] 其他脑图变化事件，触发自动保存');
+                        // 延迟一点确保jsMind内部状态更新完成
+                        setTimeout(() => {
+                            this.updateNodeCount();
+                            this.updateLastModified();
+                            this.autoSave();
+                        }, 100);
+                    }
+                });
+            }
+
+            onNodeSelected(node) {
+                this.currentNodeId = node.id;
+                document.getElementById('currentNode').textContent = node.topic;
+                console.log('[脑图工作栏] 节点选中:', node);
             }
 
             initContentSidebar() {
@@ -597,6 +632,8 @@
                     this.jm.add_node(selectedNode, nodeId, topic);
                     this.updateNodeCount();
                     this.updateLastModified();
+                    // 自动保存
+                    this.autoSave();
                 }
             }
 
@@ -616,6 +653,8 @@
                 if (newTopic && newTopic !== selectedNode.topic) {
                     this.jm.update_node(selectedNode.id, newTopic);
                     this.updateLastModified();
+                    // 自动保存
+                    this.autoSave();
                 }
             }
 
@@ -635,6 +674,19 @@
                     this.jm.remove_node(selectedNode.id);
                     this.updateNodeCount();
                     this.updateLastModified();
+                    // 自动保存
+                    this.autoSave();
+                }
+            }
+
+            // 自动保存方法
+            async autoSave() {
+                try {
+                    const data = this.jm.get_data();
+                    await this.saveToUnifiedStorage(data);
+                    console.log('[脑图工作栏] 自动保存完成');
+                } catch (err) {
+                    console.error('[脑图工作栏] 自动保存失败:', err);
                 }
             }
 
@@ -684,11 +736,8 @@
                 this.updateLastModified();
             }
 
-            onNodeSelected(node) {
-                this.currentNodeId = node.id;
-                document.getElementById('currentNode').textContent = node.topic;
-                console.log('[脑图工作栏] 节点选中:', node);
-                // 将节点内容加载到右侧编辑器
+            // 将节点内容加载到右侧编辑器
+            loadNodeContentToEditor(node) {
                 try {
                     const editor = document.getElementById('nodeContentEditor');
                     const titleInput = document.getElementById('nodeTitleEditor');
