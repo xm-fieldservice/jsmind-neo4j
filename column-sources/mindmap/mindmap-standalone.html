@@ -434,6 +434,26 @@
             }
 
             async init() {
+                // 使用DependencyManager确保架构组件加载
+                if (typeof window.DependencyManager !== 'undefined') {
+                    try {
+                        await window.DependencyManager.initializeAll();
+                        console.log('[脑图工作栏] 架构组件初始化完成');
+                    } catch (err) {
+                        console.warn('[脑图工作栏] 架构组件初始化失败，继续使用基础功能:', err);
+                    }
+                }
+
+                // 使用ModuleActivation激活脑图模块
+                if (typeof window.ModuleActivation !== 'undefined') {
+                    try {
+                        await window.ModuleActivation.activateModule('mindmap');
+                        console.log('[脑图工作栏] 脑图模块激活完成');
+                    } catch (err) {
+                        console.warn('[脑图工作栏] 脑图模块激活失败，继续使用基础功能:', err);
+                    }
+                }
+
                 // 初始化jsMind
                 const options = {
                     container: 'jsmind_container',
@@ -459,6 +479,20 @@
                 
                 // 隐藏加载状态
                 document.getElementById('loading').style.display = 'none';
+                
+                // 初始化时自动选择根节点并加载内容
+                setTimeout(() => {
+                    const rootNode = this.jm.get_node('root');
+                    if (rootNode) {
+                        this.jm.select_node('root');
+                        this.onNodeSelected(rootNode);
+                    }
+                }, 200);
+
+                // 添加页面卸载前自动保存
+                window.addEventListener('beforeunload', () => {
+                    this.autoSaveCurrentNodeContent();
+                });
                 
                 console.log('[脑图工作栏] 初始化完成');
             }
@@ -569,17 +603,77 @@
                             this.onNodeSelected(node);
                         }
                     } else if (type === jsMind.event_type.edit) {
-                        // 节点编辑事件
-                        console.log('[脑图工作栏] 节点编辑事件，触发自动保存');
-                        this.autoSave();
+                        // 节点编辑事件 - 处理jsMind内置编辑
+                        console.log('[脑图工作栏] 节点编辑事件，触发自动保存', data);
+                        
+                        // 延迟处理确保jsMind内部状态更新完成
+                        setTimeout(() => {
+                            // 从事件数据中获取节点信息
+                            const nodeId = data.node;
+                            const newTitle = data.data && data.data.length > 1 ? data.data[1] : null;
+                            console.log('[脑图工作栏] 编辑事件数据 - 节点ID:', nodeId, '新标题:', newTitle);
+                            
+                            if (nodeId && newTitle && nodeId === this.currentNodeId) {
+                                const currentNode = this.jm.get_node(nodeId);
+                                console.log('[脑图工作栏] 通过ID获取编辑节点:', currentNode);
+                                
+                                if (currentNode) {
+                                    const titleInput = document.getElementById('nodeTitleEditor');
+                                    console.log('[脑图工作栏] 当前编辑框标题:', titleInput ? titleInput.value : 'null', '节点标题:', currentNode.topic);
+                                    
+                                    if (titleInput && titleInput.value !== currentNode.topic) {
+                                        titleInput.value = currentNode.topic;
+                                        document.getElementById('currentNode').textContent = currentNode.topic;
+                                        console.log('[脑图工作栏] jsMind编辑后同步标题到编辑框:', currentNode.id, currentNode.topic);
+                                        
+                                        // 直接调用已经工作正常的保存方法（静默保存，不显示弹窗）
+                                        console.log('[脑图工作栏] edit事件模仿编辑按键，调用静默保存');
+                                        this.saveContentFromSidebarSilent().catch(err => {
+                                            console.error('[脑图工作栏] edit事件模仿编辑按键保存失败:', err);
+                                        });
+                                        return; // 已经保存了，不需要再调用autoSave
+                                    }
+                                }
+                            }
+                            
+                            this.autoSave();
+                        }, 100);
                     } else if (type === jsMind.event_type.show) {
                         // 脑图显示事件，不需要保存
                         console.log('[脑图工作栏] 脑图显示事件');
                     } else {
-                        // 其他事件（包括快捷键添加/删除节点）
+                        // 其他事件（包括快捷键添加/删除节点和节点编辑）
                         console.log('[脑图工作栏] 其他脑图变化事件，触发自动保存');
                         // 延迟一点确保jsMind内部状态更新完成
                         setTimeout(() => {
+                            // 检查是否是节点标题编辑事件
+                            if (data && data.evt === 'update_node') {
+                                const nodeId = data.node;
+                                const newTitle = data.data && data.data.length > 1 ? data.data[1] : null;
+                                console.log('[脑图工作栏] 检测到节点更新事件 - 节点ID:', nodeId, '新标题:', newTitle, '当前节点ID:', this.currentNodeId);
+                                
+                                if (nodeId && newTitle && nodeId === this.currentNodeId) {
+                                    const currentNode = this.jm.get_node(nodeId);
+                                    if (currentNode) {
+                                        const titleInput = document.getElementById('nodeTitleEditor');
+                                        console.log('[脑图工作栏] 当前编辑框标题:', titleInput ? titleInput.value : 'null', '节点标题:', currentNode.topic);
+                                        
+                                        if (titleInput && titleInput.value !== currentNode.topic) {
+                                            titleInput.value = currentNode.topic;
+                                            document.getElementById('currentNode').textContent = currentNode.topic;
+                                            console.log('[脑图工作栏] 节点更新事件后同步标题到编辑框:', currentNode.id, currentNode.topic);
+                                            
+                                            // 直接调用已经工作正常的保存方法（静默保存，不显示弹窗）
+                                            console.log('[脑图工作栏] 模仿编辑按键，调用静默保存');
+                                            this.saveContentFromSidebarSilent().catch(err => {
+                                                console.error('[脑图工作栏] 模仿编辑按键保存失败:', err);
+                                            });
+                                            return; // 已经保存了，不需要再调用autoSave
+                                        }
+                                    }
+                                }
+                            }
+                            
                             this.updateNodeCount();
                             this.updateLastModified();
                             this.autoSave();
@@ -589,9 +683,17 @@
             }
 
             onNodeSelected(node) {
+                // 如果之前有选中的节点，先保存其内容
+                if (this.currentNodeId && this.currentNodeId !== node.id) {
+                    this.autoSaveCurrentNodeContent();
+                }
+                
                 this.currentNodeId = node.id;
                 document.getElementById('currentNode').textContent = node.topic;
                 console.log('[脑图工作栏] 节点选中:', node);
+                
+                // 同步右侧编辑框内容
+                this.loadNodeContentToEditor(node);
             }
 
             initContentSidebar() {
@@ -599,22 +701,49 @@
                 const titleInput = document.getElementById('nodeTitleEditor');
                 const btnSave = document.getElementById('contentSaveBtn');
                 const btnClear = document.getElementById('contentCancelBtn');
+                
                 if (btnSave && !btnSave.__bound) {
                     btnSave.__bound = true;
                     btnSave.addEventListener('click', () => this.saveContentFromSidebar());
                 }
+                
                 if (btnClear && !btnClear.__bound) {
                     btnClear.__bound = true;
                     btnClear.addEventListener('click', () => { if (editor) editor.value = ''; });
                 }
+                
                 if (titleInput && !titleInput.__bound) {
                     titleInput.__bound = true;
+                    
                     // 回车直接保存标题
                     titleInput.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             this.saveContentFromSidebar();
                         }
+                    });
+                    
+                    // 标题失去焦点时自动保存
+                    titleInput.addEventListener('blur', () => {
+                        this.autoSaveCurrentNodeContent();
+                    });
+                }
+                
+                if (editor && !editor.__bound) {
+                    editor.__bound = true;
+                    
+                    // 内容框失去焦点时自动保存
+                    editor.addEventListener('blur', () => {
+                        this.autoSaveCurrentNodeContent();
+                    });
+                    
+                    // 内容框输入时延迟自动保存（防止频繁保存）
+                    let saveTimeout;
+                    editor.addEventListener('input', () => {
+                        clearTimeout(saveTimeout);
+                        saveTimeout = setTimeout(() => {
+                            this.autoSaveCurrentNodeContent();
+                        }, 2000); // 2秒后自动保存
                     });
                 }
             }
@@ -690,6 +819,63 @@
                 }
             }
 
+            // 自动保存当前节点内容
+            autoSaveCurrentNodeContent() {
+                try {
+                    if (!this.currentNodeId) return;
+                    
+                    const currentNode = this.jm.get_node(this.currentNodeId);
+                    if (!currentNode) return;
+                    
+                    const editor = document.getElementById('nodeContentEditor');
+                    const titleInput = document.getElementById('nodeTitleEditor');
+                    let hasChanges = false;
+                    
+                    // 保存内容
+                    if (editor && editor.value.trim()) {
+                        if (!currentNode.data) currentNode.data = {};
+                        currentNode.data.content = editor.value.trim();
+                        console.log('[脑图工作栏] 自动保存节点内容:', this.currentNodeId, editor.value.trim());
+                        hasChanges = true;
+                    }
+                    
+                    // 保存标题 - 修复：检查右侧编辑框的标题修改
+                    if (titleInput && titleInput.value.trim() && titleInput.value.trim() !== currentNode.topic) {
+                        const newTitle = titleInput.value.trim();
+                        
+                        // 直接更新节点的topic属性
+                        currentNode.topic = newTitle;
+                        
+                        // 同时调用jsMind的更新方法
+                        this.jm.update_node(this.currentNodeId, newTitle);
+                        
+                        // 更新UI显示
+                        document.getElementById('currentNode').textContent = newTitle;
+                        
+                        console.log('[脑图工作栏] 自动保存节点标题(右侧编辑框):', this.currentNodeId, newTitle);
+                        hasChanges = true;
+                    }
+                    
+                    // 同步右侧编辑框标题到当前节点标题（处理jsMind内置编辑的情况）
+                    if (titleInput && currentNode.topic && titleInput.value !== currentNode.topic) {
+                        titleInput.value = currentNode.topic;
+                        document.getElementById('currentNode').textContent = currentNode.topic;
+                        console.log('[脑图工作栏] 同步jsMind标题到编辑框:', this.currentNodeId, currentNode.topic);
+                        hasChanges = true;
+                    }
+                    
+                    // 只有在有变化时才触发保存
+                    if (hasChanges) {
+                        // 延迟保存确保jsMind内部状态更新完成
+                        setTimeout(() => {
+                            this.autoSave();
+                        }, 50);
+                    }
+                } catch (err) {
+                    console.error('[脑图工作栏] 自动保存当前节点内容失败:', err);
+                }
+            }
+
             zoomIn() {
                 this.jm.view.zoomIn();
             }
@@ -741,26 +927,31 @@
                 try {
                     const editor = document.getElementById('nodeContentEditor');
                     const titleInput = document.getElementById('nodeTitleEditor');
+                    
                     if (editor) {
-                        const content = (node.data && (node.data.content || (node.data.meta && node.data.meta.content))) || '';
+                        const content = (node.data && node.data.content) || '';
                         editor.value = String(content || '');
+                        console.log('[脑图工作栏] 加载节点内容到编辑器:', content);
                     }
+                    
                     if (titleInput) {
                         titleInput.value = node.topic || '';
+                        console.log('[脑图工作栏] 加载节点标题到编辑器:', node.topic);
                     }
+                    
+                    // 触发节点选中事件
+                    this.emitEvent('mindmap.node.selected', {
+                        nodeId: node.id,
+                        topic: node.topic,
+                        mindmapId: this.mindmapId,
+                        data: node.data || {}
+                    });
                 } catch (e) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
-                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'onNodeSelected:loadContent' }, { silent: true });
+                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'loadNodeContentToEditor' }, { silent: true });
                     }
+                    console.error('[脑图工作栏] 加载节点内容失败:', e);
                 }
-                
-                // 触发节点选中事件
-                this.emitEvent('mindmap.node.selected', {
-                    nodeId: node.id,
-                    topic: node.topic,
-                    mindmapId: this.mindmapId,
-                    data: node.data
-                });
             }
 
             async saveContentFromSidebar() {
@@ -776,9 +967,17 @@
                     const newTitle = titleInput ? titleInput.value.trim() : '';
                     // 标题变更则更新节点标题
                     if (newTitle && newTitle !== node.topic) {
+                        // 直接更新节点的topic属性
+                        node.topic = newTitle;
+                        
+                        // 同时调用jsMind的更新方法
                         this.jm.update_node(node.id, newTitle);
+                        
+                        // 更新UI显示
                         document.getElementById('currentNode').textContent = newTitle;
+                        
                         this.emitEvent('mindmap.node.title.updated', { nodeId: node.id, title: newTitle });
+                        console.log('[脑图工作栏] 手动保存节点标题:', node.id, newTitle);
                     }
                     if (!node.data) node.data = {};
                     // 统一放在 data.content 字段
@@ -800,6 +999,59 @@
                         window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'saveContentFromSidebar' }, { silent: false });
                     }
                     console.error('[脑图工作栏] 保存节点内容失败:', e);
+                }
+            }
+
+            // 静默保存方法（不显示弹窗，专用于直接编辑）
+            async saveContentFromSidebarSilent() {
+                try {
+                    const node = this.jm.get_selected_node();
+                    if (!node) {
+                        console.warn('[脑图工作栏] 静默保存：没有选中的节点');
+                        return;
+                    }
+                    const editor = document.getElementById('nodeContentEditor');
+                    const titleInput = document.getElementById('nodeTitleEditor');
+                    const text = editor ? editor.value : '';
+                    const newTitle = titleInput ? titleInput.value.trim() : '';
+                    
+                    // 标题变更则更新节点标题
+                    if (newTitle && newTitle !== node.topic) {
+                        // 直接更新节点的topic属性
+                        node.topic = newTitle;
+                        
+                        // 同时调用jsMind的更新方法
+                        this.jm.update_node(node.id, newTitle);
+                        
+                        // 更新UI显示
+                        document.getElementById('currentNode').textContent = newTitle;
+                        
+                        this.emitEvent('mindmap.node.title.updated', { nodeId: node.id, title: newTitle });
+                        console.log('[脑图工作栏] 静默保存节点标题:', node.id, newTitle);
+                    }
+                    
+                    if (!node.data) node.data = {};
+                    // 统一放在 data.content 字段
+                    node.data.content = text;
+                    this.updateLastModified();
+                    console.log('[脑图工作栏] 静默保存节点内容完成');
+                    
+                    // 触发内容更新事件
+                    this.emitEvent('mindmap.node.content.updated', {
+                        nodeId: node.id,
+                        topic: node.topic,
+                        content: text
+                    });
+                    
+                    // 持久化整个脑图数据
+                    const data = this.jm.get_data();
+                    await this.saveToUnifiedStorage(data).catch(() => {});
+                    console.log('[脑图工作栏] 静默保存完成，无弹窗提示');
+                } catch (e) {
+                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
+                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'saveContentFromSidebarSilent' }, { silent: true });
+                    }
+                    console.error('[脑图工作栏] 静默保存节点内容失败:', e);
                 }
             }
 
@@ -981,15 +1233,25 @@
                 }
             }
 
-            // 统一存储保存（AutogenUnifiedStorage 集成）
+            // 统一存储保存（优先使用架构组件）
             async saveToUnifiedStorage(data) {
                 try {
+                    // 优先使用MindmapStorage业务层
+                    if (typeof window.MindmapStorage !== 'undefined') {
+                        const mindmapStorage = new window.MindmapStorage();
+                        await mindmapStorage.saveMindmapData(this.mindmapId, data);
+                        console.log('[脑图工作栏] 已通过MindmapStorage保存:', this.mindmapId);
+                        return true;
+                    }
+                    
+                    // 降级到AutogenUnifiedStorage
                     if (typeof AutogenUnifiedStorage !== 'undefined' && AutogenUnifiedStorage.store) {
                         await AutogenUnifiedStorage.store('mindmap', this.mindmapId, data);
                         console.log('[脑图工作栏] 已保存到AutogenUnifiedStorage:', this.mindmapId);
                         return true;
                     }
-                    console.warn('[脑图工作栏] AutogenUnifiedStorage 未加载，跳过统一存储保存');
+                    
+                    console.warn('[脑图工作栏] 存储组件未加载，跳过统一存储保存');
                     return false;
                 } catch (err) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
