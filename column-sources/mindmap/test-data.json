@@ -1,328 +1,247 @@
 {
   "meta": {
-    "name": "项目管理脑图示例",
+    "name": "测试脑图",
     "author": "test",
-    "version": "1.0",
-    "mind_id": "mindmap_project_001"
+    "version": "1.2",
+    "format": "md_database_v1.2",
+    "createdAt": 1759514878946,
+    "updatedAt": 1759514878946,
+    "description": "按照数据底座规范v1.2格式保存的脑图数据"
   },
   "format": "node_tree",
   "data": {
     "id": "root",
-    "topic": "项目管理系统",
-    "expanded": true,
-    "data": {
-      "content": "项目管理系统的总体架构规划",
-      "createdAt": 1696320000000
-    },
-    "meta": {
-      "itemType": "project",
-      "status": "planning",
-      "priority": "high"
-    },
+    "topic": "中心主题",
     "children": [
       {
-        "id": "phase1",
-        "topic": "第一阶段：基础设施",
-        "direction": "right",
-        "expanded": true,
+        "id": "sub1",
+        "topic": "1",
+        "children": [],
         "data": {
-          "content": "构建系统的基础架构",
-          "estimatedDays": 10
+          "content": ""
         },
         "meta": {
-          "itemType": "phase",
+          "itemType": "task",
           "parentId": "root",
-          "status": "in_progress",
-          "tags": ["基础设施", "架构"]
-        },
-        "children": [
-          {
-            "id": "task_storage",
-            "topic": "数据底座架构",
-            "data": {
-              "content": "设计统一的数据存储架构",
-              "priority": "P0"
-            },
-            "meta": {
-              "itemType": "task",
-              "parentId": "phase1",
-              "status": "completed",
-              "assignee": "架构师",
-              "relations": [
-                {
-                  "id": "rel_001",
-                  "type": "blocks",
-                  "targetId": "task_event",
-                  "targetTopic": "事件总线",
-                  "strength": 0.95,
-                  "confidence": 1.0,
-                  "source": "user_defined",
-                  "bidirectional": false,
-                  "createdAt": 1696320000000,
-                  "reason": "事件总线依赖数据底座"
-                }
-              ],
-              "dependencies": ["task_event"]
-            },
-            "children": [
-              { 
-                "id": "task_storage_1", 
-                "topic": "AutogenUnifiedStorage",
-                "data": { "content": "核心存储组件" },
-                "meta": { 
-                  "itemType": "subtask",
-                  "parentId": "task_storage",
-                  "status": "completed"
-                }
-              },
-              { 
-                "id": "task_storage_2", 
-                "topic": "JSON底座",
-                "data": { "content": "JSON格式数据存储" },
-                "meta": { 
-                  "itemType": "subtask",
-                  "parentId": "task_storage",
-                  "status": "in_progress"
-                }
-              },
-              { 
-                "id": "task_storage_3", 
-                "topic": "持久化机制",
-                "data": { "content": "localStorage集成" },
-                "meta": { 
-                  "itemType": "subtask",
-                  "parentId": "task_storage",
-                  "status": "pending"
-                }
-              }
-            ]
-          },
-          {
-            "id": "task_event",
-            "topic": "事件总线",
-            "data": {
-              "content": "工作栏间通信机制",
-              "priority": "P0"
-            },
-            "meta": {
-              "itemType": "task",
-              "parentId": "phase1",
-              "status": "in_progress",
-              "assignee": "程序员",
-              "relatedIds": ["task_storage"],
-              "relations": [
-                {
-                  "id": "rel_002",
-                  "type": "depends_on",
-                  "targetId": "task_storage",
-                  "targetTopic": "数据底座架构",
-                  "strength": 0.95,
-                  "confidence": 1.0,
-                  "source": "user_defined",
-                  "bidirectional": false,
-                  "createdAt": 1696320100000
-                }
-              ]
-            },
-            "children": [
-              { 
-                "id": "task_event_1", 
-                "topic": "AutogenEventBus",
-                "meta": { "itemType": "subtask", "parentId": "task_event" }
-              },
-              { 
-                "id": "task_event_2", 
-                "topic": "事件订阅",
-                "meta": { "itemType": "subtask", "parentId": "task_event" }
-              },
-              { 
-                "id": "task_event_3", 
-                "topic": "跨栏通信",
-                "meta": { "itemType": "subtask", "parentId": "task_event" }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "phase2",
-        "topic": "第二阶段：工作栏开发",
-        "direction": "right",
-        "expanded": true,
-        "data": {
-          "content": "开发各个工作栏组件",
-          "estimatedDays": 20
-        },
-        "meta": {
-          "itemType": "phase",
-          "parentId": "root",
-          "status": "planning",
-          "tags": ["工作栏", "开发"],
+          "relatedIds": [],
+          "dependencies": [],
           "relations": [
             {
-              "id": "rel_003",
-              "type": "depends_on",
-              "targetId": "phase1",
-              "targetTopic": "第一阶段：基础设施",
-              "strength": 1.0,
-              "confidence": 1.0,
-              "source": "user_defined",
-              "createdAt": 1696320200000
+              "id": "rel_parent_1759514878946",
+              "type": "parent_child",
+              "targetId": "root",
+              "targetTopic": "",
+              "strength": 1,
+              "confidence": 1,
+              "source": "user_created",
+              "bidirectional": false,
+              "createdAt": 1759514878946,
+              "updatedAt": 1759514878946,
+              "needsConfirmation": false
             }
-          ]
-        },
+          ],
+          "status": "pending",
+          "priority": "medium",
+          "assignee": "",
+          "tags": [],
+          "createdAt": 1759514878946,
+          "updatedAt": 1759514878946
+        }
+      },
+      {
+        "id": "sub2",
+        "topic": "22222222222222",
         "children": [
           {
-            "id": "column_mindmap",
-            "topic": "脑图工作栏",
-            "data": { "priority": "P1" },
-            "meta": {
-              "itemType": "task",
-              "parentId": "phase2",
-              "status": "in_progress",
-              "tags": ["工作栏", "脑图"]
-            },
+            "id": "9ab1ecffa56dc4d8",
+            "topic": "3",
             "children": [
-              { 
-                "id": "mindmap_1", 
-                "topic": "jsMind集成",
-                "meta": { "itemType": "subtask", "parentId": "column_mindmap" }
-              },
-              { 
-                "id": "mindmap_2", 
-                "topic": "数据同步",
-                "meta": { 
-                  "itemType": "subtask", 
-                  "parentId": "column_mindmap",
+              {
+                "id": "node_1759511860243",
+                "topic": "1",
+                "children": [
+                  {
+                    "id": "sub11",
+                    "topic": "2",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "node_1759511860243",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759514878946",
+                          "type": "parent_child",
+                          "targetId": "node_1759511860243",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759514878946,
+                          "updatedAt": 1759514878946,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759514878946,
+                      "updatedAt": 1759514878946
+                    }
+                  }
+                ],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ab1ecffa56dc4d8",
+                  "relatedIds": [],
+                  "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_004",
-                      "type": "relates_to",
-                      "targetId": "task_storage",
-                      "strength": 0.7,
-                      "confidence": 0.8,
-                      "source": "neo4j_inferred",
-                      "needsConfirmation": true,
-                      "evidence": ["共同标签: 数据"],
-                      "algorithm": "semantic_analysis"
+                      "id": "rel_parent_1759514878946",
+                      "type": "parent_child",
+                      "targetId": "9ab1ecffa56dc4d8",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759514878946,
+                      "updatedAt": 1759514878946,
+                      "needsConfirmation": false
                     }
-                  ]
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759514878946,
+                  "updatedAt": 1759514878946
                 }
-              },
-              { 
-                "id": "mindmap_3", 
-                "topic": "节点操作",
-                "meta": { "itemType": "subtask", "parentId": "column_mindmap" }
               }
-            ]
-          },
-          {
-            "id": "column_detail",
-            "topic": "详情工作栏",
-            "data": { "priority": "P1" },
+            ],
+            "data": {
+              "content": ""
+            },
             "meta": {
               "itemType": "task",
-              "parentId": "phase2",
+              "parentId": "sub2",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759514878946",
+                  "type": "parent_child",
+                  "targetId": "sub2",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759514878946,
+                  "updatedAt": 1759514878946,
+                  "needsConfirmation": false
+                }
+              ],
               "status": "pending",
-              "tags": ["工作栏", "详情"]
-            },
-            "children": [
-              { "id": "detail_1", "topic": "节点详情", "meta": { "itemType": "subtask" } },
-              { "id": "detail_2", "topic": "附件管理", "meta": { "itemType": "subtask" } },
-              { "id": "detail_3", "topic": "标签管理", "meta": { "itemType": "subtask" } }
-            ]
-          },
-          {
-            "id": "column_relation",
-            "topic": "关系工作栏",
-            "data": { "priority": "P2" },
-            "meta": {
-              "itemType": "task",
-              "parentId": "phase2",
-              "status": "pending",
-              "tags": ["工作栏", "关系图"]
-            },
-            "children": [
-              { "id": "relation_1", "topic": "D3.js可视化", "meta": { "itemType": "subtask" } },
-              { "id": "relation_2", "topic": "Neo4j集成", "meta": { "itemType": "subtask" } },
-              { "id": "relation_3", "topic": "关系查询", "meta": { "itemType": "subtask" } }
-            ]
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759514878946,
+              "updatedAt": 1759514878946
+            }
           }
-        ]
-      },
-      {
-        "id": "phase3",
-        "topic": "第三阶段：优化",
-        "direction": "left",
-        "expanded": true,
+        ],
+        "data": {
+          "content": ""
+        },
         "meta": {
-          "itemType": "phase",
+          "itemType": "task",
           "parentId": "root",
+          "relatedIds": [],
+          "dependencies": [],
+          "relations": [
+            {
+              "id": "rel_parent_1759514878946",
+              "type": "parent_child",
+              "targetId": "root",
+              "targetTopic": "",
+              "strength": 1,
+              "confidence": 1,
+              "source": "user_created",
+              "bidirectional": false,
+              "createdAt": 1759514878946,
+              "updatedAt": 1759514878946,
+              "needsConfirmation": false
+            }
+          ],
           "status": "pending",
-          "tags": ["优化"]
-        },
-        "children": [
-          {
-            "id": "opt_performance",
-            "topic": "性能优化",
-            "meta": { "itemType": "task", "parentId": "phase3" },
-            "children": [
-              { "id": "perf_1", "topic": "缓存策略", "meta": { "itemType": "subtask" } },
-              { "id": "perf_2", "topic": "懒加载", "meta": { "itemType": "subtask" } },
-              { "id": "perf_3", "topic": "防抖节流", "meta": { "itemType": "subtask" } }
-            ]
-          },
-          {
-            "id": "opt_ux",
-            "topic": "用户体验",
-            "meta": { "itemType": "task", "parentId": "phase3" },
-            "children": [
-              { "id": "ux_1", "topic": "快捷键", "meta": { "itemType": "subtask" } },
-              { "id": "ux_2", "topic": "拖拽排序", "meta": { "itemType": "subtask" } },
-              { "id": "ux_3", "topic": "全屏模式", "meta": { "itemType": "subtask" } }
-            ]
-          }
-        ]
+          "priority": "medium",
+          "assignee": "",
+          "tags": [],
+          "createdAt": 1759514878946,
+          "updatedAt": 1759514878946
+        }
       },
       {
-        "id": "issues",
-        "topic": "待解决问题",
-        "direction": "left",
-        "meta": {
-          "itemType": "issue_list",
-          "parentId": "root",
-          "tags": ["问题", "待办"]
+        "id": "sub3",
+        "topic": "5",
+        "children": [],
+        "data": {
+          "content": ""
         },
-        "children": [
-          { 
-            "id": "issue_1", 
-            "topic": "数据迁移方案",
-            "meta": { 
-              "itemType": "issue",
-              "severity": "high",
-              "status": "open"
+        "meta": {
+          "itemType": "task",
+          "parentId": "root",
+          "relatedIds": [],
+          "dependencies": [],
+          "relations": [
+            {
+              "id": "rel_parent_1759514878946",
+              "type": "parent_child",
+              "targetId": "root",
+              "targetTopic": "",
+              "strength": 1,
+              "confidence": 1,
+              "source": "user_created",
+              "bidirectional": false,
+              "createdAt": 1759514878946,
+              "updatedAt": 1759514878946,
+              "needsConfirmation": false
             }
-          },
-          { 
-            "id": "issue_2", 
-            "topic": "多用户协同",
-            "meta": { 
-              "itemType": "issue",
-              "severity": "medium",
-              "status": "open"
-            }
-          },
-          { 
-            "id": "issue_3", 
-            "topic": "离线支持",
-            "meta": { 
-              "itemType": "issue",
-              "severity": "low",
-              "status": "open"
-            }
-          }
-        ]
+          ],
+          "status": "pending",
+          "priority": "medium",
+          "assignee": "",
+          "tags": [],
+          "createdAt": 1759514878946,
+          "updatedAt": 1759514878946
+        }
       }
-    ]
+    ],
+    "data": {
+      "content": ""
+    },
+    "meta": {
+      "itemType": "task",
+      "parentId": null,
+      "relatedIds": [],
+      "dependencies": [],
+      "relations": [],
+      "status": "pending",
+      "priority": "medium",
+      "assignee": "",
+      "tags": [],
+      "createdAt": 1759514878946,
+      "updatedAt": 1759514878946
+    }
   }
 }

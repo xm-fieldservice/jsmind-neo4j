@@ -912,46 +912,14 @@
                     console.error('[脑图工作栏] 统一存储保存失败:', err);
                 });
                 
+                // 按照数据底座规范v1.2格式保存到文件
+                await this.saveMindmapToDataBase();
+                
                 // 触发保存事件
                 this.emitEvent('mindmap.data.saved', {
                     mindmapId: this.mindmapId,
                     nodeCount: this.countNodes(data.data)
                 });
-                
-                alert('数据已保存！\n查看控制台(F12)了解详情');
-                this.updateLastModified();
-            }
-
-            // 将节点内容加载到右侧编辑器
-            loadNodeContentToEditor(node) {
-                try {
-                    const editor = document.getElementById('nodeContentEditor');
-                    const titleInput = document.getElementById('nodeTitleEditor');
-                    
-                    if (editor) {
-                        const content = (node.data && node.data.content) || '';
-                        editor.value = String(content || '');
-                        console.log('[脑图工作栏] 加载节点内容到编辑器:', content);
-                    }
-                    
-                    if (titleInput) {
-                        titleInput.value = node.topic || '';
-                        console.log('[脑图工作栏] 加载节点标题到编辑器:', node.topic);
-                    }
-                    
-                    // 触发节点选中事件
-                    this.emitEvent('mindmap.node.selected', {
-                        nodeId: node.id,
-                        topic: node.topic,
-                        mindmapId: this.mindmapId,
-                        data: node.data || {}
-                    });
-                } catch (e) {
-                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
-                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'loadNodeContentToEditor' }, { silent: true });
-                    }
-                    console.error('[脑图工作栏] 加载节点内容失败:', e);
-                }
             }
 
             async saveContentFromSidebar() {
@@ -1052,6 +1020,204 @@
                         window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'saveContentFromSidebarSilent' }, { silent: true });
                     }
                     console.error('[脑图工作栏] 静默保存节点内容失败:', e);
+                }
+            }
+
+            // 按照数据底座规范v1.2格式保存脑图
+            async saveMindmapToDataBase() {
+                try {
+                    // 获取当前脑图数据
+                    const mindmapData = this.jm.get_data();
+                    
+                    // 转换为数据底座规范v1.2格式
+                    const formattedData = this.convertToDataBaseFormat(mindmapData);
+                    
+                    // 使用filepicker保存到目录
+                    const success = await this.saveWithFilePicker(formattedData);
+                    
+                    if (success) {
+                        console.log('[脑图工作栏] 脑图已按数据底座规范v1.2格式保存');
+                        alert('脑图已保存到数据底座！');
+                    } else {
+                        console.warn('[脑图工作栏] 用户取消保存或保存失败');
+                    }
+                } catch (err) {
+                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
+                        window.ErrorHandler.handle(err, { component: 'MindmapColumn', action: 'saveMindmapToDataBase' }, { silent: false });
+                    }
+                    console.error('[脑图工作栏] 保存脑图到数据底座失败:', err);
+                    alert('保存失败: ' + err.message);
+                }
+            }
+
+            // 转换为数据底座规范v1.2格式
+            convertToDataBaseFormat(mindmapData) {
+                const convertNode = (node, parentId = null) => {
+                    // 基础节点结构
+                    const baseNode = {
+                        id: node.id,
+                        topic: node.topic,
+                        children: []
+                    };
+
+                    // data层：纯业务内容数据
+                    baseNode.data = {
+                        content: node.data?.content || '',
+                        // 保留其他业务数据
+                        ...(node.data || {})
+                    };
+
+                    // meta层：统一的关系表达（v1.2规范）
+                    baseNode.meta = {
+                        itemType: node.meta?.itemType || 'task',
+                        parentId: parentId,
+                        
+                        // v1.1兼容字段（保留）
+                        relatedIds: node.meta?.relatedIds || [],
+                        dependencies: node.meta?.dependencies || [],
+                        
+                        // v1.2新增：详细关系表达
+                        relations: [],
+                        
+                        // 其他元数据
+                        status: node.meta?.status || 'pending',
+                        priority: node.meta?.priority || 'medium',
+                        assignee: node.meta?.assignee || '',
+                        tags: node.meta?.tags || [],
+                        
+                        // 时间戳
+                        createdAt: node.meta?.createdAt || Date.now(),
+                        updatedAt: Date.now()
+                    };
+
+                    // 处理现有关系数据，转换为v1.2格式
+                    if (node.meta?.relatedIds?.length > 0) {
+                        node.meta.relatedIds.forEach(targetId => {
+                            baseNode.meta.relations.push({
+                                id: `rel_${Date.now()}_${targetId}`,
+                                type: 'relates_to',
+                                targetId: targetId,
+                                targetTopic: '', // 需要查找目标节点标题
+                                strength: 0.5,
+                                confidence: 1.0,
+                                source: 'user_defined',
+                                bidirectional: true,
+                                createdAt: Date.now(),
+                                updatedAt: Date.now(),
+                                needsConfirmation: false
+                            });
+                        });
+                    }
+
+                    if (node.meta?.dependencies?.length > 0) {
+                        node.meta.dependencies.forEach(targetId => {
+                            baseNode.meta.relations.push({
+                                id: `rel_${Date.now()}_${targetId}`,
+                                type: 'depends_on',
+                                targetId: targetId,
+                                targetTopic: '', // 需要查找目标节点标题
+                                strength: 0.9,
+                                confidence: 1.0,
+                                source: 'user_defined',
+                                bidirectional: false,
+                                createdAt: Date.now(),
+                                updatedAt: Date.now(),
+                                needsConfirmation: false,
+                                reason: '用户定义的依赖关系'
+                            });
+                        });
+                    }
+
+                    // 处理父子关系
+                    if (parentId) {
+                        baseNode.meta.relations.push({
+                            id: `rel_parent_${Date.now()}`,
+                            type: 'parent_child',
+                            targetId: parentId,
+                            targetTopic: '', // 父节点标题
+                            strength: 1.0,
+                            confidence: 1.0,
+                            source: 'user_created',
+                            bidirectional: false,
+                            createdAt: Date.now(),
+                            updatedAt: Date.now(),
+                            needsConfirmation: false
+                        });
+                    }
+
+                    // 递归处理子节点
+                    if (node.children && node.children.length > 0) {
+                        baseNode.children = node.children.map(child => 
+                            convertNode(child, node.id)
+                        );
+                    }
+
+                    return baseNode;
+                };
+
+                // 转换整个脑图
+                const convertedData = {
+                    meta: {
+                        name: mindmapData.meta?.name || '脑图数据',
+                        author: mindmapData.meta?.author || 'user',
+                        version: '1.2',
+                        format: 'md_database_v1.2',
+                        createdAt: Date.now(),
+                        updatedAt: Date.now(),
+                        description: '按照数据底座规范v1.2格式保存的脑图数据'
+                    },
+                    format: 'node_tree',
+                    data: convertNode(mindmapData.data)
+                };
+
+                return convertedData;
+            }
+
+            // 使用filepicker保存文件
+            async saveWithFilePicker(data) {
+                try {
+                    // 检查浏览器是否支持File System Access API
+                    if ('showSaveFilePicker' in window) {
+                        // 使用现代File System Access API
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: `mindmap_${new Date().toISOString().slice(0, 10)}.json`,
+                            types: [{
+                                description: '脑图数据文件',
+                                accept: {
+                                    'application/json': ['.json']
+                                }
+                            }]
+                        });
+
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(JSON.stringify(data, null, 2));
+                        await writable.close();
+
+                        console.log('[脑图工作栏] 文件已保存:', fileHandle.name);
+                        return true;
+                    } else {
+                        // 降级到传统下载方式
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { 
+                            type: 'application/json' 
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `mindmap_${new Date().toISOString().slice(0, 10)}.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+
+                        console.log('[脑图工作栏] 文件已下载（降级模式）');
+                        return true;
+                    }
+                } catch (err) {
+                    if (err.name === 'AbortError') {
+                        console.log('[脑图工作栏] 用户取消保存');
+                        return false;
+                    }
+                    throw err;
                 }
             }
 
