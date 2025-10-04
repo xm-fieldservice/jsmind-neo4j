@@ -1779,32 +1779,22 @@
                 }
             }
 
-            // 统一存储保存（优先使用架构组件）
+            // 统一存储保存（完全委托给MindmapStorage）
             async saveToUnifiedStorage(data) {
                 try {
-                    // 优先使用MindmapStorage业务层
-                    if (typeof window.MindmapStorage !== 'undefined') {
-                        const mindmapStorage = new window.MindmapStorage();
-                        // 🔧 修复：第一个参数应该是data，不是mindmapId
-                        const success = await mindmapStorage.saveMindmapData(data, true);
-                        console.log('[脑图工作栏] 已通过MindmapStorage保存:', this.mindmapId, '结果:', success);
-                        return success;
+                    if (typeof window.MindmapStorage === 'undefined') {
+                        throw new Error('MindmapStorage未加载');
                     }
                     
-                    // 降级到AutogenUnifiedStorage
-                    if (typeof AutogenUnifiedStorage !== 'undefined' && AutogenUnifiedStorage.store) {
-                        await AutogenUnifiedStorage.store('mindmap', this.mindmapId, data);
-                        console.log('[脑图工作栏] 已保存到AutogenUnifiedStorage:', this.mindmapId);
-                        return true;
-                    }
-                    
-                    console.warn('[脑图工作栏] 存储组件未加载，跳过统一存储保存');
-                    return false;
+                    const mindmapStorage = new window.MindmapStorage();
+                    const success = await mindmapStorage.saveMindmapData(data, true);
+                    console.log('[脑图工作栏] 数据已保存:', this.mindmapId, '结果:', success);
+                    return success;
                 } catch (err) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
                         window.ErrorHandler.handle(err, { component: 'MindmapColumn', action: 'saveToUnifiedStorage' }, { silent: true });
                     }
-                    console.error('[脑图工作栏] 保存到统一存储异常:', err);
+                    console.error('[脑图工作栏] 保存失败:', err);
                     throw err;
                 }
             }
