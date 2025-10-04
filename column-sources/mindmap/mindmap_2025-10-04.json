@@ -4,8 +4,8 @@
     "author": "test",
     "version": "1.2",
     "format": "md_database_v1.2",
-    "createdAt": 1759551416990,
-    "updatedAt": 1759551416990,
+    "createdAt": 1759569244706,
+    "updatedAt": 1759569244706,
     "description": "按照数据底座规范v1.2格式保存的脑图数据"
   },
   "format": "node_tree",
@@ -14,33 +14,104 @@
     "topic": "中心节点",
     "children": [
       {
-        "id": "sub1",
-        "topic": "3",
+        "id": "9ae719ba11a5f071",
+        "topic": "想法",
         "children": [
           {
-            "id": "sub11",
-            "topic": "32",
-            "children": [],
+            "id": "sub1",
+            "topic": "脑图的ID加载过程",
+            "children": [
+              {
+                "id": "sub11",
+                "topic": "在搜索框旁边",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "sub1",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759569244706",
+                      "type": "parent_child",
+                      "targetId": "sub1",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706
+                }
+              },
+              {
+                "id": "sub12",
+                "topic": "根据ID从指定的数据底座中，读入该节点的所有子节点（部分读入脑图）",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "sub1",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759569244706",
+                      "type": "parent_child",
+                      "targetId": "sub1",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706
+                }
+              }
+            ],
             "data": {
               "content": ""
             },
             "meta": {
               "itemType": "task",
-              "parentId": "sub1",
+              "parentId": "9ae719ba11a5f071",
               "relatedIds": [],
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759551416990",
+                  "id": "rel_parent_1759569244706",
                   "type": "parent_child",
-                  "targetId": "sub1",
+                  "targetId": "9ae719ba11a5f071",
                   "targetTopic": "",
                   "strength": 1,
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759551416990,
-                  "updatedAt": 1759551416990,
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706,
                   "needsConfirmation": false
                 }
               ],
@@ -48,34 +119,34 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759551416990,
-              "updatedAt": 1759551416990
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706
             }
           },
           {
-            "id": "sub12",
-            "topic": "31",
+            "id": "9adabdab97a5182b",
+            "topic": "解读当前的“搜索节点”的功能，实时定位的功能很好",
             "children": [],
             "data": {
               "content": ""
             },
             "meta": {
               "itemType": "task",
-              "parentId": "sub1",
+              "parentId": "9ae719ba11a5f071",
               "relatedIds": [],
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759551416990",
+                  "id": "rel_parent_1759569244706",
                   "type": "parent_child",
-                  "targetId": "sub1",
+                  "targetId": "9ae719ba11a5f071",
                   "targetTopic": "",
                   "strength": 1,
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759551416990,
-                  "updatedAt": 1759551416990,
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706,
                   "needsConfirmation": false
                 }
               ],
@@ -83,8 +154,43 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759551416990,
-              "updatedAt": 1759551416990
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706
+            }
+          },
+          {
+            "id": "sub2",
+            "topic": "添加“读”按键",
+            "children": [],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae719ba11a5f071",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759569244706",
+                  "type": "parent_child",
+                  "targetId": "9ae719ba11a5f071",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706
             }
           }
         ],
@@ -98,7 +204,7 @@
           "dependencies": [],
           "relations": [
             {
-              "id": "rel_parent_1759551416990",
+              "id": "rel_parent_1759569244706",
               "type": "parent_child",
               "targetId": "root",
               "targetTopic": "",
@@ -106,8 +212,8 @@
               "confidence": 1,
               "source": "user_created",
               "bidirectional": false,
-              "createdAt": 1759551416990,
-              "updatedAt": 1759551416990,
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706,
               "needsConfirmation": false
             }
           ],
@@ -115,38 +221,320 @@
           "priority": "medium",
           "assignee": "",
           "tags": [],
-          "createdAt": 1759551416990,
-          "updatedAt": 1759551416990
+          "createdAt": 1759569244706,
+          "updatedAt": 1759569244706
         }
       },
       {
-        "id": "sub2",
-        "topic": "2",
+        "id": "9ae71b091e2c850b",
+        "topic": "计划",
         "children": [
           {
-            "id": "sub21",
-            "topic": "21",
-            "children": [],
+            "id": "sub3",
+            "topic": "节点鼠标右键菜单",
+            "children": [
+              {
+                "id": "9ae7cfbe7e3a78aa",
+                "topic": "想法",
+                "children": [
+                  {
+                    "id": "9ada52442ba331b5",
+                    "topic": "拷贝节点和内容到剪贴板",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae7cfbe7e3a78aa",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759569244706",
+                          "type": "parent_child",
+                          "targetId": "9ae7cfbe7e3a78aa",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759569244706,
+                          "updatedAt": 1759569244706,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706
+                    }
+                  },
+                  {
+                    "id": "9ae764b22c216cf3",
+                    "topic": "将剪贴板内的内容粘贴到内容框的尾部，中间用”---“ 分隔符隔开",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae7cfbe7e3a78aa",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759569244706",
+                          "type": "parent_child",
+                          "targetId": "9ae7cfbe7e3a78aa",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759569244706,
+                          "updatedAt": 1759569244706,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706
+                    }
+                  },
+                  {
+                    "id": "9ada5cf87c73c44e",
+                    "topic": "拷贝节点和所有子节点的标题和内容以MD格式到剪贴板",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae7cfbe7e3a78aa",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759569244706",
+                          "type": "parent_child",
+                          "targetId": "9ae7cfbe7e3a78aa",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759569244706,
+                          "updatedAt": 1759569244706,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706
+                    }
+                  },
+                  {
+                    "id": "9ada54ce37e4dc8a",
+                    "topic": "拷贝节点和子节点的标题到剪贴板（带格式）",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae7cfbe7e3a78aa",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759569244706",
+                          "type": "parent_child",
+                          "targetId": "9ae7cfbe7e3a78aa",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759569244706,
+                          "updatedAt": 1759569244706,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706
+                    }
+                  },
+                  {
+                    "id": "9ada4af03942bd2e",
+                    "topic": "拷贝节点标题到剪贴板",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae7cfbe7e3a78aa",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759569244706",
+                          "type": "parent_child",
+                          "targetId": "9ae7cfbe7e3a78aa",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759569244706,
+                          "updatedAt": 1759569244706,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706
+                    }
+                  }
+                ],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "sub3",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759569244706",
+                      "type": "parent_child",
+                      "targetId": "sub3",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706
+                }
+              },
+              {
+                "id": "9ae7beb6d91c0975",
+                "topic": "总体方案",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "sub3",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759569244706",
+                      "type": "parent_child",
+                      "targetId": "sub3",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706
+                }
+              },
+              {
+                "id": "9ae7d61f0f77e900",
+                "topic": "论证",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "sub3",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759569244706",
+                      "type": "parent_child",
+                      "targetId": "sub3",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706
+                }
+              }
+            ],
             "data": {
               "content": ""
             },
             "meta": {
               "itemType": "task",
-              "parentId": "sub2",
+              "parentId": "9ae71b091e2c850b",
               "relatedIds": [],
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759551416990",
+                  "id": "rel_parent_1759569244706",
                   "type": "parent_child",
-                  "targetId": "sub2",
+                  "targetId": "9ae71b091e2c850b",
                   "targetTopic": "",
                   "strength": 1,
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759551416990,
-                  "updatedAt": 1759551416990,
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706,
                   "needsConfirmation": false
                 }
               ],
@@ -154,8 +542,8 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759551416990,
-              "updatedAt": 1759551416990
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706
             }
           }
         ],
@@ -169,7 +557,7 @@
           "dependencies": [],
           "relations": [
             {
-              "id": "rel_parent_1759551416990",
+              "id": "rel_parent_1759569244706",
               "type": "parent_child",
               "targetId": "root",
               "targetTopic": "",
@@ -177,8 +565,8 @@
               "confidence": 1,
               "source": "user_created",
               "bidirectional": false,
-              "createdAt": 1759551416990,
-              "updatedAt": 1759551416990,
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706,
               "needsConfirmation": false
             }
           ],
@@ -186,13 +574,13 @@
           "priority": "medium",
           "assignee": "",
           "tags": [],
-          "createdAt": 1759551416990,
-          "updatedAt": 1759551416990
+          "createdAt": 1759569244706,
+          "updatedAt": 1759569244706
         }
       },
       {
-        "id": "sub3",
-        "topic": "1",
+        "id": "9ae72427fc1c7c49",
+        "topic": "进行中",
         "children": [],
         "data": {
           "content": ""
@@ -204,7 +592,7 @@
           "dependencies": [],
           "relations": [
             {
-              "id": "rel_parent_1759551416990",
+              "id": "rel_parent_1759569244706",
               "type": "parent_child",
               "targetId": "root",
               "targetTopic": "",
@@ -212,8 +600,8 @@
               "confidence": 1,
               "source": "user_created",
               "bidirectional": false,
-              "createdAt": 1759551416990,
-              "updatedAt": 1759551416990,
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706,
               "needsConfirmation": false
             }
           ],
@@ -221,8 +609,220 @@
           "priority": "medium",
           "assignee": "",
           "tags": [],
-          "createdAt": 1759551416990,
-          "updatedAt": 1759551416990
+          "createdAt": 1759569244706,
+          "updatedAt": 1759569244706
+        }
+      },
+      {
+        "id": "9ae46e47587c000b",
+        "topic": "已完成",
+        "children": [
+          {
+            "id": "9ae6235ddb041662",
+            "topic": "统一节点操作方法",
+            "children": [
+              {
+                "id": "9ae4b84715fd679f",
+                "topic": "内部实现节点添加",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae6235ddb041662",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759569244706",
+                      "type": "parent_child",
+                      "targetId": "9ae6235ddb041662",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706
+                }
+              },
+              {
+                "id": "9ae4c044de431ccd",
+                "topic": "addnode 实现",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae6235ddb041662",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759569244706",
+                      "type": "parent_child",
+                      "targetId": "9ae6235ddb041662",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706
+                }
+              },
+              {
+                "id": "9ae7327e6f2fea98",
+                "topic": "完成报告",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae6235ddb041662",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759569244706",
+                      "type": "parent_child",
+                      "targetId": "9ae6235ddb041662",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759569244706,
+                      "updatedAt": 1759569244706,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706
+                }
+              }
+            ],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae46e47587c000b",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759569244706",
+                  "type": "parent_child",
+                  "targetId": "9ae46e47587c000b",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706
+            }
+          },
+          {
+            "id": "9adacd9c9d76ae61",
+            "topic": "脑图设置成右侧呈现，当前是双侧呈现；检查是否已经改过代码",
+            "children": [],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae46e47587c000b",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759569244706",
+                  "type": "parent_child",
+                  "targetId": "9ae46e47587c000b",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759569244706,
+                  "updatedAt": 1759569244706,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706
+            }
+          }
+        ],
+        "data": {
+          "content": ""
+        },
+        "meta": {
+          "itemType": "task",
+          "parentId": "root",
+          "relatedIds": [],
+          "dependencies": [],
+          "relations": [
+            {
+              "id": "rel_parent_1759569244706",
+              "type": "parent_child",
+              "targetId": "root",
+              "targetTopic": "",
+              "strength": 1,
+              "confidence": 1,
+              "source": "user_created",
+              "bidirectional": false,
+              "createdAt": 1759569244706,
+              "updatedAt": 1759569244706,
+              "needsConfirmation": false
+            }
+          ],
+          "status": "pending",
+          "priority": "medium",
+          "assignee": "",
+          "tags": [],
+          "createdAt": 1759569244706,
+          "updatedAt": 1759569244706
         }
       }
     ],
@@ -239,8 +839,8 @@
       "priority": "medium",
       "assignee": "",
       "tags": [],
-      "createdAt": 1759551416990,
-      "updatedAt": 1759551416990
+      "createdAt": 1759569244706,
+      "updatedAt": 1759569244706
     }
   }
 }

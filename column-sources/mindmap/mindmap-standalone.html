@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +11,12 @@
     <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
     <script src="../../src/core/messaging/AutogenEventBus.js"></script>
     <script src="../../src/core/ErrorHandler.js"></script>
+    
+    <!-- 脑图统一操作API -->
+    <script src="mindmap-operations.js"></script>
+    
+    <!-- 右键菜单管理器 -->
+    <script src="context-menu-manager.js"></script>
     
     <style>
         * {
@@ -201,6 +206,45 @@
             padding: 10px 12px;
             border-top: 1px solid #e5e7eb;
             background: #ffffff;
+        }
+
+        /* 右键菜单样式 */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 4px 0;
+            min-width: 280px;
+            z-index: 10000;
+            font-size: 13px;
+        }
+
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .context-menu-item:hover {
+            background: #f3f4f6;
+        }
+
+        .context-menu-item-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .context-menu-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 4px 0;
         }
     </style>
 </head>
@@ -454,13 +498,33 @@
                     }
                 }
 
-                // 初始化jsMind
+                // 创建统一操作API实例（暂时没有jm实例）
+                this.ops = new MindmapOperations(null);
+                
+                // 初始化jsMind，覆盖快捷键处理器
                 const options = {
                     container: 'jsmind_container',
                     editable: true,
                     theme: 'primary',
-                    mode: 'full',
+                    mode: 'side',  // ✅ 右侧布局模式（所有节点在右侧）
                     support_html: false,
+                    shortcut: {
+                        enable: true,
+                        handles: {
+                            'addchild': (jm, e) => {
+                                console.log('[脑图工作栏] 快捷键: 添加子节点');
+                                return this.ops.addChild();
+                            },
+                            'addbrother': (jm, e) => {
+                                console.log('[脑图工作栏] 快捷键: 添加兄弟节点');
+                                return this.ops.addBrother();
+                            },
+                            'delnode': (jm, e) => {
+                                console.log('[脑图工作栏] 快捷键: 删除节点');
+                                return this.ops.removeNode();
+                            }
+                        }
+                    },
                     view: {
                         hmargin: 100,
                         vmargin: 50,
@@ -470,6 +534,10 @@
                 };
 
                 this.jm = new jsMind(options);
+                
+                // 为操作类设置jsMind实例
+                this.ops.jm = this.jm;
+                console.log('[脑图工作栏] 统一节点操作API初始化完成');
                 
                 // 优先从统一存储加载，失败回退到测试数据
                 await this.loadInitialData();
@@ -493,6 +561,10 @@
                 window.addEventListener('beforeunload', () => {
                     this.autoSaveCurrentNodeContent();
                 });
+                
+                // 初始化右键菜单
+                this.contextMenu = new ContextMenuManager(this.jm, this);
+                console.log('[脑图工作栏] 右键菜单初始化完成');
                 
                 console.log('[脑图工作栏] 初始化完成');
             }
@@ -537,8 +609,8 @@
                                 direction: 'right',
                                 expanded: true,
                                 children: [
-                                    { id: 'sub11', topic: '子主题1-1' },
-                                    { id: 'sub12', topic: '子主题1-2' }
+                                    { id: 'sub11', topic: '子主题1-1', direction: 'right' },
+                                    { id: 'sub12', topic: '子主题1-2', direction: 'right' }
                                 ]
                             },
                             {
@@ -546,7 +618,7 @@
                                 topic: '子主题2',
                                 direction: 'right',
                                 children: [
-                                    { id: 'sub21', topic: '子主题2-1' }
+                                    { id: 'sub21', topic: '子主题2-1', direction: 'right' }
                                 ]
                             },
                             {
@@ -642,7 +714,7 @@
                         // 脑图显示事件，不需要保存
                         console.log('[脑图工作栏] 脑图显示事件');
                     } else {
-                        // 其他事件（包括快捷键添加/删除节点和节点编辑）
+                        // 其他事件（包括节点编辑）
                         console.log('[脑图工作栏] 其他脑图变化事件，触发自动保存');
                         // 延迟一点确保jsMind内部状态更新完成
                         setTimeout(() => {
@@ -757,13 +829,14 @@
 
                 const topic = prompt('输入新节点名称:', '新节点');
                 if (topic) {
-                    const nodeId = 'node_' + Date.now();
-                    // 确保新节点都在右侧布局
-                    this.jm.add_node(selectedNode, nodeId, topic, { direction: 'right' });
-                    this.updateNodeCount();
-                    this.updateLastModified();
-                    // 自动保存
-                    this.autoSave();
+                    // 使用统一API添加节点
+                    const node = this.ops.addCustomNode(selectedNode, topic, { direction: 'right' });
+                    if (node) {
+                        this.updateNodeCount();
+                        this.updateLastModified();
+                        // 自动保存
+                        this.autoSave();
+                    }
                 }
             }
 
@@ -801,11 +874,13 @@
                 }
 
                 if (confirm(`确定删除节点"${selectedNode.topic}"吗？`)) {
-                    this.jm.remove_node(selectedNode.id);
-                    this.updateNodeCount();
-                    this.updateLastModified();
-                    // 自动保存
-                    this.autoSave();
+                    // 使用统一API删除节点
+                    if (this.ops.removeNode(selectedNode)) {
+                        this.updateNodeCount();
+                        this.updateLastModified();
+                        // 自动保存
+                        this.autoSave();
+                    }
                 }
             }
 
