@@ -117,14 +117,12 @@ class DataCompressor {
             topic: node.topic
         };
         
-        // 🔧 保存所有内容（包括空内容，因为用户可能清空了内容）
-        // 只有当 data 对象不存在时才不保存
+        // 🔧 保存所有内容（包括空内容）
+        // 策略：如果node.data存在，说明用户编辑过，必须保存
         if (node.data !== undefined) {
             const content = node.data.content || "";
-            // 只有当内容非空时才保存（空字符串在还原时会自动补充）
-            if (content.trim()) {
-                compressed.data = { content: content };
-            }
+            // 保存所有内容，包括空字符串（用户可能清空了内容）
+            compressed.data = { content: content };
         }
         
         // 只保存非默认meta

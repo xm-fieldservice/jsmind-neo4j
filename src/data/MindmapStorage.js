@@ -21,8 +21,8 @@ class MindmapStorage {
             throw new Error('[MindmapStorage] AutogenUnifiedStorage未初始化，无法创建MindmapStorage实例');
         }
         
-        // 🆕 数据压缩引擎（临时禁用，等修复后再启用）
-        this.compressor = null; // dependencies.compressor || (window.DataCompressor ? new window.DataCompressor() : null);
+        // 🆕 数据压缩引擎
+        this.compressor = dependencies.compressor || (window.DataCompressor ? new window.DataCompressor() : null);
         
         // 防抖定时器
         this._saveDebounceTimer = null;

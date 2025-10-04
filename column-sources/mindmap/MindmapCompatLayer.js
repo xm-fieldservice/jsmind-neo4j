@@ -67,17 +67,11 @@ class MindmapCompatLayer {
      */
     async _initializeSrcArchitecture() {
         try {
-            // 检查 src/ 架构是否可用
-            if (typeof window.MindmapController === 'undefined') {
-                this._warn('src/ 架构不可用，回退到 standalone');
-                return;
-            }
+            // 🚫 Phase 2阶段：暂不使用MindmapController
+            // MindmapController需要完整的src/架构环境（MindmapView、MindmapEvents、TagManager、SnapshotManager）
+            // 这些组件在Phase 3才会完全迁移
             
-            // ✅ 修复1: 创建控制器（之前缺失）
-            this.srcController = new window.MindmapController();
-            this._log('src/控制器已加载');
-            
-            // ✅ 修复2: 使用正确的存储类 MindmapStorage
+            // ✅ Phase 2策略：仅使用独立的src/组件
             if (typeof window.MindmapStorage !== 'undefined') {
                 this.srcDataManager = new window.MindmapStorage();
                 this._log('src/数据管理器已加载');

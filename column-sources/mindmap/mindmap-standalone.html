@@ -12,13 +12,14 @@
     <script src="../../src/core/messaging/AutogenEventBus.js"></script>
     <script src="../../src/core/ErrorHandler.js"></script>
     
-    <!-- 🆕 src/ 架构组件 -->
+    <!-- 🆕 src/ 架构组件 (Phase 2: 仅加载独立组件) -->
     <script src="../../src/data/DataCompressor.js"></script>
     <script src="../../src/data/MindmapStorage.js"></script>
     <script src="../../src/data/ImportExportService.js"></script>
     <script src="../../src/presentation/MindmapRenderer.js"></script>
     <script src="../../src/presentation/MindmapEventManager.js"></script>
-    <script src="../../src/business/MindmapController.js"></script>
+    <!-- 🚫 Phase 2暂不加载MindmapController (需要完整依赖环境) -->
+    <!-- <script src="../../src/business/MindmapController.js"></script> -->
     
     <!-- 脑图统一操作API -->
     <script src="node-clipboard.js"></script>
@@ -601,6 +602,43 @@
                 console.log('[脑图工作栏] 初始化完成');
             }
 
+            // 修复jsMind内部所有节点的数据结构
+            _fixJsMindNodeData() {
+                if (!this.jm) return;
+                
+                // 获取所有节点
+                const allNodes = this.jm.get_data();
+                if (!allNodes || !allNodes.data) return;
+                
+                // 递归修复所有节点
+                const fixNode = (nodeData) => {
+                    if (!nodeData) return;
+                    
+                    // 获取jsMind内部节点
+                    const jmNode = this.jm.get_node(nodeData.id);
+                    if (jmNode && jmNode.data && jmNode.data.data) {
+                        // 错误结构：node.data = { data: { content: "" }, meta: {...} }
+                        const innerData = jmNode.data.data;
+                        const meta = jmNode.data.meta;
+                        
+                        // 重建正确的data结构
+                        jmNode.data = {
+                            content: innerData.content || '',
+                            meta: meta || {}  // ✅ 保持meta作为子对象
+                        };
+                        
+                        console.log('[脑图工作栏] 修复jsMind节点数据结构:', nodeData.id);
+                    }
+                    
+                    // 递归修复子节点
+                    if (nodeData.children && nodeData.children.length > 0) {
+                        nodeData.children.forEach(child => fixNode(child));
+                    }
+                };
+                
+                fixNode(allNodes.data);
+            }
+
             async loadInitialData() {
                 try {
                     // 🔧 优先从 IndexedDB 加载（持久化数据）- 使用 MindmapStorage 自动还原
@@ -611,6 +649,10 @@
                         // 如果不是默认数据，说明加载成功
                         if (stored && stored.data && stored.data.id !== 'root_default') {
                             this.jm.show(stored);
+                            
+                            // 🔧 修复jsMind内部节点的数据结构
+                            this._fixJsMindNodeData();
+                            
                             this.updateNodeCount();
                             console.log('[脑图工作栏] ✅ 已从IndexedDB加载持久化数据 (自动还原)');
                             return;
@@ -1010,6 +1052,20 @@
             async autoSave() {
                 try {
                     const data = this.jm.get_data();
+                    
+                    // 🔧 手动同步所有节点的data
+                    const syncNodeData = (exportNode) => {
+                        if (!exportNode) return;
+                        const jmNode = this.jm.get_node(exportNode.id);
+                        if (jmNode && jmNode.data) {
+                            exportNode.data = jmNode.data;
+                        }
+                        if (exportNode.children) {
+                            exportNode.children.forEach(child => syncNodeData(child));
+                        }
+                    };
+                    syncNodeData(data.data);
+                    
                     await this.saveToUnifiedStorage(data);
                     console.log('[脑图工作栏] 自动保存完成');
                 } catch (err) {
@@ -1167,6 +1223,19 @@
                     // 持久化整个脑图数据
                     const data = this.jm.get_data();
                     
+                    // 🔧 关键修复：手动同步所有节点的data到导出数据
+                    const syncNodeData = (exportNode) => {
+                        if (!exportNode) return;
+                        const jmNode = this.jm.get_node(exportNode.id);
+                        if (jmNode && jmNode.data) {
+                            exportNode.data = jmNode.data;
+                        }
+                        if (exportNode.children) {
+                            exportNode.children.forEach(child => syncNodeData(child));
+                        }
+                    };
+                    syncNodeData(data.data);
+                    
                     // 🔍 调试：验证数据中是否包含内容
                     const savedNode = this.findNodeInData(data.data, node.id);
                     console.log('[脑图工作栏] 准备保存的节点内容:', savedNode?.data?.content);
@@ -1232,6 +1301,20 @@
                     
                     // 持久化整个脑图数据
                     const data = this.jm.get_data();
+                    
+                    // 🔧 手动同步所有节点的data
+                    const syncNodeData = (exportNode) => {
+                        if (!exportNode) return;
+                        const jmNode = this.jm.get_node(exportNode.id);
+                        if (jmNode && jmNode.data) {
+                            exportNode.data = jmNode.data;
+                        }
+                        if (exportNode.children) {
+                            exportNode.children.forEach(child => syncNodeData(child));
+                        }
+                    };
+                    syncNodeData(data.data);
+                    
                     await this.saveToUnifiedStorage(data).catch(() => {});
                     console.log('[脑图工作栏] 静默保存完成，无弹窗提示');
                 } catch (e) {
@@ -1249,7 +1332,19 @@
                     const titleInput = document.getElementById('nodeTitleEditor');
 
                     if (editor) {
-                        const content = (node.data && node.data.content) || '';
+                        // 🔧 修复：兼容错误的嵌套结构 node.data.data.content
+                        let content = '';
+                        if (node.data) {
+                            // 正确结构：node.data.content
+                            if (typeof node.data.content === 'string') {
+                                content = node.data.content;
+                            }
+                            // 错误结构：node.data.data.content (兼容)
+                            else if (node.data.data && typeof node.data.data.content === 'string') {
+                                content = node.data.data.content;
+                                console.warn('[脑图工作栏] 检测到错误的数据结构嵌套:', node.id);
+                            }
+                        }
                         editor.value = String(content || '');
                         console.log('[脑图工作栏] 加载节点内容到编辑器:', content);
                     }
@@ -1279,6 +1374,19 @@
                 try {
                     // 获取当前脑图数据
                     const mindmapData = this.jm.get_data();
+                    
+                    // 🔧 手动同步所有节点的data
+                    const syncNodeData = (exportNode) => {
+                        if (!exportNode) return;
+                        const jmNode = this.jm.get_node(exportNode.id);
+                        if (jmNode && jmNode.data) {
+                            exportNode.data = jmNode.data;
+                        }
+                        if (exportNode.children) {
+                            exportNode.children.forEach(child => syncNodeData(child));
+                        }
+                    };
+                    syncNodeData(mindmapData.data);
                     
                     // 转换为数据底座规范v1.2格式
                     const formattedData = this.convertToDataBaseFormat(mindmapData);
@@ -1638,6 +1746,20 @@
                 document.getElementById('propertiesPanel').style.display = 'none';
                 document.getElementById('propertiesOverlay').style.display = 'none';
                 this.currentEditingNode = null;
+            }
+
+            // 辅助方法：在数据树中查找节点
+            findNodeInData(node, nodeId) {
+                if (!node) return null;
+                if (node.id === nodeId) return node;
+                
+                if (node.children) {
+                    for (const child of node.children) {
+                        const found = this.findNodeInData(child, nodeId);
+                        if (found) return found;
+                    }
+                }
+                return null;
             }
 
             // 统一事件发射（AutogenEventBus 集成）
