@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>IndexedDB 内容恢复工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #output {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .content-item {
+            background: #fff3cd;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 IndexedDB 内容恢复工具</h1>
+    
+    <div class="section">
+        <h2>步骤1: 查询所有脑图数据</h2>
+        <button onclick="queryAllData()">查询IndexedDB</button>
+        <button onclick="queryWithAutoStorage()">使用AutogenUnifiedStorage查询</button>
+    </div>
+    
+    <div class="section">
+        <h2>步骤2: 查看结果</h2>
+        <div id="output">点击上方按钮开始查询...</div>
+    </div>
+    
+    <div class="section">
+        <h2>步骤3: 恢复数据</h2>
+        <button onclick="downloadRecoveredData()">下载恢复的数据</button>
+        <button onclick="loadToMindmap()">加载到脑图</button>
+    </div>
+
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    
+    <script>
+        let recoveredData = null;
+        
+        // 方法1: 直接查询IndexedDB
+        async function queryAllData() {
+            const output = document.getElementById('output');
+            output.innerHTML = '正在查询IndexedDB...\n\n';
+            
+            try {
+                const db = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open('AutogenUnifiedStorage', 1);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+                
+                const transaction = db.transaction(['mindmap'], 'readonly');
+                const store = transaction.objectStore('mindmap');
+                const allData = await new Promise((resolve) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                });
+                
+                output.innerHTML += `找到 ${allData.length} 条脑图数据\n\n`;
+                
+                allData.forEach((item, index) => {
+                    output.innerHTML += `\n=== 数据 ${index + 1} ===\n`;
+                    output.innerHTML += `键: ${item.key}\n`;
+                    output.innerHTML += `类型: ${item.type}\n`;
+                    output.innerHTML += `创建时间: ${new Date(item.timestamp).toLocaleString()}\n`;
+                    
+                    // 检查内容
+                    const contents = findAllContent(item.value);
+                    if (contents.length > 0) {
+                        output.innerHTML += `\n📝 找到 ${contents.length} 个有内容的节点:\n`;
+                        contents.forEach(c => {
+                            output.innerHTML += `  - ${c.path}: "${c.content.substring(0, 100)}${c.content.length > 100 ? '...' : ''}"\n`;
+                        });
+                        
+                        // 保存最新的有内容的数据
+                        if (!recoveredData || item.timestamp > recoveredData.timestamp) {
+                            recoveredData = item.value;
+                        }
+                    } else {
+                        output.innerHTML += '  (无内容)\n';
+                    }
+                });
+                
+                if (recoveredData) {
+                    output.innerHTML += '\n\n✅ 已找到包含内容的数据，可以点击"下载恢复的数据"或"加载到脑图"';
+                }
+                
+            } catch (error) {
+                output.innerHTML += `\n❌ 错误: ${error.message}\n`;
+                console.error(error);
+            }
+        }
+        
+        // 方法2: 使用AutogenUnifiedStorage查询
+        async function queryWithAutoStorage() {
+            const output = document.getElementById('output');
+            output.innerHTML = '正在使用AutogenUnifiedStorage查询...\n\n';
+            
+            // 等待AutogenUnifiedStorage初始化
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const keys = ['current', 'mindmap_column_standalone', '测试脑图', 'default', 'root'];
+            
+            for (const key of keys) {
+                try {
+                    const data = await AutogenUnifiedStorage.retrieve('mindmap', key);
+                    if (data) {
+                        output.innerHTML += `\n=== 键: ${key} ===\n`;
+                        
+                        const contents = findAllContent(data);
+                        if (contents.length > 0) {
+                            output.innerHTML += `📝 找到 ${contents.length} 个有内容的节点:\n`;
+                            contents.forEach(c => {
+                                output.innerHTML += `  - ${c.path}: "${c.content.substring(0, 100)}${c.content.length > 100 ? '...' : ''}"\n`;
+                            });
+                            
+                            if (!recoveredData) {
+                                recoveredData = data;
+                            }
+                        } else {
+                            output.innerHTML += '  (无内容)\n';
+                        }
+                    }
+                } catch (e) {
+                    output.innerHTML += `键 [${key}]: 不存在\n`;
+                }
+            }
+            
+            if (recoveredData) {
+                output.innerHTML += '\n\n✅ 已找到包含内容的数据，可以点击"下载恢复的数据"或"加载到脑图"';
+            } else {
+                output.innerHTML += '\n\n⚠️ 未找到包含内容的数据';
+            }
+        }
+        
+        // 递归查找所有有内容的节点
+        function findAllContent(data, path = '') {
+            const results = [];
+            
+            function traverse(node, currentPath) {
+                if (!node) return;
+                
+                const nodePath = currentPath ? `${currentPath} > ${node.topic}` : node.topic;
+                
+                if (node.data && node.data.content && node.data.content.trim()) {
+                    results.push({
+                        path: nodePath,
+                        content: node.data.content,
+                        node: node
+                    });
+                }
+                
+                if (node.children && Array.isArray(node.children)) {
+                    node.children.forEach(child => traverse(child, nodePath));
+                }
+            }
+            
+            if (data.data) {
+                traverse(data.data, '');
+            } else {
+                traverse(data, '');
+            }
+            
+            return results;
+        }
+        
+        // 下载恢复的数据
+        function downloadRecoveredData() {
+            if (!recoveredData) {
+                alert('没有找到可恢复的数据');
+                return;
+            }
+            
+            const blob = new Blob([JSON.stringify(recoveredData, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mindmap_recovered_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert('数据已下载！');
+        }
+        
+        // 加载到脑图
+        function loadToMindmap() {
+            if (!recoveredData) {
+                alert('没有找到可恢复的数据');
+                return;
+            }
+            
+            if (window.opener && window.opener.mindmapColumn) {
+                window.opener.mindmapColumn.jm.show(recoveredData);
+                window.opener.mindmapColumn.updateNodeCount();
+                alert('数据已加载到脑图！');
+            } else {
+                alert('请从脑图页面打开此工具');
+            }
+        }
+    </script>
+</body>
+</html>

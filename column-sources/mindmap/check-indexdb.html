@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>检查IndexedDB数据</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        pre { background: #f5f5f5; padding: 15px; overflow: auto; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>IndexedDB 数据检查</h1>
+    <button onclick="checkData()">检查数据</button>
+    <button onclick="clearData()">清除数据</button>
+    <pre id="output">点击"检查数据"开始...</pre>
+
+    <script>
+        async function checkData() {
+            const output = document.getElementById('output');
+            output.textContent = '正在检查...\n\n';
+            
+            try {
+                // 打开数据库
+                const db = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open('AutogenUnifiedStorage', 1);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+                
+                // 读取所有mindmap数据
+                const transaction = db.transaction(['mindmap'], 'readonly');
+                const store = transaction.objectStore('mindmap');
+                const allData = await new Promise((resolve) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                });
+                
+                output.textContent += `找到 ${allData.length} 条数据\n\n`;
+                
+                allData.forEach((item, index) => {
+                    output.textContent += `=== 数据 ${index + 1} ===\n`;
+                    output.textContent += `键: ${item.key}\n`;
+                    output.textContent += `类型: ${item.type}\n`;
+                    output.textContent += `时间: ${new Date(item.timestamp).toLocaleString()}\n`;
+                    output.textContent += `数据:\n${JSON.stringify(item.value, null, 2)}\n\n`;
+                    
+                    // 检查是否有内容
+                    const hasContent = checkContent(item.value);
+                    output.textContent += `包含内容的节点数: ${hasContent}\n\n`;
+                });
+                
+            } catch (error) {
+                output.textContent += `错误: ${error.message}\n`;
+            }
+        }
+        
+        function checkContent(data) {
+            let count = 0;
+            function traverse(node) {
+                if (node.data?.content && node.data.content.trim()) {
+                    count++;
+                }
+                if (node.children) {
+                    node.children.forEach(traverse);
+                }
+            }
+            if (data.data) traverse(data.data);
+            return count;
+        }
+        
+        async function clearData() {
+            if (!confirm('确定要清除所有IndexedDB数据吗？')) return;
+            
+            const db = await new Promise((resolve, reject) => {
+                const request = indexedDB.open('AutogenUnifiedStorage', 1);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+            
+            const transaction = db.transaction(['mindmap'], 'readwrite');
+            const store = transaction.objectStore('mindmap');
+            await store.clear();
+            
+            alert('数据已清除');
+            checkData();
+        }
+    </script>
+</body>
+</html>

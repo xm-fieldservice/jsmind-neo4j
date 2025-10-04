@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>数据压缩测试工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 400px;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .stats {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .stats-value {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .btn-secondary {
+            background: #2196F3;
+        }
+        .btn-secondary:hover {
+            background: #0b7dda;
+        }
+    </style>
+</head>
+<body>
+    <h1>🗜️ 数据压缩测试工具</h1>
+    
+    <div class="stats">
+        <div class="stats-item">
+            <span>原始大小:</span>
+            <span class="stats-value" id="originalSize">0 字节</span>
+        </div>
+        <div class="stats-item">
+            <span>压缩后大小:</span>
+            <span class="stats-value" id="compressedSize">0 字节</span>
+        </div>
+        <div class="stats-item">
+            <span>压缩率:</span>
+            <span class="stats-value" id="compressionRatio">0%</span>
+        </div>
+        <div class="stats-item">
+            <span>节省空间:</span>
+            <span class="stats-value" id="savedSpace">0 字节</span>
+        </div>
+    </div>
+    
+    <div>
+        <button onclick="loadTestData()">加载测试数据</button>
+        <button onclick="compress()">压缩数据</button>
+        <button onclick="decompress()" class="btn-secondary">还原数据</button>
+        <button onclick="loadFromFile()">从文件加载</button>
+    </div>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>原始数据</h2>
+            <textarea id="originalData" placeholder="粘贴JSON数据或点击'加载测试数据'"></textarea>
+        </div>
+        
+        <div class="panel">
+            <h2>压缩/还原结果</h2>
+            <textarea id="resultData" placeholder="压缩或还原后的数据将显示在这里"></textarea>
+        </div>
+    </div>
+
+    <script src="../../src/data/DataCompressor.js"></script>
+    
+    <script>
+        const compressor = new DataCompressor();
+        
+        function loadTestData() {
+            fetch('mindmap_base.json')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('originalData').value = JSON.stringify(data, null, 2);
+                    updateStats(data, null);
+                })
+                .catch(err => alert('加载失败: ' + err.message));
+        }
+        
+        function compress() {
+            try {
+                const originalText = document.getElementById('originalData').value;
+                if (!originalText.trim()) {
+                    alert('请先输入或加载数据');
+                    return;
+                }
+                
+                const originalData = JSON.parse(originalText);
+                const compressed = compressor.compress(originalData);
+                
+                document.getElementById('resultData').value = JSON.stringify(compressed, null, 2);
+                updateStats(originalData, compressed);
+            } catch (error) {
+                alert('压缩失败: ' + error.message);
+            }
+        }
+        
+        function decompress() {
+            try {
+                const compressedText = document.getElementById('resultData').value;
+                if (!compressedText.trim()) {
+                    alert('请先压缩数据');
+                    return;
+                }
+                
+                const compressedData = JSON.parse(compressedText);
+                const decompressed = compressor.decompress(compressedData);
+                
+                document.getElementById('resultData').value = JSON.stringify(decompressed, null, 2);
+            } catch (error) {
+                alert('还原失败: ' + error.message);
+            }
+        }
+        
+        function loadFromFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        document.getElementById('originalData').value = JSON.stringify(data, null, 2);
+                        updateStats(data, null);
+                    } catch (error) {
+                        alert('文件格式错误: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        function updateStats(original, compressed) {
+            const originalSize = JSON.stringify(original).length;
+            const compressedSize = compressed ? JSON.stringify(compressed).length : 0;
+            const ratio = compressed ? ((1 - compressedSize / originalSize) * 100).toFixed(1) : 0;
+            const saved = originalSize - compressedSize;
+            
+            document.getElementById('originalSize').textContent = formatBytes(originalSize);
+            document.getElementById('compressedSize').textContent = compressed ? formatBytes(compressedSize) : '-';
+            document.getElementById('compressionRatio').textContent = compressed ? ratio + '%' : '-';
+            document.getElementById('savedSpace').textContent = compressed ? formatBytes(saved) : '-';
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' 字节';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+        }
+    </script>
+</body>
+</html>

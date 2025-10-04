@@ -21,6 +21,9 @@ class MindmapStorage {
             throw new Error('[MindmapStorage] AutogenUnifiedStorage未初始化，无法创建MindmapStorage实例');
         }
         
+        // 🆕 数据压缩引擎（临时禁用，等修复后再启用）
+        this.compressor = null; // dependencies.compressor || (window.DataCompressor ? new window.DataCompressor() : null);
+        
         // 防抖定时器
         this._saveDebounceTimer = null;
         this._syncDebounceTimer = null;
@@ -28,7 +31,8 @@ class MindmapStorage {
         // JSON底座同步状态
         this._lastSyncHash = null;
         
-        console.log('[MindmapStorage] ✅ 业务层包装初始化完成，使用统一存储系统');
+        console.log('[MindmapStorage] ✅ 业务层包装初始化完成，使用统一存储系统' + 
+                   (this.compressor ? ' + 数据压缩引擎' : ''));
     }
 
     /**
@@ -53,8 +57,11 @@ class MindmapStorage {
             // 获取存储键
             const mindKey = this._getMindmapKey(data);
             
+            // 🆕 智能压缩数据（如果压缩引擎可用）
+            const dataToStore = this.compressor ? this.compressor.compress(data) : data;
+            
             // 统一存储：只使用AutogenUnifiedStorage
-            const success = await this.storage.store('mindmap', mindKey, data);
+            const success = await this.storage.store('mindmap', mindKey, dataToStore);
             
             if (success) {
                 console.log('[MindmapStorage] 脑图数据保存成功:', mindKey);
@@ -81,8 +88,11 @@ class MindmapStorage {
             const data = await this.storage.retrieve('mindmap', mindKey);
             
             if (data) {
+                // 🆕 智能还原数据（如果压缩引擎可用）
+                const restoredData = this.compressor ? this.compressor.decompress(data) : data;
+                
                 console.log('[MindmapStorage] 脑图数据加载成功:', mindKey);
-                return data;
+                return restoredData;
             }
             
             // 返回默认数据

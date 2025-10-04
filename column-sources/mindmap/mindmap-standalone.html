@@ -13,7 +13,9 @@
     <script src="../../src/core/ErrorHandler.js"></script>
     
     <!-- 🆕 src/ 架构组件 -->
+    <script src="../../src/data/DataCompressor.js"></script>
     <script src="../../src/data/MindmapStorage.js"></script>
+    <script src="../../src/data/ImportExportService.js"></script>
     <script src="../../src/presentation/MindmapRenderer.js"></script>
     <script src="../../src/presentation/MindmapEventManager.js"></script>
     <script src="../../src/business/MindmapController.js"></script>
@@ -601,22 +603,42 @@
 
             async loadInitialData() {
                 try {
-                    if (typeof AutogenUnifiedStorage !== 'undefined' && AutogenUnifiedStorage.retrieve) {
-                        // 🔧 修复：使用 'current' 作为默认键，与保存时一致
-                        const stored = await AutogenUnifiedStorage.retrieve('mindmap', 'current');
-                        if (stored && stored.data) {
+                    // 🔧 优先从 IndexedDB 加载（持久化数据）- 使用 MindmapStorage 自动还原
+                    if (typeof window.MindmapStorage !== 'undefined') {
+                        const mindmapStorage = new window.MindmapStorage();
+                        const stored = await mindmapStorage.loadMindmapData('current');
+                        
+                        // 如果不是默认数据，说明加载成功
+                        if (stored && stored.data && stored.data.id !== 'root_default') {
                             this.jm.show(stored);
                             this.updateNodeCount();
-                            console.log('[脑图工作栏] 已从AutogenUnifiedStorage加载数据 (key: current)');
+                            console.log('[脑图工作栏] ✅ 已从IndexedDB加载持久化数据 (自动还原)');
                             return;
                         }
                     }
-                    console.warn('[脑图工作栏] 未在统一存储找到数据，加载测试数据');
+                    
+                    // 如果IndexedDB没有数据，尝试加载 mindmap_base.json（初始数据）
+                    try {
+                        const response = await fetch('mindmap_base.json');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.jm.show(data);
+                            this.updateNodeCount();
+                            console.log('[脑图工作栏] 📄 已加载初始数据文件 mindmap_base.json');
+                            // 立即保存到IndexedDB（会自动压缩），下次就能加载
+                            await this.saveToUnifiedStorage(this.jm.get_data());
+                            return;
+                        }
+                    } catch (fileErr) {
+                        console.log('[脑图工作栏] mindmap_base.json 不存在');
+                    }
+                    
+                    console.warn('[脑图工作栏] 未找到任何数据，加载测试数据');
                 } catch (e) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
                         window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'loadInitialData' }, { silent: true });
                     }
-                    console.error('[脑图工作栏] 从统一存储加载失败，回退到测试数据:', e);
+                    console.error('[脑图工作栏] 加载失败，回退到测试数据:', e);
                 }
                 this.loadTestData();
             }
@@ -1123,19 +1145,32 @@
                         this.emitEvent('mindmap.node.title.updated', { nodeId: node.id, title: newTitle });
                         console.log('[脑图工作栏] 手动保存节点标题:', node.id, newTitle);
                     }
-                    if (!node.data) node.data = {};
-                    // 统一放在 data.content 字段
-                    node.data.content = text;
+                    // 🔧 关键修复：直接操作 jsMind 内部节点，不依赖 get_selected_node 的返回值
+                    const jmNode = this.jm.get_node(node.id);
+                    if (jmNode) {
+                        if (!jmNode.data) jmNode.data = {};
+                        jmNode.data.content = text;
+                        console.log('[脑图工作栏] ✅ jsMind内部节点内容已更新:', text);
+                    } else {
+                        console.error('[脑图工作栏] ❌ 无法获取jsMind内部节点:', node.id);
+                    }
+                    
                     this.updateLastModified();
-                    console.log('[脑图工作栏] 节点内容已更新');
+                    
                     // 触发内容更新事件
                     this.emitEvent('mindmap.node.content.updated', {
                         nodeId: node.id,
                         topic: node.topic,
                         content: text
                     });
+                    
                     // 持久化整个脑图数据
                     const data = this.jm.get_data();
+                    
+                    // 🔍 调试：验证数据中是否包含内容
+                    const savedNode = this.findNodeInData(data.data, node.id);
+                    console.log('[脑图工作栏] 准备保存的节点内容:', savedNode?.data?.content);
+                    
                     await this.saveToUnifiedStorage(data).catch(() => {});
                     alert('节点内容已保存');
                 } catch (e) {
@@ -1178,7 +1213,15 @@
                     // 统一放在 data.content 字段
                     node.data.content = text;
                     this.updateLastModified();
-                    console.log('[脑图工作栏] 静默保存节点内容完成');
+                    console.log('[脑图工作栏] 静默保存节点内容到 node.data.content');
+                    
+                    // 🔧 关键修复：确保 jsMind 内部节点也更新了 data
+                    const jmNode = this.jm.get_node(node.id);
+                    if (jmNode) {
+                        if (!jmNode.data) jmNode.data = {};
+                        jmNode.data.content = text;
+                        console.log('[脑图工作栏] jsMind内部节点data也已更新（静默）');
+                    }
                     
                     // 触发内容更新事件
                     this.emitEvent('mindmap.node.content.updated', {
@@ -1377,13 +1420,20 @@
                     format: 'node_tree',
                     data: convertNode(mindmapData.data)
                 };
-
                 return convertedData;
             }
 
             // 使用filepicker保存文件
             async saveWithFilePicker(data) {
                 try {
+                    // 🆕 智能压缩数据（如果压缩引擎可用）
+                    let dataToSave = data;
+                    if (typeof window.DataCompressor !== 'undefined') {
+                        const compressor = new window.DataCompressor();
+                        dataToSave = compressor.compress(data);
+                        console.log('[脑图工作栏] 文件保存：数据已压缩');
+                    }
+                    
                     // 检查浏览器是否支持File System Access API
                     if ('showSaveFilePicker' in window) {
                         // 使用现代File System Access API
@@ -1398,14 +1448,14 @@
                         });
 
                         const writable = await fileHandle.createWritable();
-                        await writable.write(JSON.stringify(data, null, 2));
+                        await writable.write(JSON.stringify(dataToSave, null, 2));
                         await writable.close();
 
                         console.log('[脑图工作栏] 文件已保存:', fileHandle.name);
                         return true;
                     } else {
                         // 降级到传统下载方式
-                        const blob = new Blob([JSON.stringify(data, null, 2)], { 
+                        const blob = new Blob([JSON.stringify(dataToSave, null, 2)], { 
                             type: 'application/json' 
                         });
                         const url = URL.createObjectURL(blob);

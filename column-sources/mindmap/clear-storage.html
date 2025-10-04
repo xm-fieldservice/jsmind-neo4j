@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>清除存储</title>
+</head>
+<body>
+    <h1>清除所有存储数据</h1>
+    <button onclick="clearAll()">清除所有数据</button>
+    <pre id="output"></pre>
+
+    <script>
+        async function clearAll() {
+            const output = document.getElementById('output');
+            output.textContent = '正在清除...\n';
+            
+            // 1. 清除 LocalStorage
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('autogen:mindmap:')) {
+                    keys.push(key);
+                }
+            }
+            keys.forEach(key => localStorage.removeItem(key));
+            output.textContent += `✅ 已清除 ${keys.length} 个 LocalStorage 项\n`;
+            
+            // 2. 清除 IndexedDB
+            try {
+                const db = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open('AutogenUnifiedStorage', 1);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+                
+                const transaction = db.transaction(['mindmap'], 'readwrite');
+                const store = transaction.objectStore('mindmap');
+                await store.clear();
+                output.textContent += '✅ 已清除 IndexedDB\n';
+            } catch (error) {
+                output.textContent += `❌ IndexedDB 清除失败: ${error.message}\n`;
+            }
+            
+            output.textContent += '\n✅ 清除完成！请刷新脑图页面。\n';
+        }
+    </script>
+</body>
+</html>
