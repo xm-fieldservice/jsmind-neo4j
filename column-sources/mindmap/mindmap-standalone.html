@@ -13,6 +13,7 @@
     <script src="../../src/core/ErrorHandler.js"></script>
     
     <!-- 脑图统一操作API -->
+    <script src="node-clipboard.js"></script>
     <script src="mindmap-operations.js"></script>
     
     <!-- 右键菜单管理器 -->
@@ -524,6 +525,10 @@
                                 return this.ops.removeNode();
                             }
                         }
+                        // 不设置mapping，使用jsMind默认快捷键
+                        // Tab: 添加子节点
+                        // Enter: 添加兄弟节点  
+                        // Delete: 删除节点
                     },
                     view: {
                         hmargin: 100,
@@ -544,6 +549,9 @@
                 
                 // 绑定事件
                 this.bindEvents();
+                
+                // 绑定全局快捷键（Ctrl+C/X/V）
+                this.bindGlobalShortcuts();
                 
                 // 隐藏加载状态
                 document.getElementById('loading').style.display = 'none';
@@ -754,6 +762,58 @@
                 });
             }
 
+            bindGlobalShortcuts() {
+                // 绑定全局快捷键（Ctrl+C/X/V）
+                document.addEventListener('keydown', (e) => {
+                    // 检查是否在编辑状态
+                    const isEditing = document.activeElement.tagName === 'INPUT' || 
+                                     document.activeElement.tagName === 'TEXTAREA' ||
+                                     document.activeElement.isContentEditable;
+                    
+                    // 如果在编辑状态，不拦截快捷键
+                    if (isEditing) return;
+                    
+                    // Ctrl+C - 复制
+                    if (e.ctrlKey && e.key === 'c') {
+                        e.preventDefault();
+                        const success = this.ops.copyNode();
+                        if (success) {
+                            this.showMessage('节点已复制');
+                        }
+                        return false;
+                    }
+                    
+                    // Ctrl+X - 剪切
+                    if (e.ctrlKey && e.key === 'x') {
+                        e.preventDefault();
+                        const success = this.ops.cutNode();
+                        if (success) {
+                            this.showMessage('节点已剪切');
+                        } else {
+                            this.showMessage('无法剪切根节点', 'error');
+                        }
+                        return false;
+                    }
+                    
+                    // Ctrl+V - 粘贴
+                    if (e.ctrlKey && e.key === 'v') {
+                        e.preventDefault();
+                        const newNode = this.ops.pasteNode();
+                        if (newNode) {
+                            this.showMessage('节点已粘贴');
+                            this.updateNodeCount();
+                            this.updateLastModified();
+                            this.autoSave();
+                        } else {
+                            this.showMessage('剪贴板为空', 'error');
+                        }
+                        return false;
+                    }
+                });
+                
+                console.log('[脑图工作栏] 全局快捷键绑定完成 (Ctrl+C/X/V)');
+            }
+
             onNodeSelected(node) {
                 // 如果之前有选中的节点，先保存其内容
                 if (this.currentNodeId && this.currentNodeId !== node.id) {
@@ -766,6 +826,19 @@
                 
                 // 同步右侧编辑框内容
                 this.loadNodeContentToEditor(node);
+            }
+            
+            showMessage(message, type = 'info') {
+                // 简单的消息提示
+                console.log(`[脑图工作栏] ${type.toUpperCase()}: ${message}`);
+                
+                if (window.LogPanel) {
+                    if (type === 'error') {
+                        window.LogPanel.error(message);
+                    } else {
+                        window.LogPanel.log(message);
+                    }
+                }
             }
 
             initContentSidebar() {
@@ -829,8 +902,15 @@
 
                 const topic = prompt('输入新节点名称:', '新节点');
                 if (topic) {
-                    // 使用统一API添加节点
-                    const node = this.ops.addCustomNode(selectedNode, topic, { direction: 'right' });
+                    // 获取时间戳
+                    const timestamp = this.ops.getTimestamp();
+                    
+                    // 使用统一API添加节点，带时间戳和空行
+                    const node = this.ops.addCustomNode(selectedNode, topic, { 
+                        direction: 'right',
+                        content: timestamp + '\n\n'  // 添加时间戳和空行
+                    });
+                    
                     if (node) {
                         this.updateNodeCount();
                         this.updateLastModified();

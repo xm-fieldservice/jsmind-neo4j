@@ -4,8 +4,8 @@
     "author": "test",
     "version": "1.2",
     "format": "md_database_v1.2",
-    "createdAt": 1759569244706,
-    "updatedAt": 1759569244706,
+    "createdAt": 1759571533545,
+    "updatedAt": 1759571533545,
     "description": "按照数据底座规范v1.2格式保存的脑图数据"
   },
   "format": "node_tree",
@@ -35,7 +35,7 @@
                   "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_parent_1759569244706",
+                      "id": "rel_parent_1759571533545",
                       "type": "parent_child",
                       "targetId": "sub1",
                       "targetTopic": "",
@@ -43,8 +43,8 @@
                       "confidence": 1,
                       "source": "user_created",
                       "bidirectional": false,
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
                       "needsConfirmation": false
                     }
                   ],
@@ -52,8 +52,8 @@
                   "priority": "medium",
                   "assignee": "",
                   "tags": [],
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
                 }
               },
               {
@@ -70,7 +70,7 @@
                   "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_parent_1759569244706",
+                      "id": "rel_parent_1759571533545",
                       "type": "parent_child",
                       "targetId": "sub1",
                       "targetTopic": "",
@@ -78,8 +78,8 @@
                       "confidence": 1,
                       "source": "user_created",
                       "bidirectional": false,
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
                       "needsConfirmation": false
                     }
                   ],
@@ -87,8 +87,8 @@
                   "priority": "medium",
                   "assignee": "",
                   "tags": [],
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
                 }
               }
             ],
@@ -102,7 +102,7 @@
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759569244706",
+                  "id": "rel_parent_1759571533545",
                   "type": "parent_child",
                   "targetId": "9ae719ba11a5f071",
                   "targetTopic": "",
@@ -110,8 +110,8 @@
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
                   "needsConfirmation": false
                 }
               ],
@@ -119,8 +119,8 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
             }
           },
           {
@@ -137,7 +137,7 @@
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759569244706",
+                  "id": "rel_parent_1759571533545",
                   "type": "parent_child",
                   "targetId": "9ae719ba11a5f071",
                   "targetTopic": "",
@@ -145,8 +145,8 @@
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
                   "needsConfirmation": false
                 }
               ],
@@ -154,8 +154,8 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
             }
           },
           {
@@ -172,7 +172,7 @@
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759569244706",
+                  "id": "rel_parent_1759571533545",
                   "type": "parent_child",
                   "targetId": "9ae719ba11a5f071",
                   "targetTopic": "",
@@ -180,8 +180,8 @@
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
                   "needsConfirmation": false
                 }
               ],
@@ -189,8 +189,327 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
+            }
+          },
+          {
+            "id": "9ae81a27aa4559f8",
+            "topic": "脑图作为新的工作方法的手动编辑器",
+            "children": [],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae719ba11a5f071",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759571533545",
+                  "type": "parent_child",
+                  "targetId": "9ae719ba11a5f071",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
+            }
+          },
+          {
+            "id": "9ae9317e3a520c44",
+            "topic": "节点的快捷键复制和剪切，粘贴",
+            "children": [
+              {
+                "id": "node_1759571317508",
+                "topic": "功能没有实现，修复",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae9317e3a520c44",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "9ae9317e3a520c44",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              },
+              {
+                "id": "9aea05a32bf85772",
+                "topic": "你的改动，让快捷键创建子节点的功能消失了(ctrl + 回车），按键添加子节点还能用。恢复快捷键创建子节点功能。快捷键创建同级节点的功能没问题。",
+                "children": [
+                  {
+                    "id": "9aea159e299134ef",
+                    "topic": "修复了",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9aea05a32bf85772",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759571533545",
+                          "type": "parent_child",
+                          "targetId": "9aea05a32bf85772",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
+                    }
+                  }
+                ],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae9317e3a520c44",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "9ae9317e3a520c44",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              },
+              {
+                "id": "9aea2171f470b29f",
+                "topic": "经过测试：剪切功能实际实现的是复制节点，原来的节点都在，好好检查",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae9317e3a520c44",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "9ae9317e3a520c44",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              }
+            ],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae719ba11a5f071",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759571533545",
+                  "type": "parent_child",
+                  "targetId": "9ae719ba11a5f071",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
+            }
+          },
+          {
+            "id": "9ae9cd34102885ea",
+            "topic": "New Node",
+            "children": [
+              {
+                "id": "node_1759571147781",
+                "topic": "新节点",
+                "children": [
+                  {
+                    "id": "9aea14a8465ccc61",
+                    "topic": "New Node",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "node_1759571147781",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759571533545",
+                          "type": "parent_child",
+                          "targetId": "node_1759571147781",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
+                    }
+                  }
+                ],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae9cd34102885ea",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "9ae9cd34102885ea",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              }
+            ],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae719ba11a5f071",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759571533545",
+                  "type": "parent_child",
+                  "targetId": "9ae719ba11a5f071",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
             }
           }
         ],
@@ -204,7 +523,7 @@
           "dependencies": [],
           "relations": [
             {
-              "id": "rel_parent_1759569244706",
+              "id": "rel_parent_1759571533545",
               "type": "parent_child",
               "targetId": "root",
               "targetTopic": "",
@@ -212,8 +531,8 @@
               "confidence": 1,
               "source": "user_created",
               "bidirectional": false,
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706,
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545,
               "needsConfirmation": false
             }
           ],
@@ -221,8 +540,8 @@
           "priority": "medium",
           "assignee": "",
           "tags": [],
-          "createdAt": 1759569244706,
-          "updatedAt": 1759569244706
+          "createdAt": 1759571533545,
+          "updatedAt": 1759571533545
         }
       },
       {
@@ -251,7 +570,7 @@
                       "dependencies": [],
                       "relations": [
                         {
-                          "id": "rel_parent_1759569244706",
+                          "id": "rel_parent_1759571533545",
                           "type": "parent_child",
                           "targetId": "9ae7cfbe7e3a78aa",
                           "targetTopic": "",
@@ -259,8 +578,8 @@
                           "confidence": 1,
                           "source": "user_created",
                           "bidirectional": false,
-                          "createdAt": 1759569244706,
-                          "updatedAt": 1759569244706,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
                           "needsConfirmation": false
                         }
                       ],
@@ -268,8 +587,8 @@
                       "priority": "medium",
                       "assignee": "",
                       "tags": [],
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
                     }
                   },
                   {
@@ -286,7 +605,7 @@
                       "dependencies": [],
                       "relations": [
                         {
-                          "id": "rel_parent_1759569244706",
+                          "id": "rel_parent_1759571533545",
                           "type": "parent_child",
                           "targetId": "9ae7cfbe7e3a78aa",
                           "targetTopic": "",
@@ -294,8 +613,8 @@
                           "confidence": 1,
                           "source": "user_created",
                           "bidirectional": false,
-                          "createdAt": 1759569244706,
-                          "updatedAt": 1759569244706,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
                           "needsConfirmation": false
                         }
                       ],
@@ -303,8 +622,8 @@
                       "priority": "medium",
                       "assignee": "",
                       "tags": [],
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
                     }
                   },
                   {
@@ -321,7 +640,7 @@
                       "dependencies": [],
                       "relations": [
                         {
-                          "id": "rel_parent_1759569244706",
+                          "id": "rel_parent_1759571533545",
                           "type": "parent_child",
                           "targetId": "9ae7cfbe7e3a78aa",
                           "targetTopic": "",
@@ -329,8 +648,8 @@
                           "confidence": 1,
                           "source": "user_created",
                           "bidirectional": false,
-                          "createdAt": 1759569244706,
-                          "updatedAt": 1759569244706,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
                           "needsConfirmation": false
                         }
                       ],
@@ -338,8 +657,8 @@
                       "priority": "medium",
                       "assignee": "",
                       "tags": [],
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
                     }
                   },
                   {
@@ -356,7 +675,7 @@
                       "dependencies": [],
                       "relations": [
                         {
-                          "id": "rel_parent_1759569244706",
+                          "id": "rel_parent_1759571533545",
                           "type": "parent_child",
                           "targetId": "9ae7cfbe7e3a78aa",
                           "targetTopic": "",
@@ -364,8 +683,8 @@
                           "confidence": 1,
                           "source": "user_created",
                           "bidirectional": false,
-                          "createdAt": 1759569244706,
-                          "updatedAt": 1759569244706,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
                           "needsConfirmation": false
                         }
                       ],
@@ -373,8 +692,8 @@
                       "priority": "medium",
                       "assignee": "",
                       "tags": [],
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
                     }
                   },
                   {
@@ -391,7 +710,7 @@
                       "dependencies": [],
                       "relations": [
                         {
-                          "id": "rel_parent_1759569244706",
+                          "id": "rel_parent_1759571533545",
                           "type": "parent_child",
                           "targetId": "9ae7cfbe7e3a78aa",
                           "targetTopic": "",
@@ -399,8 +718,8 @@
                           "confidence": 1,
                           "source": "user_created",
                           "bidirectional": false,
-                          "createdAt": 1759569244706,
-                          "updatedAt": 1759569244706,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
                           "needsConfirmation": false
                         }
                       ],
@@ -408,8 +727,8 @@
                       "priority": "medium",
                       "assignee": "",
                       "tags": [],
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
                     }
                   }
                 ],
@@ -423,7 +742,7 @@
                   "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_parent_1759569244706",
+                      "id": "rel_parent_1759571533545",
                       "type": "parent_child",
                       "targetId": "sub3",
                       "targetTopic": "",
@@ -431,8 +750,8 @@
                       "confidence": 1,
                       "source": "user_created",
                       "bidirectional": false,
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
                       "needsConfirmation": false
                     }
                   ],
@@ -440,8 +759,8 @@
                   "priority": "medium",
                   "assignee": "",
                   "tags": [],
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
                 }
               },
               {
@@ -458,7 +777,7 @@
                   "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_parent_1759569244706",
+                      "id": "rel_parent_1759571533545",
                       "type": "parent_child",
                       "targetId": "sub3",
                       "targetTopic": "",
@@ -466,8 +785,8 @@
                       "confidence": 1,
                       "source": "user_created",
                       "bidirectional": false,
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
                       "needsConfirmation": false
                     }
                   ],
@@ -475,8 +794,8 @@
                   "priority": "medium",
                   "assignee": "",
                   "tags": [],
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
                 }
               },
               {
@@ -493,7 +812,7 @@
                   "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_parent_1759569244706",
+                      "id": "rel_parent_1759571533545",
                       "type": "parent_child",
                       "targetId": "sub3",
                       "targetTopic": "",
@@ -501,8 +820,8 @@
                       "confidence": 1,
                       "source": "user_created",
                       "bidirectional": false,
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
                       "needsConfirmation": false
                     }
                   ],
@@ -510,8 +829,78 @@
                   "priority": "medium",
                   "assignee": "",
                   "tags": [],
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              },
+              {
+                "id": "9ae8485e888ee6e4",
+                "topic": "实施",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "sub3",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "sub3",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              },
+              {
+                "id": "9ae87a506c5da79e",
+                "topic": "验收：git",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "sub3",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "sub3",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
                 }
               }
             ],
@@ -525,7 +914,7 @@
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759569244706",
+                  "id": "rel_parent_1759571533545",
                   "type": "parent_child",
                   "targetId": "9ae71b091e2c850b",
                   "targetTopic": "",
@@ -533,8 +922,8 @@
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
                   "needsConfirmation": false
                 }
               ],
@@ -542,8 +931,114 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
+            }
+          },
+          {
+            "id": "9ae8ba8124346030",
+            "topic": "对windsurf 强调，不必每次完成工作后，就生成一个MD文档，和你麻烦",
+            "children": [],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae71b091e2c850b",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759571533545",
+                  "type": "parent_child",
+                  "targetId": "9ae71b091e2c850b",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
+            }
+          },
+          {
+            "id": "9ae8c76ac4294f80",
+            "topic": "New Node",
+            "children": [
+              {
+                "id": "node_1759570079952",
+                "topic": "新节点",
+                "children": [],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae8c76ac4294f80",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "9ae8c76ac4294f80",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              }
+            ],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae71b091e2c850b",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759571533545",
+                  "type": "parent_child",
+                  "targetId": "9ae71b091e2c850b",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
             }
           }
         ],
@@ -557,7 +1052,7 @@
           "dependencies": [],
           "relations": [
             {
-              "id": "rel_parent_1759569244706",
+              "id": "rel_parent_1759571533545",
               "type": "parent_child",
               "targetId": "root",
               "targetTopic": "",
@@ -565,8 +1060,8 @@
               "confidence": 1,
               "source": "user_created",
               "bidirectional": false,
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706,
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545,
               "needsConfirmation": false
             }
           ],
@@ -574,8 +1069,363 @@
           "priority": "medium",
           "assignee": "",
           "tags": [],
-          "createdAt": 1759569244706,
-          "updatedAt": 1759569244706
+          "createdAt": 1759571533545,
+          "updatedAt": 1759571533545
+        }
+      },
+      {
+        "id": "9ae9582b46694fd6",
+        "topic": "审核",
+        "children": [
+          {
+            "id": "9ae8817f52ca2ec0",
+            "topic": "创建新节点的时候，将时间戳打上；",
+            "children": [
+              {
+                "id": "9ae9014c01782d73",
+                "topic": "测试",
+                "children": [
+                  {
+                    "id": "9ae8cd9eed25ef0c",
+                    "topic": "用按键添加节点，没问题",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae9014c01782d73",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759571533545",
+                          "type": "parent_child",
+                          "targetId": "9ae9014c01782d73",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
+                    }
+                  },
+                  {
+                    "id": "9ae8d1ab8601216b",
+                    "topic": "用快捷键添加节点，时间戳没打上。",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae9014c01782d73",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759571533545",
+                          "type": "parent_child",
+                          "targetId": "9ae9014c01782d73",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
+                    }
+                  },
+                  {
+                    "id": "9ae98604cb650147",
+                    "topic": "程序员报告修复",
+                    "children": [
+                      {
+                        "id": "node_1759570874689",
+                        "topic": "测试未通过",
+                        "children": [],
+                        "data": {
+                          "content": ""
+                        },
+                        "meta": {
+                          "itemType": "task",
+                          "parentId": "9ae98604cb650147",
+                          "relatedIds": [],
+                          "dependencies": [],
+                          "relations": [
+                            {
+                              "id": "rel_parent_1759571533545",
+                              "type": "parent_child",
+                              "targetId": "9ae98604cb650147",
+                              "targetTopic": "",
+                              "strength": 1,
+                              "confidence": 1,
+                              "source": "user_created",
+                              "bidirectional": false,
+                              "createdAt": 1759571533545,
+                              "updatedAt": 1759571533545,
+                              "needsConfirmation": false
+                            }
+                          ],
+                          "status": "pending",
+                          "priority": "medium",
+                          "assignee": "",
+                          "tags": [],
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545
+                        }
+                      }
+                    ],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae9014c01782d73",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759571533545",
+                          "type": "parent_child",
+                          "targetId": "9ae9014c01782d73",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
+                    }
+                  },
+                  {
+                    "id": "9ae9116730d7afee",
+                    "topic": "说明：节点统一化实施有问题",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae9014c01782d73",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759571533545",
+                          "type": "parent_child",
+                          "targetId": "9ae9014c01782d73",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
+                    }
+                  }
+                ],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae8817f52ca2ec0",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "9ae8817f52ca2ec0",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              },
+              {
+                "id": "9ae91f712ce3159b",
+                "topic": "发起第三方审核：节点统一化实施",
+                "children": [
+                  {
+                    "id": "9ae9279333ec0a6d",
+                    "topic": "审核实施效果的规范化动作和提示词模板",
+                    "children": [],
+                    "data": {
+                      "content": ""
+                    },
+                    "meta": {
+                      "itemType": "task",
+                      "parentId": "9ae91f712ce3159b",
+                      "relatedIds": [],
+                      "dependencies": [],
+                      "relations": [
+                        {
+                          "id": "rel_parent_1759571533545",
+                          "type": "parent_child",
+                          "targetId": "9ae91f712ce3159b",
+                          "targetTopic": "",
+                          "strength": 1,
+                          "confidence": 1,
+                          "source": "user_created",
+                          "bidirectional": false,
+                          "createdAt": 1759571533545,
+                          "updatedAt": 1759571533545,
+                          "needsConfirmation": false
+                        }
+                      ],
+                      "status": "pending",
+                      "priority": "medium",
+                      "assignee": "",
+                      "tags": [],
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545
+                    }
+                  }
+                ],
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "itemType": "task",
+                  "parentId": "9ae8817f52ca2ec0",
+                  "relatedIds": [],
+                  "dependencies": [],
+                  "relations": [
+                    {
+                      "id": "rel_parent_1759571533545",
+                      "type": "parent_child",
+                      "targetId": "9ae8817f52ca2ec0",
+                      "targetTopic": "",
+                      "strength": 1,
+                      "confidence": 1,
+                      "source": "user_created",
+                      "bidirectional": false,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
+                      "needsConfirmation": false
+                    }
+                  ],
+                  "status": "pending",
+                  "priority": "medium",
+                  "assignee": "",
+                  "tags": [],
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
+                }
+              }
+            ],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "9ae9582b46694fd6",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759571533545",
+                  "type": "parent_child",
+                  "targetId": "9ae9582b46694fd6",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
+            }
+          }
+        ],
+        "data": {
+          "content": ""
+        },
+        "meta": {
+          "itemType": "task",
+          "parentId": "root",
+          "relatedIds": [],
+          "dependencies": [],
+          "relations": [
+            {
+              "id": "rel_parent_1759571533545",
+              "type": "parent_child",
+              "targetId": "root",
+              "targetTopic": "",
+              "strength": 1,
+              "confidence": 1,
+              "source": "user_created",
+              "bidirectional": false,
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545,
+              "needsConfirmation": false
+            }
+          ],
+          "status": "pending",
+          "priority": "medium",
+          "assignee": "",
+          "tags": [],
+          "createdAt": 1759571533545,
+          "updatedAt": 1759571533545
         }
       },
       {
@@ -592,7 +1442,7 @@
           "dependencies": [],
           "relations": [
             {
-              "id": "rel_parent_1759569244706",
+              "id": "rel_parent_1759571533545",
               "type": "parent_child",
               "targetId": "root",
               "targetTopic": "",
@@ -600,8 +1450,8 @@
               "confidence": 1,
               "source": "user_created",
               "bidirectional": false,
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706,
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545,
               "needsConfirmation": false
             }
           ],
@@ -609,8 +1459,8 @@
           "priority": "medium",
           "assignee": "",
           "tags": [],
-          "createdAt": 1759569244706,
-          "updatedAt": 1759569244706
+          "createdAt": 1759571533545,
+          "updatedAt": 1759571533545
         }
       },
       {
@@ -635,7 +1485,7 @@
                   "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_parent_1759569244706",
+                      "id": "rel_parent_1759571533545",
                       "type": "parent_child",
                       "targetId": "9ae6235ddb041662",
                       "targetTopic": "",
@@ -643,8 +1493,8 @@
                       "confidence": 1,
                       "source": "user_created",
                       "bidirectional": false,
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
                       "needsConfirmation": false
                     }
                   ],
@@ -652,8 +1502,8 @@
                   "priority": "medium",
                   "assignee": "",
                   "tags": [],
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
                 }
               },
               {
@@ -670,7 +1520,7 @@
                   "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_parent_1759569244706",
+                      "id": "rel_parent_1759571533545",
                       "type": "parent_child",
                       "targetId": "9ae6235ddb041662",
                       "targetTopic": "",
@@ -678,8 +1528,8 @@
                       "confidence": 1,
                       "source": "user_created",
                       "bidirectional": false,
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
                       "needsConfirmation": false
                     }
                   ],
@@ -687,8 +1537,8 @@
                   "priority": "medium",
                   "assignee": "",
                   "tags": [],
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
                 }
               },
               {
@@ -705,7 +1555,7 @@
                   "dependencies": [],
                   "relations": [
                     {
-                      "id": "rel_parent_1759569244706",
+                      "id": "rel_parent_1759571533545",
                       "type": "parent_child",
                       "targetId": "9ae6235ddb041662",
                       "targetTopic": "",
@@ -713,8 +1563,8 @@
                       "confidence": 1,
                       "source": "user_created",
                       "bidirectional": false,
-                      "createdAt": 1759569244706,
-                      "updatedAt": 1759569244706,
+                      "createdAt": 1759571533545,
+                      "updatedAt": 1759571533545,
                       "needsConfirmation": false
                     }
                   ],
@@ -722,8 +1572,8 @@
                   "priority": "medium",
                   "assignee": "",
                   "tags": [],
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545
                 }
               }
             ],
@@ -737,7 +1587,7 @@
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759569244706",
+                  "id": "rel_parent_1759571533545",
                   "type": "parent_child",
                   "targetId": "9ae46e47587c000b",
                   "targetTopic": "",
@@ -745,8 +1595,8 @@
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
                   "needsConfirmation": false
                 }
               ],
@@ -754,8 +1604,8 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
             }
           },
           {
@@ -772,7 +1622,7 @@
               "dependencies": [],
               "relations": [
                 {
-                  "id": "rel_parent_1759569244706",
+                  "id": "rel_parent_1759571533545",
                   "type": "parent_child",
                   "targetId": "9ae46e47587c000b",
                   "targetTopic": "",
@@ -780,8 +1630,8 @@
                   "confidence": 1,
                   "source": "user_created",
                   "bidirectional": false,
-                  "createdAt": 1759569244706,
-                  "updatedAt": 1759569244706,
+                  "createdAt": 1759571533545,
+                  "updatedAt": 1759571533545,
                   "needsConfirmation": false
                 }
               ],
@@ -789,8 +1639,8 @@
               "priority": "medium",
               "assignee": "",
               "tags": [],
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545
             }
           }
         ],
@@ -804,7 +1654,7 @@
           "dependencies": [],
           "relations": [
             {
-              "id": "rel_parent_1759569244706",
+              "id": "rel_parent_1759571533545",
               "type": "parent_child",
               "targetId": "root",
               "targetTopic": "",
@@ -812,8 +1662,8 @@
               "confidence": 1,
               "source": "user_created",
               "bidirectional": false,
-              "createdAt": 1759569244706,
-              "updatedAt": 1759569244706,
+              "createdAt": 1759571533545,
+              "updatedAt": 1759571533545,
               "needsConfirmation": false
             }
           ],
@@ -821,8 +1671,8 @@
           "priority": "medium",
           "assignee": "",
           "tags": [],
-          "createdAt": 1759569244706,
-          "updatedAt": 1759569244706
+          "createdAt": 1759571533545,
+          "updatedAt": 1759571533545
         }
       }
     ],
@@ -839,8 +1689,8 @@
       "priority": "medium",
       "assignee": "",
       "tags": [],
-      "createdAt": 1759569244706,
-      "updatedAt": 1759569244706
+      "createdAt": 1759571533545,
+      "updatedAt": 1759571533545
     }
   }
 }
