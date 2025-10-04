@@ -552,7 +552,7 @@
                             {
                                 id: 'sub3',
                                 topic: '子主题3',
-                                direction: 'left'
+                                direction: 'right'
                             }
                         ]
                     }
@@ -758,7 +758,8 @@
                 const topic = prompt('输入新节点名称:', '新节点');
                 if (topic) {
                     const nodeId = 'node_' + Date.now();
-                    this.jm.add_node(selectedNode, nodeId, topic);
+                    // 确保新节点都在右侧布局
+                    this.jm.add_node(selectedNode, nodeId, topic, { direction: 'right' });
                     this.updateNodeCount();
                     this.updateLastModified();
                     // 自动保存
@@ -1020,6 +1021,38 @@
                         window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'saveContentFromSidebarSilent' }, { silent: true });
                     }
                     console.error('[脑图工作栏] 静默保存节点内容失败:', e);
+                }
+            }
+
+            // 将节点内容加载到右侧编辑器
+            loadNodeContentToEditor(node) {
+                try {
+                    const editor = document.getElementById('nodeContentEditor');
+                    const titleInput = document.getElementById('nodeTitleEditor');
+
+                    if (editor) {
+                        const content = (node.data && node.data.content) || '';
+                        editor.value = String(content || '');
+                        console.log('[脑图工作栏] 加载节点内容到编辑器:', content);
+                    }
+
+                    if (titleInput) {
+                        titleInput.value = node.topic || '';
+                        console.log('[脑图工作栏] 加载节点标题到编辑器:', node.topic);
+                    }
+
+                    // 触发节点选中事件
+                    this.emitEvent('mindmap.node.selected', {
+                        nodeId: node.id,
+                        topic: node.topic,
+                        mindmapId: this.mindmapId,
+                        data: node.data || {}
+                    });
+                } catch (e) {
+                    if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
+                        window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'loadNodeContentToEditor' }, { silent: true });
+                    }
+                    console.error('[脑图工作栏] 加载节点内容失败:', e);
                 }
             }
 

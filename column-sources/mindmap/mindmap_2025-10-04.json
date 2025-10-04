@@ -1,0 +1,246 @@
+{
+  "meta": {
+    "name": "测试脑图",
+    "author": "test",
+    "version": "1.2",
+    "format": "md_database_v1.2",
+    "createdAt": 1759551416990,
+    "updatedAt": 1759551416990,
+    "description": "按照数据底座规范v1.2格式保存的脑图数据"
+  },
+  "format": "node_tree",
+  "data": {
+    "id": "root",
+    "topic": "中心节点",
+    "children": [
+      {
+        "id": "sub1",
+        "topic": "3",
+        "children": [
+          {
+            "id": "sub11",
+            "topic": "32",
+            "children": [],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "sub1",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759551416990",
+                  "type": "parent_child",
+                  "targetId": "sub1",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759551416990,
+                  "updatedAt": 1759551416990,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759551416990,
+              "updatedAt": 1759551416990
+            }
+          },
+          {
+            "id": "sub12",
+            "topic": "31",
+            "children": [],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "sub1",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759551416990",
+                  "type": "parent_child",
+                  "targetId": "sub1",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759551416990,
+                  "updatedAt": 1759551416990,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759551416990,
+              "updatedAt": 1759551416990
+            }
+          }
+        ],
+        "data": {
+          "content": ""
+        },
+        "meta": {
+          "itemType": "task",
+          "parentId": "root",
+          "relatedIds": [],
+          "dependencies": [],
+          "relations": [
+            {
+              "id": "rel_parent_1759551416990",
+              "type": "parent_child",
+              "targetId": "root",
+              "targetTopic": "",
+              "strength": 1,
+              "confidence": 1,
+              "source": "user_created",
+              "bidirectional": false,
+              "createdAt": 1759551416990,
+              "updatedAt": 1759551416990,
+              "needsConfirmation": false
+            }
+          ],
+          "status": "pending",
+          "priority": "medium",
+          "assignee": "",
+          "tags": [],
+          "createdAt": 1759551416990,
+          "updatedAt": 1759551416990
+        }
+      },
+      {
+        "id": "sub2",
+        "topic": "2",
+        "children": [
+          {
+            "id": "sub21",
+            "topic": "21",
+            "children": [],
+            "data": {
+              "content": ""
+            },
+            "meta": {
+              "itemType": "task",
+              "parentId": "sub2",
+              "relatedIds": [],
+              "dependencies": [],
+              "relations": [
+                {
+                  "id": "rel_parent_1759551416990",
+                  "type": "parent_child",
+                  "targetId": "sub2",
+                  "targetTopic": "",
+                  "strength": 1,
+                  "confidence": 1,
+                  "source": "user_created",
+                  "bidirectional": false,
+                  "createdAt": 1759551416990,
+                  "updatedAt": 1759551416990,
+                  "needsConfirmation": false
+                }
+              ],
+              "status": "pending",
+              "priority": "medium",
+              "assignee": "",
+              "tags": [],
+              "createdAt": 1759551416990,
+              "updatedAt": 1759551416990
+            }
+          }
+        ],
+        "data": {
+          "content": ""
+        },
+        "meta": {
+          "itemType": "task",
+          "parentId": "root",
+          "relatedIds": [],
+          "dependencies": [],
+          "relations": [
+            {
+              "id": "rel_parent_1759551416990",
+              "type": "parent_child",
+              "targetId": "root",
+              "targetTopic": "",
+              "strength": 1,
+              "confidence": 1,
+              "source": "user_created",
+              "bidirectional": false,
+              "createdAt": 1759551416990,
+              "updatedAt": 1759551416990,
+              "needsConfirmation": false
+            }
+          ],
+          "status": "pending",
+          "priority": "medium",
+          "assignee": "",
+          "tags": [],
+          "createdAt": 1759551416990,
+          "updatedAt": 1759551416990
+        }
+      },
+      {
+        "id": "sub3",
+        "topic": "1",
+        "children": [],
+        "data": {
+          "content": ""
+        },
+        "meta": {
+          "itemType": "task",
+          "parentId": "root",
+          "relatedIds": [],
+          "dependencies": [],
+          "relations": [
+            {
+              "id": "rel_parent_1759551416990",
+              "type": "parent_child",
+              "targetId": "root",
+              "targetTopic": "",
+              "strength": 1,
+              "confidence": 1,
+              "source": "user_created",
+              "bidirectional": false,
+              "createdAt": 1759551416990,
+              "updatedAt": 1759551416990,
+              "needsConfirmation": false
+            }
+          ],
+          "status": "pending",
+          "priority": "medium",
+          "assignee": "",
+          "tags": [],
+          "createdAt": 1759551416990,
+          "updatedAt": 1759551416990
+        }
+      }
+    ],
+    "data": {
+      "content": ""
+    },
+    "meta": {
+      "itemType": "task",
+      "parentId": null,
+      "relatedIds": [],
+      "dependencies": [],
+      "relations": [],
+      "status": "pending",
+      "priority": "medium",
+      "assignee": "",
+      "tags": [],
+      "createdAt": 1759551416990,
+      "updatedAt": 1759551416990
+    }
+  }
+}
