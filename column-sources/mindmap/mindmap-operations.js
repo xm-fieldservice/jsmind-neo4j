@@ -3,91 +3,197 @@ class MindmapOperations {
     constructor(jm) {
         this.jm = jm;
         this.clipboard = new NodeClipboard();  // 初始化剪贴板
-        console.log('[脑图工作栏] 初始化统一节点操作API');
+        console.log('[脑图工作栏] 初始化统一节点操作API - 真正统一化架构');
     }
 
-    // 添加子节点（对应Tab键）
-    addChild() {
+    // ==================== 统一核心引擎 ====================
+    
+    /**
+     * 统一节点创建核心引擎
+     * 所有节点创建操作的唯一真实路径
+     * @param {Object} params - 节点创建参数
+     * @returns {Object} 创建的节点对象
+     */
+    _createNodeCore(params) {
+        const {
+            parent = null,
+            topic = '新节点',
+            direction = 'right',
+            position = 'child', // 'child' | 'brother'
+            selectedNode = null,
+            customData = {}
+        } = params;
+
+        try {
+            // 1. 生成节点ID（统一）
+            const nodeId = this._generateNodeId();
+
+            // 2. 创建时间戳（统一）
+            const timestamp = this.getTimestamp();
+
+            // 3. 基础数据准备（统一）
+            const nodeData = {
+                direction: direction,
+                ...customData
+            };
+
+            // 4. 根据位置类型选择jsMind API
+            let node;
+            if (position === 'child') {
+                // 创建子节点
+                node = this.jm.add_node(parent, nodeId, topic, nodeData);
+            } else if (position === 'brother') {
+                // 创建兄弟节点
+                if (selectedNode) {
+                    node = this.jm.insert_node_after(selectedNode, nodeId, topic);
+                    if (node) {
+                        node.direction = direction; // 设置方向
+                    }
+                } else {
+                    throw new Error('创建兄弟节点需要指定selectedNode');
+                }
+            }
+
+            // 5. 统一后置处理（关键！所有路径必经）
+            if (node) {
+                return this._postProcessNode(node, timestamp, position);
+            }
+
+            return null;
+        } catch (error) {
+            console.error('[脑图工作栏] 节点创建失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 统一节点后置处理
+     * 所有节点创建后必须执行的标准化处理
+     * @param {Object} node - 创建的节点
+     * @param {string} timestamp - 时间戳
+     * @param {string} position - 创建位置类型
+     * @returns {Object} 处理后的节点
+     */
+    _postProcessNode(node, timestamp, position) {
+        // 1. 设置内容（时间戳 + 空行）- 统一处理
+        if (!node.data) node.data = {};
+        node.data.content = timestamp + '\n\n';
+
+        // 2. 选择节点 - 统一处理
+        this.jm.select_node(node.id);
+
+        // 3. 进入编辑模式 - 统一处理
+        this.jm.begin_edit(node.id);
+        
+        // 4. 兄弟节点需要刷新视图
+        if (position === 'brother') {
+            this.jm.view.reset();
+        }
+
+        // 5. 触发统一事件
+        this._triggerNodeCreatedEvent(node, position);
+        
+        console.log('[脑图工作栏] 统一核心: 节点创建成功', node.id, '类型:', position, '时间戳:', timestamp);
+
+        return node;
+    }
+
+    /**
+     * 触发节点创建事件
+     * 统一的事件通知机制
+     * @param {Object} node - 创建的节点
+     * @param {string} position - 创建位置类型
+     */
+    _triggerNodeCreatedEvent(node, position) {
+        // 触发统一事件，供其他模块监听
+        if (window.AutogenEventBus) {
+            window.AutogenEventBus.emit('node:created', {
+                nodeId: node.id,
+                topic: node.topic,
+                position: position,
+                timestamp: this.getTimestamp()
+            });
+        }
+    }
+
+    /**
+     * 生成唯一节点ID
+     * @returns {string} 节点ID
+     */
+    _generateNodeId() {
+        return 'node_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // ==================== 统一对外API ====================
+    
+    /**
+     * 添加子节点 - 统一API（对应Tab键）
+     * @param {Object} parentNode - 父节点（可选，默认使用选中节点）
+     * @returns {Object} 创建的节点
+     */
+    addChild(parentNode = null) {
         console.log('[脑图工作栏] 统一API: 添加子节点');
-        const selected = this.jm.get_selected_node();
+        const selected = parentNode || this.jm.get_selected_node();
         if (!selected) {
             console.warn('[脑图工作栏] 统一API: 添加子节点失败 - 未选中节点');
             return null;
         }
-        
-        const nodeId = 'node_' + Date.now();
-        const timestamp = this.getTimestamp();
-        
-        // 先创建节点
-        const node = this.jm.add_node(selected, nodeId, '新节点', {
-            direction: 'right'  // 直接在创建时指定方向
+
+        return this._createNodeCore({
+            parent: selected,
+            topic: '新节点',
+            direction: 'right',
+            position: 'child'
         });
-        
-        if (node) {
-            // 创建后立即设置内容（时间戳）
-            if (!node.data) node.data = {};
-            node.data.content = timestamp + '\n\n';  // 添加时间戳和空行
-            
-            this.jm.select_node(nodeId);
-            this.jm.begin_edit(nodeId);
-            console.log('[脑图工作栏] 统一API: 子节点添加成功', nodeId, '时间戳:', timestamp);
-        }
-        
-        return node;
     }
     
-    // 添加兄弟节点（对应Enter键）
-    addBrother() {
+    /**
+     * 添加兄弟节点 - 统一API（对应Enter键）
+     * @param {Object} selectedNode - 选中节点（可选，默认使用当前选中节点）
+     * @returns {Object} 创建的节点
+     */
+    addBrother(selectedNode = null) {
         console.log('[脑图工作栏] 统一API: 添加兄弟节点');
-        const selected = this.jm.get_selected_node();
+        const selected = selectedNode || this.jm.get_selected_node();
         if (!selected || selected.isroot) {
             console.warn('[脑图工作栏] 统一API: 添加兄弟节点失败 - 未选中节点或选择了根节点');
             return null;
         }
-        
-        const nodeId = 'node_' + Date.now();
-        const timestamp = this.getTimestamp();
-        
-        const node = this.jm.insert_node_after(selected, nodeId, '新节点');
-        
-        // 创建后立即设置方向和内容
-        if (node) {
-            node.direction = 'right';
-            if (!node.data) node.data = {};
-            node.data.content = timestamp + '\n\n';  // 添加时间戳和空行
-            
-            this.jm.select_node(nodeId);
-            this.jm.begin_edit(nodeId);
-            this.jm.view.reset();  // 刷新视图以应用方向设置
-            console.log('[脑图工作栏] 统一API: 兄弟节点添加成功', nodeId, '时间戳:', timestamp);
-        }
-        
-        return node;
+
+        return this._createNodeCore({
+            selectedNode: selected,
+            topic: '新节点',
+            direction: 'right',
+            position: 'brother'
+        });
     }
     
-    // 添加自定义节点
-    addCustomNode(parent, topic, data = {}) {
+    /**
+     * 添加自定义节点 - 统一API（对应按钮）
+     * @param {Object} parent - 父节点
+     * @param {string} topic - 节点主题
+     * @param {Object} data - 自定义数据（注意：不再接收外部时间戳）
+     * @returns {Object} 创建的节点
+     */
+    addCustomNode(parent, topic = '新节点', data = {}) {
         console.log('[脑图工作栏] 统一API: 添加自定义节点', parent, topic);
-        
-        // 确保方向一致性
-        if (!data.direction) {
-            data.direction = 'right';
-        }
         
         const parentNode = typeof parent === 'object' ? parent : this.jm.get_node(parent);
         if (!parentNode) {
             console.error('[脑图工作栏] 统一API: 添加自定义节点失败 - 父节点不存在');
             return null;
         }
+
+        // ⚠️ 关键修改：移除外部传入的content，统一由核心引擎生成时间戳
+        const { content, ...cleanData } = data;
         
-        const nodeId = data.id || 'node_' + Date.now();
-        const node = this.jm.add_node(parentNode, nodeId, topic, data);
-        
-        if (node) {
-            console.log('[脑图工作栏] 统一API: 自定义节点添加成功', nodeId);
-        }
-        
-        return node;
+        return this._createNodeCore({
+            parent: parentNode,
+            topic: topic,
+            direction: data.direction || 'right',
+            position: 'child',
+            customData: cleanData
+        });
     }
     
     // 删除节点（对应Delete键）
@@ -244,26 +350,37 @@ class MindmapOperations {
     }
     
     // 递归添加节点树
-    addNodeTree(parent, nodeData) {
+    addNodeTree(parent, nodeData, isRoot = true) {
         // 生成新的唯一ID
-        const newId = 'node_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const newId = this._generateNodeId();
+        const timestamp = this.getTimestamp();
         
-        // 创建节点
+        // 创建节点（直接使用jsMind API，避免自动选中和编辑）
         const node = this.jm.add_node(parent, newId, nodeData.topic, {
             direction: 'right'
         });
         
         if (node) {
-            // 复制节点数据（内容、属性等）
+            // ✅ 统一设置时间戳和内容
+            if (!node.data) node.data = {};
+            node.data.content = timestamp + '\n\n';
+            
+            // 复制其他节点数据
             if (nodeData.data) {
-                node.data = JSON.parse(JSON.stringify(nodeData.data));
+                Object.assign(node.data, nodeData.data);
             }
             
             // 递归添加子节点
             if (nodeData.children && nodeData.children.length > 0) {
                 nodeData.children.forEach(child => {
-                    this.addNodeTree(node, child);
+                    this.addNodeTree(node, child, false);
                 });
+            }
+            
+            // 只有根节点才选中和进入编辑模式
+            if (isRoot) {
+                this.jm.select_node(newId);
+                this.jm.begin_edit(newId);
             }
             
             console.log('[节点操作] 节点树添加成功:', node.topic);
