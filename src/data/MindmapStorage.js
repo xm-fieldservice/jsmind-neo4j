@@ -54,13 +54,13 @@ class MindmapStorage {
             const mindKey = this._getMindmapKey(data);
             
             // 统一存储：只使用AutogenUnifiedStorage
-            const result = await this.storage.store('mindmap', mindKey, data);
+            const success = await this.storage.store('mindmap', mindKey, data);
             
-            if (result.success) {
+            if (success) {
                 console.log('[MindmapStorage] 脑图数据保存成功:', mindKey);
                 return true;
             } else {
-                console.error('[MindmapStorage] 保存失败:', result.error);
+                console.error('[MindmapStorage] 保存失败');
                 return false;
             }
             
@@ -121,11 +121,10 @@ class MindmapStorage {
 
     /**
      * 获取脑图存储键
+     * 🔧 修复：始终使用 'current' 作为默认键，确保保存和加载一致
      */
     _getMindmapKey(data) {
-        if (data && data.meta && data.meta.name) {
-            return data.meta.name;
-        }
+        // 始终使用 'current' 作为默认键
         return 'current';
     }
 

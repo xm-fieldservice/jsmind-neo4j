@@ -12,9 +12,18 @@
     <script src="../../src/core/messaging/AutogenEventBus.js"></script>
     <script src="../../src/core/ErrorHandler.js"></script>
     
+    <!-- 🆕 src/ 架构组件 -->
+    <script src="../../src/data/MindmapStorage.js"></script>
+    <script src="../../src/presentation/MindmapRenderer.js"></script>
+    <script src="../../src/presentation/MindmapEventManager.js"></script>
+    <script src="../../src/business/MindmapController.js"></script>
+    
     <!-- 脑图统一操作API -->
     <script src="node-clipboard.js"></script>
     <script src="mindmap-operations.js"></script>
+    
+    <!-- 🆕 架构适配层 -->
+    <script src="MindmapCompatLayer.js"></script>
     
     <!-- 右键菜单管理器 -->
     <script src="context-menu-manager.js"></script>
@@ -544,6 +553,19 @@
                 this.ops.jm = this.jm;
                 console.log('[脑图工作栏] 统一节点操作API初始化完成');
                 
+                // 🆕 创建并初始化兼容层
+                this.compat = new MindmapCompatLayer({
+                    useSourceArchitecture: true,  // 启用 src/ 架构
+                    fallbackToStandalone: true,   // 失败时回退
+                    debugMode: true               // 调试模式
+                });
+                
+                await this.compat.initialize(this.jm, this.ops);
+                
+                // 检查架构状态
+                const status = this.compat.getArchitectureStatus();
+                console.log('[脑图工作栏] 架构状态:', status);
+                
                 // 优先从统一存储加载，失败回退到测试数据
                 await this.loadInitialData();
                 
@@ -580,11 +602,12 @@
             async loadInitialData() {
                 try {
                     if (typeof AutogenUnifiedStorage !== 'undefined' && AutogenUnifiedStorage.retrieve) {
-                        const stored = await AutogenUnifiedStorage.retrieve('mindmap', this.mindmapId);
+                        // 🔧 修复：使用 'current' 作为默认键，与保存时一致
+                        const stored = await AutogenUnifiedStorage.retrieve('mindmap', 'current');
                         if (stored && stored.data) {
                             this.jm.show(stored);
                             this.updateNodeCount();
-                            console.log('[脑图工作栏] 已从AutogenUnifiedStorage加载数据');
+                            console.log('[脑图工作栏] 已从AutogenUnifiedStorage加载数据 (key: current)');
                             return;
                         }
                     }
@@ -902,13 +925,10 @@
 
                 const topic = prompt('输入新节点名称:', '新节点');
                 if (topic) {
-                    // 获取时间戳
-                    const timestamp = this.ops.getTimestamp();
-                    
-                    // 使用统一API添加节点，带时间戳和空行
+                    // ✅ 统一化修复：移除外部时间戳生成，由统一核心引擎处理
                     const node = this.ops.addCustomNode(selectedNode, topic, { 
-                        direction: 'right',
-                        content: timestamp + '\n\n'  // 添加时间戳和空行
+                        direction: 'right'
+                        // 注意：不再传递content，时间戳由统一核心引擎自动生成
                     });
                     
                     if (node) {
@@ -1593,9 +1613,10 @@
                     // 优先使用MindmapStorage业务层
                     if (typeof window.MindmapStorage !== 'undefined') {
                         const mindmapStorage = new window.MindmapStorage();
-                        await mindmapStorage.saveMindmapData(this.mindmapId, data);
-                        console.log('[脑图工作栏] 已通过MindmapStorage保存:', this.mindmapId);
-                        return true;
+                        // 🔧 修复：第一个参数应该是data，不是mindmapId
+                        const success = await mindmapStorage.saveMindmapData(data, true);
+                        console.log('[脑图工作栏] 已通过MindmapStorage保存:', this.mindmapId, '结果:', success);
+                        return success;
                     }
                     
                     // 降级到AutogenUnifiedStorage
