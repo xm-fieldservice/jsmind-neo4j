@@ -514,7 +514,7 @@
                 // 创建统一操作API实例（暂时没有jm实例）
                 this.ops = new MindmapOperations(null);
                 
-                // 初始化jsMind，覆盖快捷键处理器
+                // 初始化jsMind，禁用默认快捷键
                 const options = {
                     container: 'jsmind_container',
                     editable: true,
@@ -522,25 +522,7 @@
                     mode: 'side',  // ✅ 右侧布局模式（所有节点在右侧）
                     support_html: false,
                     shortcut: {
-                        enable: true,
-                        handles: {
-                            'addchild': (jm, e) => {
-                                console.log('[脑图工作栏] 快捷键: 添加子节点');
-                                return this.ops.addChild();
-                            },
-                            'addbrother': (jm, e) => {
-                                console.log('[脑图工作栏] 快捷键: 添加兄弟节点');
-                                return this.ops.addBrother();
-                            },
-                            'delnode': (jm, e) => {
-                                console.log('[脑图工作栏] 快捷键: 删除节点');
-                                return this.ops.removeNode();
-                            }
-                        }
-                        // 不设置mapping，使用jsMind默认快捷键
-                        // Tab: 添加子节点
-                        // Enter: 添加兄弟节点  
-                        // Delete: 删除节点
+                        enable: false  // ❌ 禁用jsMind默认快捷键，完全由我们自己处理
                     },
                     view: {
                         hmargin: 100,
@@ -850,7 +832,7 @@
             }
 
             bindGlobalShortcuts() {
-                // 绑定全局快捷键（Ctrl+C/X/V）
+                // 绑定全局快捷键
                 document.addEventListener('keydown', (e) => {
                     // 检查是否在编辑状态
                     const isEditing = document.activeElement.tagName === 'INPUT' || 
@@ -859,6 +841,42 @@
                     
                     // 如果在编辑状态，不拦截快捷键
                     if (isEditing) return;
+                    
+                    // Tab - 添加子节点
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const node = this.ops.addChild();
+                        if (node) {
+                            this.updateNodeCount();
+                            this.updateLastModified();
+                            this.autoSave();
+                        }
+                        return false;
+                    }
+                    
+                    // Enter - 添加兄弟节点
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const node = this.ops.addBrother();
+                        if (node) {
+                            this.updateNodeCount();
+                            this.updateLastModified();
+                            this.autoSave();
+                        }
+                        return false;
+                    }
+                    
+                    // Delete - 删除节点
+                    if (e.key === 'Delete') {
+                        e.preventDefault();
+                        const success = this.ops.removeNode();
+                        if (success) {
+                            this.updateNodeCount();
+                            this.updateLastModified();
+                            this.autoSave();
+                        }
+                        return false;
+                    }
                     
                     // Ctrl+C - 复制
                     if (e.ctrlKey && e.key === 'c') {
@@ -898,7 +916,7 @@
                     }
                 });
                 
-                console.log('[脑图工作栏] 全局快捷键绑定完成 (Ctrl+C/X/V)');
+                console.log('[脑图工作栏] 全局快捷键绑定完成 (Tab/Enter/Delete/Ctrl+C/X/V)');
             }
 
             onNodeSelected(node) {

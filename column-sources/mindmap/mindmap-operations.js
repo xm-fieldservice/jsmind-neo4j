@@ -75,9 +75,9 @@ class MindmapOperations {
      * @returns {Object} 处理后的节点
      */
     _postProcessNode(node, timestamp, position) {
-        // 1. 设置内容（时间戳 + 空行）- 统一处理
+        // 1. 设置内容（时间戳 + 两行空行）- 统一处理
         if (!node.data) node.data = {};
-        node.data.content = timestamp + '\n\n';
+        node.data.content = timestamp + '\n\n\n';
 
         // 2. 选择节点 - 统一处理
         this.jm.select_node(node.id);
@@ -85,12 +85,7 @@ class MindmapOperations {
         // 3. 进入编辑模式 - 统一处理
         this.jm.begin_edit(node.id);
         
-        // 4. 兄弟节点需要刷新视图
-        if (position === 'brother') {
-            this.jm.view.reset();
-        }
-
-        // 5. 触发统一事件
+        // 4. 触发统一事件
         this._triggerNodeCreatedEvent(node, position);
         
         console.log('[脑图工作栏] 统一核心: 节点创建成功', node.id, '类型:', position, '时间戳:', timestamp);
