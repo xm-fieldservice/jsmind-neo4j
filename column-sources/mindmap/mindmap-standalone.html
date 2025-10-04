@@ -989,16 +989,15 @@
 
                 const topic = prompt('输入新节点名称:', '新节点');
                 if (topic) {
-                    // ✅ 统一化修复：移除外部时间戳生成，由统一核心引擎处理
+                    // ✅ 使用统一API：addCustomNode
+                    // 统一核心引擎会自动生成时间戳、选择节点、进入编辑模式
                     const node = this.ops.addCustomNode(selectedNode, topic, { 
                         direction: 'right'
-                        // 注意：不再传递content，时间戳由统一核心引擎自动生成
                     });
                     
                     if (node) {
                         this.updateNodeCount();
                         this.updateLastModified();
-                        // 自动保存
                         this.autoSave();
                     }
                 }
@@ -1018,9 +1017,9 @@
 
                 const newTopic = prompt('修改节点名称:', selectedNode.topic);
                 if (newTopic && newTopic !== selectedNode.topic) {
-                    this.jm.update_node(selectedNode.id, newTopic);
+                    // ✅ 使用统一API：updateNode
+                    this.ops.updateNode(selectedNode, newTopic);
                     this.updateLastModified();
-                    // 自动保存
                     this.autoSave();
                 }
             }
@@ -1097,11 +1096,8 @@
                     if (titleInput && titleInput.value.trim() && titleInput.value.trim() !== currentNode.topic) {
                         const newTitle = titleInput.value.trim();
                         
-                        // 直接更新节点的topic属性
-                        currentNode.topic = newTitle;
-                        
-                        // 同时调用jsMind的更新方法
-                        this.jm.update_node(this.currentNodeId, newTitle);
+                        // ✅ 使用统一API：updateNode
+                        this.ops.updateNode(currentNode, newTitle);
                         
                         // 更新UI显示
                         document.getElementById('currentNode').textContent = newTitle;
@@ -1189,11 +1185,8 @@
                     const newTitle = titleInput ? titleInput.value.trim() : '';
                     // 标题变更则更新节点标题
                     if (newTitle && newTitle !== node.topic) {
-                        // 直接更新节点的topic属性
-                        node.topic = newTitle;
-                        
-                        // 同时调用jsMind的更新方法
-                        this.jm.update_node(node.id, newTitle);
+                        // ✅ 使用统一API：updateNode
+                        this.ops.updateNode(node, newTitle);
                         
                         // 更新UI显示
                         document.getElementById('currentNode').textContent = newTitle;
@@ -1265,11 +1258,8 @@
                     
                     // 标题变更则更新节点标题
                     if (newTitle && newTitle !== node.topic) {
-                        // 直接更新节点的topic属性
-                        node.topic = newTitle;
-                        
-                        // 同时调用jsMind的更新方法
-                        this.jm.update_node(node.id, newTitle);
+                        // ✅ 使用统一API：updateNode
+                        this.ops.updateNode(node, newTitle);
                         
                         // 更新UI显示
                         document.getElementById('currentNode').textContent = newTitle;
