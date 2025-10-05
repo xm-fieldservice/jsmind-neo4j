@@ -218,15 +218,15 @@ async def get_graph_data(
                 RETURN 
                     collect(DISTINCT {
                         id: n1.id, 
-                        label: coalesce(n1.label, n1.name, n1.id),
+                        label: coalesce(n1.topic, n1.label, n1.name, n1.id),
                         type: coalesce(n1.type, head(labels(n1)), 'default'),
-                        description: coalesce(n1.description, ''),
+                        description: coalesce(n1.description, n1.content, ''),
                         properties: properties(n1)
                     }) + collect(DISTINCT {
                         id: n2.id, 
-                        label: coalesce(n2.label, n2.name, n2.id),
+                        label: coalesce(n2.topic, n2.label, n2.name, n2.id),
                         type: coalesce(n2.type, head(labels(n2)), 'default'),
-                        description: coalesce(n2.description, ''),
+                        description: coalesce(n2.description, n2.content, ''),
                         properties: properties(n2)
                     }) as nodes,
                     collect({
@@ -307,9 +307,9 @@ async def execute_cypher(
                         if node_id not in nodes_dict:
                             nodes_dict[node_id] = {
                                 "id": node_id,
-                                "label": value.get('label') or value.get('name') or node_id,
+                                "label": value.get('topic') or value.get('label') or value.get('name') or node_id,
                                 "type": value.get('type', 'default'),
-                                "description": value.get('description', ''),
+                                "description": value.get('description') or value.get('content', ''),
                                 "properties": dict(value.items())
                             }
                     
@@ -323,9 +323,9 @@ async def execute_cypher(
                         if start_id not in nodes_dict:
                             nodes_dict[start_id] = {
                                 "id": start_id,
-                                "label": start_node.get('label') or start_node.get('name') or start_id,
+                                "label": start_node.get('topic') or start_node.get('label') or start_node.get('name') or start_id,
                                 "type": start_node.get('type', 'default'),
-                                "description": start_node.get('description', ''),
+                                "description": start_node.get('description') or start_node.get('content', ''),
                                 "properties": dict(start_node.items())
                             }
                         
@@ -334,9 +334,9 @@ async def execute_cypher(
                         if end_id not in nodes_dict:
                             nodes_dict[end_id] = {
                                 "id": end_id,
-                                "label": end_node.get('label') or end_node.get('name') or end_id,
+                                "label": end_node.get('topic') or end_node.get('label') or end_node.get('name') or end_id,
                                 "type": end_node.get('type', 'default'),
-                                "description": end_node.get('description', ''),
+                                "description": end_node.get('description') or end_node.get('content', ''),
                                 "properties": dict(end_node.items())
                             }
                         
