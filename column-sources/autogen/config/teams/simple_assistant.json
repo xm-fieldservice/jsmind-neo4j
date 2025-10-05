@@ -1,0 +1,22 @@
+{
+  "id": "simple_assistant",
+  "name": "简单助手",
+  "description": "单Agent快速处理简单任务",
+  "agents": ["mindmap_assistant"],
+  "workflow": {
+    "first_agent": "mindmap_assistant",
+    "max_round": 5
+  },
+  "manager_config": {
+    "model": "gpt-3.5-turbo",
+    "temperature": 0.7
+  },
+  "metadata": {
+    "created_at": "2025-10-05T11:55:00Z",
+    "author": "system",
+    "version": "1.0",
+    "usage_count": 0,
+    "average_processing_time": 0
+  },
+  "tags": ["quick", "simple"]
+}

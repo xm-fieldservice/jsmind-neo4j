@@ -353,8 +353,8 @@
         <div class="header">
             <h1>🤖 Autogen Agent管理器</h1>
             <div class="header-actions">
-                <button class="btn btn-primary" onclick="manager.createNewTeam()">➕ 新建Team</button>
-                <button class="btn btn-primary" onclick="manager.createNewAgent()">➕ 新建Agent</button>
+                <button class="btn btn-primary" onclick="manager.importConfigs()">📂 导入配置</button>
+                <button class="btn btn-primary" onclick="manager.reloadConfigs()">🔄 重新加载</button>
                 <button class="btn btn-primary" onclick="manager.exportConfig()">📥 导出配置</button>
             </div>
         </div>
@@ -478,9 +478,22 @@
 
             async loadFromDataBase() {
                 try {
-                    // 从数据底座加载Team和Agent配置
-                    this.availableTeams = await this.storage.retrieve('agent_teams') || this.getDefaultTeams();
-                    this.availableAgents = await this.storage.retrieve('agent_agents') || this.getDefaultAgents();
+                    // 优先从数据底座加载
+                    let teams = await this.storage.retrieve('agent_teams');
+                    let agents = await this.storage.retrieve('agent_agents');
+                    
+                    // 如果数据底座为空，尝试从配置文件导入
+                    if (!teams || teams.length === 0 || !agents || agents.length === 0) {
+                        console.log('[Autogen管理器] 数据底座为空，尝试从配置文件导入...');
+                        const imported = await this.importFromConfigFiles();
+                        if (imported) {
+                            teams = await this.storage.retrieve('agent_teams');
+                            agents = await this.storage.retrieve('agent_agents');
+                        }
+                    }
+                    
+                    this.availableTeams = teams || this.getDefaultTeams();
+                    this.availableAgents = agents || this.getDefaultAgents();
                     
                     console.log('[Autogen管理器] 加载配置:', {
                         teams: this.availableTeams.length,
@@ -489,6 +502,66 @@
                 } catch (error) {
                     console.error('[Autogen管理器] 加载配置失败:', error);
                     this.showToast('加载配置失败: ' + error.message, 'error');
+                }
+            }
+
+            async importFromConfigFiles() {
+                try {
+                    console.log('[Autogen管理器] 开始从配置文件导入...');
+                    
+                    const configBase = 'config/';
+                    const teams = [];
+                    const agents = [];
+                    
+                    // 导入Team配置
+                    const teamFiles = ['mindmap_expert_team.json', 'simple_assistant.json'];
+                    for (const file of teamFiles) {
+                        try {
+                            const response = await fetch(configBase + 'teams/' + file);
+                            if (response.ok) {
+                                const team = await response.json();
+                                teams.push(team);
+                                console.log('[Autogen管理器] 导入Team:', team.name);
+                            }
+                        } catch (e) {
+                            console.warn('[Autogen管理器] 导入Team失败:', file, e);
+                        }
+                    }
+                    
+                    // 导入Agent配置
+                    const agentFiles = ['mindmap_assistant.json', 'structure_expert.json', 
+                                       'content_expert.json', 'analysis_expert.json'];
+                    for (const file of agentFiles) {
+                        try {
+                            const response = await fetch(configBase + 'agents/' + file);
+                            if (response.ok) {
+                                const agent = await response.json();
+                                agents.push(agent);
+                                console.log('[Autogen管理器] 导入Agent:', agent.name);
+                            }
+                        } catch (e) {
+                            console.warn('[Autogen管理器] 导入Agent失败:', file, e);
+                        }
+                    }
+                    
+                    // 保存到数据底座
+                    if (teams.length > 0) {
+                        await this.storage.store('agent_teams', teams);
+                    }
+                    if (agents.length > 0) {
+                        await this.storage.store('agent_agents', agents);
+                    }
+                    
+                    console.log('[Autogen管理器] 配置文件导入完成:', {
+                        teams: teams.length,
+                        agents: agents.length
+                    });
+                    
+                    return teams.length > 0 || agents.length > 0;
+                    
+                } catch (error) {
+                    console.error('[Autogen管理器] 配置文件导入失败:', error);
+                    return false;
                 }
             }
 
@@ -702,11 +775,32 @@
             }
 
             async simulateAgentCall(input) {
-                // 模拟网络延迟
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // 模拟Agent响应
-                return `[模拟响应]\n\n基于您的输入"${input}"，我建议以下结构：\n\n1. 需求分析\n   - 功能需求\n   - 性能需求\n   - 安全需求\n\n2. 系统设计\n   - 架构设计\n   - 数据库设计\n   - 接口设计\n\n3. 实施计划\n   - 开发阶段\n   - 测试阶段\n   - 部署阶段`;
+                // 调用后端API运行外部Python脚本
+                try {
+                    // 准备请求数据
+                    const requestData = {
+                        agent_id: this.selectedAgent.id,
+                        agent_config: this.selectedAgent.config,
+                        user_input: input,
+                        run_mode: 'single'  // single 或 interactive
+                    };
+                    
+                    // 调用后端API（实际应该调用 /api/agent/run）
+                    // 目前模拟响应，等待后端API实现
+                    console.log('[Autogen管理器] 准备调用外部脚本:', {
+                        script: 'run_agent.py',
+                        agent: this.selectedAgent.name,
+                        input: input.substring(0, 50) + '...'
+                    });
+                    
+                    // 模拟网络延迟
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // 模拟Agent响应（实际应该从后端API获取）
+                    return `[外部脚本调用]\n\n脚本: run_agent.py\nAgent: ${this.selectedAgent.name}\n\n基于您的输入"${input}"，我建议以下结构：\n\n1. 需求分析\n   - 功能需求\n   - 性能需求\n   - 安全需求\n\n2. 系统设计\n   - 架构设计\n   - 数据库设计\n   - 接口设计\n\n3. 实施计划\n   - 开发阶段\n   - 测试阶段\n   - 部署阶段\n\n注意：当前为模拟模式，实际调用需要后端API支持`;
+                } catch (error) {
+                    throw new Error(`外部脚本调用失败: ${error.message}`);
+                }
             }
 
             async saveSuccessfulTest() {
@@ -795,12 +889,34 @@
                 console.log('[Autogen管理器] 配置已保存');
             }
 
-            createNewTeam() {
-                this.showToast('新建Team功能开发中...', 'info');
+            async importConfigs() {
+                try {
+                    this.showToast('正在从配置文件导入...', 'info');
+                    const success = await this.importFromConfigFiles();
+                    
+                    if (success) {
+                        await this.loadFromDataBase();
+                        this.renderTeamList();
+                        this.showToast('配置导入成功', 'success');
+                    } else {
+                        this.showToast('配置文件导入失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('[Autogen管理器] 导入失败:', error);
+                    this.showToast('导入失败: ' + error.message, 'error');
+                }
             }
 
-            createNewAgent() {
-                this.showToast('新建Agent功能开发中...', 'info');
+            async reloadConfigs() {
+                try {
+                    this.showToast('正在重新加载配置...', 'info');
+                    await this.loadFromDataBase();
+                    this.renderTeamList();
+                    this.showToast('配置重新加载成功', 'success');
+                } catch (error) {
+                    console.error('[Autogen管理器] 重新加载失败:', error);
+                    this.showToast('重新加载失败: ' + error.message, 'error');
+                }
             }
 
             exportConfig() {

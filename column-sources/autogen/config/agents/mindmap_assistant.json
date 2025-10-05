@@ -1,0 +1,19 @@
+{
+  "id": "mindmap_assistant",
+  "name": "脑图助手",
+  "type": "assistant",
+  "config": {
+    "system_message": "你是一个专业的脑图助手，帮助用户扩展、分析和优化脑图结构。",
+    "model": "gpt-4",
+    "temperature": 0.7,
+    "max_tokens": 2000
+  },
+  "metadata": {
+    "created_at": "2025-10-05T11:55:00Z",
+    "author": "system",
+    "version": "1.0",
+    "usage_count": 0,
+    "success_rate": 0
+  },
+  "tags": ["brainstorming", "expansion", "analysis"]
+}

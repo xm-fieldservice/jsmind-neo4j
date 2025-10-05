@@ -1,0 +1,23 @@
+{
+  "id": "mindmap_expert_team",
+  "name": "脑图专家团队",
+  "description": "专门处理脑图相关任务的多专家协作团队",
+  "agents": ["structure_expert", "content_expert", "analysis_expert"],
+  "workflow": {
+    "first_agent": "analysis_expert",
+    "fallback_agent": "content_expert",
+    "max_round": 10
+  },
+  "manager_config": {
+    "model": "gpt-4",
+    "temperature": 0.5
+  },
+  "metadata": {
+    "created_at": "2025-10-05T11:55:00Z",
+    "author": "system",
+    "version": "1.0",
+    "usage_count": 0,
+    "average_processing_time": 0
+  },
+  "tags": ["project_management", "complex_tasks"]
+}
