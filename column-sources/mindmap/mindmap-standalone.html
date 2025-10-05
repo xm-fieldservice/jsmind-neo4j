@@ -851,7 +851,19 @@
                     if (isEditing) return;
                     
                     // Tab - 添加子节点
-                    if (e.key === 'Tab') {
+                    if (e.key === 'Tab' && !e.ctrlKey) {
+                        e.preventDefault();
+                        const node = this.ops.addChild();
+                        if (node) {
+                            this.updateNodeCount();
+                            this.updateLastModified();
+                            this.autoSave();
+                        }
+                        return false;
+                    }
+                    
+                    // Ctrl+Enter - 添加子节点（备用快捷键）
+                    if (e.ctrlKey && e.key === 'Enter') {
                         e.preventDefault();
                         const node = this.ops.addChild();
                         if (node) {
@@ -863,7 +875,7 @@
                     }
                     
                     // Enter - 添加兄弟节点
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' && !e.ctrlKey) {
                         e.preventDefault();
                         const node = this.ops.addBrother();
                         if (node) {
@@ -924,7 +936,7 @@
                     }
                 });
                 
-                console.log('[脑图工作栏] 全局快捷键绑定完成 (Tab/Enter/Delete/Ctrl+C/X/V)');
+                console.log('[脑图工作栏] 全局快捷键绑定完成 (Tab/Ctrl+Enter=子节点, Enter=兄弟节点, Delete, Ctrl+C/X/V)');
             }
 
             onNodeSelected(node) {
@@ -1110,11 +1122,11 @@
                     const titleInput = document.getElementById('nodeTitleEditor');
                     let hasChanges = false;
                     
-                    // 保存内容
-                    if (editor && editor.value.trim()) {
+                    // 保存内容（不要trim，保留空行）
+                    if (editor && editor.value) {
                         if (!currentNode.data) currentNode.data = {};
-                        currentNode.data.content = editor.value.trim();
-                        console.log('[脑图工作栏] 自动保存节点内容:', this.currentNodeId, editor.value.trim());
+                        currentNode.data.content = editor.value;
+                        console.log('[脑图工作栏] 自动保存节点内容:', this.currentNodeId);
                         hasChanges = true;
                     }
                     
@@ -1207,7 +1219,7 @@
                     }
                     const editor = document.getElementById('nodeContentEditor');
                     const titleInput = document.getElementById('nodeTitleEditor');
-                    const text = editor ? editor.value : '';
+                    const text = editor ? editor.value : '';  // 不要trim，保留空行
                     const newTitle = titleInput ? titleInput.value.trim() : '';
                     // 标题变更则更新节点标题
                     if (newTitle && newTitle !== node.topic) {
@@ -1224,8 +1236,8 @@
                     const jmNode = this.jm.get_node(node.id);
                     if (jmNode) {
                         if (!jmNode.data) jmNode.data = {};
-                        jmNode.data.content = text;
-                        console.log('[脑图工作栏] ✅ jsMind内部节点内容已更新:', text);
+                        jmNode.data.content = text;  // 不要trim，保留空行
+                        console.log('[脑图工作栏] ✅ jsMind内部节点内容已更新');
                     } else {
                         console.error('[脑图工作栏] ❌ 无法获取jsMind内部节点:', node.id);
                     }
@@ -1279,7 +1291,7 @@
                     }
                     const editor = document.getElementById('nodeContentEditor');
                     const titleInput = document.getElementById('nodeTitleEditor');
-                    const text = editor ? editor.value : '';
+                    const text = editor ? editor.value : '';  // 不要trim，保留空行
                     const newTitle = titleInput ? titleInput.value.trim() : '';
                     
                     // 标题变更则更新节点标题
