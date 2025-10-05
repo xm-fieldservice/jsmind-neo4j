@@ -628,8 +628,14 @@
                         const mindmapStorage = new window.MindmapStorage();
                         const stored = await mindmapStorage.loadMindmapData('current');
                         
-                        // 如果不是默认数据，说明加载成功
-                        if (stored && stored.data && stored.data.id !== 'root_default') {
+                        // 检查是否有实际数据（不是默认的空数据）
+                        // 判断标准：有子节点 或 meta中有实际信息
+                        const hasRealData = stored && stored.data && (
+                            (stored.data.children && stored.data.children.length > 0) ||
+                            (stored.meta && stored.meta.name && stored.meta.name !== 'default_mindmap')
+                        );
+                        
+                        if (hasRealData) {
                             this.jm.show(stored);
                             
                             // 🔧 修复jsMind内部节点的数据结构
@@ -638,6 +644,8 @@
                             this.updateNodeCount();
                             console.log('[脑图工作栏] ✅ 已从IndexedDB加载持久化数据 (自动还原)');
                             return;
+                        } else {
+                            console.log('[脑图工作栏] IndexedDB中只有默认数据，尝试加载初始数据文件');
                         }
                     }
                     
@@ -654,7 +662,7 @@
                             return;
                         }
                     } catch (fileErr) {
-                        console.log('[脑图工作栏] mindmap_base.json 不存在');
+                        console.log('[脑图工作栏] mindmap_base.json 加载失败:', fileErr.message);
                     }
                     
                     console.warn('[脑图工作栏] 未找到任何数据，加载测试数据');
