@@ -1821,6 +1821,61 @@
         
         // 暴露到全局（方便调试）
         window.mindmapColumn = mindmapColumn;
+        
+        // 🔧 调试工具：手动恢复缓存数据
+        window.debugRecoverCache = async function() {
+            console.log('=== 开始恢复缓存数据 ===');
+            
+            // 1. 检查IndexedDB
+            const storage = new window.AutogenUnifiedStorage();
+            const cached = await storage.retrieve('mindmap', 'current');
+            
+            if (cached) {
+                console.log('✅ 找到IndexedDB缓存:', cached);
+                
+                // 检查是否有实际数据
+                const hasData = cached.data && (
+                    (cached.data.children && cached.data.children.length > 0) ||
+                    (cached.meta && cached.meta.name && cached.meta.name !== 'default_mindmap')
+                );
+                
+                if (hasData) {
+                    console.log('✅ 缓存包含实际数据，开始恢复...');
+                    window.mindmapColumn.jm.show(cached);
+                    window.mindmapColumn.updateNodeCount();
+                    console.log('✅ 恢复完成！');
+                    return cached;
+                } else {
+                    console.log('⚠️ 缓存只有默认数据，无需恢复');
+                    return null;
+                }
+            } else {
+                console.log('❌ 未找到IndexedDB缓存');
+                
+                // 2. 检查LocalStorage
+                const lsKey = 'autogen:mindmap:current';
+                const lsData = localStorage.getItem(lsKey);
+                if (lsData) {
+                    console.log('✅ 找到LocalStorage缓存');
+                    try {
+                        const parsed = JSON.parse(lsData);
+                        if (parsed.value) {
+                            window.mindmapColumn.jm.show(parsed.value);
+                            window.mindmapColumn.updateNodeCount();
+                            console.log('✅ 从LocalStorage恢复完成！');
+                            return parsed.value;
+                        }
+                    } catch (e) {
+                        console.error('❌ LocalStorage数据解析失败:', e);
+                    }
+                }
+                
+                console.log('❌ 所有缓存都为空');
+                return null;
+            }
+        };
+        
+        console.log('💡 提示：在控制台执行 debugRecoverCache() 可手动恢复缓存数据');
     </script>
 </body>
 </html>
