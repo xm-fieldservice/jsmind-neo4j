@@ -783,12 +783,11 @@
                                         document.getElementById('currentNode').textContent = currentNode.topic;
                                         console.log('[脑图工作栏] jsMind编辑后同步标题到编辑框:', currentNode.id, currentNode.topic);
                                         
-                                        // 直接调用已经工作正常的保存方法（静默保存，不显示弹窗）
-                                        console.log('[脑图工作栏] edit事件模仿编辑按键，调用静默保存');
-                                        this.saveContentFromSidebarSilent().catch(err => {
-                                            console.error('[脑图工作栏] edit事件模仿编辑按键保存失败:', err);
-                                        });
-                                        return; // 已经保存了，不需要再调用autoSave
+                                        // 🔧 修复：不要调用saveContentFromSidebarSilent，因为它会错误地保存内容
+                                        // 标题已经通过jsMind的update_node事件更新了，不需要额外保存
+                                        // 只需要同步UI显示即可
+                                        console.log('[脑图工作栏] 标题已同步，跳过保存避免错误覆盖');
+                                        return; // 不需要再调用autoSave
                                     }
                                 }
                             }
