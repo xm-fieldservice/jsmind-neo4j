@@ -85,12 +85,40 @@ class MindmapOperations {
         // 3. 进入编辑模式 - 统一处理
         this.jm.begin_edit(node.id);
         
-        // 4. 触发统一事件
+        // 4. 🔧 重新初始化拖拽功能（关键修复）
+        this._reinitDraggable(node);
+        
+        // 5. 触发统一事件
         this._triggerNodeCreatedEvent(node, position);
         
         console.log('[脑图工作栏] 统一核心: 节点创建成功', node.id, '类型:', position, '时间戳:', timestamp);
 
         return node;
+    }
+
+    /**
+     * 重新初始化节点的拖拽功能
+     * 修复：新创建的节点不能作为拖拽目标的问题
+     * @param {Object} node - 节点对象
+     */
+    _reinitDraggable(node) {
+        try {
+            // 等待DOM更新后再初始化拖拽
+            setTimeout(() => {
+                // 检查jsMind是否有拖拽插件
+                if (this.jm.draggable && typeof this.jm.draggable.jm_draggable_node === 'function') {
+                    // 重新初始化整个拖拽系统（确保新节点可以作为目标）
+                    this.jm.draggable.jm_draggable_node();
+                    console.log('[脑图工作栏] 拖拽功能已重新初始化:', node.id);
+                } else if (this.jm.view && this.jm.view.reset) {
+                    // 备选方案：重置视图
+                    this.jm.view.reset();
+                    console.log('[脑图工作栏] 视图已重置:', node.id);
+                }
+            }, 50);
+        } catch (error) {
+            console.warn('[脑图工作栏] 拖拽初始化失败:', error);
+        }
     }
 
     /**
@@ -376,6 +404,8 @@ class MindmapOperations {
             if (isRoot) {
                 this.jm.select_node(newId);
                 this.jm.begin_edit(newId);
+                // 🔧 重新初始化拖拽功能
+                this._reinitDraggable(node);
             }
             
             console.log('[节点操作] 节点树添加成功:', node.topic);
