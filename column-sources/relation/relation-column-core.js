@@ -186,6 +186,7 @@ function bindEvents() {
             graphViz.simulation.alpha(1).restart();
         }
     });
+    document.getElementById('mineConceptsBtn').addEventListener('click', mineConceptRelations);
     
     // 关闭节点详情面板
     document.getElementById('closeDetailBtn').addEventListener('click', () => {
@@ -940,6 +941,103 @@ function showNodeDetail(node) {
 
 // 将showNodeDetail函数暴露给D3RelationGraph使用
 window.showNodeDetail = showNodeDetail;
+
+// 一键挖掘概念关联
+async function mineConceptRelations() {
+    const btn = document.getElementById('mineConceptsBtn');
+    const status = document.getElementById('miningStatus');
+    const originalHTML = btn.innerHTML;
+    
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> <span>挖掘中...</span>';
+        status.style.display = 'block';
+        status.innerHTML = '正在分析数据...';
+        
+        console.log('[深度分析] 开始挖掘概念关联');
+        
+        // 执行挖掘查询
+        const queries = [
+            {
+                name: '数据相关概念',
+                cypher: `
+                    MATCH (n:Task)
+                    WHERE n.topic CONTAINS '数据' OR n.content CONTAINS '数据'
+                    WITH collect(n) as nodes
+                    UNWIND nodes as n1
+                    UNWIND nodes as n2
+                    WHERE id(n1) < id(n2)
+                    MERGE (n1)-[r:RELATED_CONCEPT {type: 'data', strength: 0.8}]-(n2)
+                    RETURN count(r) as count
+                `
+            },
+            {
+                name: 'AI相关概念',
+                cypher: `
+                    MATCH (n:Task)
+                    WHERE n.topic CONTAINS 'AI' OR n.topic CONTAINS '智能' 
+                       OR n.content CONTAINS 'AI' OR n.content CONTAINS '智能'
+                    WITH collect(n) as nodes
+                    UNWIND nodes as n1
+                    UNWIND nodes as n2
+                    WHERE id(n1) < id(n2)
+                    MERGE (n1)-[r:RELATED_CONCEPT {type: 'ai', strength: 0.9}]-(n2)
+                    RETURN count(r) as count
+                `
+            },
+            {
+                name: '脑图相关概念',
+                cypher: `
+                    MATCH (n:Task)
+                    WHERE n.topic CONTAINS '脑图' OR n.content CONTAINS '脑图'
+                    WITH collect(n) as nodes
+                    UNWIND nodes as n1
+                    UNWIND nodes as n2
+                    WHERE id(n1) < id(n2)
+                    MERGE (n1)-[r:RELATED_CONCEPT {type: 'mindmap', strength: 0.85}]-(n2)
+                    RETURN count(r) as count
+                `
+            }
+        ];
+        
+        let totalNew = 0;
+        for (const query of queries) {
+            status.innerHTML = `正在挖掘：${query.name}...`;
+            
+            const response = await fetch(`${API_BASE}/api/neo4j/execute-cypher`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cypher: query.cypher })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.rawResults && data.rawResults[0]) {
+                    const count = data.rawResults[0].count || 0;
+                    totalNew += count;
+                    console.log(`[深度分析] ${query.name}: 新增${count}个关联`);
+                }
+            }
+        }
+        
+        status.innerHTML = `✅ 挖掘完成！发现 ${totalNew} 个新关联<br>点击"加载图谱"查看效果`;
+        
+        console.log('[深度分析] 挖掘完成，总计新增:', totalNew);
+        
+        setTimeout(() => {
+            status.style.display = 'none';
+        }, 5000);
+        
+    } catch (error) {
+        console.error('[深度分析] 挖掘失败:', error);
+        status.innerHTML = '❌ 挖掘失败: ' + error.message;
+        status.style.background = '#fef2f2';
+        status.style.color = '#991b1b';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
+}
 
 // 显示查询结果（统计查询）
 function showQueryResults(results) {
