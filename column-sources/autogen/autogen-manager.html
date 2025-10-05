@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autogen Agent管理器 - 货架式管理界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            height: calc(100vh - 40px);
+        }
+
+        /* 头部 */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 280px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding-top: 80px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6c757d;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .team-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .team-item:hover {
+            background: white;
+            border-color: #667eea;
+        }
+
+        .team-item.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .team-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .team-description {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .team-agents-count {
+            font-size: 11px;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 100px 30px 30px;
+            overflow-y: auto;
+        }
+
+        .config-panel {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #212529;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        /* 测试实验框 */
+        .test-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .test-input-area {
+            margin-bottom: 16px;
+        }
+
+        .test-output-area {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 16px;
+            min-height: 200px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            color: #212529;
+        }
+
+        .test-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-test {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-test:hover {
+            background: #218838;
+        }
+
+        .btn-save {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #0056b3;
+        }
+
+        .btn-test:disabled,
+        .btn-save:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 状态指示器 */
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-ready {
+            background: #28a745;
+        }
+
+        .status-testing {
+            background: #ffc107;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-error {
+            background: #dc3545;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Agent列表 */
+        .agent-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .agent-card {
+            padding: 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .agent-card:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .agent-card.selected {
+            border-color: #667eea;
+            background: #e7f1ff;
+        }
+
+        .agent-card-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .agent-card-type {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🤖 Autogen Agent管理器</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="manager.createNewTeam()">➕ 新建Team</button>
+                <button class="btn btn-primary" onclick="manager.createNewAgent()">➕ 新建Agent</button>
+                <button class="btn btn-primary" onclick="manager.exportConfig()">📥 导出配置</button>
+            </div>
+        </div>
+
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Team列表</div>
+                <div id="team-list">
+                    <!-- Team列表将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- Agent配置面板 -->
+            <div class="config-panel">
+                <div class="panel-title">
+                    <span class="status-indicator status-ready"></span>
+                    Agent配置
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Agent名称</label>
+                    <input type="text" class="form-input" id="agent-name" placeholder="例如: MindmapAssistant">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">系统提示词</label>
+                    <textarea class="form-input form-textarea" id="system-prompt" 
+                        placeholder="你是一个专业的脑图助手，帮助用户扩展、分析和优化脑图结构..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">模型配置</label>
+                    <select class="form-input" id="model-select">
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="claude-3">Claude 3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Temperature (0-1)</label>
+                    <input type="number" class="form-input" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Team成员 (当前Team的Agent)</label>
+                    <div class="agent-list" id="agent-list">
+                        <!-- Agent卡片将动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 测试实验框 -->
+            <div class="test-box">
+                <div class="panel-title">🧪 测试实验框</div>
+                
+                <div class="test-input-area">
+                    <label class="form-label">测试输入</label>
+                    <textarea class="form-input form-textarea" id="test-input" 
+                        placeholder="输入测试内容，例如：请帮我扩展"项目管理"这个节点..."></textarea>
+                </div>
+
+                <div class="test-output-area" id="test-output">
+                    等待测试运行...
+                </div>
+
+                <div class="test-actions">
+                    <button class="btn btn-test" id="run-test-btn" onclick="manager.runTest()">
+                        ▶️ 运行测试
+                    </button>
+                    <button class="btn btn-save" id="save-test-btn" onclick="manager.saveSuccessfulTest()" disabled>
+                        💾 保存成功提示词
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 引入核心依赖 -->
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="../../src/core/messaging/AutogenEventBus.js"></script>
+    <script src="../../src/core/error/ErrorHandler.js"></script>
+    <script src="../../src/data/DataCompressor.js"></script>
+
+    <script>
+        // Autogen管理器主类
+        class AutogenManager {
+            constructor() {
+                this.storage = window.AutogenUnifiedStorage;
+                this.eventBus = window.AutogenEventBus;
+                this.selectedTeam = null;
+                this.selectedAgent = null;
+                this.availableTeams = [];
+                this.availableAgents = [];
+                this.isTesting = false;
+                
+                this.init();
+            }
+
+            async init() {
+                console.log('[Autogen管理器] 初始化...');
+                
+                // 加载配置
+                await this.loadFromDataBase();
+                
+                // 渲染界面
+                this.renderTeamList();
+                
+                // 绑定事件
+                this.bindEvents();
+                
+                console.log('[Autogen管理器] 初始化完成');
+            }
+
+            async loadFromDataBase() {
+                try {
+                    // 从数据底座加载Team和Agent配置
+                    this.availableTeams = await this.storage.retrieve('agent_teams') || this.getDefaultTeams();
+                    this.availableAgents = await this.storage.retrieve('agent_agents') || this.getDefaultAgents();
+                    
+                    console.log('[Autogen管理器] 加载配置:', {
+                        teams: this.availableTeams.length,
+                        agents: this.availableAgents.length
+                    });
+                } catch (error) {
+                    console.error('[Autogen管理器] 加载配置失败:', error);
+                    this.showToast('加载配置失败: ' + error.message, 'error');
+                }
+            }
+
+            getDefaultTeams() {
+                return [
+                    {
+                        id: 'mindmap_expert_team',
+                        name: '脑图专家团队',
+                        description: '专门处理脑图相关任务',
+                        agents: ['structure_expert', 'content_expert', 'analysis_expert'],
+                        metadata: {
+                            created_at: new Date().toISOString(),
+                            usage_count: 0
+                        }
+                    },
+                    {
+                        id: 'simple_assistant',
+                        name: '简单助手',
+                        description: '单Agent快速处理',
+                        agents: ['mindmap_assistant'],
+                        metadata: {
+                            created_at: new Date().toISOString(),
+                            usage_count: 0
+                        }
+                    }
+                ];
+            }
+
+            getDefaultAgents() {
+                return [
+                    {
+                        id: 'mindmap_assistant',
+                        name: '脑图助手',
+                        type: 'assistant',
+                        config: {
+                            system_message: '你是一个专业的脑图助手，帮助用户扩展、分析和优化脑图结构。',
+                            model: 'gpt-4',
+                            temperature: 0.7
+                        },
+                        metadata: {
+                            created_at: new Date().toISOString(),
+                            usage_count: 0
+                        },
+                        tags: ['brainstorming', 'expansion']
+                    },
+                    {
+                        id: 'structure_expert',
+                        name: '结构专家',
+                        type: 'assistant',
+                        config: {
+                            system_message: '你是脑图结构专家，负责优化节点组织结构。',
+                            model: 'gpt-4',
+                            temperature: 0.5
+                        },
+                        metadata: {
+                            created_at: new Date().toISOString(),
+                            usage_count: 0
+                        },
+                        tags: ['structure', 'optimization']
+                    },
+                    {
+                        id: 'content_expert',
+                        name: '内容专家',
+                        type: 'assistant',
+                        config: {
+                            system_message: '你是内容生成专家，负责扩展和丰富节点内容。',
+                            model: 'gpt-4',
+                            temperature: 0.8
+                        },
+                        metadata: {
+                            created_at: new Date().toISOString(),
+                            usage_count: 0
+                        },
+                        tags: ['content', 'generation']
+                    },
+                    {
+                        id: 'analysis_expert',
+                        name: '分析专家',
+                        type: 'assistant',
+                        config: {
+                            system_message: '你是分析专家，负责分析节点关系和逻辑结构。',
+                            model: 'gpt-4',
+                            temperature: 0.3
+                        },
+                        metadata: {
+                            created_at: new Date().toISOString(),
+                            usage_count: 0
+                        },
+                        tags: ['analysis', 'logic']
+                    }
+                ];
+            }
+
+            renderTeamList() {
+                const teamList = document.getElementById('team-list');
+                teamList.innerHTML = this.availableTeams.map(team => `
+                    <div class="team-item ${team.id === this.selectedTeam?.id ? 'selected' : ''}" 
+                         onclick="manager.selectTeam('${team.id}')">
+                        <div class="team-name">${team.name}</div>
+                        <div class="team-description">${team.description}</div>
+                        <div class="team-agents-count">${team.agents.length}个Agent</div>
+                    </div>
+                `).join('');
+            }
+
+            selectTeam(teamId) {
+                this.selectedTeam = this.availableTeams.find(t => t.id === teamId);
+                this.selectedAgent = null;
+                
+                console.log('[Autogen管理器] 选中Team:', this.selectedTeam);
+                
+                this.renderTeamList();
+                this.renderAgentList();
+                this.loadTeamConfig();
+            }
+
+            renderAgentList() {
+                if (!this.selectedTeam) {
+                    document.getElementById('agent-list').innerHTML = '<p style="color: #6c757d;">请先选择一个Team</p>';
+                    return;
+                }
+
+                const teamAgents = this.availableAgents.filter(agent => 
+                    this.selectedTeam.agents.includes(agent.id)
+                );
+
+                const agentList = document.getElementById('agent-list');
+                agentList.innerHTML = teamAgents.map(agent => `
+                    <div class="agent-card ${agent.id === this.selectedAgent?.id ? 'selected' : ''}"
+                         onclick="manager.selectAgent('${agent.id}')">
+                        <div class="agent-card-name">${agent.name}</div>
+                        <div class="agent-card-type">${agent.type}</div>
+                    </div>
+                `).join('');
+            }
+
+            selectAgent(agentId) {
+                this.selectedAgent = this.availableAgents.find(a => a.id === agentId);
+                
+                console.log('[Autogen管理器] 选中Agent:', this.selectedAgent);
+                
+                this.renderAgentList();
+                this.loadAgentConfig();
+            }
+
+            loadTeamConfig() {
+                if (!this.selectedTeam) return;
+                
+                // 加载Team的第一个Agent配置
+                if (this.selectedTeam.agents.length > 0) {
+                    this.selectAgent(this.selectedTeam.agents[0]);
+                }
+            }
+
+            loadAgentConfig() {
+                if (!this.selectedAgent) return;
+
+                document.getElementById('agent-name').value = this.selectedAgent.name;
+                document.getElementById('system-prompt').value = this.selectedAgent.config.system_message;
+                document.getElementById('model-select').value = this.selectedAgent.config.model;
+                document.getElementById('temperature').value = this.selectedAgent.config.temperature;
+            }
+
+            async runTest() {
+                if (this.isTesting) return;
+                
+                const testInput = document.getElementById('test-input').value.trim();
+                if (!testInput) {
+                    this.showToast('请输入测试内容', 'warning');
+                    return;
+                }
+
+                if (!this.selectedAgent) {
+                    this.showToast('请先选择一个Agent', 'warning');
+                    return;
+                }
+
+                this.isTesting = true;
+                this.updateTestingState(true);
+
+                try {
+                    console.log('[Autogen管理器] 开始测试:', {
+                        agent: this.selectedAgent.id,
+                        input: testInput
+                    });
+
+                    // 模拟Agent调用（实际应该调用后端API）
+                    const result = await this.simulateAgentCall(testInput);
+                    
+                    document.getElementById('test-output').textContent = result;
+                    document.getElementById('save-test-btn').disabled = false;
+                    
+                    this.showToast('测试完成', 'success');
+                    
+                    // 触发测试完成事件
+                    this.eventBus.emit('agent:test_completed', {
+                        agent_id: this.selectedAgent.id,
+                        input: testInput,
+                        output: result,
+                        success: true
+                    });
+
+                } catch (error) {
+                    console.error('[Autogen管理器] 测试失败:', error);
+                    document.getElementById('test-output').textContent = `测试失败: ${error.message}`;
+                    this.showToast('测试失败: ' + error.message, 'error');
+                } finally {
+                    this.isTesting = false;
+                    this.updateTestingState(false);
+                }
+            }
+
+            async simulateAgentCall(input) {
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // 模拟Agent响应
+                return `[模拟响应]\n\n基于您的输入"${input}"，我建议以下结构：\n\n1. 需求分析\n   - 功能需求\n   - 性能需求\n   - 安全需求\n\n2. 系统设计\n   - 架构设计\n   - 数据库设计\n   - 接口设计\n\n3. 实施计划\n   - 开发阶段\n   - 测试阶段\n   - 部署阶段`;
+            }
+
+            async saveSuccessfulTest() {
+                const testInput = document.getElementById('test-input').value;
+                const testOutput = document.getElementById('test-output').textContent;
+                
+                if (!testOutput || testOutput.includes('测试失败')) {
+                    this.showToast('请先运行成功的测试', 'warning');
+                    return;
+                }
+
+                try {
+                    const promptData = {
+                        id: 'prompt_' + Date.now(),
+                        content: document.getElementById('system-prompt').value,
+                        category: 'expansion',
+                        tags: this.selectedAgent.tags || [],
+                        test_input: testInput,
+                        test_output: testOutput,
+                        success_rate: 1.0,
+                        agent_id: this.selectedAgent.id,
+                        created_at: new Date().toISOString()
+                    };
+
+                    // 保存到数据底座
+                    let promptTemplates = await this.storage.retrieve('prompt_templates') || [];
+                    promptTemplates.unshift(promptData);
+                    await this.storage.store('prompt_templates', promptTemplates);
+
+                    console.log('[Autogen管理器] 提示词已保存:', promptData);
+                    this.showToast('提示词保存成功', 'success');
+
+                    // 触发保存事件
+                    this.eventBus.emit('prompt:saved', promptData);
+
+                } catch (error) {
+                    console.error('[Autogen管理器] 保存失败:', error);
+                    this.showToast('保存失败: ' + error.message, 'error');
+                }
+            }
+
+            updateTestingState(testing) {
+                const runBtn = document.getElementById('run-test-btn');
+                const statusIndicator = document.querySelector('.status-indicator');
+                
+                if (testing) {
+                    runBtn.innerHTML = '<span class="loading"></span> 测试中...';
+                    runBtn.disabled = true;
+                    statusIndicator.className = 'status-indicator status-testing';
+                    document.getElementById('test-output').textContent = '正在处理...';
+                } else {
+                    runBtn.innerHTML = '▶️ 运行测试';
+                    runBtn.disabled = false;
+                    statusIndicator.className = 'status-indicator status-ready';
+                }
+            }
+
+            showToast(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = 'toast show';
+                
+                setTimeout(() => {
+                    toast.className = 'toast';
+                }, 3000);
+            }
+
+            bindEvents() {
+                // 监听配置变更
+                ['agent-name', 'system-prompt', 'model-select', 'temperature'].forEach(id => {
+                    document.getElementById(id)?.addEventListener('change', () => {
+                        this.saveCurrentConfig();
+                    });
+                });
+            }
+
+            async saveCurrentConfig() {
+                if (!this.selectedAgent) return;
+
+                this.selectedAgent.name = document.getElementById('agent-name').value;
+                this.selectedAgent.config.system_message = document.getElementById('system-prompt').value;
+                this.selectedAgent.config.model = document.getElementById('model-select').value;
+                this.selectedAgent.config.temperature = parseFloat(document.getElementById('temperature').value);
+
+                await this.storage.store('agent_agents', this.availableAgents);
+                console.log('[Autogen管理器] 配置已保存');
+            }
+
+            createNewTeam() {
+                this.showToast('新建Team功能开发中...', 'info');
+            }
+
+            createNewAgent() {
+                this.showToast('新建Agent功能开发中...', 'info');
+            }
+
+            exportConfig() {
+                const config = {
+                    teams: this.availableTeams,
+                    agents: this.availableAgents,
+                    exported_at: new Date().toISOString()
+                };
+
+                const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'autogen-config.json';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.showToast('配置已导出', 'success');
+            }
+        }
+
+        // 初始化管理器
+        let manager;
+        window.addEventListener('DOMContentLoaded', () => {
+            manager = new AutogenManager();
+        });
+    </script>
+</body>
+</html>
