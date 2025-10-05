@@ -1826,8 +1826,8 @@
         window.debugRecoverCache = async function() {
             console.log('=== 开始恢复缓存数据 ===');
             
-            // 1. 检查IndexedDB
-            const storage = new window.AutogenUnifiedStorage();
+            // 1. 检查IndexedDB（使用单例）
+            const storage = window.AutogenUnifiedStorage;
             const cached = await storage.retrieve('mindmap', 'current');
             
             if (cached) {
