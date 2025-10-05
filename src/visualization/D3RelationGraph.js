@@ -150,6 +150,14 @@ class D3RelationGraph {
             this.hideNodeTooltip();
         });
         
+        // 添加节点点击事件（显示详情面板）
+        node.on("click", (event, d) => {
+            event.stopPropagation();
+            if (window.showNodeDetail) {
+                window.showNodeDetail(d);
+            }
+        });
+        
         // 更新仿真
         this.simulation
             .nodes(this.nodes)

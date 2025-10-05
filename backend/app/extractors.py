@@ -138,13 +138,23 @@ class RelationshipExtractor:
     def sync_to_neo4j(self, mindmap_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         将脑图数据同步到Neo4j数据库
+        支持v1.2格式（树形结构）和旧格式（nodes字典）
         1. 提取所有节点及其属性
         2. 提取所有关系
         3. 将节点和关系同步到Neo4j
         4. 返回同步结果统计
         """
-        if not mindmap_data or "nodes" not in mindmap_data:
+        # 检查数据格式
+        if not mindmap_data:
             return {"status": "error", "message": "无效的脑图数据"}
+        
+        # 支持v1.2格式（树形结构）
+        if "data" in mindmap_data and "format" in mindmap_data:
+            return self._sync_tree_format(mindmap_data)
+        
+        # 支持旧格式（nodes字典）
+        if "nodes" not in mindmap_data:
+            return {"status": "error", "message": "无效的脑图数据格式"}
             
         try:
             nodes = mindmap_data.get("nodes", {})
@@ -208,4 +218,78 @@ class RelationshipExtractor:
         
         except Exception as e:
             print(f"同步脑图数据到Neo4j出错: {str(e)}")
+            return {"status": "error", "message": f"同步出错: {str(e)}"}
+    
+    def _sync_tree_format(self, mindmap_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        同步v1.2格式的树形脑图数据
+        """
+        try:
+            nodes_created = 0
+            relations_created = 0
+            
+            with self.driver.session() as session:
+                # 递归遍历树形结构
+                def traverse_node(node, parent_id=None):
+                    nonlocal nodes_created, relations_created
+                    
+                    node_id = node.get("id")
+                    if not node_id:
+                        return
+                    
+                    # 创建节点
+                    node_props = {
+                        "id": node_id,
+                        "topic": node.get("topic", ""),
+                        "type": node.get("meta", {}).get("itemType", "Task"),
+                        "content": node.get("data", {}).get("content", ""),
+                        "createdAt": node.get("meta", {}).get("createdAt", 0),
+                        "updatedAt": node.get("meta", {}).get("updatedAt", 0)
+                    }
+                    
+                    # 使用标签创建节点
+                    node_type = node_props["type"]
+                    create_node_query = f"""
+                    MERGE (n:{node_type} {{id: $id}})
+                    SET n += $props
+                    RETURN n
+                    """
+                    
+                    session.run(create_node_query, id=node_id, props=node_props)
+                    nodes_created += 1
+                    
+                    # 创建父子关系
+                    if parent_id:
+                        create_rel_query = """
+                        MATCH (parent {id: $parent_id})
+                        MATCH (child {id: $child_id})
+                        MERGE (parent)-[r:HAS_CHILD {label: 'has child'}]->(child)
+                        RETURN r
+                        """
+                        session.run(create_rel_query, parent_id=parent_id, child_id=node_id)
+                        relations_created += 1
+                    
+                    # 递归处理子节点
+                    children = node.get("children", [])
+                    for child in children:
+                        traverse_node(child, node_id)
+                
+                # 从根节点开始遍历
+                root_node = mindmap_data.get("data")
+                if root_node:
+                    traverse_node(root_node)
+            
+            return {
+                "status": "success",
+                "message": "脑图数据同步成功",
+                "stats": {
+                    "nodes_created": nodes_created,
+                    "relations_created": relations_created
+                }
+            }
+        
+        except Exception as e:
+            print(f"同步树形脑图数据出错: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return {"status": "error", "message": f"同步出错: {str(e)}"}

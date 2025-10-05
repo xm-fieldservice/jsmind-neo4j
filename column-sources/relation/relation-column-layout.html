@@ -187,6 +187,15 @@
                 <div class="legend-item"><div class="legend-color" style="background: #96ceb4;"></div><span>资源</span></div>
                 <div class="legend-item"><div class="legend-color" style="background: #feca57;"></div><span>里程碑</span></div>
             </div>
+            
+            <!-- 节点详情面板 -->
+            <div id="nodeDetailPanel" style="display: none; position: absolute; top: 80px; right: 20px; width: 320px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 16px; z-index: 1000;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="margin: 0; font-size: 16px; color: #374151;">📋 节点详情</h3>
+                    <button id="closeDetailBtn" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #6b7280;">×</button>
+                </div>
+                <div id="nodeDetailContent" style="font-size: 13px; color: #4b5563; line-height: 1.6;"></div>
+            </div>
         </div>
     </div>
     

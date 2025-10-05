@@ -187,6 +187,11 @@ function bindEvents() {
         }
     });
     
+    // 关闭节点详情面板
+    document.getElementById('closeDetailBtn').addEventListener('click', () => {
+        document.getElementById('nodeDetailPanel').style.display = 'none';
+    });
+    
     // 窗口大小变化
     window.addEventListener('resize', () => {
         const container = document.getElementById('graph-container');
@@ -727,12 +732,20 @@ async function executeGeneratedCypher() {
         
         console.log('[执行Cypher] 查询结果:', data);
         
-        // 更新图谱
-        currentData = data;
-        graphViz.loadData(data);
-        updateStats(data);
-        
-        alert(`✅ 查询成功！加载了 ${data.nodes.length} 个节点和 ${data.links.length} 个关系`);
+        // 判断结果类型
+        if (data.resultType === 'data' && data.rawResults && data.rawResults.length > 0) {
+            // 统计查询结果 - 显示在面板中
+            showQueryResults(data.rawResults);
+            alert(`✅ 查询成功！返回 ${data.rawResults.length} 条结果\n\n查看左侧面板的查询结果`);
+        } else if (data.nodes && data.nodes.length > 0) {
+            // 图形查询结果 - 更新可视化
+            currentData = data;
+            graphViz.loadData(data);
+            updateStats(data);
+            alert(`✅ 查询成功！加载了 ${data.nodes.length} 个节点和 ${data.links.length} 个关系`);
+        } else {
+            alert('✅ 查询执行成功，但没有返回结果');
+        }
         
     } catch (error) {
         // 详细的错误日志
@@ -845,6 +858,131 @@ function exportLogs() {
     } else {
         alert('日志采集器未初始化');
     }
+}
+
+// 显示节点详情
+function showNodeDetail(node) {
+    const panel = document.getElementById('nodeDetailPanel');
+    const content = document.getElementById('nodeDetailContent');
+    
+    // 构建详情HTML
+    let html = `
+        <div style="margin-bottom: 12px;">
+            <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">ID</div>
+            <div style="background: #f3f4f6; padding: 6px 8px; border-radius: 4px; font-family: monospace; font-size: 12px;">${node.id}</div>
+        </div>
+    `;
+    
+    if (node.label || node.name) {
+        html += `
+            <div style="margin-bottom: 12px;">
+                <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">名称</div>
+                <div>${node.label || node.name}</div>
+            </div>
+        `;
+    }
+    
+    if (node.type) {
+        const typeMap = {
+            'project': '📁 项目',
+            'task': '✅ 任务',
+            'person': '👤 人员',
+            'resource': '🔧 资源',
+            'milestone': '🎯 里程碑',
+            'Task': '✅ 任务'
+        };
+        html += `
+            <div style="margin-bottom: 12px;">
+                <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">类型</div>
+                <div>${typeMap[node.type] || node.type}</div>
+            </div>
+        `;
+    }
+    
+    if (node.description) {
+        html += `
+            <div style="margin-bottom: 12px;">
+                <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">描述</div>
+                <div>${node.description}</div>
+            </div>
+        `;
+    }
+    
+    // 显示properties中的其他字段
+    if (node.properties) {
+        const excludeKeys = ['id', 'name', 'label', 'type', 'description'];
+        const otherProps = Object.keys(node.properties)
+            .filter(key => !excludeKeys.includes(key) && node.properties[key] !== null && node.properties[key] !== undefined);
+        
+        if (otherProps.length > 0) {
+            html += `<div style="margin-bottom: 12px;">
+                <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">其他属性</div>
+                <div style="background: #f9fafb; padding: 8px; border-radius: 4px; font-size: 12px;">`;
+            
+            otherProps.forEach(key => {
+                let value = node.properties[key];
+                // 格式化日期时间
+                if (typeof value === 'object' && value.year) {
+                    value = `${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`;
+                }
+                html += `<div style="margin-bottom: 4px;"><strong>${key}:</strong> ${value}</div>`;
+            });
+            
+            html += `</div></div>`;
+        }
+    }
+    
+    content.innerHTML = html;
+    panel.style.display = 'block';
+    
+    console.log('[演示系统] 显示节点详情:', node);
+}
+
+// 将showNodeDetail函数暴露给D3RelationGraph使用
+window.showNodeDetail = showNodeDetail;
+
+// 显示查询结果（统计查询）
+function showQueryResults(results) {
+    const panel = document.getElementById('generatedCypherPanel');
+    if (!panel) return;
+    
+    // 构建结果HTML
+    let html = '<div style="margin-top: 12px; padding: 12px; background: #f0fdf4; border-radius: 4px; border: 1px solid #86efac;">';
+    html += '<div style="font-weight: 600; color: #166534; margin-bottom: 8px;">📊 查询结果</div>';
+    
+    results.forEach((record, index) => {
+        html += '<div style="background: white; padding: 8px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #d1fae5;">';
+        
+        Object.keys(record).forEach(key => {
+            const value = record[key];
+            html += `<div style="margin-bottom: 4px;">`;
+            html += `<strong style="color: #065f46;">${key}:</strong> `;
+            html += `<span style="color: #047857; font-size: 16px; font-weight: 600;">${value}</span>`;
+            html += `</div>`;
+        });
+        
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    
+    // 添加到Cypher面板
+    const cypherPanel = document.getElementById('generatedCypherPanel');
+    if (cypherPanel) {
+        const existingResults = cypherPanel.querySelector('.query-results');
+        if (existingResults) {
+            existingResults.remove();
+        }
+        
+        const resultsDiv = document.createElement('div');
+        resultsDiv.className = 'query-results';
+        resultsDiv.innerHTML = html;
+        cypherPanel.appendChild(resultsDiv);
+        
+        cypherPanel.style.display = 'block';
+    }
+    
+    console.log('[演示系统] 显示查询结果:', results);
 }
 
 console.log('[演示系统] 脚本已加载');

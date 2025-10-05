@@ -210,25 +210,22 @@ async def get_graph_data(
                 """
                 result = session.run(query, node_id=node_id, depth=depth, limit=limit)
             else:
-                # 查询全图数据
+                # 查询全图数据（修复版 - 程序员）
                 query = """
-                MATCH (n)
-                WITH collect(n) as nodes LIMIT $limit
-                UNWIND nodes as n1
-                UNWIND nodes as n2
-                MATCH (n1)-[r]-(n2)
-                WHERE id(n1) < id(n2)
+                MATCH (n1)-[r]->(n2)
+                WITH n1, r, n2
+                LIMIT $limit
                 RETURN 
                     collect(DISTINCT {
                         id: n1.id, 
                         label: coalesce(n1.label, n1.name, n1.id),
-                        type: coalesce(n1.type, 'default'),
+                        type: coalesce(n1.type, head(labels(n1)), 'default'),
                         description: coalesce(n1.description, ''),
                         properties: properties(n1)
                     }) + collect(DISTINCT {
                         id: n2.id, 
                         label: coalesce(n2.label, n2.name, n2.id),
-                        type: coalesce(n2.type, 'default'),
+                        type: coalesce(n2.type, head(labels(n2)), 'default'),
                         description: coalesce(n2.description, ''),
                         properties: properties(n2)
                     }) as nodes,
@@ -294,9 +291,13 @@ async def execute_cypher(
             
             nodes_dict = {}
             links = []
+            raw_results = []  # 存储原始结果（用于统计查询）
             
             # 处理查询结果
             for record in result:
+                # 保存原始记录（用于统计查询）
+                raw_results.append(dict(record))
+                
                 for key in record.keys():
                     value = record[key]
                     
@@ -349,10 +350,15 @@ async def execute_cypher(
                             "properties": dict(value.items())
                         })
             
-            return {
+            # 返回结果（包含图形数据和原始数据）
+            response = {
                 "nodes": list(nodes_dict.values()),
-                "links": links
+                "links": links,
+                "rawResults": raw_results,  # 原始查询结果（用于统计查询）
+                "resultType": "graph" if (nodes_dict or links) else "data"
             }
+            
+            return response
             
     except Exception as e:
         print(f"执行Cypher查询出错: {str(e)}")
