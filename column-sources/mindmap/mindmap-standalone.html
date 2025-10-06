@@ -31,6 +31,10 @@
     <!-- 右键菜单管理器 -->
     <script src="context-menu-manager.js"></script>
     
+    <!-- 🆕 关系管理模块 -->
+    <script type="module" src="relation-types.js"></script>
+    <script type="module" src="relation-manager.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -315,6 +319,13 @@
             <button class="btn btn-primary" id="saveBtn" title="保存">
                 💾 保存
             </button>
+            
+            <div style="border-left: 1px solid #e5e7eb; height: 24px; margin: 0 4px;"></div>
+            
+            <!-- 🆕 关系管理测试按钮 -->
+            <button class="btn" id="testRelationBtn" title="测试关系功能" style="background: #10b981; color: white;">
+                🔗 测试关系
+            </button>
         </div>
 
         <!-- 脑图容器 -->
@@ -581,6 +592,9 @@
                 this.contextMenu = new ContextMenuManager(this.jm, this);
                 console.log('[脑图工作栏] 右键菜单初始化完成');
                 
+                // 🆕 初始化关系管理器
+                await this.initRelationManager();
+                
                 console.log('[脑图工作栏] 初始化完成');
             }
 
@@ -732,6 +746,9 @@
                 document.getElementById('resetBtn').addEventListener('click', () => this.resetView());
                 document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
                 document.getElementById('saveBtn').addEventListener('click', () => this.save());
+                
+                // 🆕 测试关系功能
+                document.getElementById('testRelationBtn').addEventListener('click', () => this.testRelationFeature());
 
                 // 搜索功能
                 document.getElementById('searchInput').addEventListener('input', (e) => this.searchNodes(e.target.value));
@@ -838,6 +855,27 @@
                 });
             }
 
+            // 🆕 初始化关系管理器
+            async initRelationManager() {
+                try {
+                    // 动态导入关系管理模块
+                    const { RelationManager } = await import('./relation-manager.js');
+                    
+                    if (RelationManager) {
+                        this.relationManager = new RelationManager(this.jm);
+                        console.log('[脑图工作栏] 关系管理器初始化完成');
+                        
+                        // 输出关系统计
+                        const stats = this.relationManager.getRelationStats();
+                        console.log('[脑图工作栏] 关系统计:', stats);
+                    } else {
+                        console.warn('[脑图工作栏] RelationManager类未找到');
+                    }
+                } catch (err) {
+                    console.error('[脑图工作栏] 关系管理器初始化失败:', err);
+                }
+            }
+
             bindGlobalShortcuts() {
                 // 绑定全局快捷键
                 document.addEventListener('keydown', (e) => {
@@ -919,18 +957,54 @@
                         return false;
                     }
                     
-                    // Ctrl+V - 粘贴
+                    // Ctrl+V - 粘贴为关系节点
                     if (e.ctrlKey && e.key === 'v') {
                         e.preventDefault();
-                        const newNode = this.ops.pasteNode();
-                        if (newNode) {
-                            this.showMessage('节点已粘贴');
-                            this.updateNodeCount();
-                            this.updateLastModified();
-                            this.autoSave();
-                        } else {
+                        
+                        // 检查剪贴板是否有数据
+                        if (!this.ops.clipboard || !this.ops.clipboard.hasData()) {
                             this.showMessage('剪贴板为空', 'error');
+                            return false;
                         }
+                        
+                        // 获取当前选中的节点作为目标父节点
+                        const targetParent = this.jm.get_selected_node();
+                        if (!targetParent) {
+                            this.showMessage('请先选择目标父节点', 'error');
+                            return false;
+                        }
+                        
+                        // 获取剪贴板中的源节点
+                        const sourceNode = this.ops.clipboard.clipboardData;
+                        
+                        // 🆕 使用RelationManager创建关系节点
+                        if (this.relationManager) {
+                            const newNode = this.relationManager.createRelationNode(
+                                sourceNode,
+                                targetParent,
+                                'RELATED_TO'  // 默认关联关系
+                            );
+                            
+                            if (newNode) {
+                                this.showMessage('⬌ 关系节点已创建');
+                                this.jm.select_node(newNode.id);
+                                this.updateNodeCount();
+                                this.updateLastModified();
+                                this.autoSave();
+                            } else {
+                                this.showMessage('关系节点创建失败', 'error');
+                            }
+                        } else {
+                            // 降级：使用原有的粘贴逻辑
+                            const newNode = this.ops.pasteNode();
+                            if (newNode) {
+                                this.showMessage('节点已粘贴');
+                                this.updateNodeCount();
+                                this.updateLastModified();
+                                this.autoSave();
+                            }
+                        }
+                        
                         return false;
                     }
                 });
@@ -1207,6 +1281,54 @@
                     mindmapId: this.mindmapId,
                     nodeCount: this.countNodes(data.data)
                 });
+            }
+            
+            // 🆕 测试关系功能
+            testRelationFeature() {
+                if (!this.relationManager) {
+                    alert('关系管理器未初始化');
+                    return;
+                }
+                
+                const selectedNode = this.jm.get_selected_node();
+                if (!selectedNode) {
+                    alert('请先选择一个源节点');
+                    return;
+                }
+                
+                if (selectedNode.isroot) {
+                    alert('不能复制根节点');
+                    return;
+                }
+                
+                // 提示用户选择目标父节点
+                const targetId = prompt('请输入目标父节点ID（留空则使用根节点）:', 'root');
+                if (targetId === null) return;
+                
+                const targetParent = this.jm.get_node(targetId || 'root');
+                if (!targetParent) {
+                    alert('目标节点不存在');
+                    return;
+                }
+                
+                // 创建关联关系节点
+                const newNode = this.relationManager.createRelationNode(
+                    selectedNode,
+                    targetParent,
+                    'RELATED_TO'  // 默认关联关系
+                );
+                
+                if (newNode) {
+                    this.showMessage(`✅ 关系节点创建成功！\n源节点: ${selectedNode.topic}\n目标: ${targetParent.topic}`);
+                    this.jm.select_node(newNode.id);
+                    this.updateNodeCount();
+                    
+                    // 输出统计
+                    const stats = this.relationManager.getRelationStats();
+                    console.log('[测试] 关系统计:', stats);
+                } else {
+                    this.showMessage('关系节点创建失败', 'error');
+                }
             }
 
             async saveContentFromSidebar() {
