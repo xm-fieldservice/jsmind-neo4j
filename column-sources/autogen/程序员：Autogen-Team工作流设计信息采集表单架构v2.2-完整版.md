@@ -11,8 +11,8 @@
 - AI智能辅助：自动推荐和填充
 
 **对齐规范**: 
-- Autogen Team工作流通用设计规范v1.0
-- Team参数清单完整版（**5种Team类型**，新增GraphFlow）
+- Autogen Team工作流通用设计规范v1.2
+- Team参数清单完整版（**6种类型**：1个Agent + 5种Team）
 - 工作流设计方法论（节点、输入输出、循环）
 - Autogen 0.7.1内生机制规范
 - GraphFlow官方文档和源码规范
@@ -21,6 +21,7 @@
 - v2.0: 基础混合模式设计（4种Team类型）
 - v2.1: 新增GraphFlow支持，增强条件配置
 - v2.2: 完善GraphFlow细节，补充Lambda序列化、图验证、激活类型说明
+- v2.3: 新增SingleAgent和Swarm支持，完成6种类型全覆盖
 
 ---
 

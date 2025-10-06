@@ -556,8 +556,9 @@
 
                     <div class="form-group">
                         <label class="form-label">您预计需要几个节点？</label>
-                        <input type="range" min="2" max="10" value="4" id="node-count" oninput="updateNodeCount(this.value)">
+                        <input type="range" min="1" max="10" value="4" id="node-count" oninput="updateNodeCount(this.value)">
                         <span id="node-count-display">4个节点</span>
+                        <div id="node-count-hint" style="font-size: 12px; color: #666; margin-top: 5px;"></div>
                     </div>
 
                     <!-- 左右分栏布局 -->
@@ -873,10 +874,22 @@
         }
 
         function updateNodeCount(value) {
-            document.getElementById('node-count-display').textContent = value + '个节点';
-            formData.nodeCount = parseInt(value);
+            const count = parseInt(value);
+            document.getElementById('node-count-display').textContent = count + '个节点';
+            formData.nodeCount = count;
+            
+            // 根据节点数量显示提示
+            const hintEl = document.getElementById('node-count-hint');
+            if (count === 1) {
+                hintEl.textContent = '💡 提示：1个节点建议使用"单一Agent"模式';
+                hintEl.style.color = '#4caf50';
+            } else {
+                hintEl.textContent = '💡 提示：多个节点建议使用Team协作模式';
+                hintEl.style.color = '#666';
+            }
+            
             // 重新初始化节点列表
-            initializeNodes(parseInt(value));
+            initializeNodes(count);
             // 默认选中第一个节点
             if (formData.nodes.length > 0) {
                 selectNode(0);
@@ -899,13 +912,33 @@
             document.getElementById('graphflow-warning').style.display = 'none';
             document.getElementById('swarm-notice').style.display = 'none';
             
-            // 根据类型显示对应提示
+            // 根据类型显示对应提示和禁用不匹配的选项
             if (teamType === 'SingleAgent') {
                 document.getElementById('singleagent-notice').style.display = 'block';
+                // 如果节点数>1，给出提示
+                if (formData.nodeCount > 1) {
+                    const notice = document.getElementById('singleagent-notice');
+                    notice.innerHTML = `
+                        <span class="icon">⚠️</span>
+                        <strong>注意：</strong>您当前设置了${formData.nodeCount}个节点，但选择了单一Agent模式。<br>
+                        • 单一Agent只需要1个节点<br>
+                        • 建议返回第2步调整为1个节点，或选择Team模式
+                    `;
+                    notice.style.background = '#fff3cd';
+                    notice.style.borderColor = '#ffc107';
+                }
             } else if (teamType === 'GraphFlow') {
                 document.getElementById('graphflow-warning').style.display = 'block';
             } else if (teamType === 'Swarm') {
                 document.getElementById('swarm-notice').style.display = 'block';
+            }
+            
+            // Team类型需要至少2个节点
+            if (teamType !== 'SingleAgent' && formData.nodeCount === 1) {
+                alert('Team模式需要至少2个节点，请返回第2步调整节点数量');
+                event.currentTarget.classList.remove('selected');
+                formData.teamType = '';
+                return;
             }
             
             updateSummary();
