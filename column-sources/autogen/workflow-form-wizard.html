@@ -591,6 +591,13 @@
                     <p class="step-description">选择最适合您工作流的协作方式</p>
 
                     <div class="card-selector" id="team-selector">
+                        <!-- 单一Agent选项 -->
+                        <div class="team-card" onclick="selectTeam('SingleAgent')">
+                            <div class="icon">🤖</div>
+                            <div class="label">单一Agent</div>
+                            <div class="description">一个AI助手完成任务，适合简单场景</div>
+                        </div>
+
                         <div class="team-card" onclick="selectTeam('RoundRobinGroupChat')">
                             <div class="icon">→→→</div>
                             <div class="label">按顺序依次执行</div>
@@ -609,6 +616,12 @@
                             <div class="description">基于有向图的精确工作流控制</div>
                         </div>
 
+                        <div class="team-card" onclick="selectTeam('Swarm')">
+                            <div class="icon">🐝</div>
+                            <div class="label">蜂群协作</div>
+                            <div class="description">Agent动态移交，灵活任务分配</div>
+                        </div>
+
                         <div class="team-card" onclick="selectTeam('MagenticOneGroupChat')">
                             <div class="icon">🕸️</div>
                             <div class="label">复杂协作模式</div>
@@ -616,11 +629,28 @@
                         </div>
                     </div>
 
+                    <!-- 类型特定提示 -->
+                    <div id="singleagent-notice" class="notice-box" style="display:none; background:#e8f5e9; border-color:#4caf50;">
+                        <span class="icon">💡</span>
+                        <strong>单一Agent模式</strong><br>
+                        • 适合简单的问答、查询、单一功能场景<br>
+                        • 无需多Agent协作，配置更简单<br>
+                        • 后续可以轻松升级为Team模式
+                    </div>
+
                     <div id="graphflow-warning" class="experimental-warning" style="display:none;">
                         <strong>🧪 实验性功能警告</strong><br>
                         GraphFlow是Autogen 0.7.1的实验性功能：<br>
                         • API可能在未来版本中变化<br>
                         • 建议在生产环境前充分测试
+                    </div>
+
+                    <div id="swarm-notice" class="notice-box" style="display:none; background:#fff3e0; border-color:#ff9800;">
+                        <span class="icon">🐝</span>
+                        <strong>Swarm蜂群模式</strong><br>
+                        • Agent之间可以动态移交任务<br>
+                        • 支持上下文变量共享<br>
+                        • 适合需要灵活协作的场景
                     </div>
 
                     <div class="button-group">
@@ -864,10 +894,18 @@
             event.currentTarget.classList.add('selected');
             formData.teamType = teamType;
             
-            if (teamType === 'GraphFlow') {
+            // 隐藏所有提示
+            document.getElementById('singleagent-notice').style.display = 'none';
+            document.getElementById('graphflow-warning').style.display = 'none';
+            document.getElementById('swarm-notice').style.display = 'none';
+            
+            // 根据类型显示对应提示
+            if (teamType === 'SingleAgent') {
+                document.getElementById('singleagent-notice').style.display = 'block';
+            } else if (teamType === 'GraphFlow') {
                 document.getElementById('graphflow-warning').style.display = 'block';
-            } else {
-                document.getElementById('graphflow-warning').style.display = 'none';
+            } else if (teamType === 'Swarm') {
+                document.getElementById('swarm-notice').style.display = 'block';
             }
             
             updateSummary();
