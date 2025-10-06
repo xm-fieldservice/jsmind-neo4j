@@ -7,8 +7,10 @@
 <!-- 日志面板HTML -->
 <div class="log-panel-container">
     <!-- 日志控制按钮 -->
-    <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;">
-        <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;" title="测试MD文档保存">MD保存</button>
+    <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;align-items:center;">
+        <button id="log-toggle-btn" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;" title="开启/关闭日志采集">
+            🟢 日志开启
+        </button>
         <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
         <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
     </div>
@@ -26,7 +28,7 @@
 <!-- 日志面板JavaScript -->
 <script>
 /**
- * 统一日志面板工具
+ * 统一日志面板工具（优化版）
  * 将运行/调试信息输出到日志框
  * 
  * 功能：
@@ -34,11 +36,15 @@
  * - 折叠/展开
  * - 清空日志
  * - 复制日志
+ * - 开关控制日志采集（优化内存）
  * - 拦截console输出
  * - 全局错误捕获
  */
 (function(){
     const pad = n => (n<10? '0':'') + n;
+    
+    // 日志采集开关状态
+    let logEnabled = true;
     
     function ts(){ 
         const d=new Date(); 
@@ -52,6 +58,7 @@
         const body = document.getElementById('list-log-body');
         const btnClear = document.getElementById('list-log-clear');
         const btnCopy = document.getElementById('list-log-copy');
+        const btnToggle = document.getElementById('log-toggle-btn');
         
         if (!panel || !header || !body) return false;
         
@@ -71,6 +78,32 @@
             });
         }
         
+        // 开关按钮
+        if (btnToggle && !btnToggle.__bound) {
+            btnToggle.__bound = true;
+            btnToggle.addEventListener('click', function(){
+                logEnabled = !logEnabled;
+                
+                if (logEnabled) {
+                    // 开启日志
+                    btnToggle.style.background = '#10b981';
+                    btnToggle.textContent = '🟢 日志开启';
+                    panel.setAttribute('data-collapsed','false');
+                    body.style.display = 'block';
+                    caret.textContent = '▾';
+                    append('INFO', '日志采集已开启');
+                } else {
+                    // 关闭日志
+                    btnToggle.style.background = '#6b7280';
+                    btnToggle.textContent = '⚫ 日志关闭';
+                    panel.setAttribute('data-collapsed','true');
+                    body.style.display = 'none';
+                    caret.textContent = '▸';
+                    console.log('[日志面板] 日志采集已关闭，节省内存');
+                }
+            });
+        }
+        
         btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
         btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ 
             try{ 
@@ -83,6 +116,9 @@
     }
     
     function append(level, message){
+        // 如果日志关闭，不采集
+        if (!logEnabled) return;
+        
         if (!ensureInit()) return;
         const body = document.getElementById('list-log-body');
         const line = `[${ts()}][${level}] ${message}`;
@@ -94,27 +130,35 @@
         log: (m)=>append('INFO', String(m)),
         warn: (m)=>append('WARN', String(m)),
         error: (m)=>append('ERROR', String(m)),
-        json: (title, obj)=>append('INFO', `${title}: ${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`)
+        json: (title, obj)=>append('INFO', `${title}: ${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`),
+        isEnabled: ()=>logEnabled,
+        setEnabled: (enabled)=>{ logEnabled = enabled; }
     };
     
     window.LogPanel = LogPanel;
     
-    // Tee console 输出到日志面板
+    // Tee console 输出到日志面板（仅在开启时）
     ['log','info','warn','error'].forEach(fn=>{
         const orig = console[fn].bind(console);
         console[fn] = function(){ 
-            try{ 
-                LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); 
-            }catch(_){}; 
+            if (logEnabled) {
+                try{ 
+                    LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); 
+                }catch(_){}
+            }
             return orig.apply(console, arguments); 
         };
     });
     
-    // 全局错误捕获
-    window.addEventListener('error', e=>{ LogPanel.error(`WindowError: ${e.message}`); });
-    window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
+    // 全局错误捕获（仅在开启时）
+    window.addEventListener('error', e=>{ 
+        if (logEnabled) LogPanel.error(`WindowError: ${e.message}`); 
+    });
+    window.addEventListener('unhandledrejection', e=>{ 
+        if (logEnabled) LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); 
+    });
     
     // 初始化提示
-    setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
+    setTimeout(()=> LogPanel.log('日志面板已初始化 (点击开关可关闭日志采集以节省内存)'), 0);
 })();
 </script>
