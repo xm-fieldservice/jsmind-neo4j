@@ -3,9 +3,14 @@
 **文档类型**: 架构规范  
 **创建时间**: 2025-10-06  
 **作者**: 架构师  
-**版本**: v1.0  
+**版本**: v1.2（更新：完善GraphFlow高级特性和最佳实践）  
 **适用范围**: 所有基于Autogen 0.7.1的Team工作流设计  
 **核心原则**: 配置即是功能，使用Autogen内生机制
+
+**版本更新记录**：
+- v1.0 (2025-10-06): 初始版本，支持对话模式Team（RoundRobin、Selector、MagenticOne）
+- v1.1 (2025-10-06): 补充GraphFlow支持，新增工作流模式，完善Agent设计原则
+- v1.2 (2025-10-06): 完善GraphFlow高级特性（激活组、条件边、循环模式、消息过滤、性能优化、FAQ）
 
 ---
 
@@ -97,9 +102,11 @@ stage_definition:
 **步骤3：为每个阶段设计专业Agent**
 
 **设计原则**：
-- ✅ 一个阶段对应一个专业Agent
-- ✅ Agent职责单一，提示词聚焦
+- ✅ 一个阶段/**节点**对应一个专业Agent
+- ✅ Agent职责单一，可以是**领域专家**或**工作流节点执行者**
 - ✅ Agent之间相互独立，错误隔离
+- ✅ 在对话式Team中，Agent通过消息传递协作
+- ✅ 在GraphFlow中，Agent通过**图结构编排**，按确定性路径执行
 - ❌ 避免一个Agent处理多个阶段
 
 **Agent设计模板**：
@@ -137,13 +144,20 @@ agent_template:
 
 **Team类型选择**：
 
-| Team类型 | 适用场景 | 特点 |
-|---------|---------|------|
-| RoundRobinGroupChat | 顺序执行的工作流 | Agent轮流发言 |
-| SelectorGroupChat | 需要动态选择Agent | 根据条件选择 |
-| MagenticOneGroupChat | 复杂协作场景 | 支持多种协作模式 |
+| Team类型 | 适用场景 | 特点 | 模式 |
+|---------|---------|------|------|
+| **GraphFlow** | **确定性工作流执行** | **基于有向图的精确控制** | 工作流模式 |
+| RoundRobinGroupChat | 顺序对话协作 | Agent轮流发言 | 对话模式 |
+| SelectorGroupChat | 动态选择Agent | 根据条件选择 | 对话模式 |
+| MagenticOneGroupChat | 复杂协作场景 | 支持多种协作模式 | 对话模式 |
+
+**模式说明**：
+- **对话模式**：Agent通过消息传递自然协作，适合灵活交互
+- **工作流模式**：Agent通过图结构确定性执行，适合固定流程
 
 **Team配置模板**：
+
+**对话模式Team配置**：
 
 ```yaml
 team_config:
@@ -159,6 +173,417 @@ team_config:
     根据当前工作流阶段选择合适的Agent：
     - {条件1} -> {agent1}
     - {条件2} -> {agent2}
+```
+
+**工作流模式Team配置（GraphFlow）**：
+
+```yaml
+# GraphFlow配置模板
+team_config:
+  type: "GraphFlow"
+  participants: 
+    - "{node1}_agent"
+    - "{node2}_agent"
+    - "{node3}_agent"
+  
+  # 图结构配置
+  graph:
+    builder_config:
+      # 节点列表
+      nodes: 
+        - name: "{node1}_agent"
+          activation: "all"  # all或any
+        - name: "{node2}_agent"
+          activation: "all"
+        - name: "{node3}_agent"
+          activation: "all"
+      
+      # 边配置（节点间连接）
+      edges:
+        - source: "{node1}_agent"
+          target: "{node2}_agent"
+          condition: null  # 无条件
+        
+        - source: "{node2}_agent"
+          target: "{node3}_agent"
+          condition: "APPROVE"  # 字符串条件（推荐，可序列化）
+        
+        - source: "{node2}_agent"
+          target: "{node1}_agent"
+          condition: "REJECT"  # 循环条件
+          activation_group: "feedback"  # 激活组
+      
+      # 入口点（如果没有源节点，必须设置）
+      entry_point: "{node1}_agent"
+  
+  # 终止条件
+  max_turns: 20  # 防止无限循环
+  
+  termination_condition:
+    type: "MaxMessageTermination"
+    max_messages: 20
+
+# 注意事项：
+# 1. 所有循环必须包含至少一个条件边作为退出机制
+# 2. Lambda函数条件不可序列化，建议使用字符串条件
+# 3. 激活组用于处理多路径到同一节点的情况
+```
+
+### 2.4 GraphFlow高级特性 ⭐⭐⭐
+
+#### 2.4.1 激活组（Activation Groups）详解
+
+**使用场景**：
+- 多路径汇聚到同一节点
+- 循环中的复杂依赖
+- 优先级不同的触发条件
+
+**配置示例**：
+
+```yaml
+# 场景1: A→B→C→B (循环)
+activation_groups_example_1:
+  描述: "初始路径和反馈路径使用不同激活组"
+  edges:
+    - source: "agent_a"
+      target: "agent_b"
+      activation_group: "initial"  # 初始路径
+    
+    - source: "agent_c"
+      target: "agent_b"
+      activation_group: "feedback"  # 反馈路径
+      activation_condition: "all"  # 默认，等待所有父节点
+
+# 场景2: (C1, C2)→B (任一触发)
+activation_groups_example_2:
+  描述: "并行任务，任一完成即可触发下游"
+  edges:
+    - source: "agent_c1"
+      target: "agent_b"
+      activation_group: "parallel_group"
+      activation_condition: "any"  # 任一完成即触发
+    
+    - source: "agent_c2"
+      target: "agent_b"
+      activation_group: "parallel_group"
+      activation_condition: "any"
+```
+
+#### 2.4.2 条件边的三种配置方式
+
+**类型1：无条件**
+```yaml
+condition: null
+说明: "无条件激活，节点完成后自动触发"
+示例: "builder.add_edge(agent_a, agent_b)"
+```
+
+**类型2：字符串匹配（推荐）**
+```yaml
+condition: "APPROVE"
+说明: "检查消息内容是否包含指定字符串"
+示例: "builder.add_edge(agent_b, agent_c, condition='APPROVE')"
+优点: "可序列化，推荐用于配置文件"
+限制: "只支持简单的包含判断"
+```
+
+**类型3：Lambda函数（高级）**
+```yaml
+condition: "lambda msg: 'yes' in msg.to_model_text()"
+说明: "自定义条件逻辑"
+示例: "builder.add_edge(agent_a, agent_b, condition=lambda msg: ...)"
+优点: "灵活，支持复杂逻辑"
+限制: "不可序列化，无法保存到配置文件"
+警告: "⚠️ Lambda函数仅用于原型开发，生产环境建议使用字符串条件"
+```
+
+**推荐实践**：
+1. 优先使用字符串条件
+2. 复杂逻辑考虑拆分为多个简单条件
+3. Lambda函数仅用于原型开发
+
+#### 2.4.3 循环工作流设计模式
+
+**循环验证规则**：
+
+```yaml
+loop_design_rules:
+  强制要求:
+    - "所有循环必须包含至少一个条件边"
+    - "条件边必须能保证最终退出循环"
+    - "建议设置max_turns防止无限循环"
+  
+  验证机制:
+    - "DiGraph.graph_validate()自动检查循环"
+    - "构建时会抛出ValueError如果循环无退出条件"
+```
+
+**常见循环模式**：
+
+**模式1：审批循环**
+```yaml
+描述: "A→B→C(APPROVE) or A(REJECT)"
+退出条件: "APPROVE"
+配置示例:
+  builder.add_edge(agent_b, agent_c, condition="APPROVE")  # 退出
+  builder.add_edge(agent_b, agent_a, condition="REJECT")   # 循环
+```
+
+**模式2：迭代优化**
+```yaml
+描述: "生成→评审→改进(循环)→完成"
+退出条件: "质量达标"
+最大轮次: 10
+配置示例:
+  builder.add_edge(generator, reviewer)
+  builder.add_edge(reviewer, generator, condition="NEEDS_IMPROVEMENT")
+  builder.add_edge(reviewer, finalizer, condition="APPROVED")
+```
+
+**完整的循环工作流配置示例**：
+
+```yaml
+# 文档审批工作流
+loop_workflow_example:
+  name: "文档审批工作流"
+  team_type: "GraphFlow"
+  
+  agents:
+    - name: "writer_agent"
+      role: "起草文档"
+    - name: "reviewer_agent"
+      role: "审核文档，说APPROVE或提出修改意见"
+    - name: "finalizer_agent"
+      role: "最终发布"
+  
+  graph:
+    nodes:
+      - name: "writer_agent"
+        activation: "all"
+      - name: "reviewer_agent"
+        activation: "all"
+      - name: "finalizer_agent"
+        activation: "all"
+    
+    edges:
+      # 初始路径
+      - source: "writer_agent"
+        target: "reviewer_agent"
+      
+      # 循环路径（修改）
+      - source: "reviewer_agent"
+        target: "writer_agent"
+        condition: "REJECT"
+        activation_group: "feedback"
+      
+      # 退出路径（通过）
+      - source: "reviewer_agent"
+        target: "finalizer_agent"
+        condition: "APPROVE"
+    
+    entry_point: "writer_agent"
+  
+  termination_condition:
+    type: "MaxMessageTermination"
+    max_messages: 20  # 防止无限循环
+```
+
+#### 2.4.4 并行执行模式
+
+**扇出（Fan-out）模式**：
+
+```yaml
+parallel_fanout:
+  描述: "一个节点完成后，多个节点并行执行"
+  图结构: "A → (B, C, D)"
+  
+  配置示例:
+    builder.add_edge(agent_a, agent_b)
+    builder.add_edge(agent_a, agent_c)
+    builder.add_edge(agent_a, agent_d)
+  
+  执行特点:
+    - "B、C、D同时进入就绪队列"
+    - "执行顺序不确定"
+    - "适合独立的并行任务"
+```
+
+**汇聚（Join）模式**：
+
+```yaml
+parallel_join:
+  描述: "多个节点完成后，汇聚到一个节点"
+  图结构: "(A, B, C) → D"
+  
+  配置示例:
+    builder.add_edge(agent_a, agent_d)
+    builder.add_edge(agent_b, agent_d)
+    builder.add_edge(agent_c, agent_d)
+    # D默认使用activation="all"，等待所有父节点完成
+  
+  激活策略:
+    all模式: "等待A、B、C全部完成"
+    any模式: "任一完成即触发D"
+```
+
+#### 2.4.5 消息过滤（Message Filtering）
+
+**使用场景**：
+- 循环中避免消息历史过长
+- Agent只需要看特定来源的消息
+- 减少幻觉，提高准确性
+
+**配置示例**：
+
+```yaml
+filtered_agent:
+  type: "MessageFilterAgent"
+  wrapped_agent: "base_agent"
+  filter:
+    per_source:
+      - source: "user"
+        position: "first"  # 只看第一条用户消息
+        count: 1
+      
+      - source: "upstream_agent"
+        position: "last"  # 只看上游Agent的最后一条
+        count: 1
+
+最佳实践:
+  - "循环中的Agent应该过滤消息"
+  - "只保留关键信息，避免上下文污染"
+  - "使用position='last'获取最新状态"
+```
+
+#### 2.4.6 实验性功能警告 ⚠️
+
+```yaml
+experimental_notice:
+  状态: "实验性功能"
+  API稳定性: "可能在未来版本中变化"
+  
+  风险提示:
+    - "不建议在生产环境大规模使用"
+    - "API可能在0.8.x版本中调整"
+    - "优先考虑稳定的RoundRobin/Selector"
+  
+  适用场景:
+    推荐使用:
+      - "确定性工作流原型"
+      - "内部工具和脚本"
+      - "研究和实验项目"
+    
+    谨慎使用:
+      - "生产环境关键业务"
+      - "需要长期维护的系统"
+  
+  迁移准备:
+    - "保持配置文件的可读性"
+    - "避免过度依赖Lambda函数"
+    - "关注AutoGen版本更新日志"
+```
+
+#### 2.4.7 GraphFlow设计检查清单
+
+```yaml
+graphflow_checklist:
+  图结构设计:
+    - [ ] 所有节点都有明确的职责
+    - [ ] 节点间的连接符合业务逻辑
+    - [ ] 循环包含至少一个条件边
+    - [ ] 设置了合理的入口点
+    - [ ] 没有孤立节点
+  
+  条件配置:
+    - [ ] 优先使用字符串条件（可序列化）
+    - [ ] 条件互斥，避免冲突
+    - [ ] 循环有明确的退出条件
+    - [ ] 测试了所有分支路径
+  
+  激活配置:
+    - [ ] 汇聚节点使用正确的activation类型
+    - [ ] 激活组命名清晰
+    - [ ] 理解"all"和"any"的区别
+    - [ ] 多路径汇聚配置正确
+  
+  性能和可维护性:
+    - [ ] 设置了合理的max_turns防止无限循环
+    - [ ] 考虑使用消息过滤减少上下文长度
+    - [ ] 节点命名清晰易懂
+    - [ ] 添加了必要的注释和文档
+  
+  测试验证:
+    - [ ] 测试了正常执行路径
+    - [ ] 测试了所有分支条件
+    - [ ] 测试了循环退出机制
+    - [ ] 验证了终止条件生效
+```
+
+#### 2.4.8 常见问题FAQ
+
+**问题1：循环无法退出**
+```yaml
+症状: "工作流一直循环，达到max_turns才停止"
+原因: "循环中缺少条件边或条件永远不满足"
+解决方案:
+  - "检查循环中是否有条件边"
+  - "验证条件字符串是否正确"
+  - "添加调试日志查看消息内容"
+```
+
+**问题2：节点未执行**
+```yaml
+症状: "某个节点从未被触发"
+原因: "父节点依赖未满足或激活条件配置错误"
+解决方案:
+  - "检查节点的所有父节点是否都执行了"
+  - "验证activation_condition是'all'还是'any'"
+  - "使用graph_validate()检查图结构"
+```
+
+**问题3：Lambda函数无法序列化**
+```yaml
+症状: "保存配置时Lambda函数丢失"
+原因: "Lambda函数不可序列化"
+解决方案:
+  - "改用字符串条件"
+  - "或在代码中动态添加Lambda条件"
+  - "不要依赖配置文件保存Lambda"
+```
+
+**问题4：消息历史过长**
+```yaml
+症状: "循环多次后响应变慢或出错"
+原因: "消息历史累积导致上下文过长"
+解决方案:
+  - "使用MessageFilterAgent过滤消息"
+  - "只保留关键消息（first/last）"
+  - "考虑使用BufferedChatCompletionContext"
+```
+
+#### 2.4.9 性能优化建议
+
+```yaml
+performance_optimization:
+  消息过滤:
+    建议: "在循环工作流中使用MessageFilterAgent"
+    效果: "减少上下文长度，提高响应速度"
+    实现: "per_source过滤，只保留关键消息"
+    
+  并行执行:
+    建议: "利用扇出模式并行处理独立任务"
+    效果: "多个Agent同时执行，缩短总时间"
+    注意: "AutoGen内部会按就绪队列顺序执行"
+    
+  终止条件:
+    建议: "设置合理的max_turns和termination_condition"
+    效果: "避免无限循环，节省资源"
+    推荐值: "简单流程10-20轮，复杂流程30-50轮"
+    
+  模型选择:
+    建议: "根据节点复杂度选择合适的模型"
+    效果: "平衡成本和质量"
+    策略: "简单节点用小模型，关键节点用大模型"
 ```
 
 ---
@@ -383,12 +808,61 @@ class WorkflowRunner:
     async def setup_team(self):
         """根据配置创建Team（使用Autogen内生GroupChat）"""
         team_config = self.config['team_config']
+        team_type = team_config['type']
         
-        # 使用Autogen内生的Team类型
-        self.team = RoundRobinGroupChat(
-            participants=self.agents,
-            max_turns=team_config.get('max_turns', 10)
-        )
+        # 根据类型创建不同的Team
+        if team_type == "RoundRobinGroupChat":
+            # 使用Autogen内生的RoundRobinGroupChat
+            self.team = RoundRobinGroupChat(
+                participants=self.agents,
+                max_turns=team_config.get('max_turns', 10)
+            )
+        
+        elif team_type == "GraphFlow":
+            # 使用GraphFlow（工作流模式）
+            from autogen_agentchat.teams import GraphFlow
+            from autogen_agentchat.teams._group_chat._graph import DiGraphBuilder
+            from autogen_agentchat.conditions import MaxMessageTermination
+            
+            # 构建图
+            builder = DiGraphBuilder()
+            
+            # 添加节点
+            graph_config = team_config['graph']['builder_config']
+            for node_config in graph_config['nodes']:
+                agent = next(a for a in self.agents if a.name == node_config['name'])
+                builder.add_node(agent, activation=node_config.get('activation', 'all'))
+            
+            # 添加边
+            for edge_config in graph_config['edges']:
+                source_agent = next(a for a in self.agents if a.name == edge_config['source'])
+                target_agent = next(a for a in self.agents if a.name == edge_config['target'])
+                
+                builder.add_edge(
+                    source_agent,
+                    target_agent,
+                    condition=edge_config.get('condition'),  # 字符串条件或None
+                    activation_group=edge_config.get('activation_group'),
+                    activation_condition=edge_config.get('activation_condition', 'all')
+                )
+            
+            # 设置入口点（如果配置了）
+            if 'entry_point' in graph_config:
+                entry_agent = next(a for a in self.agents if a.name == graph_config['entry_point'])
+                builder.set_entry_point(entry_agent)
+            
+            # 构建图
+            graph = builder.build()
+            
+            # 创建GraphFlow团队
+            self.team = GraphFlow(
+                participants=self.agents,
+                graph=graph,
+                termination_condition=MaxMessageTermination(team_config.get('max_turns', 20))
+            )
+        
+        else:
+            raise ValueError(f"不支持的Team类型: {team_type}")
     
     async def run(self, initial_message: str):
         """运行工作流"""
@@ -492,9 +966,14 @@ class WorkspaceTrigger:
         result = await runner.run(input_data)
         
         # 保存完整数据到UnifiedStorage
-        workflow_id = f"{workflow_type}_{int(asyncio.get_event_loop().time())}"
+        # 生成符合MD底座规范的工作流ID
+        import hashlib
+        timestamp = int(asyncio.get_event_loop().time())
+        unique_hash = hashlib.md5(f"{timestamp}{input_data}".encode()).hexdigest()[:8]
+        workflow_id = f"{workflow_type}_{timestamp}_{unique_hash}"  # 标准MD底座格式
+        
         workflow_data = {
-            "topic": f"{workflow_name}：{extract_name(result)}",
+            "topic": f"{workflow_name}：{self.extract_name(result)}",
             "meta": {
                 "itemType": "{workflow_type}",
                 "workflowId": workflow_id,
@@ -553,6 +1032,24 @@ class WorkspaceTrigger:
             await runner.setup_agents()
         
         return workflow_data
+    
+    def extract_name(self, result):
+        """从工作流结果中提取名称"""
+        try:
+            # 实现具体的名称提取逻辑
+            return str(result).split('\n')[0] if result else "未命名"
+        except:
+            return "未命名工作流"
+    
+    def get_initial_viz_state(self):
+        """获取初始可视化状态"""
+        return {
+            "mindmap": {"selected_node": None, "zoom_level": 1.0},
+            "swimlane": {"active_lane": "idea", "filters": []},
+            "detail_panel": {"open": False},
+            "relation_view": {"visible": False},
+            "chart_panel": {"active_chart": None}
+        }
 ```
 
 ---

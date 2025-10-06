@@ -752,7 +752,16 @@ from autogen_ext.memory.chromadb import (
 )
 
 class WorkflowRunner:
-    """工作流运行器 - 基于配置文件"""
+    """
+    工作流运行器 - 配置加载器（非业务类）
+    
+    职责：
+    1. 加载YAML配置文件
+    2. 根据配置创建Autogen内生对象（AssistantAgent、RoundRobinGroupChat等）
+    3. 调用Autogen内生的team.run()方法
+    
+    注意：本类仅为脚手架代码，不包含业务逻辑，符合"配置即是功能"原则
+    """
     
     def __init__(self, config_path: str = "agents_config.yaml"):
         self.config = self.load_config(config_path)
@@ -875,12 +884,18 @@ from run_workflow import WorkflowRunner
 from autogen_core.memory import MemoryContent, MemoryMimeType
 
 class IntegratedWorkflowRunner(WorkflowRunner):
-    """集成版工作流运行器"""
+    """
+    集成版工作流运行器
+    
+    复用现有框架组件：
+    - AutogenUnifiedStorage（统一存储）
+    - AutogenEventBus（事件总线）
+    """
     
     def __init__(self, config_path: str, storage, event_bus):
         super().__init__(config_path)
-        self.storage = storage  # AutogenUnifiedStorage
-        self.event_bus = event_bus  # AutogenEventBus
+        self.storage = storage  # 复用：AutogenUnifiedStorage
+        self.event_bus = event_bus  # 复用：AutogenEventBus
     
     async def run_with_storage(self, initial_message: str, workflow_id: str):
         """运行并保存到UnifiedStorage"""
@@ -974,7 +989,12 @@ class WorkspaceTrigger:
         result = await runner.run(idea_input)
         
         # 3. 保存完整项目数据到UnifiedStorage
-        project_id = f"proj_{int(asyncio.get_event_loop().time())}"
+        # 生成符合MD底座规范的项目ID
+        import hashlib
+        timestamp = int(asyncio.get_event_loop().time())
+        unique_hash = hashlib.md5(f"{timestamp}{idea_input}".encode()).hexdigest()[:8]
+        project_id = f"proj_{timestamp}_{unique_hash}"  # 符合MD底座标准格式
+        
         project_data = {
             "topic": f"项目：{extract_project_name(result)}",
             "meta": {
@@ -1187,15 +1207,24 @@ data_sharing:
 
 ```javascript
 /**
- * 可视化组件集成脚本
- * 符合系统功能清单规范，使用现有ColumnRegistry
+ * 可视化组件集成脚本 - 协调器模式
+ * 
+ * 职责：协调多个可视化组件的数据加载和同步
+ * 
+ * 复用现有框架组件：
+ * - AutogenUnifiedStorage（统一存储）
+ * - AutogenEventBus（事件总线）
+ * - ColumnRegistry（组件注册表）
+ * - MindmapColumn、DetailColumn、SwimlaneColumn等（各可视化组件）
+ * 
+ * 注意：本类不重复实现任何组件功能，仅提供协调逻辑
  */
 
 class VisualizationIntegration {
     constructor() {
-        this.storage = AutogenUnifiedStorage;
-        this.eventBus = AutogenEventBus;
-        this.registry = ColumnRegistry;  // 使用现有注册表
+        this.storage = AutogenUnifiedStorage;  // 复用：统一存储
+        this.eventBus = AutogenEventBus;       // 复用：事件总线
+        this.registry = ColumnRegistry;        // 复用：组件注册表
         this.currentProject = null;
     }
     
@@ -1216,11 +1245,13 @@ class VisualizationIntegration {
     
     /**
      * 加载项目数据到所有组件（现场恢复）
+     * 
+     * 复用现有组件：通过ColumnRegistry获取各Column实例
      */
     async loadProjectToComponents(projectData) {
         this.currentProject = projectData.project_data;
         
-        // 1. 加载到脑图
+        // 1. 加载到脑图（复用：MindmapColumn）
         const mindmapColumn = this.registry.getColumn('mindmap');
         if (mindmapColumn) {
             mindmapColumn.loadData(this.currentProject.children);
