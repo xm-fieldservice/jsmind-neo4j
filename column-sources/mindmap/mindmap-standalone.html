@@ -403,27 +403,29 @@
         </div>
     </div>
 
-    <!-- 全局日志面板（从 index.html 复制） -->
-    <div id="global-log-panel-container" style="position:fixed;bottom:20px;right:20px;width:400px;max-height:300px;z-index:9999;background:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-        <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;padding:8px;">
-            <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;">MD保存</button>
+    <!-- 全局日志面板（优化版 - 折叠开关控制采集） -->
+    <div id="global-log-panel-container" style="position:fixed;bottom:20px;right:20px;width:400px;max-height:300px;z-index:9999;background:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);padding:8px;">
+        <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;">
             <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
             <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
         </div>
-        <div id="list-log-panel" data-collapsed="false" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
+        <div id="list-log-panel" data-collapsed="true" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
             <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
-                <span style="font-size:12px;color:#6b7280;">系统日志</span>
-                <span id="list-log-caret" style="font-size:12px;color:#9ca3af;">▾</span>
+                <span style="font-size:12px;color:#6b7280;">系统日志 (点击展开=开启采集)</span>
+                <span id="list-log-caret" style="font-size:12px;color:#9ca3af;">▸</span>
             </button>
-            <pre id="list-log-body" style="display:block;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
+            <pre id="list-log-body" style="display:none;margin:0;padding:6px 8px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;font-size:12px;line-height:1.4;background:#ffffff;"></pre>
         </div>
     </div>
 
-    <!-- 日志面板脚本（从 index.html 复制） -->
+    <!-- 日志面板脚本（优化版 - 折叠开关控制采集） -->
     <script>
       (function(){
         const pad = n => (n<10? '0':'') + n;
+        const logState = { enabled: false };  // 默认关闭
+        
         function ts(){ const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+        
         function ensureInit(){
           const panel = document.getElementById('list-log-panel');
           const header = document.getElementById('list-log-header');
@@ -432,18 +434,25 @@
           const btnClear = document.getElementById('list-log-clear');
           const btnCopy = document.getElementById('list-log-copy');
           if (!panel || !header || !body) return false;
+          
           if (!header.__bound){
             header.__bound = true;
             header.addEventListener('click', function(){
               const collapsed = panel.getAttribute('data-collapsed') !== 'false';
               if (collapsed){
+                // 展开 = 开启日志采集
                 panel.setAttribute('data-collapsed','false');
                 body.style.display = 'block';
                 caret.textContent = '▾';
+                logState.enabled = true;
+                console.log('[日志面板] 日志采集已开启');
               } else {
+                // 折叠 = 停止日志采集（但组件仍可用）
                 panel.setAttribute('data-collapsed','true');
                 body.style.display = 'none';
                 caret.textContent = '▸';
+                logState.enabled = false;
+                console.log('[日志面板] 日志采集已停止，节省内存（清空/复制功能仍可用）');
               }
             });
           }
@@ -451,27 +460,82 @@
           btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(body.textContent||''); alert('日志已复制'); }catch(_){ } }));
           return true;
         }
+        
         function append(level, message){
+          if (!logState.enabled) return;  // 关闭时不采集
           if (!ensureInit()) return;
           const body = document.getElementById('list-log-body');
           const line = `[${ts()}][${level}] ${message}`;
           body.textContent += (body.textContent ? "\n" : "") + line;
           body.scrollTop = body.scrollHeight;
         }
+        
         const LogPanel = {
           log: (m)=>append('INFO', String(m)),
           warn: (m)=>append('WARN', String(m)),
           error: (m)=>append('ERROR', String(m)),
-          json: (title, obj)=>append('INFO', `${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`)
+          json: (title, obj)=>append('INFO', `${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`),
+          isEnabled: ()=>logState.enabled,
+          setEnabled: (enabled)=>{ logState.enabled = enabled; }
         };
         window.LogPanel = LogPanel;
+        
+        // 只在开启时拦截console（过滤掉节点对象）
+        // 先保存原始console方法
+        const originalConsole = {
+          log: console.log.bind(console),
+          info: console.info.bind(console),
+          warn: console.warn.bind(console),
+          error: console.error.bind(console)
+        };
+        
         ['log','info','warn','error'].forEach(fn=>{
-          const orig = console[fn].bind(console);
-          console[fn] = function(){ try{ LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); }catch(_){}; return orig.apply(console, arguments); };
+          const orig = originalConsole[fn];
+          console[fn] = function(){ 
+            // 先调用原始console（保证开发者工具能看到）
+            orig.apply(console, arguments);
+            
+            // 如果日志采集开启，才处理
+            if (logState.enabled) {
+              try{ 
+                // 过滤掉包含大量节点数据的日志
+                const msg = [].map.call(arguments, x=> {
+                  if (typeof x === 'object') {
+                    // 如果是节点对象（包含id, topic等），只显示简要信息
+                    if (x && x.id && x.topic) {
+                      return `[节点: ${x.topic}]`;
+                    }
+                    // 其他对象转JSON（限制长度）
+                    const json = JSON.stringify(x);
+                    return json.length > 200 ? json.substring(0, 200) + '...' : json;
+                  }
+                  return String(x);
+                }).join(' ');
+                
+                // 只采集系统日志，过滤掉所有脑图调试信息
+                const shouldIgnore = 
+                  msg.includes('[脑图工作栏]') ||
+                  msg.includes('[节点剪贴板]') ||
+                  msg.includes('[右键菜单]') ||
+                  msg.includes('[MindmapCompatLayer]') ||
+                  msg.includes('jsMind事件');
+                
+                if (!shouldIgnore) {
+                  LogPanel[fn==='info'?'log':fn](msg);
+                }
+              }catch(_){}
+            }
+          };
         });
-        window.addEventListener('error', e=>{ LogPanel.error(`WindowError: ${e.message}`); });
-        window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
-        setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
+        
+        // 只在开启时捕获错误
+        window.addEventListener('error', e=>{ if (logState.enabled) LogPanel.error(`WindowError: ${e.message}`); });
+        window.addEventListener('unhandledrejection', e=>{ if (logState.enabled) LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
+        
+        // 立即初始化按钮事件（不依赖append调用）
+        ensureInit();
+        
+        console.log('[日志面板] 已初始化 (默认关闭，点击"系统日志"展开即可开启采集)');
       })();
     </script>
 

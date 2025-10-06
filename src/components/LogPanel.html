@@ -8,9 +8,6 @@
 <div class="log-panel-container">
     <!-- 日志控制按钮 -->
     <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;align-items:center;">
-        <button id="log-toggle-btn" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;" title="开启/关闭日志采集">
-            🟢 日志开启
-        </button>
         <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
         <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
     </div>
@@ -43,8 +40,9 @@
 (function(){
     const pad = n => (n<10? '0':'') + n;
     
-    // 日志采集开关状态
-    let logEnabled = true;
+    // 日志采集开关状态（使用对象保持引用）
+    // 默认关闭，节省内存
+    const logState = { enabled: false };
     
     function ts(){ 
         const d=new Date(); 
@@ -58,7 +56,6 @@
         const body = document.getElementById('list-log-body');
         const btnClear = document.getElementById('list-log-clear');
         const btnCopy = document.getElementById('list-log-copy');
-        const btnToggle = document.getElementById('log-toggle-btn');
         
         if (!panel || !header || !body) return false;
         
@@ -67,39 +64,19 @@
             header.addEventListener('click', function(){
                 const collapsed = panel.getAttribute('data-collapsed') !== 'false';
                 if (collapsed){
+                    // 展开 = 开启日志采集
                     panel.setAttribute('data-collapsed','false');
                     body.style.display = 'block';
                     caret.textContent = '▾';
+                    logState.enabled = true;
+                    console.log('[日志面板] 日志采集已开启');
                 } else {
+                    // 折叠 = 停止日志采集（但组件仍可用）
                     panel.setAttribute('data-collapsed','true');
                     body.style.display = 'none';
                     caret.textContent = '▸';
-                }
-            });
-        }
-        
-        // 开关按钮
-        if (btnToggle && !btnToggle.__bound) {
-            btnToggle.__bound = true;
-            btnToggle.addEventListener('click', function(){
-                logEnabled = !logEnabled;
-                
-                if (logEnabled) {
-                    // 开启日志
-                    btnToggle.style.background = '#10b981';
-                    btnToggle.textContent = '🟢 日志开启';
-                    panel.setAttribute('data-collapsed','false');
-                    body.style.display = 'block';
-                    caret.textContent = '▾';
-                    append('INFO', '日志采集已开启');
-                } else {
-                    // 关闭日志
-                    btnToggle.style.background = '#6b7280';
-                    btnToggle.textContent = '⚫ 日志关闭';
-                    panel.setAttribute('data-collapsed','true');
-                    body.style.display = 'none';
-                    caret.textContent = '▸';
-                    console.log('[日志面板] 日志采集已关闭，节省内存');
+                    logState.enabled = false;
+                    console.log('[日志面板] 日志采集已停止，节省内存（清空/复制功能仍可用）');
                 }
             });
         }
@@ -117,7 +94,7 @@
     
     function append(level, message){
         // 如果日志关闭，不采集
-        if (!logEnabled) return;
+        if (!logState.enabled) return;
         
         if (!ensureInit()) return;
         const body = document.getElementById('list-log-body');
@@ -131,34 +108,72 @@
         warn: (m)=>append('WARN', String(m)),
         error: (m)=>append('ERROR', String(m)),
         json: (title, obj)=>append('INFO', `${title}: ${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`),
-        isEnabled: ()=>logEnabled,
-        setEnabled: (enabled)=>{ logEnabled = enabled; }
+        isEnabled: ()=>logState.enabled,
+        setEnabled: (enabled)=>{ logState.enabled = enabled; }
     };
     
     window.LogPanel = LogPanel;
     
-    // Tee console 输出到日志面板（仅在开启时）
+    // Tee console 输出到日志面板（仅在开启时，过滤节点对象）
+    // 先保存原始console方法
+    const originalConsole = {
+        log: console.log.bind(console),
+        info: console.info.bind(console),
+        warn: console.warn.bind(console),
+        error: console.error.bind(console)
+    };
+    
     ['log','info','warn','error'].forEach(fn=>{
-        const orig = console[fn].bind(console);
+        const orig = originalConsole[fn];
         console[fn] = function(){ 
-            if (logEnabled) {
+            // 先调用原始console（保证开发者工具能看到）
+            orig.apply(console, arguments);
+            
+            // 如果日志采集开启，才处理
+            if (logState.enabled) {
                 try{ 
-                    LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); 
+                    // 过滤掉包含大量节点数据的日志
+                    const msg = [].map.call(arguments, x=> {
+                        if (typeof x === 'object') {
+                            // 如果是节点对象（包含id, topic等），只显示简要信息
+                            if (x && x.id && x.topic) {
+                                return `[节点: ${x.topic}]`;
+                            }
+                            // 其他对象转JSON（限制长度）
+                            const json = JSON.stringify(x);
+                            return json.length > 200 ? json.substring(0, 200) + '...' : json;
+                        }
+                        return String(x);
+                    }).join(' ');
+                    
+                    // 只采集系统日志，过滤掉所有脑图调试信息
+                    const shouldIgnore = 
+                        msg.includes('[脑图工作栏]') ||
+                        msg.includes('[节点剪贴板]') ||
+                        msg.includes('[右键菜单]') ||
+                        msg.includes('[MindmapCompatLayer]') ||
+                        msg.includes('jsMind事件');
+                    
+                    if (!shouldIgnore) {
+                        LogPanel[fn==='info'?'log':fn](msg);
+                    }
                 }catch(_){}
             }
-            return orig.apply(console, arguments); 
         };
     });
     
     // 全局错误捕获（仅在开启时）
     window.addEventListener('error', e=>{ 
-        if (logEnabled) LogPanel.error(`WindowError: ${e.message}`); 
+        if (logState.enabled) LogPanel.error(`WindowError: ${e.message}`); 
     });
     window.addEventListener('unhandledrejection', e=>{ 
-        if (logEnabled) LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); 
+        if (logState.enabled) LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); 
     });
     
-    // 初始化提示
-    setTimeout(()=> LogPanel.log('日志面板已初始化 (点击开关可关闭日志采集以节省内存)'), 0);
+    // 立即初始化按钮事件（不依赖append调用）
+    ensureInit();
+    
+    // 初始化提示（默认关闭，不显示）
+    console.log('[日志面板] 已初始化 (默认关闭以节省内存，点击"列表日志"展开即可开启采集)');
 })();
 </script>
