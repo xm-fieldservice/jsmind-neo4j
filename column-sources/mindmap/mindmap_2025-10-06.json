@@ -4,8 +4,8 @@
     "author": "test",
     "version": "1.2",
     "description": "按照数据底座规范v1.2格式保存的脑图数据",
-    "createdAt": 1759773014261,
-    "updatedAt": 1759773014261
+    "createdAt": 1759772248373,
+    "updatedAt": 1759772248373
   },
   "format": "node_tree",
   "data": {
@@ -16,7 +16,7 @@
     },
     "meta": {
       "createdAt": 1759587945387,
-      "updatedAt": 1759773014261
+      "updatedAt": 1759772248373
     },
     "children": [
       {
@@ -27,7 +27,7 @@
         },
         "meta": {
           "createdAt": 1759665782970,
-          "updatedAt": 1759773014261
+          "updatedAt": 1759772248373
         },
         "children": [
           {
@@ -38,7 +38,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -49,7 +49,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -60,7 +60,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -71,7 +71,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -84,7 +84,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -95,7 +95,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -106,7 +106,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -117,7 +117,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -128,7 +128,7 @@
                 },
                 "meta": {
                   "createdAt": 1759666028124,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -139,7 +139,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -152,7 +152,7 @@
                 },
                 "meta": {
                   "createdAt": 1759597459750,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -163,7 +163,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -174,7 +174,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -185,7 +185,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -196,7 +196,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -209,7 +209,7 @@
                 },
                 "meta": {
                   "createdAt": 1759597459750,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -220,7 +220,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -231,7 +231,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -242,7 +242,7 @@
                         },
                         "meta": {
                           "createdAt": 1759597459750,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -253,7 +253,7 @@
                         },
                         "meta": {
                           "createdAt": 1759597459750,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -264,7 +264,7 @@
                         },
                         "meta": {
                           "createdAt": 1759597459750,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -279,7 +279,7 @@
                 },
                 "meta": {
                   "createdAt": 1759665239231,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -290,7 +290,7 @@
                 },
                 "meta": {
                   "createdAt": 1759666028124,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -301,7 +301,7 @@
                     },
                     "meta": {
                       "createdAt": 1759677382987,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -312,7 +312,7 @@
                         },
                         "meta": {
                           "createdAt": 1759677382987,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -325,7 +325,7 @@
                     },
                     "meta": {
                       "createdAt": 1759677382987,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -336,7 +336,7 @@
                         },
                         "meta": {
                           "createdAt": 1759677382987,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -351,7 +351,7 @@
                 },
                 "meta": {
                   "createdAt": 1759666240396,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -362,7 +362,7 @@
                 },
                 "meta": {
                   "createdAt": 1759739381261,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -373,7 +373,7 @@
                 },
                 "meta": {
                   "createdAt": 1759739381261,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -384,7 +384,7 @@
                     },
                     "meta": {
                       "createdAt": 1759739381261,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -395,7 +395,7 @@
                     },
                     "meta": {
                       "createdAt": 1759739381261,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -408,7 +408,7 @@
                 },
                 "meta": {
                   "createdAt": 1759739381261,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -419,7 +419,7 @@
                     },
                     "meta": {
                       "createdAt": 1759739381261,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -430,7 +430,7 @@
                     },
                     "meta": {
                       "createdAt": 1759739381261,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -441,7 +441,7 @@
                     },
                     "meta": {
                       "createdAt": 1759739381261,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -454,7 +454,7 @@
                 },
                 "meta": {
                   "createdAt": 1759769731537,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -465,7 +465,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -476,7 +476,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -487,7 +487,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -498,7 +498,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -511,7 +511,7 @@
                 },
                 "meta": {
                   "createdAt": 1759765136796,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -522,7 +522,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -533,7 +533,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -543,8 +543,8 @@
                       "content": "2025-10-07 01:26:50\n\n您询问的是 jsMind 中字体颜色的选择。<cite/>\n\n## 答案\n\n**jsMind 的字体颜色(foreground-color)可以设置为任意 CSS 颜色值,没有固定的几种选择。**<cite/>\n\n### 主题中的默认字体颜色\n\njsMind 的 15 种内置主题定义了不同的默认字体颜色: [1](#3-0) \n\n- **默认主题** - 深灰色 (`#333`) [2](#3-1) \n- **primary, warning, danger, success, info** - 白色 (`#fff`) [3](#3-2) \n- **greensea, nephrite, belizehole, wisteria, asphalt, orange, pumpkin, pomegranate, asbestos** - 白色 (`#fff`) [4](#3-3) \n- **clouds** - 深灰色 (`#333`) [5](#3-4) \n\n### 自定义字体颜色\n\n您可以为单个节点设置任意颜色值,支持的格式包括:<cite/>\n\n1. **颜色名称** - 如 `'red'`, `'blue'`, `'green'`\n2. **十六进制值** - 如 `'#1abc9c'`, `'#33ff33'`\n3. **RGB/RGBA** - 如 `'rgb(255, 0, 0)'`\n\n**设置方法:**\n\n通过 `foreground-color` 属性设置: [6](#3-5) \n\n```javascript\n// 在数据定义中设置\nvar mind = {\n    format: 'node_tree',\n    data: {\n        id: 'root',\n        topic: 'jsMind',\n        children: [\n            {\n                'id': 'node1',\n                'topic': 'Custom Color',\n                'foreground-color': '#33ff33'\n            }\n        ]\n    }\n};\n``` [7](#3-6) \n\n或通过 API 设置: [8](#3-7) \n\n```javascript\n// 设置节点的背景色和前景色(字体颜色)\njm.set_node_color('node_id', 'background_color', 'foreground_color');\n``` [9](#3-8) \n\n实现上,`set_node_color` 方法会将颜色值存储到节点的 `data['foreground-color']` 属性中: [10](#3-9) \n\n## Notes\n\n字体颜色没有预设的固定选项,您可以使用任何有效的 CSS 颜色值。<cite/> 主题只是提供了默认的配色方案,但可以通过 `foreground-color` 属性为任何节点单独设置颜色。<cite/> 如果同时设置了主题和节点级的 `foreground-color`,节点级的设置会覆盖主题的默认颜色。<cite/>\n\nWiki pages you might want to explore:\n- [Basic Usage (hizzgdev/jsmind)](/wiki/hizzgdev/jsmind#2.2)\n- [Node Operations (hizzgdev/jsmind)](/wiki/hizzgdev/jsmind#4.1)\n- [Screenshots and Export (hizzgdev/jsmind)](/wiki/hizzgdev/jsmind#4.4)\n\n### Citations\n\n**File:** style/jsmind.css (L76-84)\n```css\n/* default theme */\njmnode {\n    padding: 10px;\n    background-color: #fff;\n    color: #333;\n    border-radius: 5px;\n    box-shadow: 1px 1px 1px #666;\n    font: 16px/1.125 Verdana, Arial, Helvetica, sans-serif;\n}\n```\n\n**File:** style/jsmind.css (L116-120)\n```css\njmnodes.theme-primary jmnode {\n    background-color: #428bca;\n    color: #fff;\n    border-color: #357ebd;\n}\n```\n\n**File:** style/jsmind.css (L221-224)\n```css\njmnodes.theme-greensea jmnode {\n    background-color: #1abc9c;\n    color: #fff;\n}\n```\n\n**File:** style/jsmind.css (L373-376)\n```css\njmnodes.theme-clouds jmnode {\n    background-color: #ecf0f1;\n    color: #333;\n}\n```\n\n**File:** docs/zh/1.usage.md (L225-227)\n```markdown\n* background-color: 节点的背景颜色，如 `#1abc9c`, `blue`\n* foreground-color: 节点的文本颜色，如 `#1abc9c`, `blue`\n* width: 节点的宽度(px)，如 `400`\n```\n\n**File:** example/1_basic_cn.html (L50-55)\n```html\n                        {\n                            'id': 'sub22',\n                            'parentid': 'sub2',\n                            'topic': 'sub22',\n                            'foreground-color': '#33ff33',\n                        },\n```\n\n**File:** example/1_basic_cn.html (L71-71)\n```html\n                jm.set_node_color('sub21', 'green', '#ccc');\n```\n\n**File:** docs/zh/3.operation.md (L129-129)\n```markdown\n**设置背景色/前景色** : 使用 `jm.set_node_color(node_id, bg_color, fg_color)` 方法可设置指定节点的背景色与前景色。\n```\n\n**File:** src/jsmind.js (L596-612)\n```javascript\n    set_node_color(node_id, bg_color, fg_color) {\n        if (this.get_editable()) {\n            var node = this.mind.get_node(node_id);\n            if (!!node) {\n                if (!!bg_color) {\n                    node.data['background-color'] = bg_color;\n                }\n                if (!!fg_color) {\n                    node.data['foreground-color'] = fg_color;\n                }\n                this.view.reset_node_custom_style(node);\n            }\n        } else {\n            logger.error('fail, this mind map is not editable');\n            return null;\n        }\n    }\n```\n\n"
                     },
                     "meta": {
-                      "createdAt": 1759773014261,
-                      "updatedAt": 1759773014261
+                      "createdAt": 1759772248373,
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -556,8 +556,8 @@
                   "content": "2025-10-07 00:55:38\n\n\n1. 当天新建的节点：边框的颜色\n2. 虚拟节点（关系节点）的底色\n3. "
                 },
                 "meta": {
-                  "createdAt": 1759773014261,
-                  "updatedAt": 1759773014261
+                  "createdAt": 1759772248373,
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -570,7 +570,7 @@
             },
             "meta": {
               "createdAt": 1759677382987,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -581,7 +581,7 @@
                 },
                 "meta": {
                   "createdAt": 1759677382987,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -592,7 +592,7 @@
                 },
                 "meta": {
                   "createdAt": 1759735667380,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -603,7 +603,7 @@
                     },
                     "meta": {
                       "createdAt": 1759736586079,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -614,7 +614,7 @@
                     },
                     "meta": {
                       "createdAt": 1759736586079,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -629,7 +629,7 @@
             },
             "meta": {
               "createdAt": 1759676100326,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           },
           {
@@ -640,7 +640,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -651,7 +651,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -664,7 +664,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           },
           {
@@ -675,7 +675,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -686,7 +686,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -697,7 +697,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -710,7 +710,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -723,7 +723,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -734,7 +734,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -745,7 +745,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -756,7 +756,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -767,7 +767,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -780,7 +780,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -791,7 +791,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -802,7 +802,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -813,7 +813,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -824,7 +824,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -837,7 +837,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -848,7 +848,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -861,7 +861,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -872,7 +872,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -885,7 +885,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -896,7 +896,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -907,7 +907,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -918,7 +918,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -929,7 +929,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -940,7 +940,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -953,7 +953,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -966,7 +966,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -977,7 +977,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -988,7 +988,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -999,7 +999,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -1010,7 +1010,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -1021,7 +1021,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -1032,7 +1032,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -1043,7 +1043,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -1054,7 +1054,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759587945387,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               },
                               {
@@ -1065,7 +1065,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759587945387,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 },
                                 "children": [
                                   {
@@ -1076,7 +1076,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -1087,7 +1087,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -1098,7 +1098,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -1109,7 +1109,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -1120,7 +1120,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -1131,7 +1131,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     },
                                     "children": [
                                       {
@@ -1142,7 +1142,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759587945387,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       },
                                       {
@@ -1153,7 +1153,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759587945387,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       }
                                     ]
@@ -1168,7 +1168,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759587945387,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 },
                                 "children": [
                                   {
@@ -1179,7 +1179,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   }
                                 ]
@@ -1192,7 +1192,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759588837111,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               },
                               {
@@ -1203,7 +1203,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759587945387,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 },
                                 "children": [
                                   {
@@ -1214,7 +1214,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759590907973,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -1225,7 +1225,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759597459750,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     },
                                     "children": [
                                       {
@@ -1236,7 +1236,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       }
                                     ]
@@ -1249,7 +1249,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759597459750,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -1260,7 +1260,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759597459750,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     },
                                     "children": [
                                       {
@@ -1271,7 +1271,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       }
                                     ]
@@ -1286,7 +1286,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759590826973,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 },
                                 "children": [
                                   {
@@ -1297,7 +1297,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759597459750,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     },
                                     "children": [
                                       {
@@ -1308,7 +1308,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       },
                                       {
@@ -1319,7 +1319,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         },
                                         "children": [
                                           {
@@ -1330,7 +1330,7 @@
                                             },
                                             "meta": {
                                               "createdAt": 1759597459750,
-                                              "updatedAt": 1759773014261
+                                              "updatedAt": 1759772248373
                                             }
                                           }
                                         ]
@@ -1343,7 +1343,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       },
                                       {
@@ -1354,7 +1354,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       }
                                     ]
@@ -1369,7 +1369,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759590826973,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -1388,7 +1388,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -1399,7 +1399,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -1410,7 +1410,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -1421,7 +1421,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -1432,7 +1432,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -1443,7 +1443,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -1454,7 +1454,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -1467,7 +1467,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -1478,7 +1478,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -1489,7 +1489,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -1500,7 +1500,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -1513,7 +1513,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -1524,7 +1524,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -1535,7 +1535,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -1546,7 +1546,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -1557,7 +1557,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -1570,7 +1570,7 @@
                 },
                 "meta": {
                   "createdAt": 1759765136796,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -1581,7 +1581,7 @@
                     },
                     "meta": {
                       "createdAt": 1759765136796,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -1598,7 +1598,7 @@
         },
         "meta": {
           "createdAt": 1759675421003,
-          "updatedAt": 1759773014261
+          "updatedAt": 1759772248373
         },
         "children": [
           {
@@ -1609,7 +1609,7 @@
             },
             "meta": {
               "createdAt": 1759677382987,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -1620,7 +1620,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763449585,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -1631,7 +1631,7 @@
                     },
                     "meta": {
                       "createdAt": 1759676100326,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -1642,7 +1642,7 @@
                     },
                     "meta": {
                       "createdAt": 1759677382987,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -1655,7 +1655,7 @@
                 },
                 "meta": {
                   "createdAt": 1759765136796,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -1666,7 +1666,7 @@
                     },
                     "meta": {
                       "createdAt": 1759677382987,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -1679,7 +1679,7 @@
                 },
                 "meta": {
                   "createdAt": 1759677652651,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -1690,7 +1690,7 @@
                     },
                     "meta": {
                       "createdAt": 1759677652651,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -1701,7 +1701,7 @@
                         },
                         "meta": {
                           "createdAt": 1759678334528,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -1712,7 +1712,7 @@
                         },
                         "meta": {
                           "createdAt": 1759678334528,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -1723,7 +1723,7 @@
                         },
                         "meta": {
                           "createdAt": 1759678334528,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -1736,7 +1736,7 @@
                     },
                     "meta": {
                       "createdAt": 1759677652651,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -1747,7 +1747,7 @@
                         },
                         "meta": {
                           "createdAt": 1759677652651,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -1758,7 +1758,7 @@
                             },
                             "meta": {
                               "createdAt": 1759677652651,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -1771,7 +1771,7 @@
                         },
                         "meta": {
                           "createdAt": 1759677652651,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -1782,7 +1782,7 @@
                             },
                             "meta": {
                               "createdAt": 1759677685063,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -1795,7 +1795,7 @@
                         },
                         "meta": {
                           "createdAt": 1759677652651,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -1808,7 +1808,7 @@
                     },
                     "meta": {
                       "createdAt": 1759677652651,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -1819,7 +1819,7 @@
                         },
                         "meta": {
                           "createdAt": 1759677652651,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -1832,7 +1832,7 @@
                     },
                     "meta": {
                       "createdAt": 1759677652651,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -1843,7 +1843,7 @@
                         },
                         "meta": {
                           "createdAt": 1759678334528,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -1854,7 +1854,7 @@
                         },
                         "meta": {
                           "createdAt": 1759678334528,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -1867,7 +1867,7 @@
                     },
                     "meta": {
                       "createdAt": 1759678334528,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -1878,7 +1878,7 @@
                         },
                         "meta": {
                           "createdAt": 1759678334528,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -1889,7 +1889,7 @@
                         },
                         "meta": {
                           "createdAt": 1759678334528,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -1902,7 +1902,7 @@
                     },
                     "meta": {
                       "createdAt": 1759678334528,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -1914,8 +1914,8 @@
                   "content": "2025-10-07 00:57:20\n\n\n"
                 },
                 "meta": {
-                  "createdAt": 1759773014261,
-                  "updatedAt": 1759773014261
+                  "createdAt": 1759772248373,
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -1928,7 +1928,7 @@
             },
             "meta": {
               "createdAt": 1759677382987,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           },
           {
@@ -1939,7 +1939,7 @@
             },
             "meta": {
               "createdAt": 1759677382987,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           },
           {
@@ -1950,7 +1950,7 @@
             },
             "meta": {
               "createdAt": 1759763449585,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -1961,7 +1961,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763449585,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -1976,7 +1976,7 @@
         },
         "meta": {
           "createdAt": 1759666028124,
-          "updatedAt": 1759773014261
+          "updatedAt": 1759772248373
         },
         "children": [
           {
@@ -1987,7 +1987,7 @@
             },
             "meta": {
               "createdAt": 1759666028124,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -1998,7 +1998,7 @@
                 },
                 "meta": {
                   "createdAt": 1759723632162,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -2009,7 +2009,7 @@
                     },
                     "meta": {
                       "createdAt": 1759723632162,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -2020,7 +2020,7 @@
                         },
                         "meta": {
                           "createdAt": 1759723632162,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -2031,7 +2031,7 @@
                         },
                         "meta": {
                           "createdAt": 1759723632162,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2042,7 +2042,7 @@
                             },
                             "meta": {
                               "createdAt": 1759723632162,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -2053,7 +2053,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759723632162,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -2072,7 +2072,7 @@
                 },
                 "meta": {
                   "createdAt": 1759723632162,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -2083,7 +2083,7 @@
                     },
                     "meta": {
                       "createdAt": 1759723632162,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -2094,7 +2094,7 @@
                         },
                         "meta": {
                           "createdAt": 1759723632162,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2105,7 +2105,7 @@
                             },
                             "meta": {
                               "createdAt": 1759723632162,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -2122,7 +2122,7 @@
                 },
                 "meta": {
                   "createdAt": 1759723632162,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -2133,7 +2133,7 @@
                     },
                     "meta": {
                       "createdAt": 1759723632162,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -2144,7 +2144,7 @@
                     },
                     "meta": {
                       "createdAt": 1759723632162,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -2155,7 +2155,7 @@
                     },
                     "meta": {
                       "createdAt": 1759723632162,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -2166,7 +2166,7 @@
                     },
                     "meta": {
                       "createdAt": 1759723632162,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -2177,7 +2177,7 @@
                         },
                         "meta": {
                           "createdAt": 1759723632162,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2188,7 +2188,7 @@
                             },
                             "meta": {
                               "createdAt": 1759723632162,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -2199,7 +2199,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759723632162,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -2212,7 +2212,7 @@
                             },
                             "meta": {
                               "createdAt": 1759723632162,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -2223,7 +2223,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759725810947,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -2238,7 +2238,7 @@
                         },
                         "meta": {
                           "createdAt": 1759723632162,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -2249,7 +2249,7 @@
                         },
                         "meta": {
                           "createdAt": 1759725810947,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2260,7 +2260,7 @@
                             },
                             "meta": {
                               "createdAt": 1759725810947,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -2277,7 +2277,7 @@
                 },
                 "meta": {
                   "createdAt": 1759725810947,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -2288,7 +2288,7 @@
                     },
                     "meta": {
                       "createdAt": 1759725810947,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -2299,7 +2299,7 @@
                         },
                         "meta": {
                           "createdAt": 1759730653069,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2310,7 +2310,7 @@
                             },
                             "meta": {
                               "createdAt": 1759730653069,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -2321,7 +2321,7 @@
                             },
                             "meta": {
                               "createdAt": 1759730653069,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -2334,7 +2334,7 @@
                         },
                         "meta": {
                           "createdAt": 1759730653069,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2345,7 +2345,7 @@
                             },
                             "meta": {
                               "createdAt": 1759730653069,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -2360,7 +2360,7 @@
                     },
                     "meta": {
                       "createdAt": 1759725810947,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -2371,7 +2371,7 @@
                         },
                         "meta": {
                           "createdAt": 1759730653069,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2382,7 +2382,7 @@
                             },
                             "meta": {
                               "createdAt": 1759735667380,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -2393,7 +2393,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759735667380,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -2406,7 +2406,7 @@
                             },
                             "meta": {
                               "createdAt": 1759735667380,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -2421,7 +2421,7 @@
                     },
                     "meta": {
                       "createdAt": 1759730653069,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   },
                   {
@@ -2432,7 +2432,7 @@
                     },
                     "meta": {
                       "createdAt": 1759730653069,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -2443,7 +2443,7 @@
                         },
                         "meta": {
                           "createdAt": 1759730653069,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2454,7 +2454,7 @@
                             },
                             "meta": {
                               "createdAt": 1759730653069,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -2465,7 +2465,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759730653069,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -2478,7 +2478,7 @@
                             },
                             "meta": {
                               "createdAt": 1759730653069,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -2489,7 +2489,7 @@
                             },
                             "meta": {
                               "createdAt": 1759730653069,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -2500,7 +2500,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759730653069,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               },
                               {
@@ -2511,7 +2511,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759731718450,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -2524,7 +2524,7 @@
                             },
                             "meta": {
                               "createdAt": 1759730653069,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -2535,7 +2535,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759730653069,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -2554,7 +2554,7 @@
                 },
                 "meta": {
                   "createdAt": 1759730653069,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -2565,7 +2565,7 @@
                 },
                 "meta": {
                   "createdAt": 1759730653069,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -2580,7 +2580,7 @@
         },
         "meta": {
           "createdAt": 1759675421003,
-          "updatedAt": 1759773014261
+          "updatedAt": 1759772248373
         },
         "children": [
           {
@@ -2591,7 +2591,7 @@
             },
             "meta": {
               "createdAt": 1759676100326,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -2602,7 +2602,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763023135,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -2617,7 +2617,7 @@
         },
         "meta": {
           "createdAt": 1759666028124,
-          "updatedAt": 1759773014261
+          "updatedAt": 1759772248373
         },
         "children": [
           {
@@ -2628,7 +2628,7 @@
             },
             "meta": {
               "createdAt": 1759763023135,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -2639,7 +2639,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763023135,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -2652,7 +2652,7 @@
             },
             "meta": {
               "createdAt": 1759763023135,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -2663,7 +2663,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763023135,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -2674,7 +2674,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763023135,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -2687,7 +2687,7 @@
             },
             "meta": {
               "createdAt": 1759765136797,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -2698,7 +2698,7 @@
                 },
                 "meta": {
                   "createdAt": 1759765136797,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -2709,7 +2709,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -2720,7 +2720,7 @@
                         },
                         "meta": {
                           "createdAt": 1759765136797,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -2731,7 +2731,7 @@
                             },
                             "meta": {
                               "createdAt": 1759769731537,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -2742,7 +2742,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759765136797,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 },
                                 "children": [
                                   {
@@ -2753,7 +2753,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759765136797,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -2764,7 +2764,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759765136797,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   },
                                   {
@@ -2775,7 +2775,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759769731537,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     }
                                   }
                                 ]
@@ -2798,7 +2798,7 @@
             },
             "meta": {
               "createdAt": 1759769731537,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -2809,7 +2809,7 @@
                 },
                 "meta": {
                   "createdAt": 1759769731537,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -2820,7 +2820,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -2833,7 +2833,7 @@
                 },
                 "meta": {
                   "createdAt": 1759769731537,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -2844,7 +2844,7 @@
                     },
                     "meta": {
                       "createdAt": 1759769731537,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -2857,32 +2857,19 @@
                 },
                 "meta": {
                   "createdAt": 1759769731537,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
                 "id": "node_1759768551962_isrt7e476",
                 "topic": "通过“复制”方法建立关系的种类的表述和实现方法；",
                 "data": {
-                  "content": "2025-10-07 00:35:51\n\n我们定义三种关系，完全对齐neo4j的模式\n1. 关联关系：两个节点有说不清的双向关联\n2. 出向关系：影响力的推及，表示新的源节点对于复制过来的节点有影响力\n3. 入向关系：因果逻辑关系；新的源节点是复制过来的节点的‘果’，也就是说，没有复制过来的节点，就没有新的源节点；\n\n\n复制关系节点的方法三种；\n1. 拖拽复制：与鼠标左键拖拽移动相对应，我们定制鼠标右键拖拽复制，并将⬌符号添加到复制节点的标题最前面；\n2. 快捷键复制：ctrl + c/C, 在粘贴到新父节点同时，将⬌符号添加到复制节点的标题最前面；\n\n上述两种方式都无法定义出向和入向，只能定义“复制⬌向关系”。要想定义出向和入向，就只能：\n3. 在右键菜单上，新增“关系管理”菜单项；包含下面的子菜单项（二级菜单）\n- “复制节点⮕关系”\n- “复制节点⮕⮕关系”\n- “复制节点🔙关系”\n- “复制节点🔙🔙关系”\n- “复制节点⬌关系”\n- “复制节点⇔关系\n根据六种复制的方法，将六个关系/强度的符号，添加到复制节点的标题前面；\n\n出向关系：\n| ⮕ | `\\U0001F51D` | 影响力 |\n| ⮕⮕| `\\U0001F51D` | 强影响力 |\n入向关系：\n| 🔙 | `\\u2B07` | 逻辑决定 |\n| 🔙🔙| `\\u2B07` | 强逻辑决定 |\n关联关系\n| ⬌ | `\\u21C6` | 单纯关联 |\n| ⇔ | `\\u21C6` | 强关联 |"
+                  "content": "2025-10-07 00:35:51\n\n我们定义三种关系，完全对齐neo4j的模式\n1. 关联关系：两个节点有说不清的双向关联\n2. 出向关系：影响力的推及，表示新的源节点对于复制过来的节点有影响力\n3. 入向关系：因果逻辑关系；新的源节点是复制过来的节点的‘果’，也就是说，没有复制过来的节点，就没有新的源节点；\n\n\n复制的方法三种；\n1. 拖拽复制：与鼠标左键拖拽移动相对应，我们定制鼠标右键拖拽复制，复制⇆向关系\n2. 快捷键复制：ctrl + enter\n上述两种方式都无法定义出向和入向，只能定义“复制⇆向关系”。要想定义出向和入向，就只能：\n3. 在右键菜单上，新增“关系管理”菜单项；包含下面的子菜单项（二级菜单）\n- “复制⮕关系”\n- “复制⮕⮕关系”\n- “复制🔙关系”\n- “复制🔙🔙关系”\n- “复制⬌关系”\n- “复制⇔关系\n根据六种复制的方法，将六个关系/强度的符号，添加到复制节点的标题前面；\n\n出向关系：\n| ⮕ | `\\U0001F51D` | 影响力 |\n| ⮕⮕| `\\U0001F51D` | 强影响力 |\n入向关系：\n| 🔙 | `\\u2B07` | 逻辑决定 |\n| 🔙🔙| `\\u2B07` | 强逻辑决定 |\n关联关系\n| ⬌ | `\\u21C6` | 单纯关联 |\n| ⇔ | `\\u21C6` | 强关联 |"
                 },
                 "meta": {
                   "createdAt": 1759769731537,
-                  "updatedAt": 1759773014261
-                },
-                "children": [
-                  {
-                    "id": "node_1759772630091_dm3dx936y",
-                    "topic": "需求文档",
-                    "data": {
-                      "content": "2025-10-07 01:43:50\n\n程序员\n\n好的，我来将你的\"脑图关系管理\"需求整理成清晰的文档：\n\n---\n\n# 脑图关系管理需求文档\n\n**版本**: v1.0  \n**日期**: 2025-10-07  \n**状态**: 需求定义\n\n---\n\n## 📋 目录\n\n1. [核心概念](#核心概念)\n2. [关系类型定义](#关系类型定义)\n3. [实现方法](#实现方法)\n4. [技术实现细节](#技术实现细节)\n5. [数据结构设计](#数据结构设计)\n\n---\n\n## 🎯 核心概念\n\n### 基本原理\n\n通过**复制节点及其所有子节点**的方法，来建立并表述节点之间的逻辑关系。复制操作本身即表示关联关系的建立。\n\n### 虚拟节点（关系节点）\n\n- **定义**: 通过复制创建的节点称为\"虚拟节点\"或\"关系节点\"\n- **特征**: \n  - 在 `data.source_node_id` 中保存原始节点ID\n  - 使用特殊颜色标识（默认：`#ffcccc` 浅红色背景）\n  - 标题前添加关系符号标识\n  - 所有子节点同样改变颜色并保存源节点ID\n\n### 源节点计数器\n\n- **功能**: 在源节点标题后显示被复制次数\n- **格式**: `[复制×N]`\n- **存储**: `data.copy_count` 和 `data.original_topic`\n\n---\n\n## 🔗 关系类型定义\n\n### 与Neo4j对齐的三种关系\n\n| 关系类型 | 说明 | Neo4j对应 |\n|---------|------|-----------|\n| **关联关系** | 双向关联，无明确方向性 | 无向关系 |\n| **出向关系** | 影响力推及，源节点影响目标节点 | 出向边 (OUTGOING) |\n| **入向关系** | 因果逻辑，目标节点是源节点的\"因\" | 入向边 (INCOMING) |\n\n### 六种关系强度\n\n#### 出向关系（影响力）\n\n| 符号 | Unicode | 强度 | 含义 |\n|-----|---------|------|------|\n| ⮕ | `\\u2B95` | 普通 | 影响力 |\n| ⮕⮕ | `\\u2B95\\u2B95` | 强 | 强影响力 |\n\n#### 入向关系（因果逻辑）\n\n| 符号 | Unicode | 强度 | 含义 |\n|-----|---------|------|------|\n| 🔙 | `\\U0001F519` | 普通 | 逻辑决定 |\n| 🔙🔙 | `\\U0001F519\\U0001F519` | 强 | 强逻辑决定 |\n\n#### 关联关系（双向）\n\n| 符号 | Unicode | 强度 | 含义 |\n|-----|---------|------|------|\n| ⬌ | `\\u2B0C` | 普通 | 单纯关联 |\n| ⇔ | `\\u21D4` | 强 | 强关联 |\n\n---\n\n## 🛠️ 实现方法\n\n### 方法1: 拖拽复制（默认关联关系）\n\n**操作**: 鼠标右键拖拽节点到新父节点\n\n**行为**:\n- 复制节点及所有子节点到新位置\n- 自动添加 `⬌` 符号到标题最前面\n- 设置虚拟节点颜色为 `#ffcccc`\n- 源节点计数器 +1\n\n**关系类型**: 默认为\"单纯关联 ⬌\"\n\n---\n\n### 方法2: 快捷键复制（默认关联关系）\n\n**操作**: \n1. 选中节点，按 `Ctrl+C` 复制\n2. 选中目标父节点，按 `Ctrl+V` 粘贴\n\n**行为**:\n- 复制节点及所有子节点到新位置\n- 自动添加 `⬌` 符号到标题最前面\n- 设置虚拟节点颜色为 `#ffcccc`\n- 源节点计数器 +1\n\n**关系类型**: 默认为\"单纯关联 ⬌\"\n\n---\n\n### 方法3: 右键菜单（指定关系类型）\n\n**操作**: 右键点击节点 → \"关系管理\" → 选择关系类型\n\n**二级菜单项**:\n\n```\n📋 关系管理\n  ├─ ⮕ 复制节点（影响力）\n  ├─ ⮕⮕ 复制节点（强影响力）\n  ├─ 🔙 复制节点（逻辑决定）\n  ├─ 🔙🔙 复制节点（强逻辑决定）\n  ├─ ⬌ 复制节点（单纯关联）\n  └─ ⇔ 复制节点（强关联）\n```\n\n**行为**:\n1. 点击菜单项后，节点进入\"待粘贴\"状态\n2. 选中目标父节点，右键选择\"粘贴关系节点\"\n3. 根据选择的关系类型，在标题前添加对应符号\n4. 设置虚拟节点颜色\n5. 源节点计数器 +1\n\n---\n\n## 💻 技术实现细节\n\n### 1. 数据结构\n\n#### 虚拟节点（关系节点）数据\n\n```javascript\n{\n    id: 'new_node_id',\n    topic: '⬌ 原始标题',  // 关系符号 + 原始标题\n    data: {\n        source_node_id: 'original_node_id',  // 源节点ID\n        relation_type: 'bidirectional',       // 关系类型\n        relation_strength: 'normal',          // 关系强度\n        'background-color': '#ffcccc',        // 虚拟节点颜色\n        'foreground-color': '#000000'\n    },\n    children: [...]  // 所有子节点同样标记\n}\n```\n\n#### 源节点数据\n\n```javascript\n{\n    id: 'original_node_id',\n    topic: '原始标题 [复制×3]',  // 添加计数器\n    data: {\n        original_topic: '原始标题',  // 保存原始标题\n        copy_count: 3,                // 复制次数\n        copied_to: [                  // 复制到的节点列表\n            {\n                node_id: 'new_node_id_1',\n                relation_type: 'bidirectional',\n                relation_strength: 'normal',\n                timestamp: '2025-10-07T00:35:51'\n            },\n            ...\n        ]\n    }\n}\n```\n\n### 2. 关系类型枚举\n\n```javascript\nconst RelationType = {\n    OUTGOING: 'outgoing',           // 出向关系\n    INCOMING: 'incoming',           // 入向关系\n    BIDIRECTIONAL: 'bidirectional'  // 关联关系\n};\n\nconst RelationStrength = {\n    NORMAL: 'normal',  // 普通强度\n    STRONG: 'strong'   // 强关系\n};\n\nconst RelationSymbols = {\n    'outgoing_normal': '⮕',\n    'outgoing_strong': '⮕⮕',\n    'incoming_normal': '🔙',\n    'incoming_strong': '🔙🔙',\n    'bidirectional_normal': '⬌',\n    'bidirectional_strong': '⇔'\n};\n```\n\n### 3. 核心函数\n\n#### 复制节点函数\n\n```javascript\nfunction copyNodeWithRelation(sourceNodeId, targetParentId, relationType, relationStrength) {\n    const sourceNode = jm.get_node(sourceNodeId);\n    const newNodeId = jsMind.util.uuid.newid();\n    \n    // 1. 准备复制数据\n    const copiedData = Object.assign({}, sourceNode.data);\n    copiedData.source_node_id = sourceNode.id;\n    copiedData.relation_type = relationType;\n    copiedData.relation_strength = relationStrength;\n    copiedData['background-color'] = '#ffcccc';\n    copiedData['foreground-color'] = '#000000';\n    \n    // 2. 生成关系符号\n    const symbol = RelationSymbols[`${relationType}_${relationStrength}`];\n    const newTopic = `${symbol} ${sourceNode.topic}`;\n    \n    // 3. 创建虚拟节点\n    const newNode = jm.add_node(targetParentId, newNodeId, newTopic, copiedData);\n    \n    // 4. 递归复制所有子节点\n    if (sourceNode.children && sourceNode.children.length > 0) {\n        copyChildrenRecursively(sourceNode, newNode, relationType, relationStrength);\n    }\n    \n    // 5. 更新源节点计数器\n    updateSourceNodeCounter(sourceNode, newNodeId, relationType, relationStrength);\n    \n    return newNode;\n}\n```\n\n#### 递归复制子节点\n\n```javascript\nfunction copyChildrenRecursively(sourceNode, targetNode, relationType, relationStrength) {\n    sourceNode.children.forEach(child => {\n        const childId = jsMind.util.uuid.newid();\n        const childData = Object.assign({}, child.data);\n        childData.source_node_id = child.id;\n        childData.relation_type = relationType;\n        childData.relation_strength = relationStrength;\n        childData['background-color'] = '#ffcccc';\n        childData['foreground-color'] = '#000000';\n        \n        const newChild = jm.add_node(targetNode, childId, child.topic, childData);\n        \n        if (child.children && child.children.length > 0) {\n            copyChildrenRecursively(child, newChild, relationType, relationStrength);\n        }\n    });\n}\n```\n\n#### 更新源节点计数器\n\n```javascript\nfunction updateSourceNodeCounter(sourceNode, copiedNodeId, relationType, relationStrength) {\n    // 初始化计数器\n    if (!sourceNode.data.copy_count) {\n        sourceNode.data.copy_count = 0;\n        sourceNode.data.original_topic = sourceNode.topic;\n        sourceNode.data.copied_to = [];\n    }\n    \n    // 增加计数\n    sourceNode.data.copy_count++;\n    \n    // 记录复制信息\n    sourceNode.data.copied_to.push({\n        node_id: copiedNodeId,\n        relation_type: relationType,\n        relation_strength: relationStrength,\n        timestamp: new Date().toISOString()\n    });\n    \n    // 更新标题显示\n    const baseTopic = sourceNode.data.original_topic;\n    const newTopic = `${baseTopic} [复制×${sourceNode.data.copy_count}]`;\n    jm.update_node(sourceNode.id, newTopic);\n}\n```\n\n### 4. 右键菜单集成\n\n```javascript\n// 在ContextMenuManager中添加关系管理菜单\nconst relationMenu = {\n    label: '📋 关系管理',\n    submenu: [\n        {\n            label: '⮕ 复制节点（影响力）',\n            action: () => copyWithRelation('outgoing', 'normal')\n        },\n        {\n            label: '⮕⮕ 复制节点（强影响力）',\n            action: () => copyWithRelation('outgoing', 'strong')\n        },\n        {\n            label: '🔙 复制节点（逻辑决定）',\n            action: () => copyWithRelation('incoming', 'normal')\n        },\n        {\n            label: '🔙🔙 复制节点（强逻辑决定）',\n            action: () => copyWithRelation('incoming', 'strong')\n        },\n        {\n            label: '⬌ 复制节点（单纯关联）',\n            action: () => copyWithRelation('bidirectional', 'normal')\n        },\n        {\n            label: '⇔ 复制节点（强关联）',\n            action: () => copyWithRelation('bidirectional', 'strong')\n        }\n    ]\n};\n```\n\n---\n\n## 📊 数据导出与Neo4j集成\n\n### 导出关系数据\n\n```javascript\nfunction exportRelationsToNeo4j() {\n    const relations = [];\n    \n    // 遍历所有节点，提取关系信息\n    jm.get_data().data.forEach(node => {\n        if (node.data && node.data.source_node_id) {\n            relations.push({\n                source: node.data.source_node_id,\n                target: node.id,\n                type: node.data.relation_type,\n                strength: node.data.relation_strength,\n                label: node.topic\n            });\n        }\n    });\n    \n    return relations;\n}\n```\n\n### Neo4j Cypher查询示例\n\n```cypher\n// 创建节点关系\nMATCH (source:Node {id: $sourceId})\nMATCH (target:Node {id: $targetId})\nCREATE (source)-[r:RELATES_TO {\n    type: $relationType,\n    strength: $relationStrength,\n    created_at: datetime()\n}]->(target)\nRETURN r\n```\n\n---\n\n## ✅ 实现检查清单\n\n- [ ] 实现拖拽复制功能（右键拖拽）\n- [ ] 实现快捷键复制（Ctrl+C/V）\n- [ ] 实现右键菜单\"关系管理\"\n- [ ] 实现六种关系类型的复制\n- [ ] 实现虚拟节点颜色标识\n- [ ] 实现源节点计数器\n- [ ] 实现递归复制子节点\n- [ ] 实现关系数据导出\n- [ ] 集成Neo4j数据同步\n- [ ] 添加关系可视化展示\n\n---\n\n## 📝 备注\n\n1. 虚拟节点的颜色可配置，默认为 `#ffcccc`\n2. 关系符号显示在节点标题最前面\n3. 所有关系数据存储在节点的 `data` 对象中\n4. 支持导出为Neo4j兼容格式\n5. 计数器信息会在导出/导入时保留\n\n---\n\n**程序员**\n\n\n---\n\n程序员\n\n好的，我来更新需求文档，补充颜色规范：\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n现在添加颜色规范章节：\n\n\n\n还有一处需要修改：\n\n\n\n\n\n\n\n\n\n完成！✅ 已补充颜色规范到需求文档！\n\n## 📊 更新内容总结\n\n### ✅ 新增章节：🎨 颜色规范\n\n**节点颜色体系**：\n- **默认节点**: `#ffffff` 白色背景 + `#000000` 黑色字体\n- **关系节点（普通）**: `#f5f5f5` 浅灰色背景 + `#000000` 黑色字体\n- **关系节点（强）**: `#f5f5f5` 浅灰色背景 + `#0066cc` 蓝色字体\n\n### ✅ 更新位置\n\n1. **核心概念** → 虚拟节点特征：补充颜色说明\n2. **关系类型定义** → 六种关系表：添加字体颜色列\n3. **实现方法** → 三种方法：更新颜色配置\n4. **技术实现** → 数据结构：添加颜色示例\n5. **技术实现** → 关系枚举：添加颜色配置常量\n6. **技术实现** → 核心函数：更新颜色逻辑\n7. **备注** → 第1条：详细说明颜色规范\n\n### 📋 颜色规范要点\n\n```yaml\n背景色:\n  默认节点: #ffffff (白色)\n  关系节点: #f5f5f5 (浅灰色) - 区别于白色\n\n字体色:\n  普通关系: #000000 (黑色)\n  强关系: #0066cc (蓝色) - 突出显示\n  \n强关系包括:\n  - ⮕⮕ (强影响力)\n  - 🔙🔙 (强逻辑决定)\n  - ⇔ (强关联)\n```\n\n文档已完整更新！\n\n**程序员**"
-                    },
-                    "meta": {
-                      "createdAt": 1759773014261,
-                      "updatedAt": 1759773014261
-                    }
-                  }
-                ]
+                  "updatedAt": 1759772248373
+                }
               }
             ]
           }
@@ -2896,7 +2883,7 @@
         },
         "meta": {
           "createdAt": 1759666028124,
-          "updatedAt": 1759773014261
+          "updatedAt": 1759772248373
         }
       },
       {
@@ -2907,7 +2894,7 @@
         },
         "meta": {
           "createdAt": 1759676100326,
-          "updatedAt": 1759773014261
+          "updatedAt": 1759772248373
         },
         "children": [
           {
@@ -2918,7 +2905,7 @@
             },
             "meta": {
               "createdAt": 1759676100326,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           },
           {
@@ -2929,7 +2916,7 @@
             },
             "meta": {
               "createdAt": 1759676100326,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           },
           {
@@ -2940,7 +2927,7 @@
             },
             "meta": {
               "createdAt": 1759763023135,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -2951,7 +2938,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763023135,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -2962,7 +2949,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763023135,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               },
               {
@@ -2973,7 +2960,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763023135,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -2988,7 +2975,7 @@
         },
         "meta": {
           "createdAt": 1759666028124,
-          "updatedAt": 1759773014261
+          "updatedAt": 1759772248373
         },
         "children": [
           {
@@ -2999,7 +2986,7 @@
             },
             "meta": {
               "createdAt": 1759730653069,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           },
           {
@@ -3010,7 +2997,7 @@
             },
             "meta": {
               "createdAt": 1759730653069,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           },
           {
@@ -3021,7 +3008,7 @@
             },
             "meta": {
               "createdAt": 1759735667380,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             },
             "children": [
               {
@@ -3032,7 +3019,7 @@
                 },
                 "meta": {
                   "createdAt": 1759739381261,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -3043,7 +3030,7 @@
                     },
                     "meta": {
                       "createdAt": 1759739381261,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -3054,7 +3041,7 @@
                         },
                         "meta": {
                           "createdAt": 1759739381261,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3065,7 +3052,7 @@
                         },
                         "meta": {
                           "createdAt": 1759739381261,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3076,7 +3063,7 @@
                         },
                         "meta": {
                           "createdAt": 1759739381261,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3087,7 +3074,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -3098,7 +3085,7 @@
                             },
                             "meta": {
                               "createdAt": 1759735667380,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -3109,7 +3096,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759737184562,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 },
                                 "children": [
                                   {
@@ -3120,7 +3107,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759737184562,
-                                      "updatedAt": 1759773014261
+                                      "updatedAt": 1759772248373
                                     },
                                     "children": [
                                       {
@@ -3131,7 +3118,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759737184562,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       },
                                       {
@@ -3142,7 +3129,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759737184562,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       },
                                       {
@@ -3153,7 +3140,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759737184562,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       },
                                       {
@@ -3164,7 +3151,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759737184562,
-                                          "updatedAt": 1759773014261
+                                          "updatedAt": 1759772248373
                                         }
                                       }
                                     ]
@@ -3179,7 +3166,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759737184562,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               },
                               {
@@ -3190,7 +3177,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759737184562,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -3203,7 +3190,7 @@
                             },
                             "meta": {
                               "createdAt": 1759735667380,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             },
                             "children": [
                               {
@@ -3214,7 +3201,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759739381261,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               },
                               {
@@ -3225,7 +3212,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759739381261,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               },
                               {
@@ -3236,7 +3223,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759739381261,
-                                  "updatedAt": 1759773014261
+                                  "updatedAt": 1759772248373
                                 }
                               }
                             ]
@@ -3249,7 +3236,7 @@
                             },
                             "meta": {
                               "createdAt": 1759735667380,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -3260,7 +3247,7 @@
                             },
                             "meta": {
                               "createdAt": 1759739381261,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -3277,7 +3264,7 @@
                 },
                 "meta": {
                   "createdAt": 1759739403847,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 },
                 "children": [
                   {
@@ -3288,7 +3275,7 @@
                     },
                     "meta": {
                       "createdAt": 1759735667380,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -3299,7 +3286,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3310,7 +3297,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3321,7 +3308,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3332,7 +3319,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3343,7 +3330,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         },
                         "children": [
                           {
@@ -3354,7 +3341,7 @@
                             },
                             "meta": {
                               "createdAt": 1759739381261,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -3365,7 +3352,7 @@
                             },
                             "meta": {
                               "createdAt": 1759739381261,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -3376,7 +3363,7 @@
                             },
                             "meta": {
                               "createdAt": 1759739381261,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           },
                           {
@@ -3387,7 +3374,7 @@
                             },
                             "meta": {
                               "createdAt": 1759739381261,
-                              "updatedAt": 1759773014261
+                              "updatedAt": 1759772248373
                             }
                           }
                         ]
@@ -3400,7 +3387,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3411,7 +3398,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -3424,7 +3411,7 @@
                     },
                     "meta": {
                       "createdAt": 1759735667380,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     },
                     "children": [
                       {
@@ -3435,7 +3422,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       },
                       {
@@ -3446,7 +3433,7 @@
                         },
                         "meta": {
                           "createdAt": 1759735667380,
-                          "updatedAt": 1759773014261
+                          "updatedAt": 1759772248373
                         }
                       }
                     ]
@@ -3459,7 +3446,7 @@
                     },
                     "meta": {
                       "createdAt": 1759737184562,
-                      "updatedAt": 1759773014261
+                      "updatedAt": 1759772248373
                     }
                   }
                 ]
@@ -3472,7 +3459,7 @@
                 },
                 "meta": {
                   "createdAt": 1759763023135,
-                  "updatedAt": 1759773014261
+                  "updatedAt": 1759772248373
                 }
               }
             ]
@@ -3485,7 +3472,7 @@
             },
             "meta": {
               "createdAt": 1759765136797,
-              "updatedAt": 1759773014261
+              "updatedAt": 1759772248373
             }
           }
         ]
