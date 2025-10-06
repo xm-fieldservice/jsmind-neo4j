@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autogen Team工作流设计向导 v2.2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .mode-switch {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .mode-switch:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .form-area {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .visualization-panel {
+            width: 40%;
+            background: #f8f9fa;
+            padding: 30px;
+            border-left: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-circle {
+            background: #4caf50;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .step.active .step-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .notice-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .notice-box .icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-ai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .card-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .team-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .team-card:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-card.selected {
+            border-color: #667eea;
+            background: #f3f4ff;
+        }
+
+        .team-card .icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .team-card .label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .team-card .description {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .diagram-preview {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .diagram-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        #mermaid-diagram {
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .config-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .node-list {
+            margin-top: 20px;
+        }
+
+        .node-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .node-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .node-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .node-details {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .experimental-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .experimental-warning strong {
+            color: #856404;
+        }
+
+        /* 节点列表侧边栏样式 */
+        .node-list-sidebar {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .node-list-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .node-list-item:hover {
+            border-color: #667eea;
+            transform: translateX(4px);
+        }
+
+        .node-list-item.active {
+            border-color: #667eea;
+            background: #f3f4ff;
+        }
+
+        .node-list-item .node-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .node-list-item .node-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .node-list-item .node-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .node-list-item .node-title input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .node-list-item .node-title input:focus {
+            outline: 1px solid #667eea;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .node-list-item .node-desc-preview {
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧙 Autogen Team工作流设计向导 v2.2</h1>
+            <p>业务语言引导 | AI智能填充 | 实时可视化 | 支持GraphFlow</p>
+            <div class="mode-switch" onclick="toggleMode()">
+                <span id="mode-text">切换到高级模式 ⚙️</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-area">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">基本信息</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">节点设计</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">协作方式</div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">执行控制</div>
+                    </div>
+                    <div class="step" data-step="5">
+                        <div class="step-circle">5</div>
+                        <div class="step-label">Agent配置</div>
+                    </div>
+                    <div class="step" data-step="6">
+                        <div class="step-circle">6</div>
+                        <div class="step-label">高级选项</div>
+                    </div>
+                    <div class="step" data-step="7">
+                        <div class="step-circle">7</div>
+                        <div class="step-label">预览生成</div>
+                    </div>
+                </div>
+
+                <!-- Step 1: 基本信息 -->
+                <div class="form-step active" data-step="1">
+                    <h2 class="step-title">📋 告诉我们您要创建什么工作流</h2>
+                    <p class="step-description">用简单的语言描述您的业务流程</p>
+
+                    <div class="form-group">
+                        <label class="form-label">工作流名称 *</label>
+                        <input type="text" class="form-input" id="workflow-name" placeholder="例如：项目管理工作流">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">工作流描述 *</label>
+                        <textarea class="form-input" id="workflow-description" placeholder="描述这个工作流要完成什么任务，解决什么问题..."></textarea>
+                        <button class="btn btn-ai" onclick="aiAssist('description')">🤖 AI帮我完善描述</button>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="nextStep()">下一步 →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: 节点设计 -->
+                <div class="form-step" data-step="2">
+                    <h2 class="step-title">🔄 设计工作流节点</h2>
+                    <p class="step-description">定义工作流包含哪些步骤（节点）</p>
+
+                    <div class="notice-box">
+                        <span class="icon">💡</span>
+                        <strong>重要：</strong>工作流由多个节点组成，每个节点代表一个处理步骤。<br>
+                        <strong>节点 = Agent（一对一映射）</strong><br>
+                        • 节点间的连接 = 图的边（用于GraphFlow）<br>
+                        • 条件分支 = 边的条件配置
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">您预计需要几个节点？</label>
+                        <input type="range" min="2" max="10" value="4" id="node-count" oninput="updateNodeCount(this.value)">
+                        <span id="node-count-display">4个节点</span>
+                    </div>
+
+                    <!-- 左右分栏布局 -->
+                    <div style="display: flex; gap: 20px; margin-top: 20px;">
+                        <!-- 左侧：节点列表 -->
+                        <div style="width: 35%; min-width: 300px;">
+                            <div class="form-label" style="margin-bottom: 10px;">节点列表</div>
+                            <div id="node-list-sidebar" class="node-list-sidebar"></div>
+                        </div>
+
+                        <!-- 右侧：节点描述编辑 -->
+                        <div style="flex: 1;">
+                            <div class="form-label" style="margin-bottom: 10px;">
+                                节点描述
+                                <span id="current-node-indicator" style="color: #667eea; font-weight: normal;"></span>
+                            </div>
+                            <textarea class="form-input" id="node-description" rows="10" placeholder="点击左侧节点进行编辑，或直接输入描述...&#10;&#10;例如：&#10;1. 接收客户咨询&#10;2. 分析问题类型&#10;3. 查找解决方案&#10;4. 生成回复"></textarea>
+                            <button class="btn btn-ai" onclick="aiAssist('nodes')">🤖 AI帮我设计节点</button>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← 上一步</button>
+                        <button class="btn btn-primary" onclick="nextStep()">下一步 →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: 协作方式 -->
+                <div class="form-step" data-step="3">
+                    <h2 class="step-title">🤝 Agent之间如何协作？</h2>
+                    <p class="step-description">选择最适合您工作流的协作方式</p>
+
+                    <div class="card-selector" id="team-selector">
+                        <div class="team-card" onclick="selectTeam('RoundRobinGroupChat')">
+                            <div class="icon">→→→</div>
+                            <div class="label">按顺序依次执行</div>
+                            <div class="description">Agent按照固定顺序轮流工作</div>
+                        </div>
+
+                        <div class="team-card" onclick="selectTeam('SelectorGroupChat')">
+                            <div class="icon">🔀</div>
+                            <div class="label">根据情况智能选择</div>
+                            <div class="description">AI根据当前情况选择最合适的Agent</div>
+                        </div>
+
+                        <div class="team-card" onclick="selectTeam('GraphFlow')">
+                            <div class="icon">🔀</div>
+                            <div class="label">工作流图执行 ⭐</div>
+                            <div class="description">基于有向图的精确工作流控制</div>
+                        </div>
+
+                        <div class="team-card" onclick="selectTeam('MagenticOneGroupChat')">
+                            <div class="icon">🕸️</div>
+                            <div class="label">复杂协作模式</div>
+                            <div class="description">多Agent复杂协同，适合高级场景</div>
+                        </div>
+                    </div>
+
+                    <div id="graphflow-warning" class="experimental-warning" style="display:none;">
+                        <strong>🧪 实验性功能警告</strong><br>
+                        GraphFlow是Autogen 0.7.1的实验性功能：<br>
+                        • API可能在未来版本中变化<br>
+                        • 建议在生产环境前充分测试
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← 上一步</button>
+                        <button class="btn btn-primary" onclick="nextStep()">下一步 →</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: 执行控制 -->
+                <div class="form-step" data-step="4">
+                    <h2 class="step-title">⚡ 工作流执行控制</h2>
+                    <p class="step-description">设置工作流的执行规则</p>
+
+                    <div class="form-group">
+                        <label class="form-label">最多讨论多少轮？</label>
+                        <input type="range" min="5" max="100" value="20" id="max-turns" oninput="updateMaxTurns(this.value)">
+                        <span id="max-turns-display">20轮</span>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← 上一步</button>
+                        <button class="btn btn-primary" onclick="nextStep()">下一步 →</button>
+                    </div>
+                </div>
+
+                <!-- Step 5-7省略，继续下一个文件 -->
+                <div class="form-step" data-step="5">
+                    <h2 class="step-title">🤖 Agent配置</h2>
+                    <p class="step-description">为每个节点配置AI Agent</p>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← 上一步</button>
+                        <button class="btn btn-primary" onclick="nextStep()">下一步 →</button>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="6">
+                    <h2 class="step-title">🔧 高级选项（可选）</h2>
+                    <p class="step-description">这些是可选的高级配置</p>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← 上一步</button>
+                        <button class="btn btn-primary" onclick="nextStep()">下一步 →</button>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="7">
+                    <h2 class="step-title">✅ 预览和生成</h2>
+                    <p class="step-description">检查配置并生成工作流文件</p>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← 上一步</button>
+                        <button class="btn btn-primary" onclick="generateWorkflow()">🚀 生成工作流</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Panel -->
+            <div class="visualization-panel">
+                <div class="diagram-preview">
+                    <div class="diagram-title">📊 工作流实时预览</div>
+                    <div id="mermaid-diagram">
+                        <p style="color: #999;">流程图将在这里显示</p>
+                    </div>
+                </div>
+
+                <div class="config-summary">
+                    <div class="diagram-title">⚙️ 配置摘要</div>
+                    <div class="summary-item">
+                        <span class="summary-label">工作流名称</span>
+                        <span class="summary-value" id="summary-name">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">节点数量</span>
+                        <span class="summary-value" id="summary-nodes">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Team类型</span>
+                        <span class="summary-value" id="summary-team">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">最大轮次</span>
+                        <span class="summary-value" id="summary-turns">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+        let currentStep = 1;
+        let currentNodeIndex = -1; // 当前选中的节点索引
+        let formData = {
+            workflowName: '',
+            workflowDescription: '',
+            nodeCount: 4,
+            nodes: [],
+            teamType: '',
+            maxTurns: 20
+        };
+
+        // 初始化节点数据
+        function initializeNodes(count) {
+            formData.nodes = [];
+            for (let i = 0; i < count; i++) {
+                formData.nodes.push({
+                    id: `node_${i + 1}`,
+                    name: `节点${i + 1}`,
+                    description: ''
+                });
+            }
+            renderNodeList();
+        }
+
+        // 渲染节点列表
+        function renderNodeList() {
+            const sidebar = document.getElementById('node-list-sidebar');
+            if (!sidebar) return;
+
+            sidebar.innerHTML = '';
+            
+            formData.nodes.forEach((node, index) => {
+                const item = document.createElement('div');
+                item.className = 'node-list-item';
+                if (index === currentNodeIndex) {
+                    item.classList.add('active');
+                }
+                
+                item.innerHTML = `
+                    <div class="node-number">${index + 1}</div>
+                    <div class="node-info">
+                        <div class="node-title">
+                            <input type="text" 
+                                   value="${node.name}" 
+                                   onclick="event.stopPropagation()"
+                                   onchange="updateNodeName(${index}, this.value)"
+                                   placeholder="节点名称">
+                        </div>
+                        <div class="node-desc-preview">${node.description || '点击编辑描述...'}</div>
+                    </div>
+                `;
+                
+                item.onclick = () => selectNode(index);
+                sidebar.appendChild(item);
+            });
+        }
+
+        // 选中节点
+        function selectNode(index) {
+            // 保存当前节点的描述
+            if (currentNodeIndex >= 0) {
+                formData.nodes[currentNodeIndex].description = document.getElementById('node-description').value;
+            }
+            
+            currentNodeIndex = index;
+            
+            // 加载选中节点的描述
+            document.getElementById('node-description').value = formData.nodes[index].description;
+            document.getElementById('current-node-indicator').textContent = `（正在编辑：${formData.nodes[index].name}）`;
+            
+            // 更新列表项的选中状态
+            document.querySelectorAll('.node-list-item').forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // 更新节点名称
+        function updateNodeName(index, newName) {
+            formData.nodes[index].name = newName;
+            document.getElementById('current-node-indicator').textContent = `（正在编辑：${newName}）`;
+        }
+
+        // 监听描述框变化，实时同步到当前节点
+        function setupNodeDescriptionSync() {
+            const descTextarea = document.getElementById('node-description');
+            if (descTextarea) {
+                descTextarea.addEventListener('input', () => {
+                    if (currentNodeIndex >= 0) {
+                        formData.nodes[currentNodeIndex].description = descTextarea.value;
+                        // 更新预览
+                        const preview = document.querySelectorAll('.node-desc-preview')[currentNodeIndex];
+                        if (preview) {
+                            preview.textContent = descTextarea.value || '点击编辑描述...';
+                        }
+                    }
+                });
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < 7) {
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('completed');
+                
+                currentStep++;
+                
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+                
+                updateSummary();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+                
+                currentStep--;
+                
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('completed');
+            }
+        }
+
+        function updateNodeCount(value) {
+            document.getElementById('node-count-display').textContent = value + '个节点';
+            formData.nodeCount = parseInt(value);
+            // 重新初始化节点列表
+            initializeNodes(parseInt(value));
+            // 默认选中第一个节点
+            if (formData.nodes.length > 0) {
+                selectNode(0);
+            }
+        }
+
+        function updateMaxTurns(value) {
+            document.getElementById('max-turns-display').textContent = value + '轮';
+            formData.maxTurns = parseInt(value);
+            updateSummary();
+        }
+
+        function selectTeam(teamType) {
+            document.querySelectorAll('.team-card').forEach(card => card.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            formData.teamType = teamType;
+            
+            if (teamType === 'GraphFlow') {
+                document.getElementById('graphflow-warning').style.display = 'block';
+            } else {
+                document.getElementById('graphflow-warning').style.display = 'none';
+            }
+            
+            updateSummary();
+        }
+
+        function updateSummary() {
+            document.getElementById('summary-name').textContent = document.getElementById('workflow-name')?.value || '-';
+            document.getElementById('summary-nodes').textContent = formData.nodeCount + '个';
+            document.getElementById('summary-team').textContent = formData.teamType || '-';
+            document.getElementById('summary-turns').textContent = formData.maxTurns + '轮';
+        }
+
+        function aiAssist(type) {
+            alert('AI辅助功能将在后续版本中实现');
+        }
+
+        function toggleMode() {
+            alert('高级模式将在后续版本中实现');
+        }
+
+        function generateWorkflow() {
+            alert('配置生成功能将在后续版本中实现');
+        }
+
+        // 监听输入变化
+        document.getElementById('workflow-name')?.addEventListener('input', updateSummary);
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            // 初始化默认4个节点
+            initializeNodes(4);
+            // 设置描述框同步
+            setupNodeDescriptionSync();
+        });
+    </script>
+</body>
+</html>
