@@ -4,8 +4,8 @@
     "author": "test",
     "version": "1.2",
     "description": "按照数据底座规范v1.2格式保存的脑图数据",
-    "createdAt": 1759834254826,
-    "updatedAt": 1759834254826
+    "createdAt": 1759835078062,
+    "updatedAt": 1759835078062
   },
   "format": "node_tree",
   "data": {
@@ -16,7 +16,7 @@
     },
     "meta": {
       "createdAt": 1759587945387,
-      "updatedAt": 1759834254826
+      "updatedAt": 1759835078062
     },
     "children": [
       {
@@ -27,7 +27,7 @@
         },
         "meta": {
           "createdAt": 1759801196737,
-          "updatedAt": 1759834254826
+          "updatedAt": 1759835078062
         },
         "children": [
           {
@@ -38,7 +38,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759834254826
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -49,7 +49,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -60,7 +60,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -71,7 +71,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -84,7 +84,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -95,7 +95,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -106,7 +106,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -117,7 +117,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -128,7 +128,7 @@
                 },
                 "meta": {
                   "createdAt": 1759597459750,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -139,7 +139,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -150,7 +150,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -161,7 +161,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -172,7 +172,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -185,7 +185,7 @@
                 },
                 "meta": {
                   "createdAt": 1759597459750,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -196,7 +196,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -207,7 +207,7 @@
                     },
                     "meta": {
                       "createdAt": 1759597459750,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -218,7 +218,7 @@
                         },
                         "meta": {
                           "createdAt": 1759597459750,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -229,7 +229,7 @@
                         },
                         "meta": {
                           "createdAt": 1759597459750,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -240,7 +240,7 @@
                         },
                         "meta": {
                           "createdAt": 1759597459750,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -255,7 +255,7 @@
                 },
                 "meta": {
                   "createdAt": 1759811334095,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -266,7 +266,7 @@
                     },
                     "meta": {
                       "createdAt": 1759811334095,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -279,7 +279,7 @@
                 },
                 "meta": {
                   "createdAt": 1759811334095,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -290,7 +290,7 @@
                 },
                 "meta": {
                   "createdAt": 1759811334095,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 }
               }
             ]
@@ -303,7 +303,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759834254826
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -314,7 +314,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -325,7 +325,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -336,7 +336,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -347,7 +347,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -358,7 +358,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -369,7 +369,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -380,7 +380,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -393,7 +393,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -404,7 +404,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -415,7 +415,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -426,7 +426,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -439,7 +439,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -450,7 +450,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -461,7 +461,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -472,7 +472,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -483,7 +483,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -494,7 +494,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -507,7 +507,7 @@
                 },
                 "meta": {
                   "createdAt": 1759597459750,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 }
               }
             ]
@@ -520,7 +520,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759834254826
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -531,7 +531,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254826
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -542,7 +542,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -553,7 +553,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -564,7 +564,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -575,7 +575,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         },
                         "children": [
                           {
@@ -586,7 +586,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759834254826
+                              "updatedAt": 1759835078062
                             }
                           }
                         ]
@@ -599,7 +599,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -612,7 +612,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254826
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -623,7 +623,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -634,7 +634,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -645,7 +645,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254826
+                          "updatedAt": 1759835078062
                         },
                         "children": [
                           {
@@ -656,7 +656,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759834254826
+                              "updatedAt": 1759835078062
                             }
                           },
                           {
@@ -667,7 +667,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759834254826
+                              "updatedAt": 1759835078062
                             }
                           },
                           {
@@ -678,7 +678,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759834254826
+                              "updatedAt": 1759835078062
                             }
                           },
                           {
@@ -689,7 +689,7 @@
                             },
                             "meta": {
                               "createdAt": 1759587945387,
-                              "updatedAt": 1759834254826
+                              "updatedAt": 1759835078062
                             },
                             "children": [
                               {
@@ -700,7 +700,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759587945387,
-                                  "updatedAt": 1759834254826
+                                  "updatedAt": 1759835078062
                                 }
                               },
                               {
@@ -711,7 +711,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759587945387,
-                                  "updatedAt": 1759834254826
+                                  "updatedAt": 1759835078062
                                 },
                                 "children": [
                                   {
@@ -722,7 +722,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     }
                                   },
                                   {
@@ -733,7 +733,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     }
                                   },
                                   {
@@ -744,7 +744,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     }
                                   },
                                   {
@@ -755,7 +755,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     }
                                   },
                                   {
@@ -766,7 +766,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     }
                                   },
                                   {
@@ -777,7 +777,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     },
                                     "children": [
                                       {
@@ -788,7 +788,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759587945387,
-                                          "updatedAt": 1759834254826
+                                          "updatedAt": 1759835078062
                                         }
                                       },
                                       {
@@ -799,7 +799,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759587945387,
-                                          "updatedAt": 1759834254826
+                                          "updatedAt": 1759835078062
                                         }
                                       }
                                     ]
@@ -814,7 +814,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759587945387,
-                                  "updatedAt": 1759834254826
+                                  "updatedAt": 1759835078062
                                 },
                                 "children": [
                                   {
@@ -825,7 +825,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759587945387,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     }
                                   }
                                 ]
@@ -838,7 +838,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759588837111,
-                                  "updatedAt": 1759834254826
+                                  "updatedAt": 1759835078062
                                 }
                               },
                               {
@@ -849,7 +849,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759587945387,
-                                  "updatedAt": 1759834254826
+                                  "updatedAt": 1759835078062
                                 },
                                 "children": [
                                   {
@@ -860,7 +860,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759590907973,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     }
                                   },
                                   {
@@ -871,7 +871,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759597459750,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     },
                                     "children": [
                                       {
@@ -882,7 +882,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759834254826
+                                          "updatedAt": 1759835078062
                                         }
                                       }
                                     ]
@@ -895,7 +895,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759597459750,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     }
                                   },
                                   {
@@ -906,7 +906,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759597459750,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     },
                                     "children": [
                                       {
@@ -917,7 +917,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759834254826
+                                          "updatedAt": 1759835078062
                                         }
                                       }
                                     ]
@@ -932,7 +932,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759590826973,
-                                  "updatedAt": 1759834254826
+                                  "updatedAt": 1759835078062
                                 },
                                 "children": [
                                   {
@@ -943,7 +943,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759597459750,
-                                      "updatedAt": 1759834254826
+                                      "updatedAt": 1759835078062
                                     },
                                     "children": [
                                       {
@@ -954,7 +954,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759834254826
+                                          "updatedAt": 1759835078062
                                         }
                                       },
                                       {
@@ -965,7 +965,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759834254826
+                                          "updatedAt": 1759835078062
                                         },
                                         "children": [
                                           {
@@ -976,7 +976,7 @@
                                             },
                                             "meta": {
                                               "createdAt": 1759597459750,
-                                              "updatedAt": 1759834254826
+                                              "updatedAt": 1759835078062
                                             }
                                           }
                                         ]
@@ -989,7 +989,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759834254827
+                                          "updatedAt": 1759835078062
                                         }
                                       },
                                       {
@@ -1000,7 +1000,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759597459750,
-                                          "updatedAt": 1759834254827
+                                          "updatedAt": 1759835078062
                                         }
                                       }
                                     ]
@@ -1015,7 +1015,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759590826973,
-                                  "updatedAt": 1759834254827
+                                  "updatedAt": 1759835078062
                                 }
                               }
                             ]
@@ -1036,7 +1036,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -1047,7 +1047,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -1058,7 +1058,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -1071,7 +1071,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 }
               }
             ]
@@ -1084,7 +1084,7 @@
             },
             "meta": {
               "createdAt": 1759587945387,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -1095,7 +1095,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -1106,7 +1106,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -1117,7 +1117,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -1128,7 +1128,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -1141,7 +1141,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -1152,7 +1152,7 @@
                 },
                 "meta": {
                   "createdAt": 1759587945387,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -1163,7 +1163,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -1174,7 +1174,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1185,7 +1185,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -1198,7 +1198,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1209,7 +1209,7 @@
                         },
                         "meta": {
                           "createdAt": 1759587945387,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -1222,7 +1222,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -1233,7 +1233,7 @@
                     },
                     "meta": {
                       "createdAt": 1759587945387,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -1248,7 +1248,7 @@
             },
             "meta": {
               "createdAt": 1759804857107,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -1259,7 +1259,7 @@
                 },
                 "meta": {
                   "createdAt": 1759804857107,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -1270,7 +1270,7 @@
                 },
                 "meta": {
                   "createdAt": 1759812447097,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 }
               }
             ]
@@ -1285,7 +1285,7 @@
         },
         "meta": {
           "createdAt": 1759801196737,
-          "updatedAt": 1759834254827
+          "updatedAt": 1759835078062
         },
         "children": [
           {
@@ -1296,7 +1296,7 @@
             },
             "meta": {
               "createdAt": 1759801203135,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -1307,7 +1307,7 @@
                 },
                 "meta": {
                   "createdAt": 1759801196737,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -1318,7 +1318,7 @@
                     },
                     "meta": {
                       "createdAt": 1759801494288,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1329,7 +1329,7 @@
                         },
                         "meta": {
                           "createdAt": 1759811334095,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         },
                         "children": [
                           {
@@ -1340,7 +1340,7 @@
                             },
                             "meta": {
                               "createdAt": 1759811334095,
-                              "updatedAt": 1759834254827
+                              "updatedAt": 1759835078062
                             },
                             "children": [
                               {
@@ -1351,7 +1351,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759811334095,
-                                  "updatedAt": 1759834254827
+                                  "updatedAt": 1759835078062
                                 },
                                 "children": [
                                   {
@@ -1362,7 +1362,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759811334095,
-                                      "updatedAt": 1759834254827
+                                      "updatedAt": 1759835078062
                                     }
                                   },
                                   {
@@ -1373,7 +1373,7 @@
                                     },
                                     "meta": {
                                       "createdAt": 1759817548367,
-                                      "updatedAt": 1759834254827
+                                      "updatedAt": 1759835078062
                                     },
                                     "children": [
                                       {
@@ -1384,18 +1384,7 @@
                                         },
                                         "meta": {
                                           "createdAt": 1759817548367,
-                                          "updatedAt": 1759834254827
-                                        }
-                                      },
-                                      {
-                                        "id": "node_1759816556183_e4b5ne5h7",
-                                        "topic": "P1",
-                                        "data": {
-                                          "content": ""
-                                        },
-                                        "meta": {
-                                          "createdAt": 1759817548367,
-                                          "updatedAt": 1759834254827
+                                          "updatedAt": 1759835078062
                                         }
                                       }
                                     ]
@@ -1410,7 +1399,7 @@
                                 },
                                 "meta": {
                                   "createdAt": 1759817548367,
-                                  "updatedAt": 1759834254827
+                                  "updatedAt": 1759835078062
                                 }
                               }
                             ]
@@ -1427,8 +1416,45 @@
                     },
                     "meta": {
                       "createdAt": 1759801494288,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
+                  }
+                ]
+              },
+              {
+                "id": "node_1759835015510_dmj56w9zk",
+                "topic": "页面架构",
+                "data": {
+                  "content": "2025-10-07 19:03:35\n\n\n"
+                },
+                "meta": {
+                  "createdAt": 1759835078062,
+                  "updatedAt": 1759835078062
+                },
+                "children": [
+                  {
+                    "id": "node_1759835021599_1sxuiunkq",
+                    "topic": "程序员结论",
+                    "data": {
+                      "content": "2025-10-07 19:03:41\n\n**程序员**\n\n我来审查 [mindmap-standalone.html](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:0:0-0:0) 的模块化规范。先查看文件大小和结构：\n\n让我继续分析文件结构，查看script标签内的代码量：\n\n现在让我统计内联JavaScript代码的行数：\n\n让我分析文件的具体结构，查看主要的类和方法：\n\n让我查看更多方法定义，统计类的规模：\n\n现在让我检查架构功能清单，对比当前实现：\n\n## 📊 模块化规范审查报告\n\n**程序员**\n\n### 🚨 严重违反模块化规范\n\n#### 文件规模统计\n- **总行数**: 2306行\n- **JavaScript代码**: 1860行 (80.7%) ⚠️\n- **CSS样式**: 229行 (9.9%)\n- **HTML结构**: 217行 (9.4%)\n- **方法数量**: ~250个方法\n\n#### 🔴 核心问题\n\n**1. 超大单体文件 - 严重违规**\n- **JavaScript限制**: 不得超过1000行\n- **当前状态**: 1860行 (超标86%)\n- **违规等级**: 🔴 严重\n\n**2. 单一类过于庞大**\n- [MindmapColumn](cci:2://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:593:8-2249:9)类包含所有业务逻辑\n- 估计包含50+个方法\n- 职责不清晰，违反单一职责原则\n\n**3. 内联代码过多**\n- 所有逻辑都写在HTML的`<script>`标签内\n- 无法复用、难以测试\n- 维护成本极高\n\n### 🔍 架构冗余度分析\n\n根据架构功能清单对比：\n\n**已有架构组件但未充分利用**：\n1. ✅ `MindmapStorage` - 已使用\n2. ✅ `StorageAdapter` - 已使用\n3. ✅ `MindmapCompatLayer` - 已使用\n4. ❌ `MindmapController` - 未使用（被注释掉）\n5. ❌ `MindmapRenderer` - 已加载但未使用\n6. ❌ `MindmapEventManager` - 已加载但未使用\n\n**功能重复实现**：\n- 节点操作逻辑：与`MindmapOperations`重复\n- 事件处理：与`MindmapEventManager`重复\n- 渲染逻辑：与`MindmapRenderer`重复\n\n**估计冗余度**: 约60-70%\n\n### 📋 重构建议\n\n#### 🎯 立即行动（高优先级）\n\n**1. 拆分MindmapColumn类**\n```\n建议拆分为独立模块：\n├── MindmapColumnController.js    (核心控制器, <200行)\n├── MindmapUIManager.js           (UI交互管理, <200行)\n├── MindmapContentEditor.js       (内容编辑, <200行)\n├── MindmapShortcutHandler.js     (快捷键处理, <150行)\n├── MindmapDataLoader.js          (数据加载, <150行)\n└── MindmapDebugTools.js          (调试工具, <100行)\n```\n\n**2. 充分利用现有架构**\n- 使用`MindmapController`替代当前的[MindmapColumn](cci:2://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:593:8-2249:9)\n- 委托`MindmapEventManager`处理所有事件\n- 委托`MindmapRenderer`处理渲染逻辑\n\n**3. 提取样式到独立CSS文件**\n- 创建`mindmap-column.css` (229行)\n- 从HTML中移除`<style>`标签\n\n#### 🔄 中期优化（中优先级）\n\n**4. 提取日志面板**\n- 创建`LogPanel.js`独立模块\n- 当前约200行日志相关代码\n\n**5. 提取调试工具**\n- 创建`MindmapDebugger.js`\n- 包含[debugRecoverCache](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:2257:8-2299:10)等调试函数\n\n#### 📊 重构后预期\n\n```\nmindmap-standalone.html          <100行  (仅HTML结构和模块加载)\n├── css/\n│   └── mindmap-column.css       229行   (样式)\n├── js/\n│   ├── MindmapColumnController.js   <200行\n│   ├── MindmapUIManager.js          <200行\n│   ├── MindmapContentEditor.js      <200行\n│   ├── MindmapShortcutHandler.js    <150行\n│   ├── MindmapDataLoader.js         <150行\n│   ├── LogPanel.js                  <200行\n│   └── MindmapDebugger.js           <100行\n```\n\n**总行数**: 仍为~2300行，但模块化、可维护、可测试\n\n### ⚠️ 架构合规性检查\n\n根据用户规则：\n\n1. **🔴 违反JavaScript文件限制**: 1860行 > 1000行\n2. **🔴 违反代码重复限制**: 估计60-70% > 10%\n3. **🟡 未充分利用现有系统**: MindmapController、Renderer、EventManager未使用\n4. **🔴 创建新功能前未检查现有功能**: 大量逻辑与现有架构重复\n\n### 🎯 建议行动计划\n\n**是否需要我立即开始重构？**\n\n建议步骤：\n1. 先创建重构计划文档\n2. 提交审查员审批\n3. 分阶段实施重构（避免破坏现有功能）\n\n**程序员**\n"
+                    },
+                    "meta": {
+                      "createdAt": 1759835078062,
+                      "updatedAt": 1759835078062
+                    },
+                    "children": [
+                      {
+                        "id": "node_1759835052862_v79quxq67",
+                        "topic": "曾经做过优化",
+                        "data": {
+                          "content": "2025-10-07 19:04:12\n\n\n**程序员**\n\n让我查找历史文档中关于清理这个文件的记录：\n\n让我查看架构整改报告：\n\n让我查找关于mindmap-standalone.html清理的具体记录：\n\n找到了！让我查看P1整改报告的详细内容：\n\n## 📋 历史记录确认\n\n**程序员**\n\n您说得对！我找到了历史记录，我们**确实在2025-10-07进行过P1整改**，对[mindmap-standalone.html](cci:7://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:0:0-0:0)进行了架构清理。\n\n### 🔍 历史整改记录\n\n#### P1整改完成报告（2025-10-07）\n\n**文件**: `程序员：脑图存储系统P1整改完成报告-2025-10-07.md`\n\n**整改内容**:\n\n1. **初始化StorageAdapter** ✅\n   - 在[init()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:606:12-756:13)方法中创建StorageAdapter实例\n   - 移除直接访问`window.AutogenUnifiedStorage`\n\n2. **注入StorageAdapter到兼容层** ✅\n   - 通过依赖注入传递StorageAdapter\n   - 符合架构设计原则\n\n3. **调试工具改用StorageAdapter** ✅\n   - 移除直接访问localStorage\n   - 使用StorageAdapter统一接口\n\n**架构一致性提升**: 20% → 95% (+75%) ✅\n\n### ⚠️ 当前问题\n\n**但是**，文件现在又变大了：\n- **当前**: 2306行（1860行JavaScript）\n- **问题**: 超过JavaScript文件1000行限制\n\n### 🤔 可能的原因\n\n1. **后续修复添加了新代码**\n   - 节点内容保存修复\n   - beforeunload事件处理\n   - 数据同步逻辑\n\n2. **未进行模块拆分**\n   - P1整改只是修复了架构合规性（使用StorageAdapter）\n   - 但没有进行模块化拆分\n\n3. **功能持续增加**\n   - 关系管理功能\n   - 日志面板功能\n   - 调试工具\n\n### 📊 对比分析\n\n| 整改项 | P1整改目标 | 当前状态 |\n|--------|-----------|---------|\n| 使用StorageAdapter | ✅ 已完成 | ✅ 保持 |\n| 架构一致性 | ✅ 95% | ✅ 95% |\n| 模块化拆分 | ❌ 未要求 | ❌ 未完成 |\n| 文件大小控制 | ❌ 未要求 | 🔴 超标86% |\n\n### 🎯 结论\n\n**P1整改完成了架构合规性，但没有解决模块化问题**。现在需要：\n\n1. **保持P1整改成果**（架构合规性）\n2. **新增模块化拆分**（控制文件大小）\n\n是否需要我制定**模块化拆分计划**，在保持架构合规的基础上进行重构？\n\n**程序员**"
+                        },
+                        "meta": {
+                          "createdAt": 1759835078062,
+                          "updatedAt": 1759835078062
+                        }
+                      }
+                    ]
                   }
                 ]
               },
@@ -1440,7 +1466,7 @@
                 },
                 "meta": {
                   "createdAt": 1759801494288,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -1451,7 +1477,7 @@
                     },
                     "meta": {
                       "createdAt": 1759801494288,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1462,7 +1488,7 @@
                         },
                         "meta": {
                           "createdAt": 1759833499572,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1473,7 +1499,7 @@
                         },
                         "meta": {
                           "createdAt": 1759833499572,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         },
                         "children": [
                           {
@@ -1484,7 +1510,7 @@
                             },
                             "meta": {
                               "createdAt": 1759833499572,
-                              "updatedAt": 1759834254827
+                              "updatedAt": 1759835078062
                             }
                           }
                         ]
@@ -1499,7 +1525,7 @@
                     },
                     "meta": {
                       "createdAt": 1759801494288,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1510,7 +1536,7 @@
                         },
                         "meta": {
                           "createdAt": 1759833499572,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1521,7 +1547,7 @@
                         },
                         "meta": {
                           "createdAt": 1759834125155,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         },
                         "children": [
                           {
@@ -1532,7 +1558,7 @@
                             },
                             "meta": {
                               "createdAt": 1759834125155,
-                              "updatedAt": 1759834254827
+                              "updatedAt": 1759835078062
                             }
                           },
                           {
@@ -1543,7 +1569,7 @@
                             },
                             "meta": {
                               "createdAt": 1759834125155,
-                              "updatedAt": 1759834254827
+                              "updatedAt": 1759835078062
                             }
                           },
                           {
@@ -1554,7 +1580,7 @@
                             },
                             "meta": {
                               "createdAt": 1759834125155,
-                              "updatedAt": 1759834254827
+                              "updatedAt": 1759835078062
                             }
                           }
                         ]
@@ -1569,7 +1595,7 @@
                     },
                     "meta": {
                       "createdAt": 1759801494288,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1580,7 +1606,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1591,7 +1617,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -1606,7 +1632,7 @@
                 },
                 "meta": {
                   "createdAt": 1759804756126,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 }
               }
             ]
@@ -1621,7 +1647,7 @@
         },
         "meta": {
           "createdAt": 1759803510797,
-          "updatedAt": 1759834254827
+          "updatedAt": 1759835078062
         },
         "children": [
           {
@@ -1632,7 +1658,7 @@
             },
             "meta": {
               "createdAt": 1759803510797,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -1643,7 +1669,7 @@
                 },
                 "meta": {
                   "createdAt": 1759803510797,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -1654,7 +1680,7 @@
                     },
                     "meta": {
                       "createdAt": 1759803510797,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   }
                 ]
@@ -1671,7 +1697,7 @@
         },
         "meta": {
           "createdAt": 1759803510797,
-          "updatedAt": 1759834254827
+          "updatedAt": 1759835078062
         },
         "children": [
           {
@@ -1682,7 +1708,7 @@
             },
             "meta": {
               "createdAt": 1759803510797,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -1693,7 +1719,7 @@
                 },
                 "meta": {
                   "createdAt": 1759803510797,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -1704,7 +1730,7 @@
                     },
                     "meta": {
                       "createdAt": 1759803510797,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1715,7 +1741,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1726,7 +1752,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -1739,7 +1765,7 @@
                     },
                     "meta": {
                       "createdAt": 1759803510797,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1750,7 +1776,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1761,7 +1787,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1772,7 +1798,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1783,7 +1809,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1794,7 +1820,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -1807,7 +1833,7 @@
                     },
                     "meta": {
                       "createdAt": 1759803510797,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1818,7 +1844,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1829,7 +1855,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1840,7 +1866,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1851,7 +1877,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1862,7 +1888,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -1875,7 +1901,7 @@
                     },
                     "meta": {
                       "createdAt": 1759811334095,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -1886,7 +1912,7 @@
                     },
                     "meta": {
                       "createdAt": 1759803510797,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1897,7 +1923,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1908,7 +1934,7 @@
                         },
                         "meta": {
                           "createdAt": 1759803510797,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -1925,7 +1951,7 @@
             },
             "meta": {
               "createdAt": 1759811334095,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             }
           },
           {
@@ -1936,7 +1962,7 @@
             },
             "meta": {
               "createdAt": 1759812447097,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -1947,7 +1973,7 @@
                 },
                 "meta": {
                   "createdAt": 1759812447097,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 },
                 "children": [
                   {
@@ -1958,7 +1984,7 @@
                     },
                     "meta": {
                       "createdAt": 1759812447097,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     }
                   },
                   {
@@ -1969,7 +1995,7 @@
                     },
                     "meta": {
                       "createdAt": 1759812447097,
-                      "updatedAt": 1759834254827
+                      "updatedAt": 1759835078062
                     },
                     "children": [
                       {
@@ -1980,7 +2006,7 @@
                         },
                         "meta": {
                           "createdAt": 1759817548367,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -1991,7 +2017,7 @@
                         },
                         "meta": {
                           "createdAt": 1759817548367,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -2002,7 +2028,7 @@
                         },
                         "meta": {
                           "createdAt": 1759817548367,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       },
                       {
@@ -2013,7 +2039,7 @@
                         },
                         "meta": {
                           "createdAt": 1759817548367,
-                          "updatedAt": 1759834254827
+                          "updatedAt": 1759835078062
                         }
                       }
                     ]
@@ -2028,7 +2054,7 @@
                 },
                 "meta": {
                   "createdAt": 1759817548367,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 }
               },
               {
@@ -2039,7 +2065,7 @@
                 },
                 "meta": {
                   "createdAt": 1759817548367,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 }
               }
             ]
@@ -2054,7 +2080,7 @@
         },
         "meta": {
           "createdAt": 1759811334095,
-          "updatedAt": 1759834254827
+          "updatedAt": 1759835078062
         },
         "children": [
           {
@@ -2065,7 +2091,7 @@
             },
             "meta": {
               "createdAt": 1759811334095,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             },
             "children": [
               {
@@ -2076,7 +2102,7 @@
                 },
                 "meta": {
                   "createdAt": 1759817548367,
-                  "updatedAt": 1759834254827
+                  "updatedAt": 1759835078062
                 }
               }
             ]
@@ -2091,7 +2117,7 @@
         },
         "meta": {
           "createdAt": 1759811334095,
-          "updatedAt": 1759834254827
+          "updatedAt": 1759835078062
         },
         "children": [
           {
@@ -2102,7 +2128,7 @@
             },
             "meta": {
               "createdAt": 1759811334095,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             }
           }
         ]
@@ -2115,7 +2141,7 @@
         },
         "meta": {
           "createdAt": 1759811334095,
-          "updatedAt": 1759834254827
+          "updatedAt": 1759835078062
         },
         "children": [
           {
@@ -2126,7 +2152,7 @@
             },
             "meta": {
               "createdAt": 1759811334095,
-              "updatedAt": 1759834254827
+              "updatedAt": 1759835078062
             }
           }
         ]
@@ -2139,7 +2165,7 @@
         },
         "meta": {
           "createdAt": 1759826418580,
-          "updatedAt": 1759834254827
+          "updatedAt": 1759835078062
         }
       }
     ]

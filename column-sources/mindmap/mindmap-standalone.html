@@ -45,6 +45,9 @@
     <script type="module" src="relation-types.js"></script>
     <script type="module" src="relation-manager.js"></script>
     
+    <!-- 🆕 Phase 0: 数据同步辅助工具 -->
+    <script src="js/DataSyncHelper.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -717,18 +720,8 @@
                         // 2. 获取完整数据
                         const data = this.jm.get_data();
                         
-                        // 3. 同步所有节点content
-                        const syncNodeData = (exportNode) => {
-                            if (!exportNode) return;
-                            const jmNode = this.jm.get_node(exportNode.id);
-                            if (jmNode && jmNode.data) {
-                                exportNode.data = jmNode.data;
-                            }
-                            if (exportNode.children) {
-                                exportNode.children.forEach(child => syncNodeData(child));
-                            }
-                        };
-                        syncNodeData(data.data);
+                        // 3. 同步所有节点content（使用统一工具）
+                        DataSyncHelper.syncAllNodes(this.jm, data);
                         
                         // 4. 强制同步保存（不使用防抖）
                         await this.saveToUnifiedStorage(data);
@@ -793,16 +786,25 @@
                 fixNode(allNodes.data);
             }
 
+            // 🆕 Phase 0: 确保MindmapStorage实例存在（统一实例管理）
+            _ensureMindmapStorage() {
+                if (!this.mindmapStorage && this.storageAdapter) {
+                    this.mindmapStorage = new window.MindmapStorage({
+                        storageAdapter: this.storageAdapter,
+                        eventBus: window.AutogenEventBus,
+                        logger: console
+                    });
+                    console.log('[脑图工作栏] ✅ MindmapStorage实例已创建并缓存');
+                }
+                return this.mindmapStorage;
+            }
+
             async loadInitialData() {
                 try {
                     // 🔧 架构整改修复：优先从 IndexedDB 加载（持久化数据）- 使用 MindmapStorage 自动还原
                     if (typeof window.MindmapStorage !== 'undefined' && this.storageAdapter) {
-                        // 🔧 复用init()中创建的storageAdapter实例
-                        const mindmapStorage = new window.MindmapStorage({
-                            storageAdapter: this.storageAdapter,
-                            eventBus: window.AutogenEventBus,
-                            logger: console
-                        });
+                        // 🔧 使用统一实例管理
+                        const mindmapStorage = this._ensureMindmapStorage();
                         const stored = await mindmapStorage.loadMindmapData('current');
                         
                         // 检查是否有实际数据（不是默认的空数据）
@@ -1350,18 +1352,8 @@
                 try {
                     const data = this.jm.get_data();
                     
-                    // 🔧 手动同步所有节点的data
-                    const syncNodeData = (exportNode) => {
-                        if (!exportNode) return;
-                        const jmNode = this.jm.get_node(exportNode.id);
-                        if (jmNode && jmNode.data) {
-                            exportNode.data = jmNode.data;
-                        }
-                        if (exportNode.children) {
-                            exportNode.children.forEach(child => syncNodeData(child));
-                        }
-                    };
-                    syncNodeData(data.data);
+                    // 🔧 手动同步所有节点的data（使用统一工具）
+                    DataSyncHelper.syncAllNodes(this.jm, data);
                     
                     await this.saveToUnifiedStorage(data);
                     console.log('[脑图工作栏] 自动保存完成');
@@ -1634,18 +1626,8 @@
                     // 持久化整个脑图数据
                     const data = this.jm.get_data();
                     
-                    // 🔧 关键修复：手动同步所有节点的data到导出数据
-                    const syncNodeData = (exportNode) => {
-                        if (!exportNode) return;
-                        const jmNode = this.jm.get_node(exportNode.id);
-                        if (jmNode && jmNode.data) {
-                            exportNode.data = jmNode.data;
-                        }
-                        if (exportNode.children) {
-                            exportNode.children.forEach(child => syncNodeData(child));
-                        }
-                    };
-                    syncNodeData(data.data);
+                    // 🔧 关键修复：手动同步所有节点的data到导出数据（使用统一工具）
+                    DataSyncHelper.syncAllNodes(this.jm, data);
                     
                     // 🔍 调试：验证数据中是否包含内容
                     const savedNode = this.findNodeInData(data.data, node.id);
@@ -1710,18 +1692,8 @@
                     // 持久化整个脑图数据
                     const data = this.jm.get_data();
                     
-                    // 🔧 手动同步所有节点的data
-                    const syncNodeData = (exportNode) => {
-                        if (!exportNode) return;
-                        const jmNode = this.jm.get_node(exportNode.id);
-                        if (jmNode && jmNode.data) {
-                            exportNode.data = jmNode.data;
-                        }
-                        if (exportNode.children) {
-                            exportNode.children.forEach(child => syncNodeData(child));
-                        }
-                    };
-                    syncNodeData(data.data);
+                    // 🔧 手动同步所有节点的data（使用统一工具）
+                    DataSyncHelper.syncAllNodes(this.jm, data);
                     
                     await this.saveToUnifiedStorage(data).catch(() => {});
                     console.log('[脑图工作栏] 静默保存完成，无弹窗提示');
@@ -1795,18 +1767,8 @@
                     // 获取当前脑图数据
                     const mindmapData = this.jm.get_data();
                     
-                    // 🔧 手动同步所有节点的data
-                    const syncNodeData = (exportNode) => {
-                        if (!exportNode) return;
-                        const jmNode = this.jm.get_node(exportNode.id);
-                        if (jmNode && jmNode.data) {
-                            exportNode.data = jmNode.data;
-                        }
-                        if (exportNode.children) {
-                            exportNode.children.forEach(child => syncNodeData(child));
-                        }
-                    };
-                    syncNodeData(mindmapData.data);
+                    // 🔧 手动同步所有节点的data（使用统一工具）
+                    DataSyncHelper.syncAllNodes(this.jm, mindmapData);
                     
                     // 转换为数据底座规范v1.2格式
                     const formattedData = this.convertToDataBaseFormat(mindmapData);
@@ -2202,20 +2164,9 @@
             // 统一存储保存（完全委托给MindmapStorage）
             async saveToUnifiedStorage(data) {
                 try {
-                    // 🚨 关键修复：保存前必须同步所有节点的content
+                    // 🚨 关键修复：保存前必须同步所有节点的content（使用统一工具）
                     // 原因：jm.get_data()不会自动导出node.data字段
-                    const syncNodeData = (exportNode) => {
-                        if (!exportNode) return;
-                        const jmNode = this.jm.get_node(exportNode.id);
-                        if (jmNode && jmNode.data) {
-                            exportNode.data = jmNode.data;
-                        }
-                        if (exportNode.children) {
-                            exportNode.children.forEach(child => syncNodeData(child));
-                        }
-                    };
-                    syncNodeData(data.data);
-                    console.log('[脑图工作栏] ✅ 已同步所有节点content');
+                    DataSyncHelper.syncAllNodes(this.jm, data);
                     
                     if (typeof window.MindmapStorage === 'undefined') {
                         throw new Error('MindmapStorage未加载');
@@ -2226,17 +2177,9 @@
                         throw new Error('StorageAdapter未初始化，请检查init()方法');
                     }
                     
-                    // 🔧 架构整改修复：缓存MindmapStorage实例，避免每次保存都创建新实例
-                    if (!this.mindmapStorage) {
-                        this.mindmapStorage = new window.MindmapStorage({
-                            storageAdapter: this.storageAdapter,
-                            eventBus: window.AutogenEventBus,
-                            logger: console
-                        });
-                        console.log('[脑图工作栏] ✅ MindmapStorage实例已创建并缓存');
-                    }
-                    
-                    const success = await this.mindmapStorage.saveMindmapData(data, true);
+                    // 🔧 使用统一实例管理
+                    const mindmapStorage = this._ensureMindmapStorage();
+                    const success = await mindmapStorage.saveMindmapData(data, true);
                     console.log('[脑图工作栏] ✅ 数据已保存:', this.mindmapId, '结果:', success);
                     return success;
                 } catch (err) {
