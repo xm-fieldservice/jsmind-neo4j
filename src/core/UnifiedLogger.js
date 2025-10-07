@@ -575,15 +575,26 @@
         }
 
         /**
-         * 导出日志
+         * 导出日志（从IndexedDB加载所有历史）
          */
-        export(format = 'json') {
+        async export(format = 'json') {
+            // 🔧 修复：从IndexedDB加载所有历史日志，而不是只导出内存缓冲区
+            let allLogs = [];
+            try {
+                const history = await this.getHistory({ limit: 10000 }); // 最多导出10000条
+                allLogs = history;
+            } catch (err) {
+                console.warn('[UnifiedLogger] 无法加载历史日志，使用内存缓冲区', err);
+                allLogs = this.logBuffer.getAll();
+            }
+            
             const data = {
                 exportTime: new Date().toISOString(),
                 pageId: this.pageId,
                 sessionId: this.sessionId,
                 stats: this.getStats(),
-                logs: this.logBuffer.getAll()
+                totalLogs: allLogs.length,
+                logs: allLogs
             };
 
             if (format === 'json') {
@@ -602,7 +613,7 @@
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
             const filename = `logs_${this.pageId}_${timestamp}.${format}`;
             
-            const content = this.export(format);
+            const content = await this.export(format);
             const blob = new Blob([content], { 
                 type: format === 'json' ? 'application/json' : 'text/csv' 
             });

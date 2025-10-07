@@ -448,12 +448,8 @@
                     storageAdapter: this.storageAdapter
                 });
                 
-                // 检查架构状态
-                const status = this.compat.getArchitectureStatus();
-                this._log.debug('架构状态', status);
-                
-                // 优先从统一存储加载，失败回退到测试数据
-                await this.loadInitialData();
+                // 🔧 根本修复：智能加载数据（比较IndexedDB和文件）
+                await this.loadInitialDataSmart();
                 
                 // 绑定事件
                 this.bindEvents();
@@ -640,6 +636,74 @@
                     console.error('[脑图工作栏] 加载失败，回退到测试数据:', e);
                 }
                 this.loadTestData();
+            }
+
+            // 🔧 根本修复：智能加载数据（比较IndexedDB和文件，选择最新的）
+            async loadInitialDataSmart() {
+                try {
+                    let storedData = null;
+                    let fileData = null;
+                    
+                    // 1. 从IndexedDB加载
+                    if (this.storageCoordinator) {
+                        storedData = await this.storageCoordinator.loadMindmap('current');
+                    }
+                    
+                    // 2. 从文件加载
+                    try {
+                        const response = await fetch('mindmap_base.json');
+                        if (response.ok) {
+                            fileData = await response.json();
+                            const initNodeData = (node) => {
+                                if (!node.data) node.data = {};
+                                if (!node.data.content) node.data.content = '';
+                                if (node.children) node.children.forEach(child => initNodeData(child));
+                            };
+                            if (fileData.data) initNodeData(fileData.data);
+                        }
+                    } catch (err) {
+                        this._log.warn('文件加载失败', err.message);
+                    }
+                    
+                    // 3. 比较并选择
+                    let dataToUse = null;
+                    let source = '';
+                    
+                    if (storedData && fileData) {
+                        const storedCount = this._countNodes(storedData.data);
+                        const fileCount = this._countNodes(fileData.data);
+                        
+                        if (fileCount > storedCount) {
+                            dataToUse = fileData;
+                            source = `文件 (${fileCount}节点 > IndexedDB ${storedCount}节点)`;
+                        } else {
+                            dataToUse = storedData;
+                            source = `IndexedDB (${storedCount}节点)`;
+                        }
+                    } else if (storedData) {
+                        dataToUse = storedData;
+                        source = 'IndexedDB';
+                    } else if (fileData) {
+                        dataToUse = fileData;
+                        source = '文件';
+                    }
+                    
+                    // 4. 加载数据
+                    if (dataToUse) {
+                        this.jm.show(dataToUse);
+                        this._fixJsMindNodeData();
+                        this.updateNodeCount();
+                        this._log.info(`✅ 数据源: ${source}`);
+                        await this.saveToUnifiedStorage(this.jm.get_data());
+                        return;
+                    }
+                    
+                    this._log.warn('无可用数据，加载测试数据');
+                    this.loadTestData();
+                } catch (e) {
+                    this._log.error('加载失败', e);
+                    this.loadTestData();
+                }
             }
 
             loadTestData() {
@@ -1653,6 +1717,18 @@
                 }
                 return 0;
             }
+            
+            // 辅助方法：递归计算节点数量
+            _countNodes(node) {
+                if (!node) return 0;
+                let count = 1;
+                if (node.children) {
+                    node.children.forEach(child => {
+                        count += this._countNodes(child);
+                    });
+                }
+                return count;
+            }
 
             // 🗑️ Deprecated: 由 MindmapUIManager 接管
             updateLastModified() {
@@ -1809,17 +1885,17 @@
             // 统一事件发射（AutogenEventBus 集成）
             emitEvent(eventName, data) {
                 try {
-                    console.log(`[脑图工作栏] 触发事件: ${eventName}`, data);
+                    this._log.debug(`触发事件: ${eventName}`, {data});
                     if (typeof AutogenEventBus !== 'undefined' && AutogenEventBus.emit) {
                         AutogenEventBus.emit(eventName, data);
                     } else {
-                        console.warn('[脑图工作栏] AutogenEventBus 未加载，事件仅记录到控制台');
+                        this._log.warn('AutogenEventBus 不可用');
                     }
                 } catch (e) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
                         window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'emitEvent', eventName }, { silent: true });
                     }
-                    console.error('[脑图工作栏] 事件发射失败:', e);
+                    this._log.error(`事件发射失败: ${eventName}`, e);
                 }
             }
 
