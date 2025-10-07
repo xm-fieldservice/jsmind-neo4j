@@ -14,23 +14,14 @@
 
 class MindmapDataManager {
     constructor(dependencies = {}) {
-        // 依赖注入：优先使用StorageAdapter
-        this.storageAdapter = dependencies.storageAdapter || null;
-        this.storage = dependencies.storage || window.AutogenUnifiedStorage;
+        // 🔧 架构整改：强制使用StorageAdapter，移除回退逻辑
+        this.storageAdapter = dependencies.storageAdapter;
         this.eventBus = dependencies.eventBus || window.AutogenEventBus;
         this.logger = dependencies.logger || console;
         
-        // 如果没有提供StorageAdapter，尝试创建
-        if (!this.storageAdapter && typeof window !== 'undefined' && window.StorageAdapter) {
-            this.storageAdapter = new window.StorageAdapter();
-            this.storageAdapter.initialize().catch(err => {
-                console.warn('[MindmapDataManager] StorageAdapter初始化失败，回退到直接存储:', err);
-                this.storageAdapter = null;
-            });
-        }
-        
-        if (!this.storage && !this.storageAdapter) {
-            throw new Error('[MindmapDataManager] 存储系统未初始化，无法创建数据管理器');
+        // 强制要求StorageAdapter
+        if (!this.storageAdapter) {
+            throw new Error('[MindmapDataManager] StorageAdapter是必需的依赖，请通过依赖注入提供');
         }
         
         // 数据同步相关
@@ -42,8 +33,7 @@ class MindmapDataManager {
         this.currentMindId = null;
         this.currentStorageKey = null;
         
-        console.log('[MindmapDataManager] ✅ 数据层管理器初始化完成', 
-            this.storageAdapter ? '(使用StorageAdapter)' : '(使用直接存储)');
+        console.log('[MindmapDataManager] ✅ 数据层管理器初始化完成 (使用StorageAdapter)');
     }
 
     /**
@@ -77,13 +67,8 @@ class MindmapDataManager {
                 data: this.toJsMindTree(data)
             };
 
-            // 优先使用StorageAdapter，回退到直接存储
-            let success;
-            if (this.storageAdapter) {
-                success = await this.storageAdapter.saveMindmap(jmData);
-            } else {
-                success = await this.storage.store('mindmap', storageKey, jmData);
-            }
+            // 使用StorageAdapter保存
+            const success = await this.storageAdapter.saveMindmap(jmData);
             
             if (success) {
                 // 触发保存完成事件

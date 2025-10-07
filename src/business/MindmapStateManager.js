@@ -21,11 +21,16 @@
 
 class MindmapStateManager {
   constructor(options = {}) {
-    // 依赖注入
+    // 🔧 架构整改：强制使用StorageAdapter
     this.mind = options.mind;
-    this.autogenStorage = options.autogenStorage || window.AutogenUnifiedStorage;
+    this.storageAdapter = options.storageAdapter;
     this.eventBus = options.eventBus || window.AutogenEventBus;
     this.logger = options.logger || console;
+    
+    // 强制要求StorageAdapter
+    if (!this.storageAdapter) {
+      throw new Error('[MindmapStateManager] StorageAdapter是必需的依赖，请通过依赖注入提供');
+    }
     
     // 配置参数
     this.config = {
@@ -666,7 +671,12 @@ class MindmapStateManager {
   async _persistState() {
     try {
       const persistableState = this._getPersistableState();
-      await this.autogenStorage.store('mindmap', 'app_state_v1', persistableState);
+      
+      if (this.storageAdapter) {
+        await this.storageAdapter.saveConfig('app_state_v1', persistableState);
+      } else {
+        await this.autogenStorage.store('mindmap', 'app_state_v1', persistableState);
+      }
       
       this.stats.persistedStates++;
       this.logger.log('[MindmapStateManager] 状态已持久化');
@@ -680,7 +690,12 @@ class MindmapStateManager {
    */
   async _loadPersistedState() {
     try {
-      const persistedState = await this.autogenStorage.retrieve('mindmap', 'app_state_v1');
+      let persistedState;
+      if (this.storageAdapter) {
+        persistedState = await this.storageAdapter.loadConfig('app_state_v1');
+      } else {
+        persistedState = await this.autogenStorage.retrieve('mindmap', 'app_state_v1');
+      }
       
       if (persistedState) {
         // 合并持久化状态到当前状态

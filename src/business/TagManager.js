@@ -8,6 +8,7 @@
 class TagManager {
     constructor(storage) {
         this.storage = storage;
+        this.storageAdapter = (window.StorageAdapter && storage instanceof window.StorageAdapter) ? storage : null;
         this.tagGroups = [];
         this.activeTagGroup = null;
         this.tagGroupThemes = {};
@@ -416,7 +417,13 @@ class TagManager {
      */
     async _saveTagGroups() {
         try {
-            if (this.storage) {
+            if (this.storageAdapter) {
+                await this.storageAdapter.saveConfig('user_tag_groups', {
+                    groups: this.tagGroups,
+                    themes: this.tagGroupThemes,
+                    activeGroup: this.activeTagGroup
+                });
+            } else if (this.storage) {
                 await this.storage.store('tag_groups', 'user_tag_groups', {
                     groups: this.tagGroups,
                     themes: this.tagGroupThemes,

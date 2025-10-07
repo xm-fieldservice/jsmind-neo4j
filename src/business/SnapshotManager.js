@@ -8,6 +8,7 @@
 class SnapshotManager {
     constructor(storage) {
         this.storage = storage;
+        this.storageAdapter = (window.StorageAdapter && storage instanceof window.StorageAdapter) ? storage : null;
         this._snapConfig = {
             intervalMs: 10 * 60 * 1000, // 默认10分钟
             maxCount: 5                  // 默认保留5份（上限10）
@@ -288,7 +289,11 @@ class SnapshotManager {
             if (!this.storage) return;
             
             // 保存快照数据
-            await this.storage.store('snapshot', snapshot.id, snapshot);
+            if (this.storageAdapter) {
+                await this.storageAdapter.saveConfig(`snapshot_${snapshot.id}`, snapshot);
+            } else {
+                await this.storage.store('snapshot', snapshot.id, snapshot);
+            }
             
             // 更新索引
             const indexData = await this._loadSnapshotIndex();
@@ -339,7 +344,11 @@ class SnapshotManager {
         try {
             if (!this.storage) return;
             
-            await this.storage.store('snapshot', 'mindmap_snapshots_index', indexData);
+            if (this.storageAdapter) {
+                await this.storageAdapter.saveConfig('mindmap_snapshots_index', indexData);
+            } else {
+                await this.storage.store('snapshot', 'mindmap_snapshots_index', indexData);
+            }
             
         } catch (error) {
             console.error('[SnapshotManager] 保存快照索引失败:', error);

@@ -12,23 +12,14 @@
 
 class MindmapStorage {
     constructor(dependencies = {}) {
-        // 依赖注入：优先使用StorageAdapter
-        this.storageAdapter = dependencies.storageAdapter || null;
-        this.storage = dependencies.storage || window.AutogenUnifiedStorage;
+        // 🔧 架构整改：强制使用StorageAdapter，移除回退逻辑
+        this.storageAdapter = dependencies.storageAdapter;
         this.eventBus = dependencies.eventBus || window.AutogenEventBus;
         this.logger = dependencies.logger || console;
         
-        // 如果没有提供StorageAdapter，尝试创建
-        if (!this.storageAdapter && typeof window !== 'undefined' && window.StorageAdapter) {
-            this.storageAdapter = new window.StorageAdapter();
-            this.storageAdapter.initialize().catch(err => {
-                console.warn('[MindmapStorage] StorageAdapter初始化失败，回退到直接存储:', err);
-                this.storageAdapter = null;
-            });
-        }
-        
-        if (!this.storage && !this.storageAdapter) {
-            throw new Error('[MindmapStorage] 存储系统未初始化，无法创建MindmapStorage实例');
+        // 强制要求StorageAdapter
+        if (!this.storageAdapter) {
+            throw new Error('[MindmapStorage] StorageAdapter是必需的依赖，请通过依赖注入提供');
         }
         
         // 🆕 数据压缩引擎
@@ -41,8 +32,7 @@ class MindmapStorage {
         // JSON底座同步状态
         this._lastSyncHash = null;
         
-        console.log('[MindmapStorage] ✅ 业务层包装初始化完成', 
-                   this.storageAdapter ? '(使用StorageAdapter)' : '(使用直接存储)',
+        console.log('[MindmapStorage] ✅ 业务层包装初始化完成 (使用StorageAdapter)',
                    this.compressor ? ' + 数据压缩引擎' : '');
     }
 
@@ -71,13 +61,8 @@ class MindmapStorage {
             // 🆕 智能压缩数据（如果压缩引擎可用）
             const dataToStore = this.compressor ? this.compressor.compress(data) : data;
             
-            // 优先使用StorageAdapter，回退到直接存储
-            let success;
-            if (this.storageAdapter) {
-                success = await this.storageAdapter.saveMindmap(dataToStore);
-            } else {
-                success = await this.storage.store('mindmap', mindKey, dataToStore);
-            }
+            // 使用StorageAdapter保存
+            const success = await this.storageAdapter.saveMindmap(dataToStore);
             
             if (success) {
                 console.log('[MindmapStorage] 脑图数据保存成功:', mindKey);
@@ -100,13 +85,8 @@ class MindmapStorage {
         try {
             const mindKey = mindId || 'current';
             
-            // 优先使用StorageAdapter，回退到直接存储
-            let data;
-            if (this.storageAdapter) {
-                data = await this.storageAdapter.loadMindmap(mindKey);
-            } else {
-                data = await this.storage.retrieve('mindmap', mindKey);
-            }
+            // 使用StorageAdapter加载
+            const data = await this.storageAdapter.loadMindmap(mindKey);
             
             if (data) {
                 // 🆕 智能还原数据（如果压缩引擎可用）
@@ -133,8 +113,8 @@ class MindmapStorage {
         try {
             const mindKey = mindId || 'current';
             
-            // 统一删除：只使用AutogenUnifiedStorage
-            const result = await this.storage.remove('mindmap', mindKey);
+            // 使用StorageAdapter删除
+            const result = await this.storageAdapter.deleteMindmap(mindKey);
             
             if (result.success) {
                 console.log('[MindmapStorage] 脑图数据删除成功:', mindKey);
@@ -183,10 +163,10 @@ class MindmapStorage {
      */
     getStorageSystemStatus() {
         return {
-            unified: {
-                available: !!this.storage,
-                type: 'AutogenUnifiedStorage',
-                status: 'active'
+            adapter: {
+                available: !!this.storageAdapter,
+                type: 'StorageAdapter',
+                status: this.storageAdapter ? 'active' : 'inactive'
             }
         };
     }
@@ -196,7 +176,7 @@ class MindmapStorage {
      */
     async getAllMindmapKeys() {
         try {
-            return await this.storage.list('mindmap');
+            return await this.storageAdapter.listMindmaps();
         } catch (error) {
             console.warn('[MindmapStorage] 获取脑图键列表失败:', error);
             return [];
@@ -205,6 +185,8 @@ class MindmapStorage {
 
     /**
      * 统一存储保存方法（从控制器迁移）
+     * @deprecated 此方法将在下一版本移除，请使用 saveMindmapData() 替代
+     * 🔧 架构整改：此方法仍使用旧的直接存储方式，需要重构
      */
     async saveWithUnifiedStorage(jmData, immediate = false) {
         // 防抖逻辑
@@ -217,16 +199,17 @@ class MindmapStorage {
         }
 
         try {
-            // 确保AutogenUnifiedStorage可用
-            if (!this.storage) {
-                throw new Error('AutogenUnifiedStorage不可用，无法保存数据');
+            // 🔧 临时方案：通过StorageAdapter访问底层存储
+            const storage = this.storageAdapter.storage;
+            if (!storage) {
+                throw new Error('底层存储不可用，无法保存数据');
             }
 
             // 获取存储键
             const mindKey = this._extractMindKey(jmData);
             
             // 使用统一存储系统保存
-            const result = await this.storage.store('mindmap', mindKey, jmData);
+            const result = await storage.store('mindmap', mindKey, jmData);
             
             if (result && result.success) {
                 this.logger.log('[MindmapStorage] ✅ 统一存储保存成功:', mindKey);
@@ -253,18 +236,22 @@ class MindmapStorage {
 
     /**
      * 从统一存储加载数据（从控制器迁移）
+     * @deprecated 此方法将在下一版本移除，请使用 loadMindmapData() 替代
+     * 🔧 架构整改：此方法仍使用旧的直接存储方式，需要重构
      */
     async loadFromUnifiedStorage(mindKey = null) {
         try {
-            if (!this.storage) {
-                throw new Error('AutogenUnifiedStorage不可用');
+            // 🔧 临时方案：通过StorageAdapter访问底层存储
+            const storage = this.storageAdapter.storage;
+            if (!storage) {
+                throw new Error('底层存储不可用');
             }
 
             // 默认使用当前键
             const storageKey = mindKey || 'mindmap_data_v1';
             
             // 从统一存储加载
-            const data = await this.storage.retrieve('mindmap', storageKey);
+            const data = await storage.retrieve('mindmap', storageKey);
             
             if (data) {
                 this.logger.log('[MindmapStorage] ✅ 从统一存储加载成功:', storageKey);

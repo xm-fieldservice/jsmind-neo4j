@@ -24,8 +24,18 @@ class MindmapController {
      */
     _initializeModules() {
         try {
-            // 数据层
-            this.storage = new MindmapStorage();
+            // 🔧 架构整改：创建并注入StorageAdapter
+            this.storageAdapter = new StorageAdapter();
+            this.storageAdapter.initialize().catch(err => {
+                console.error('[MindmapController] StorageAdapter初始化失败:', err);
+            });
+            
+            // 数据层 - 注入StorageAdapter
+            this.storage = new MindmapStorage({
+                storageAdapter: this.storageAdapter,
+                eventBus: window.AutogenEventBus,
+                logger: console
+            });
             this.importExportService = new ImportExportService(this.storage);
             
             // 业务层

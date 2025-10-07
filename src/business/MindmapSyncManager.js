@@ -20,12 +20,17 @@
 
 class MindmapSyncManager {
   constructor(options = {}) {
-    // 依赖注入
+    // 🔧 架构整改：强制使用StorageAdapter
     this.mind = options.mind;
     this.dataManager = options.dataManager;
-    this.autogenStorage = options.autogenStorage || window.AutogenUnifiedStorage;
+    this.storageAdapter = options.storageAdapter;
     this.eventBus = options.eventBus || window.AutogenEventBus;
     this.logger = options.logger || console;
+    
+    // 强制要求StorageAdapter
+    if (!this.storageAdapter) {
+      throw new Error('[MindmapSyncManager] StorageAdapter是必需的依赖，请通过依赖注入提供');
+    }
     
     // 配置参数
     this.config = {
@@ -398,7 +403,11 @@ class MindmapSyncManager {
       }
       
       // 保存快照
-      await this.autogenStorage.store('mindmap', this.storageKeys.snapshots, snapshots);
+      if (this.storageAdapter) {
+        await this.storageAdapter.saveConfig(this.storageKeys.snapshots, snapshots);
+      } else {
+        await this.autogenStorage.store('mindmap', this.storageKeys.snapshots, snapshots);
+      }
       
       this.state.lastSnapshotTime = Date.now();
       this.stats.totalSnapshots++;
@@ -497,7 +506,11 @@ class MindmapSyncManager {
       }
       
       snapshots.splice(index, 1);
-      await this.autogenStorage.store('mindmap', this.storageKeys.snapshots, snapshots);
+      if (this.storageAdapter) {
+        await this.storageAdapter.saveConfig(this.storageKeys.snapshots, snapshots);
+      } else {
+        await this.autogenStorage.store('mindmap', this.storageKeys.snapshots, snapshots);
+      }
       
       this.logger.log(`[MindmapSyncManager] 快照删除成功: ${snapshotId}`);
       
@@ -596,15 +609,24 @@ class MindmapSyncManager {
     const mindKey = this._getMindKey();
     const storageKey = `${mindKey}:data`;
     
-    await this.autogenStorage.store('mindmap', storageKey, data);
-    await this.autogenStorage.store('mindmap', this.storageKeys.mainData, data);
+    if (this.storageAdapter) {
+      await this.storageAdapter.saveConfig(storageKey, data);
+      await this.storageAdapter.saveConfig(this.storageKeys.mainData, data);
+    } else {
+      await this.autogenStorage.store('mindmap', storageKey, data);
+      await this.autogenStorage.store('mindmap', this.storageKeys.mainData, data);
+    }
   }
   
   /**
    * 保存到全图缓存
    */
   async _saveToFullCache(data) {
-    await this.autogenStorage.store('mindmap', this.storageKeys.fullCache, data);
+    if (this.storageAdapter) {
+      await this.storageAdapter.saveConfig(this.storageKeys.fullCache, data);
+    } else {
+      await this.autogenStorage.store('mindmap', this.storageKeys.fullCache, data);
+    }
   }
   
   /**

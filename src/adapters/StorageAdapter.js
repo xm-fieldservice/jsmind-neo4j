@@ -111,6 +111,17 @@ class StorageAdapter {
     }
 
     /**
+     * 列出所有脑图键
+     */
+    async listMindmaps() {
+        this._ensureInitialized();
+
+        const keys = await this.storage.list('mindmap');
+        console.log(`[StorageAdapter] 找到 ${keys.length} 个脑图`);
+        return keys;
+    }
+
+    /**
      * 查询脑图列表
      * @param {Object} filter - 查询过滤条件
      */
