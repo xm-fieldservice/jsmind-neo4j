@@ -53,6 +53,9 @@
     
     <!-- 🆕 Phase 1: 日志面板模块 -->
     <script src="js/LogPanel.js"></script>
+    
+    <!-- 🆕 Phase 2: 存储协调器 -->
+    <script src="js/MindmapStorageCoordinator.js"></script>
 </head>
 <body>
     <div class="container" id="mindmapColumn">
@@ -248,8 +251,8 @@
                 this.mindmapId = 'mindmap_column_standalone';
                 this.isFullscreen = false;
                 
-                // 🔧 架构整改修复：缓存MindmapStorage实例，避免重复创建
-                this.mindmapStorage = null;
+                // 🆕 Phase 2: 存储协调器（替代直接使用mindmapStorage）
+                this.storageCoordinator = null;
                 
                 this.init();
             }
@@ -270,6 +273,18 @@
                     }
                 } else {
                     console.warn('[脑图工作栏] StorageAdapter未加载，使用降级模式');
+                }
+                
+                // 🆕 Phase 2: 初始化存储协调器
+                if (typeof window.MindmapStorageCoordinator !== 'undefined' && this.storageAdapter) {
+                    this.storageCoordinator = new window.MindmapStorageCoordinator(
+                        this.storageAdapter,
+                        window.AutogenEventBus,
+                        console
+                    );
+                    console.log('[脑图工作栏] ✅ 存储协调器初始化完成');
+                } else {
+                    console.warn('[脑图工作栏] 存储协调器初始化失败，将使用传统模式');
                 }
 
                 // 使用DependencyManager确保架构组件加载
@@ -448,11 +463,9 @@
 
             async loadInitialData() {
                 try {
-                    // 🔧 架构整改修复：优先从 IndexedDB 加载（持久化数据）- 使用 MindmapStorage 自动还原
-                    if (typeof window.MindmapStorage !== 'undefined' && this.storageAdapter) {
-                        // 🔧 使用统一实例管理
-                        const mindmapStorage = this._ensureMindmapStorage();
-                        const stored = await mindmapStorage.loadMindmapData('current');
+                    // 🆕 Phase 2: 使用存储协调器加载数据
+                    if (this.storageCoordinator) {
+                        const stored = await this.storageCoordinator.loadMindmap('current');
                         
                         // 检查是否有实际数据（不是默认的空数据）
                         // 判断标准：有子节点 或 meta中有实际信息
@@ -1808,26 +1821,28 @@
                 }
             }
 
-            // 统一存储保存（完全委托给MindmapStorage）
+            // 统一存储保存（使用存储协调器）
             async saveToUnifiedStorage(data) {
                 try {
                     // 🚨 关键修复：保存前必须同步所有节点的content（使用统一工具）
                     // 原因：jm.get_data()不会自动导出node.data字段
                     DataSyncHelper.syncAllNodes(this.jm, data);
                     
-                    if (typeof window.MindmapStorage === 'undefined') {
-                        throw new Error('MindmapStorage未加载');
+                    // 🆕 Phase 2: 使用存储协调器保存
+                    if (this.storageCoordinator) {
+                        const success = await this.storageCoordinator.saveMindmap(data, true);
+                        console.log('[脑图工作栏] ✅ 数据已保存:', this.mindmapId, '结果:', success);
+                        return success;
                     }
                     
-                    // 🔧 架构整改修复：复用init()中创建的storageAdapter实例
+                    // 降级：使用传统方式
                     if (!this.storageAdapter) {
                         throw new Error('StorageAdapter未初始化，请检查init()方法');
                     }
                     
-                    // 🔧 使用统一实例管理
                     const mindmapStorage = this._ensureMindmapStorage();
                     const success = await mindmapStorage.saveMindmapData(data, true);
-                    console.log('[脑图工作栏] ✅ 数据已保存:', this.mindmapId, '结果:', success);
+                    console.log('[脑图工作栏] ✅ 数据已保存（降级模式）:', this.mindmapId, '结果:', success);
                     return success;
                 } catch (err) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
