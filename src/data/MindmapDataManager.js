@@ -14,13 +14,23 @@
 
 class MindmapDataManager {
     constructor(dependencies = {}) {
-        // 依赖注入：避免硬编码全局依赖
+        // 依赖注入：优先使用StorageAdapter
+        this.storageAdapter = dependencies.storageAdapter || null;
         this.storage = dependencies.storage || window.AutogenUnifiedStorage;
         this.eventBus = dependencies.eventBus || window.AutogenEventBus;
         this.logger = dependencies.logger || console;
         
-        if (!this.storage) {
-            throw new Error('[MindmapDataManager] AutogenUnifiedStorage未初始化，无法创建数据管理器');
+        // 如果没有提供StorageAdapter，尝试创建
+        if (!this.storageAdapter && typeof window !== 'undefined' && window.StorageAdapter) {
+            this.storageAdapter = new window.StorageAdapter();
+            this.storageAdapter.initialize().catch(err => {
+                console.warn('[MindmapDataManager] StorageAdapter初始化失败，回退到直接存储:', err);
+                this.storageAdapter = null;
+            });
+        }
+        
+        if (!this.storage && !this.storageAdapter) {
+            throw new Error('[MindmapDataManager] 存储系统未初始化，无法创建数据管理器');
         }
         
         // 数据同步相关
@@ -32,7 +42,8 @@ class MindmapDataManager {
         this.currentMindId = null;
         this.currentStorageKey = null;
         
-        console.log('[MindmapDataManager] ✅ 数据层管理器初始化完成');
+        console.log('[MindmapDataManager] ✅ 数据层管理器初始化完成', 
+            this.storageAdapter ? '(使用StorageAdapter)' : '(使用直接存储)');
     }
 
     /**
@@ -66,8 +77,13 @@ class MindmapDataManager {
                 data: this.toJsMindTree(data)
             };
 
-            // 保存到统一存储系统
-            const success = await this.storage.store('mindmap', storageKey, jmData);
+            // 优先使用StorageAdapter，回退到直接存储
+            let success;
+            if (this.storageAdapter) {
+                success = await this.storageAdapter.saveMindmap(jmData);
+            } else {
+                success = await this.storage.store('mindmap', storageKey, jmData);
+            }
             
             if (success) {
                 // 触发保存完成事件
@@ -101,12 +117,18 @@ class MindmapDataManager {
      */
     async loadMindmapData(storageKey) {
         try {
-            if (!this.storage) {
+            if (!this.storage && !this.storageAdapter) {
                 console.error('[MindmapDataManager] 存储系统不可用');
                 return null;
             }
 
-            const data = await this.storage.retrieve('mindmap', storageKey);
+            // 优先使用StorageAdapter，回退到直接存储
+            let data;
+            if (this.storageAdapter) {
+                data = await this.storageAdapter.loadMindmap(storageKey);
+            } else {
+                data = await this.storage.retrieve('mindmap', storageKey);
+            }
             
             if (data) {
                 console.log('[MindmapDataManager] ✅ 数据加载成功:', storageKey);
