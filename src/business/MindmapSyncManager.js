@@ -11,11 +11,15 @@
  * - 数据一致性保证
  * 
  * 技术特点：
- * - 多存储源支持：AutogenUnifiedStorage + JSON底座
+ * - 统一存储接口：通过StorageAdapter访问AutogenUnifiedStorage
  * - 防抖同步：避免频繁IO操作
  * - 增量同步：只同步变更数据
  * - 错误恢复：同步失败时的回退机制
  * - 性能优化：数据哈希比较、批量操作
+ * 
+ * 架构整改（2025-10-07）：
+ * - ✅ 强制使用StorageAdapter，移除直接AutogenUnifiedStorage引用
+ * - ✅ 移除所有回退逻辑，确保架构一致性
  */
 
 class MindmapSyncManager {
@@ -101,10 +105,9 @@ class MindmapSyncManager {
   /**
    * 设置依赖（用于延迟注入）
    */
-  setDependencies(mind, dataManager, autogenStorage) {
+  setDependencies(mind, dataManager) {
     this.mind = mind;
     this.dataManager = dataManager;
-    this.autogenStorage = autogenStorage || this.autogenStorage;
     this.logger.log('[MindmapSyncManager] 依赖设置完成');
   }
   
