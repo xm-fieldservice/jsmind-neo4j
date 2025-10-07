@@ -129,6 +129,11 @@
     <script src="src/core/ErrorHandler.js"></script>
     <script src="src/core/SystemInitializationCoordinator.js"></script>
     
+    <!-- 🆕 日志系统整改 - 新组件 -->
+    <script src="src/core/EnhancedUnifiedLogger.js"></script>
+    <script src="src/components/StandardLogPanel.js"></script>
+    <script src="src/core/ErrorBacktracer.js"></script>
+    
     <!-- 工作栏生态系统核心 -->
     <script src="js/core/column-registry.js?v=20251001"></script>
     <script src="js/core/column-warehouse.js?v=20251001-fix-final"></script>
@@ -143,6 +148,26 @@
         window.addEventListener('DOMContentLoaded', async function() {
             console.log('[系统] 🚀 使用SystemInitializationCoordinator统一初始化');
             
+            // 🆕 初始化增强型日志系统
+            if (window.EnhancedUnifiedLogger) {
+                window.enhancedLogger = new EnhancedUnifiedLogger({
+                    level: 'INFO',
+                    bufferSize: 1000,
+                    interceptConsole: false, // 暂时不拦截，避免影响现有日志
+                    persistImportant: true
+                });
+                console.log('[日志] ✅ EnhancedUnifiedLogger已初始化');
+                
+                // 创建标准日志面板（右下角）
+                if (window.StandardLogPanel) {
+                    window.logPanel = StandardLogPanel.autoEmbed({
+                        maxLines: 200,
+                        height: '300px'
+                    });
+                    console.log('[日志] ✅ StandardLogPanel已嵌入');
+                }
+            }
+            
             // 使用现有的SystemInitializationCoordinator
             if (window.SystemInitializationCoordinator) {
                 try {
@@ -150,14 +175,18 @@
                     
                     if (result.success) {
                         console.log('[系统] ✅ 系统初始化完成');
+                        window.enhancedLogger?.info('system', '系统初始化完成');
                     } else {
                         console.error('[系统] ⚠️ 系统初始化失败，但继续运行');
+                        window.enhancedLogger?.warn('system', '系统初始化失败，但继续运行');
                     }
                 } catch (error) {
                     console.error('[系统] ❌ SystemInitializationCoordinator执行异常:', error);
+                    window.enhancedLogger?.error('system', 'SystemInitializationCoordinator执行异常', error);
                 }
             } else {
                 console.warn('[系统] ⚠️ SystemInitializationCoordinator未加载，使用简单初始化');
+                window.enhancedLogger?.warn('system', 'SystemInitializationCoordinator未加载');
             }
             
             // 绑定仓库按钮
