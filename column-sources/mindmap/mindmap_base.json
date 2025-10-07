@@ -1017,7 +1017,14 @@
                                   },
                                   {
                                     "id": "node_1759814642403_zo7vanrcc",
-                                    "topic": "新进度"
+                                    "topic": "新进度",
+                                    "children": [
+                                      {
+                                        "id": "node_1759815009339_zadbxt3l3",
+                                        "topic": "P0完成",
+                                        "direction": "right"
+                                      }
+                                    ]
                                   }
                                 ]
                               }
@@ -1417,7 +1424,14 @@
             "meta": {
               "createdAt": 1759811334095,
               "updatedAt": 1759811334095
-            }
+            },
+            "children": [
+              {
+                "id": "node_1759815163211_7ggb71t1l",
+                "topic": "按照时间顺序列表很重要",
+                "direction": "right"
+              }
+            ]
           }
         ],
         "direction": "right"
