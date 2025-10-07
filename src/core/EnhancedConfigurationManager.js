@@ -1,5 +1,18 @@
 /**
  * EnhancedConfigurationManager.js - 增强配置管理器
+ * @deprecated 此组件已废弃，请使用 StorageAdapter 的配置管理功能
+ * @see src/adapters/StorageAdapter.js
+ * 
+ * 迁移指南:
+ * - EnhancedConfigurationManager.getConfig(category, key) → StorageAdapter.loadConfig(key, defaultValue)
+ * - EnhancedConfigurationManager.setConfig(category, key, value) → StorageAdapter.saveConfig(key, value)
+ * - EnhancedConfigurationManager.getAllConfigs() → 使用StorageAdapter分别加载各配置
+ * 
+ * 整合原因:
+ * - 功能重叠度45%，StorageAdapter已提供配置管理
+ * - EnhancedConfigurationManager只是内存配置，未持久化
+ * - StorageAdapter提供持久化配置存储，功能更完善
+ * 
  * 提供高级配置管理功能，包含配置验证、缓存和环境检测
  */
 class EnhancedConfigurationManager {
