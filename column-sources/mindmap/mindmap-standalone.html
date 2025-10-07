@@ -68,6 +68,8 @@
     
     <!-- 🆕 Phase 2.1: UI管理器模块 -->
     <script src="js/MindmapUIManager.js"></script>
+      <!-- 🆕 Phase 2.1: 数据加载器模块 -->
+      <script src="js/MindmapDataLoader.js"></script>
 </head>
 <body>
     <div class="container" id="mindmapColumn">
@@ -388,9 +390,20 @@
                         this.jm,
                         this.eventCoordinator
                     );
+
                     console.log('[脑图工作栏] ✅ UI管理器初始化完成');
                 }
-                
+                                
+                // 🆕 Phase 2.1: 初始化数据加载器
+                if (typeof window.MindmapDataLoader !== 'undefined') {
+                    this.dataLoader = new window.MindmapDataLoader(
+                        this.jm,
+                        this.storageCoordinator,
+                        this.uiManager,
+                        this.errorHandler
+                    );
+                    console.log('[脑图工作栏] ✅ 数据加载器初始化完成');
+                }
                 // 🆕 创建并初始化兼容层
                 this.compat = new MindmapCompatLayer({
                     useSourceArchitecture: true,  // 启用 src/ 架构
@@ -1577,6 +1590,7 @@
                     if (err.name === 'AbortError') {
                         console.log('[脑图工作栏] 用户取消保存');
                         return false;
+                        }
                     throw err;
                 }
             }
