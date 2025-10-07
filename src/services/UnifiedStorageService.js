@@ -7,7 +7,8 @@
 
 class UnifiedStorageService {
     constructor(dependencyContainer = null) {
-        this.container = dependencyContainer || window.GlobalDependencyContainer;
+        // 优先使用ModuleManager，回退到DependencyContainer
+        this.container = dependencyContainer || window.ModuleManager || window.GlobalDependencyContainer;
         this.primaryStorage = null;
         this.fallbackStorage = null;
         this.initialized = false;

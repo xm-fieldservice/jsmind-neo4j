@@ -8,13 +8,14 @@
 class MindmapBusinessLayerIntegrator {
     constructor(controller, dependencyContainer = null) {
         this.controller = controller;
-        this.container = dependencyContainer || window.GlobalDependencyContainer;
+        // 优先使用ModuleManager，回退到DependencyContainer
+        this.container = dependencyContainer || window.ModuleManager || window.GlobalDependencyContainer;
         this.nodeManager = null;
         this.stateManager = null;
         this.syncManager = null;
         this.initialized = false;
         
-        console.log('[BusinessIntegrator] 初始化业务层集成器 (P1.1 依赖注入版)');
+        console.log('[BusinessIntegrator] 初始化业务层集成器 (使用ModuleManager)');
     }
     
     /**

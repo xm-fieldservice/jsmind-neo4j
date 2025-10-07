@@ -184,13 +184,36 @@
               {
                 "id": "node_1759805714538_gexjvhx3d",
                 "topic": "脑图的样式和节点样式",
+                "meta": {
+                  "createdAt": 1759811334095,
+                  "updatedAt": 1759811334095
+                },
                 "children": [
                   {
                     "id": "node_1759805736251_jnysidawq",
                     "topic": "JSMIND 节点样式和色板",
-                    "direction": "right"
+                    "meta": {
+                      "createdAt": 1759811334095,
+                      "updatedAt": 1759811334095
+                    }
                   }
                 ]
+              },
+              {
+                "id": "node_1759810587504_vq5071we6",
+                "topic": "保存的文件（两次保存）都是JSON为什么大小不一样；是否压缩策略不一致吗",
+                "meta": {
+                  "createdAt": 1759811334095,
+                  "updatedAt": 1759811334095
+                }
+              },
+              {
+                "id": "node_1759810791948_9mrt9reck",
+                "topic": "虚拟节点的功能开发",
+                "meta": {
+                  "createdAt": 1759811334095,
+                  "updatedAt": 1759811334095
+                }
               }
             ]
           },
@@ -914,6 +937,10 @@
                   "createdAt": 1759804857107,
                   "updatedAt": 1759804857107
                 }
+              },
+              {
+                "id": "node_1759811348444_f06xs8ofn",
+                "topic": "复制节点后，颜色（复制节点定位浅色））刷新页面后，又失效了"
               }
             ]
           }
@@ -955,32 +982,42 @@
                       {
                         "id": "node_1759807334121_rq71kvkxh",
                         "topic": "三个AI打成一锅粥了。互相指责，完全忘了最初让他们干什么",
+                        "meta": {
+                          "createdAt": 1759811334095,
+                          "updatedAt": 1759811334095
+                        },
                         "children": [
                           {
                             "id": "node_1759807570316_ea7oithfp",
-                            "topic": "程序员意见",
-                            "direction": "right"
+                            "topic": "程序员整改方案",
+                            "meta": {
+                              "createdAt": 1759811334095,
+                              "updatedAt": 1759811334095
+                            },
+                            "children": [
+                              {
+                                "id": "node_1759809866284_2eryzj1xq",
+                                "topic": "实施第一阶段",
+                                "meta": {
+                                  "createdAt": 1759811334095,
+                                  "updatedAt": 1759811334095
+                                },
+                                "children": [
+                                  {
+                                    "id": "node_1759810854094_cavqnwd6i",
+                                    "topic": "今日 进度",
+                                    "meta": {
+                                      "createdAt": 1759811334095,
+                                      "updatedAt": 1759811334095
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
                           }
-                        ],
-                        "direction": "right"
+                        ]
                       }
                     ]
-                  },
-                  {
-                    "id": "node_1759801362508_frbyztnnn",
-                    "topic": "架构偏移度审计",
-                    "meta": {
-                      "createdAt": 1759801494288,
-                      "updatedAt": 1759801494288
-                    }
-                  },
-                  {
-                    "id": "node_1759801367609_6jd08r39b",
-                    "topic": "架构重构",
-                    "meta": {
-                      "createdAt": 1759801494288,
-                      "updatedAt": 1759801494288
-                    }
                   },
                   {
                     "id": "node_1759801386531_m0h6xgc5j",
@@ -1143,32 +1180,6 @@
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
                         }
-                      },
-                      {
-                        "id": "node_1759803236389_98r5ajwxh",
-                        "topic": "新节点",
-                        "meta": {
-                          "createdAt": 1759803510797,
-                          "updatedAt": 1759803510797
-                        },
-                        "children": [
-                          {
-                            "id": "node_1759805291214_o2jsjx38j",
-                            "topic": "新节点",
-                            "meta": {
-                              "createdAt": 1759805394027,
-                              "updatedAt": 1759805394027
-                            }
-                          },
-                          {
-                            "id": "node_1759805299391_yvksxfbo0",
-                            "topic": "新节点",
-                            "meta": {
-                              "createdAt": 1759805394027,
-                              "updatedAt": 1759805394027
-                            }
-                          }
-                        ]
                       }
                     ]
                   },
@@ -1273,6 +1284,14 @@
                     ]
                   },
                   {
+                    "id": "node_1759810556027_u2lztzpbu",
+                    "topic": "工作流",
+                    "meta": {
+                      "createdAt": 1759811334095,
+                      "updatedAt": 1759811334095
+                    }
+                  },
+                  {
                     "id": "node_1759803463619_fxy2dagz6",
                     "topic": "笔记",
                     "meta": {
@@ -1301,54 +1320,83 @@
                 ]
               }
             ]
+          },
+          {
+            "id": "node_1759810562887_6z9gwnjr1",
+            "topic": "通用货架",
+            "meta": {
+              "createdAt": 1759811334095,
+              "updatedAt": 1759811334095
+            }
+          },
+          {
+            "id": "node_1759811959160_ovrh5752s",
+            "topic": "日志",
+            "children": [
+              {
+                "id": "node_1759811963898_jfrmx33j6",
+                "topic": "日志系统是否可以记录所有的代码工作",
+                "direction": "right"
+              }
+            ],
+            "direction": "right"
           }
         ],
         "direction": "right"
       },
       {
-        "id": "node_1759800643622_ej8n29qgu",
-        "topic": "autogen",
-        "meta": {
-          "createdAt": 1759801196737,
-          "updatedAt": 1759801196737
-        },
-        "direction": "right"
-      },
-      {
-        "id": "node_1759800654461_jcx5wet0f",
-        "topic": "详情",
-        "meta": {
-          "createdAt": 1759801196737,
-          "updatedAt": 1759801196737
-        },
-        "direction": "right"
-      },
-      {
-        "id": "node_1759800660390_mpudvvmsp",
+        "id": "node_1759810687123_6lbvcgfy1",
         "topic": "泳道",
         "meta": {
-          "createdAt": 1759801196737,
-          "updatedAt": 1759801196737
+          "createdAt": 1759811334095,
+          "updatedAt": 1759811334095
         },
-        "direction": "right"
-      },
-      {
-        "id": "node_1759800684393_f0sbaovo9",
-        "topic": "定期审查",
-        "meta": {
-          "createdAt": 1759801196737,
-          "updatedAt": 1759801196737
-        },
+        "children": [
+          {
+            "id": "node_1759810716313_q7jehr2lo",
+            "topic": "想法",
+            "meta": {
+              "createdAt": 1759811334095,
+              "updatedAt": 1759811334095
+            }
+          }
+        ],
         "direction": "right"
       },
       {
         "id": "node_1759805797960_7cjs12qnc",
         "topic": "windsurf",
+        "meta": {
+          "createdAt": 1759811334095,
+          "updatedAt": 1759811334095
+        },
         "children": [
           {
             "id": "node_1759805802678_8u07gd1jm",
-            "topic": "禁止每次生成报告。都直接回答，除非我明确要求生成文档 。",
-            "direction": "right"
+            "topic": "禁止每次生成报告。都直接回答，除非我明确要求生成文档 。 [复制×1]",
+            "meta": {
+              "createdAt": 1759811334095,
+              "updatedAt": 1759811334095
+            }
+          }
+        ],
+        "direction": "right"
+      },
+      {
+        "id": "node_1759811300940_sv8x9h4if",
+        "topic": "新节点",
+        "meta": {
+          "createdAt": 1759811334095,
+          "updatedAt": 1759811334095
+        },
+        "children": [
+          {
+            "id": "9bced9153f91cf52",
+            "topic": "⬌ 禁止每次生成报告。都直接回答，除非我明确要求生成文档 。",
+            "meta": {
+              "createdAt": 1759811334095,
+              "updatedAt": 1759811334095
+            }
           }
         ],
         "direction": "right"
