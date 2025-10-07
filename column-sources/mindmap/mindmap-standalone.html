@@ -1577,48 +1577,40 @@
                     if (err.name === 'AbortError') {
                         console.log('[脑图工作栏] 用户取消保存');
                         return false;
-                    }
                     throw err;
                 }
             }
 
+            // 🗑️ Deprecated: 由 MindmapUIManager 接管
             updateNodeCount() {
-                const data = this.jm.get_data();
-                const count = this.countNodes(data.data);
-                document.getElementById('nodeCount').textContent = count;
+                if (this.uiManager) {
+                    return this.uiManager.updateNodeCount();
+                }
+                console.warn('[脑图工作栏] updateNodeCount 已废弃且未委托');
             }
 
+            // 🗑️ Deprecated: 由 MindmapUIManager 接管
             countNodes(node) {
-                let count = 1;
-                if (node.children) {
-                    node.children.forEach(child => {
-                        count += this.countNodes(child);
-                    });
+                if (this.uiManager) {
+                    return this.uiManager.countNodes(node);
                 }
-                return count;
+                return 0;
             }
 
+            // 🗑️ Deprecated: 由 MindmapUIManager 接管
             updateLastModified() {
-                const now = new Date();
-                const time = now.toLocaleTimeString('zh-CN');
-                document.getElementById('lastModified').textContent = time;
-            }
-
-            // === 工作栏接口 ===
-            loadData(data) {
-                if (data && data.data) {
-                    this.jm.show(data.data);
-                    this.updateNodeCount();
+                if (this.uiManager) {
+                    return this.uiManager.updateLastModified();
                 }
+                console.warn('[脑图工作栏] updateLastModified 已废弃且未委托');
             }
 
-            getData() {
-                return this.jm.get_data();
-            }
-
-            destroy() {
-                // 清理资源
-                this.jm = null;
+            // 🗑️ Deprecated: 由 MindmapUIManager 接管
+            showMessage(message, type = 'info') {
+                if (this.uiManager) {
+                    return this.uiManager.showMessage(message, type);
+                }
+                console.warn('[脑图工作栏] showMessage 已废弃且未委托');
             }
 
             // ========== 新增功能 ==========
