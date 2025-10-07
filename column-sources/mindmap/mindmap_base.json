@@ -180,9 +180,19 @@
                     ]
                   }
                 ]
+              },
+              {
+                "id": "node_1759805714538_gexjvhx3d",
+                "topic": "脑图的样式和节点样式",
+                "children": [
+                  {
+                    "id": "node_1759805736251_jnysidawq",
+                    "topic": "JSMIND 节点样式和色板",
+                    "direction": "right"
+                  }
+                ]
               }
-            ],
-            "expanded": false
+            ]
           },
           {
             "id": "9ae71b091e2c850b",
@@ -940,7 +950,21 @@
                     "meta": {
                       "createdAt": 1759801494288,
                       "updatedAt": 1759801494288
-                    }
+                    },
+                    "children": [
+                      {
+                        "id": "node_1759807334121_rq71kvkxh",
+                        "topic": "三个AI打成一锅粥了。互相指责，完全忘了最初让他们干什么",
+                        "children": [
+                          {
+                            "id": "node_1759807570316_ea7oithfp",
+                            "topic": "程序员意见",
+                            "direction": "right"
+                          }
+                        ],
+                        "direction": "right"
+                      }
+                    ]
                   },
                   {
                     "id": "node_1759801362508_frbyztnnn",
@@ -1126,7 +1150,25 @@
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
-                        }
+                        },
+                        "children": [
+                          {
+                            "id": "node_1759805291214_o2jsjx38j",
+                            "topic": "新节点",
+                            "meta": {
+                              "createdAt": 1759805394027,
+                              "updatedAt": 1759805394027
+                            }
+                          },
+                          {
+                            "id": "node_1759805299391_yvksxfbo0",
+                            "topic": "新节点",
+                            "meta": {
+                              "createdAt": 1759805394027,
+                              "updatedAt": 1759805394027
+                            }
+                          }
+                        ]
                       }
                     ]
                   },
@@ -1297,6 +1339,18 @@
           "createdAt": 1759801196737,
           "updatedAt": 1759801196737
         },
+        "direction": "right"
+      },
+      {
+        "id": "node_1759805797960_7cjs12qnc",
+        "topic": "windsurf",
+        "children": [
+          {
+            "id": "node_1759805802678_8u07gd1jm",
+            "topic": "禁止每次生成报告。都直接回答，除非我明确要求生成文档 。",
+            "direction": "right"
+          }
+        ],
         "direction": "right"
       }
     ]
