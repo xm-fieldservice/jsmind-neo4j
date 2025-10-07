@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>脑图数据诊断和修复工具</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #229954;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 脑图数据诊断和修复工具</h1>
+    
+    <div class="section">
+        <h2>📊 步骤1：诊断存储状态</h2>
+        <button class="btn-primary" onclick="diagnoseStorage()">运行完整诊断</button>
+        <button class="btn-primary" onclick="checkMemoryCache()">检查内存缓存</button>
+        <button class="btn-primary" onclick="checkLocalStorage()">检查LocalStorage</button>
+        <button class="btn-primary" onclick="checkIndexedDB()">检查IndexedDB</button>
+        <div id="diagnose-output"></div>
+    </div>
+
+    <div class="section">
+        <h2>🔍 步骤2：检查节点内容</h2>
+        <button class="btn-primary" onclick="checkNodeContent()">检查所有节点的content字段</button>
+        <div id="content-output"></div>
+    </div>
+
+    <div class="section">
+        <h2>💾 步骤3：强制持久化</h2>
+        <button class="btn-success" onclick="forcePersist()">强制保存到持久层</button>
+        <button class="btn-warning" onclick="testPersistence()">测试持久化机制</button>
+        <div id="persist-output"></div>
+    </div>
+
+    <div class="section">
+        <h2>🔄 步骤4：数据恢复</h2>
+        <button class="btn-success" onclick="exportAllData()">导出所有数据</button>
+        <button class="btn-danger" onclick="clearAllCache()">清除所有缓存（慎用）</button>
+        <div id="recovery-output"></div>
+    </div>
+
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="../../src/data/DataCompressor.js"></script>
+    <script>
+        // 等待AutogenUnifiedStorage初始化
+        setTimeout(() => {
+            console.log('[诊断工具] AutogenUnifiedStorage已加载');
+        }, 500);
+
+        async function diagnoseStorage() {
+            const output = document.getElementById('diagnose-output');
+            output.innerHTML = '<div class="status status-info">正在运行诊断...</div>';
+            
+            try {
+                let report = '<pre>';
+                report += '=== 存储系统诊断报告 ===\n\n';
+                
+                // 1. 检查AutogenUnifiedStorage状态
+                report += '1. AutogenUnifiedStorage状态:\n';
+                if (typeof AutogenUnifiedStorage !== 'undefined') {
+                    report += '   ✅ AutogenUnifiedStorage已加载\n';
+                    const stats = AutogenUnifiedStorage.getStats();
+                    report += `   - 读取次数: ${stats.reads}\n`;
+                    report += `   - 写入次数: ${stats.writes}\n`;
+                    report += `   - 内存缓存命中: ${stats.hits.memory}\n`;
+                    report += `   - LocalStorage命中: ${stats.hits.localStorage}\n`;
+                    report += `   - IndexedDB命中: ${stats.hits.indexedDB}\n`;
+                    report += `   - 内存缓存大小: ${stats.memoryCache.size}\n`;
+                } else {
+                    report += '   ❌ AutogenUnifiedStorage未加载\n';
+                }
+                
+                // 2. 检查mindmap数据
+                report += '\n2. 脑图数据检查:\n';
+                const data = await AutogenUnifiedStorage.retrieve('mindmap', 'current');
+                if (data) {
+                    report += '   ✅ 找到脑图数据\n';
+                    report += `   - 格式: ${data.format}\n`;
+                    report += `   - 名称: ${data.meta?.name || '未命名'}\n`;
+                    report += `   - 根节点: ${data.data?.topic || '无'}\n`;
+                    
+                    // 统计节点数量
+                    let nodeCount = 0;
+                    let nodesWithContent = 0;
+                    const countNodes = (node) => {
+                        if (!node) return;
+                        nodeCount++;
+                        if (node.data?.content || node.content) {
+                            nodesWithContent++;
+                        }
+                        if (node.children) {
+                            node.children.forEach(countNodes);
+                        }
+                    };
+                    countNodes(data.data);
+                    
+                    report += `   - 总节点数: ${nodeCount}\n`;
+                    report += `   - 有内容的节点: ${nodesWithContent}\n`;
+                    report += `   - 无内容的节点: ${nodeCount - nodesWithContent}\n`;
+                } else {
+                    report += '   ❌ 未找到脑图数据\n';
+                }
+                
+                // 3. 检查LocalStorage
+                report += '\n3. LocalStorage检查:\n';
+                const lsKey = 'autogen:mindmap:current';
+                const lsData = localStorage.getItem(lsKey);
+                if (lsData) {
+                    report += `   ✅ LocalStorage中有数据 (${lsData.length}字节)\n`;
+                } else {
+                    report += '   ❌ LocalStorage中无数据\n';
+                }
+                
+                // 4. 检查IndexedDB
+                report += '\n4. IndexedDB检查:\n';
+                if (AutogenUnifiedStorage.indexedDBAvailable) {
+                    report += '   ✅ IndexedDB可用\n';
+                    const idbData = await AutogenUnifiedStorage.getFromIndexedDB(lsKey);
+                    if (idbData) {
+                        report += '   ✅ IndexedDB中有数据\n';
+                    } else {
+                        report += '   ❌ IndexedDB中无数据\n';
+                    }
+                } else {
+                    report += '   ❌ IndexedDB不可用\n';
+                }
+                
+                report += '\n=== 诊断完成 ===</pre>';
+                output.innerHTML = report;
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">诊断失败: ${error.message}</div>`;
+                console.error('[诊断工具] 诊断失败:', error);
+            }
+        }
+
+        async function checkMemoryCache() {
+            const output = document.getElementById('diagnose-output');
+            output.innerHTML = '<div class="status status-info">检查内存缓存...</div>';
+            
+            try {
+                const stats = AutogenUnifiedStorage.getStats();
+                let report = '<pre>';
+                report += '=== 内存缓存状态 ===\n\n';
+                report += `缓存大小: ${stats.memoryCache.size}\n\n`;
+                report += '缓存键列表:\n';
+                stats.memoryCache.keys.forEach(key => {
+                    report += `  - ${key}\n`;
+                });
+                report += '</pre>';
+                output.innerHTML = report;
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">检查失败: ${error.message}</div>`;
+            }
+        }
+
+        async function checkLocalStorage() {
+            const output = document.getElementById('diagnose-output');
+            output.innerHTML = '<div class="status status-info">检查LocalStorage...</div>';
+            
+            try {
+                let report = '<pre>';
+                report += '=== LocalStorage状态 ===\n\n';
+                
+                const autogenKeys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('autogen:')) {
+                        autogenKeys.push(key);
+                    }
+                }
+                
+                report += `Autogen相关键数量: ${autogenKeys.length}\n\n`;
+                autogenKeys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    report += `${key}: ${value ? value.length + '字节' : '空'}\n`;
+                });
+                
+                report += '</pre>';
+                output.innerHTML = report;
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">检查失败: ${error.message}</div>`;
+            }
+        }
+
+        async function checkIndexedDB() {
+            const output = document.getElementById('diagnose-output');
+            output.innerHTML = '<div class="status status-info">检查IndexedDB...</div>';
+            
+            try {
+                let report = '<pre>';
+                report += '=== IndexedDB状态 ===\n\n';
+                
+                if (!AutogenUnifiedStorage.indexedDBAvailable) {
+                    report += '❌ IndexedDB不可用\n';
+                } else {
+                    report += '✅ IndexedDB可用\n\n';
+                    
+                    // 获取所有mindmap相关的键
+                    const keys = await AutogenUnifiedStorage.getIndexedDBKeys('autogen:mindmap:');
+                    report += `Mindmap相关键数量: ${keys.length}\n\n`;
+                    
+                    for (const key of keys) {
+                        const data = await AutogenUnifiedStorage.getFromIndexedDB(key);
+                        if (data) {
+                            report += `${key}:\n`;
+                            report += `  - 类型: ${data.type}\n`;
+                            report += `  - 创建时间: ${new Date(data.metadata?.createdAt).toLocaleString()}\n`;
+                            report += `  - 更新时间: ${new Date(data.metadata?.updatedAt).toLocaleString()}\n`;
+                        }
+                    }
+                }
+                
+                report += '</pre>';
+                output.innerHTML = report;
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">检查失败: ${error.message}</div>`;
+            }
+        }
+
+        async function checkNodeContent() {
+            const output = document.getElementById('content-output');
+            output.innerHTML = '<div class="status status-info">检查节点内容...</div>';
+            
+            try {
+                const data = await AutogenUnifiedStorage.retrieve('mindmap', 'current');
+                if (!data) {
+                    output.innerHTML = '<div class="status status-error">未找到脑图数据</div>';
+                    return;
+                }
+                
+                let report = '<pre>';
+                report += '=== 节点内容检查 ===\n\n';
+                
+                const checkNode = (node, level = 0) => {
+                    if (!node) return;
+                    const indent = '  '.repeat(level);
+                    const content = node.data?.content || node.content || '';
+                    const hasContent = content.trim().length > 0;
+                    const status = hasContent ? '✅' : '❌';
+                    
+                    report += `${indent}${status} [${node.id}] ${node.topic}\n`;
+                    if (hasContent) {
+                        report += `${indent}   内容: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}\n`;
+                    } else {
+                        report += `${indent}   ⚠️  无内容\n`;
+                    }
+                    
+                    if (node.children) {
+                        node.children.forEach(child => checkNode(child, level + 1));
+                    }
+                };
+                
+                checkNode(data.data);
+                report += '</pre>';
+                output.innerHTML = report;
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">检查失败: ${error.message}</div>`;
+            }
+        }
+
+        async function forcePersist() {
+            const output = document.getElementById('persist-output');
+            output.innerHTML = '<div class="status status-info">强制持久化中...</div>';
+            
+            try {
+                // 从内存缓存获取数据
+                const data = await AutogenUnifiedStorage.retrieve('mindmap', 'current');
+                if (!data) {
+                    output.innerHTML = '<div class="status status-error">未找到数据</div>';
+                    return;
+                }
+                
+                // 强制保存到持久层
+                const success = await AutogenUnifiedStorage.store('mindmap', 'current', data, {
+                    skipJsonBase: true
+                });
+                
+                if (success) {
+                    // 验证持久化
+                    const lsData = localStorage.getItem('autogen:mindmap:current');
+                    const idbData = await AutogenUnifiedStorage.getFromIndexedDB('autogen:mindmap:current');
+                    
+                    let report = '<div class="status status-success">✅ 强制持久化成功</div>';
+                    report += '<pre>';
+                    report += `LocalStorage: ${lsData ? '✅ 已保存' : '❌ 未保存'}\n`;
+                    report += `IndexedDB: ${idbData ? '✅ 已保存' : '❌ 未保存'}\n`;
+                    report += '</pre>';
+                    output.innerHTML = report;
+                } else {
+                    output.innerHTML = '<div class="status status-error">❌ 持久化失败</div>';
+                }
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">持久化失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testPersistence() {
+            const output = document.getElementById('persist-output');
+            output.innerHTML = '<div class="status status-info">测试持久化机制...</div>';
+            
+            try {
+                let report = '<pre>';
+                report += '=== 持久化机制测试 ===\n\n';
+                
+                // 创建测试数据
+                const testData = {
+                    meta: { name: '测试数据', version: '1.0' },
+                    format: 'node_tree',
+                    data: {
+                        id: 'test_root',
+                        topic: '测试根节点',
+                        data: { content: '这是测试内容 ' + Date.now() }
+                    }
+                };
+                
+                report += '1. 保存测试数据...\n';
+                const saveResult = await AutogenUnifiedStorage.store('mindmap', 'test', testData);
+                report += `   结果: ${saveResult ? '✅ 成功' : '❌ 失败'}\n\n`;
+                
+                if (saveResult) {
+                    // 清除内存缓存
+                    report += '2. 清除内存缓存...\n';
+                    AutogenUnifiedStorage.memoryCache.delete('autogen:mindmap:test');
+                    report += '   ✅ 已清除\n\n';
+                    
+                    // 从持久层读取
+                    report += '3. 从持久层读取...\n';
+                    const retrieved = await AutogenUnifiedStorage.retrieve('mindmap', 'test');
+                    if (retrieved) {
+                        report += '   ✅ 成功读取\n';
+                        report += `   内容: ${retrieved.data?.data?.content}\n`;
+                    } else {
+                        report += '   ❌ 读取失败\n';
+                    }
+                    
+                    // 清理测试数据
+                    await AutogenUnifiedStorage.remove('mindmap', 'test');
+                    report += '\n4. ✅ 测试数据已清理\n';
+                }
+                
+                report += '\n=== 测试完成 ===</pre>';
+                output.innerHTML = report;
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">测试失败: ${error.message}</div>`;
+            }
+        }
+
+        async function exportAllData() {
+            const output = document.getElementById('recovery-output');
+            output.innerHTML = '<div class="status status-info">导出数据中...</div>';
+            
+            try {
+                const data = await AutogenUnifiedStorage.retrieve('mindmap', 'current');
+                if (!data) {
+                    output.innerHTML = '<div class="status status-error">未找到数据</div>';
+                    return;
+                }
+                
+                // 创建下载
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `mindmap_backup_${Date.now()}.json`;
+                a.click();
+                
+                output.innerHTML = '<div class="status status-success">✅ 数据已导出</div>';
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">导出失败: ${error.message}</div>`;
+            }
+        }
+
+        async function clearAllCache() {
+            if (!confirm('⚠️  警告：这将清除所有缓存数据！\n\n请确保已经导出备份。\n\n是否继续？')) {
+                return;
+            }
+            
+            const output = document.getElementById('recovery-output');
+            output.innerHTML = '<div class="status status-warning">清除缓存中...</div>';
+            
+            try {
+                // 清除内存缓存
+                AutogenUnifiedStorage.memoryCache.clear();
+                
+                // 清除LocalStorage中的autogen数据
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('autogen:')) {
+                        keysToRemove.push(key);
+                    }
+                }
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                output.innerHTML = `<div class="status status-success">✅ 已清除 ${keysToRemove.length} 个缓存项</div>`;
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">清除失败: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

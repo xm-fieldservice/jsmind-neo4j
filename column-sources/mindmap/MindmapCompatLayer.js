@@ -27,6 +27,9 @@ class MindmapCompatLayer {
         this.srcRenderer = null;
         this.srcEventManager = null;
         
+        // 🔧 架构整改：添加StorageAdapter引用
+        this.storageAdapter = null;
+        
         // standalone 组件引用
         this.standaloneOps = null;
         this.jm = null;
@@ -41,10 +44,19 @@ class MindmapCompatLayer {
     /**
      * 初始化适配层
      */
-    async initialize(jmInstance, standaloneOps) {
+    async initialize(jmInstance, standaloneOps, dependencies = {}) {
         try {
             this.jm = jmInstance;
             this.standaloneOps = standaloneOps;
+            
+            // 🔧 架构整改：注入StorageAdapter
+            this.storageAdapter = dependencies.storageAdapter;
+            if (!this.storageAdapter && typeof window.StorageAdapter !== 'undefined') {
+                // 如果未注入，尝试创建实例
+                this.storageAdapter = new window.StorageAdapter();
+                await this.storageAdapter.initialize();
+                this._log('StorageAdapter自动创建并初始化');
+            }
             
             // 尝试加载 src/ 架构
             if (this.config.useSourceArchitecture) {
@@ -52,7 +64,10 @@ class MindmapCompatLayer {
             }
             
             this.initialized = true;
-            this._log('兼容层初始化完成', { usingSrcArchitecture: this.usingSrcArchitecture });
+            this._log('兼容层初始化完成', { 
+                usingSrcArchitecture: this.usingSrcArchitecture,
+                hasStorageAdapter: !!this.storageAdapter
+            });
             
         } catch (error) {
             this._error('兼容层初始化失败', error);
@@ -73,8 +88,19 @@ class MindmapCompatLayer {
             
             // ✅ Phase 2策略：仅使用独立的src/组件
             if (typeof window.MindmapStorage !== 'undefined') {
-                this.srcDataManager = new window.MindmapStorage();
-                this._log('src/数据管理器已加载');
+                // 🔧 修复：StorageAdapter可选，降级使用AutogenUnifiedStorage
+                if (this.storageAdapter) {
+                    this.srcDataManager = new window.MindmapStorage({
+                        storageAdapter: this.storageAdapter,
+                        eventBus: window.AutogenEventBus,
+                        logger: console
+                    });
+                    this._log('src/数据管理器已加载（使用StorageAdapter）');
+                } else {
+                    this._log('⚠️  StorageAdapter不可用，跳过MindmapStorage初始化');
+                    // 降级：不使用MindmapStorage
+                    this.srcDataManager = null;
+                }
             }
             
             // 创建渲染器
@@ -179,20 +205,22 @@ class MindmapCompatLayer {
      */
     async saveData(mindmapId, data, immediate = false) {
         if (this.usingSrcArchitecture && this.srcDataManager) {
-            // ✅ 修复4: 使用 MindmapStorage 的正确方法
+            // ✅ 使用 MindmapStorage 的正确方法
             return await this.srcDataManager.saveMindmapData(data, immediate);
         }
         
-        // 回退到 standalone 的 AutogenUnifiedStorage
-        if (typeof AutogenUnifiedStorage !== 'undefined') {
+        // 🔧 架构整改：使用StorageAdapter替代直接访问AutogenUnifiedStorage
+        if (this.storageAdapter) {
             const jmData = {
                 meta: { name: 'Mindmap', author: 'local', version: '1.0' },
                 format: 'node_tree',
-                data: this._convertToJsMindFormat(data)
+                data: this._convertToJsMindFormat(data),
+                id: mindmapId || 'current'
             };
-            return await AutogenUnifiedStorage.store('mindmap', mindmapId, jmData);
+            return await this.storageAdapter.saveMindmap(jmData);
         }
         
+        this._warn('StorageAdapter不可用，无法保存数据');
         return false;
     }
     
@@ -201,18 +229,19 @@ class MindmapCompatLayer {
      */
     async loadData(mindmapId) {
         if (this.usingSrcArchitecture && this.srcDataManager) {
-            // ✅ 修复5: 使用 MindmapStorage 的正确方法
+            // ✅ 使用 MindmapStorage 的正确方法
             return await this.srcDataManager.loadMindmapData();
         }
         
-        // 回退到 standalone 的 AutogenUnifiedStorage
-        if (typeof AutogenUnifiedStorage !== 'undefined') {
-            const stored = await AutogenUnifiedStorage.retrieve('mindmap', mindmapId);
+        // 🔧 架构整改：使用StorageAdapter替代直接访问AutogenUnifiedStorage
+        if (this.storageAdapter) {
+            const stored = await this.storageAdapter.loadMindmap(mindmapId || 'current');
             if (stored && stored.data) {
                 return this._convertFromJsMindFormat(stored.data);
             }
         }
         
+        this._warn('StorageAdapter不可用或数据不存在');
         return null;
     }
     

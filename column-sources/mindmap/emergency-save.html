@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>紧急保存工具</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        h1 {
+            color: #e74c3c;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 12px 24px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .instructions {
+            background: #e8f4f8;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚨 紧急保存工具</h1>
+    
+    <div class="warning">
+        <strong>⚠️ 使用说明：</strong><br>
+        此工具用于在脑图页面打开的情况下，强制保存当前数据到持久层。
+    </div>
+
+    <div class="instructions">
+        <strong>📋 操作步骤：</strong>
+        <ol>
+            <li>保持脑图页面（mindmap-standalone.html）在另一个标签页打开</li>
+            <li>点击下方"步骤1"按钮，从脑图页面获取数据</li>
+            <li>检查获取的数据是否正确</li>
+            <li>点击"步骤2"按钮，强制保存到持久层</li>
+            <li>验证保存结果</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>步骤1：从脑图页面获取数据</h2>
+        <button class="btn-primary" onclick="fetchFromMindmap()">从脑图页面获取数据</button>
+        <button class="btn-primary" onclick="checkLocalStorage()">检查LocalStorage</button>
+        <button class="btn-primary" onclick="checkIndexedDB()">检查IndexedDB</button>
+        <div id="fetch-output"></div>
+    </div>
+
+    <div class="section">
+        <h2>步骤2：强制保存到持久层</h2>
+        <button class="btn-danger" onclick="forceSave()" disabled id="saveBtn">强制保存（先获取数据）</button>
+        <button class="btn-success" onclick="verifySave()" disabled id="verifyBtn">验证保存结果</button>
+        <div id="save-output"></div>
+    </div>
+
+    <div class="section">
+        <h2>步骤3：数据备份</h2>
+        <button class="btn-success" onclick="exportBackup()" disabled id="exportBtn">导出JSON备份</button>
+        <div id="backup-output"></div>
+    </div>
+
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script>
+        let currentData = null;
+
+        async function fetchFromMindmap() {
+            const output = document.getElementById('fetch-output');
+            output.innerHTML = '<div class="status status-info">正在获取数据...</div>';
+            
+            try {
+                // 方法1：从LocalStorage直接读取
+                let data = null;
+                const possibleKeys = [
+                    'autogen:mindmap:current',
+                    'mindmap:current',
+                    'mindmap_data_v1',
+                    '__mind_full_cache_v1'
+                ];
+                
+                let report = '<pre>检查LocalStorage中的可能键:\n\n';
+                
+                for (const key of possibleKeys) {
+                    const raw = localStorage.getItem(key);
+                    if (raw) {
+                        report += `✅ 找到: ${key} (${raw.length}字节)\n`;
+                        try {
+                            const parsed = JSON.parse(raw);
+                            if (!data && parsed) {
+                                data = parsed.data || parsed;
+                                report += `   → 使用此数据\n`;
+                            }
+                        } catch (e) {
+                            report += `   ⚠️  解析失败: ${e.message}\n`;
+                        }
+                    } else {
+                        report += `❌ 未找到: ${key}\n`;
+                    }
+                }
+                
+                // 方法2：通过AutogenUnifiedStorage读取
+                if (!data) {
+                    report += '\n尝试通过AutogenUnifiedStorage读取...\n';
+                    data = await AutogenUnifiedStorage.retrieve('mindmap', 'current');
+                    if (data) {
+                        report += '✅ 通过AutogenUnifiedStorage找到数据\n';
+                    }
+                }
+                
+                if (data) {
+                    currentData = data;
+                    
+                    // 统计节点
+                    let nodeCount = 0;
+                    let nodesWithContent = 0;
+                    const countNodes = (node) => {
+                        if (!node) return;
+                        nodeCount++;
+                        if (node.data?.content || node.content) {
+                            nodesWithContent++;
+                        }
+                        if (node.children) {
+                            node.children.forEach(countNodes);
+                        }
+                    };
+                    countNodes(data.data || data);
+                    
+                    report += `\n数据统计:\n`;
+                    report += `- 格式: ${data.format || '未知'}\n`;
+                    report += `- 名称: ${data.meta?.name || '未命名'}\n`;
+                    report += `- 根节点: ${(data.data || data).topic || '无'}\n`;
+                    report += `- 总节点数: ${nodeCount}\n`;
+                    report += `- 有内容的节点: ${nodesWithContent}\n`;
+                    report += `- 无内容的节点: ${nodeCount - nodesWithContent}\n`;
+                    
+                    report += '\n✅ 数据获取成功！可以进行保存操作。</pre>';
+                    
+                    // 启用保存按钮
+                    document.getElementById('saveBtn').disabled = false;
+                    document.getElementById('exportBtn').disabled = false;
+                    
+                    output.innerHTML = '<div class="status status-success">✅ 数据获取成功</div>' + report;
+                } else {
+                    report += '\n❌ 未找到任何数据\n';
+                    report += '\n建议：\n';
+                    report += '1. 确保脑图页面已打开\n';
+                    report += '2. 在脑图页面进行一次编辑操作\n';
+                    report += '3. 等待自动保存完成\n';
+                    report += '4. 再次点击"获取数据"按钮</pre>';
+                    
+                    output.innerHTML = '<div class="status status-error">❌ 未找到数据</div>' + report;
+                }
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">获取失败: ${error.message}</div>`;
+                console.error('[紧急保存] 获取数据失败:', error);
+            }
+        }
+
+        async function checkLocalStorage() {
+            const output = document.getElementById('fetch-output');
+            output.innerHTML = '<div class="status status-info">检查LocalStorage...</div>';
+            
+            try {
+                let report = '<pre>LocalStorage内容:\n\n';
+                
+                // 列出所有键
+                const allKeys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    allKeys.push(localStorage.key(i));
+                }
+                
+                report += `总键数: ${allKeys.length}\n\n`;
+                
+                // 按前缀分组
+                const groups = {};
+                allKeys.forEach(key => {
+                    const prefix = key.split(':')[0];
+                    if (!groups[prefix]) groups[prefix] = [];
+                    groups[prefix].push(key);
+                });
+                
+                Object.keys(groups).sort().forEach(prefix => {
+                    report += `[${prefix}] (${groups[prefix].length}个):\n`;
+                    groups[prefix].forEach(key => {
+                        const value = localStorage.getItem(key);
+                        report += `  - ${key}: ${value ? value.length + '字节' : '空'}\n`;
+                    });
+                    report += '\n';
+                });
+                
+                report += '</pre>';
+                output.innerHTML = report;
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">检查失败: ${error.message}</div>`;
+            }
+        }
+
+        async function checkIndexedDB() {
+            const output = document.getElementById('fetch-output');
+            output.innerHTML = '<div class="status status-info">检查IndexedDB...</div>';
+            
+            try {
+                let report = '<pre>IndexedDB状态:\n\n';
+                
+                if (!AutogenUnifiedStorage.indexedDBAvailable) {
+                    report += '❌ IndexedDB不可用\n';
+                } else {
+                    report += '✅ IndexedDB可用\n\n';
+                    
+                    // 获取所有键
+                    const keys = await AutogenUnifiedStorage.getIndexedDBKeys('autogen:');
+                    report += `总键数: ${keys.length}\n\n`;
+                    
+                    for (const key of keys) {
+                        const data = await AutogenUnifiedStorage.getFromIndexedDB(key);
+                        if (data) {
+                            report += `${key}:\n`;
+                            report += `  - 类型: ${data.type}\n`;
+                            const size = JSON.stringify(data).length;
+                            report += `  - 大小: ${size}字节\n`;
+                            if (data.metadata) {
+                                report += `  - 创建: ${new Date(data.metadata.createdAt).toLocaleString()}\n`;
+                                report += `  - 更新: ${new Date(data.metadata.updatedAt).toLocaleString()}\n`;
+                            }
+                            report += '\n';
+                        }
+                    }
+                }
+                
+                report += '</pre>';
+                output.innerHTML = report;
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">检查失败: ${error.message}</div>`;
+            }
+        }
+
+        async function forceSave() {
+            const output = document.getElementById('save-output');
+            output.innerHTML = '<div class="status status-info">正在强制保存...</div>';
+            
+            if (!currentData) {
+                output.innerHTML = '<div class="status status-error">❌ 没有数据可保存，请先获取数据</div>';
+                return;
+            }
+            
+            try {
+                let report = '<pre>保存过程:\n\n';
+                
+                // 创建存储项（在外层定义，供后续使用）
+                const storageItem = {
+                    type: 'mindmap',
+                    data: currentData,
+                    metadata: {
+                        version: '2.0.0',
+                        createdAt: Date.now(),
+                        updatedAt: Date.now(),
+                        ttl: 1800000
+                    }
+                };
+                
+                // 1. 保存到AutogenUnifiedStorage
+                report += '1. 保存到AutogenUnifiedStorage...\n';
+                const success = await AutogenUnifiedStorage.store('mindmap', 'current', currentData, {
+                    skipJsonBase: true
+                });
+                report += `   结果: ${success ? '✅ 成功' : '❌ 失败'}\n\n`;
+                
+                // 2. 直接保存到LocalStorage（备用）
+                report += '2. 直接保存到LocalStorage...\n';
+                try {
+                    localStorage.setItem('autogen:mindmap:current', JSON.stringify(storageItem));
+                    report += '   ✅ LocalStorage保存成功\n\n';
+                } catch (e) {
+                    report += `   ❌ LocalStorage保存失败: ${e.message}\n\n`;
+                }
+                
+                // 3. 直接保存到IndexedDB（备用）
+                report += '3. 直接保存到IndexedDB...\n';
+                if (AutogenUnifiedStorage.indexedDBAvailable) {
+                    const idbSuccess = await AutogenUnifiedStorage.setToIndexedDB(
+                        'autogen:mindmap:current',
+                        storageItem
+                    );
+                    report += `   ${idbSuccess ? '✅' : '❌'} IndexedDB保存${idbSuccess ? '成功' : '失败'}\n\n`;
+                } else {
+                    report += '   ⚠️  IndexedDB不可用\n\n';
+                }
+                
+                report += '=== 保存完成 ===</pre>';
+                output.innerHTML = '<div class="status status-success">✅ 强制保存完成</div>' + report;
+                
+                // 启用验证按钮
+                document.getElementById('verifyBtn').disabled = false;
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">保存失败: ${error.message}</div><pre>${error.stack}</pre>`;
+                console.error('[紧急保存] 保存失败:', error);
+            }
+        }
+
+        async function verifySave() {
+            const output = document.getElementById('save-output');
+            output.innerHTML = '<div class="status status-info">正在验证...</div>';
+            
+            try {
+                let report = '<pre>验证结果:\n\n';
+                
+                // 清除内存缓存
+                report += '1. 清除内存缓存...\n';
+                AutogenUnifiedStorage.memoryCache.clear();
+                report += '   ✅ 已清除\n\n';
+                
+                // 从持久层读取
+                report += '2. 从持久层读取...\n';
+                const retrieved = await AutogenUnifiedStorage.retrieve('mindmap', 'current');
+                
+                if (retrieved) {
+                    report += '   ✅ 成功读取\n';
+                    
+                    // 统计节点
+                    let nodeCount = 0;
+                    const countNodes = (node) => {
+                        if (!node) return;
+                        nodeCount++;
+                        if (node.children) {
+                            node.children.forEach(countNodes);
+                        }
+                    };
+                    countNodes(retrieved.data || retrieved);
+                    
+                    report += `   - 节点数: ${nodeCount}\n`;
+                    report += `   - 根节点: ${(retrieved.data || retrieved).topic}\n`;
+                    report += '\n✅ 持久化验证成功！\n';
+                    report += '\n建议：关闭浏览器后重新打开，验证数据是否保留。';
+                } else {
+                    report += '   ❌ 读取失败\n';
+                    report += '\n持久化可能失败，请检查浏览器存储权限。';
+                }
+                
+                report += '</pre>';
+                output.innerHTML = report;
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">验证失败: ${error.message}</div>`;
+            }
+        }
+
+        async function exportBackup() {
+            const output = document.getElementById('backup-output');
+            
+            if (!currentData) {
+                output.innerHTML = '<div class="status status-error">❌ 没有数据可导出</div>';
+                return;
+            }
+            
+            try {
+                const json = JSON.stringify(currentData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `mindmap_emergency_backup_${Date.now()}.json`;
+                a.click();
+                
+                output.innerHTML = '<div class="status status-success">✅ 备份已导出</div>';
+                
+            } catch (error) {
+                output.innerHTML = `<div class="status status-error">导出失败: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

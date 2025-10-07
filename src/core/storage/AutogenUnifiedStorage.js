@@ -84,6 +84,18 @@ class AutogenUnifiedStorage {
         // 记录初始化时间
         this.initTime = Date.now();
         
+        // 🆕 P1.2: 冷热数据管理器
+        this.hotColdManager = null;
+        
+        // 🆕 本地文件备份配置
+        this.backupConfig = {
+            enabled: false,
+            directoryHandle: null,  // 目录句柄（用户授权一次）
+            interval: 5 * 60 * 1000,  // 5分钟自动备份
+            lastBackupTime: 0,
+            backupTimer: null
+        };
+        
         // 初始化
         this.initialize();
         
@@ -97,6 +109,17 @@ class AutogenUnifiedStorage {
         try {
             // 检查IndexedDB支持
             await this.initializeIndexedDB();
+            
+            // 🆕 P1.2: 初始化冷热数据管理器
+            if (typeof window.HotColdDataManager !== 'undefined') {
+                this.hotColdManager = new window.HotColdDataManager(this, {
+                    hotThreshold: 10,
+                    warmThreshold: 3,
+                    coldThreshold: 3,
+                    archiveToJsonBase: true
+                });
+                console.log('[AutogenUnifiedStorage] ✅ 冷热数据管理器已启用');
+            }
             
             // 设置清理任务
             this.setupCleanupTasks();
@@ -164,6 +187,11 @@ class AutogenUnifiedStorage {
             const storageKey = this.createStorageKey(type, key);
             this.stats.reads++;
             
+            // 🆕 P1.2: 记录访问（用于冷热数据分层）
+            if (this.hotColdManager) {
+                this.hotColdManager.recordAccess(type, key);
+            }
+            
             // 第一层：内存缓存
             if (this.memoryCache.has(storageKey)) {
                 const item = this.memoryCache.get(storageKey);
@@ -195,6 +223,15 @@ class AutogenUnifiedStorage {
                 this.stats.hits.indexedDB++;
                 console.log(`[AutogenUnifiedStorage] IndexedDB命中: ${storageKey}`);
                 return indexedItem.data;
+            }
+            
+            // 🆕 P1.2: 第四层：尝试从JSON底座恢复
+            if (this.hotColdManager) {
+                const restored = await this.hotColdManager.restoreFromJsonBase(type, key);
+                if (restored) {
+                    console.log(`[AutogenUnifiedStorage] JSON底座命中: ${storageKey}`);
+                    return restored;
+                }
             }
             
             // 所有层级都未找到
@@ -353,16 +390,46 @@ class AutogenUnifiedStorage {
     }
     
     /**
-     * 持久化到存储层
+     * 持久化到存储层（事务性保存）
      * @param {string} key - 存储键
      * @param {Object} item - 存储项
+     * @returns {Promise<Object>} 保存结果 {lsSuccess, idbSuccess, verified}
      */
     async persistToStorage(key, item) {
-        // 存储到LocalStorage
-        this.setToLocalStorage(key, item);
+        const result = {
+            lsSuccess: false,
+            idbSuccess: false,
+            verified: false
+        };
         
-        // 存储到IndexedDB
-        await this.setToIndexedDB(key, item);
+        try {
+            // 1. 同步保存到LocalStorage
+            result.lsSuccess = this.setToLocalStorage(key, item);
+            
+            // 2. 异步保存到IndexedDB - 必须等待完成
+            result.idbSuccess = await this.setToIndexedDB(key, item);
+            
+            // 3. 验证持久化（至少一个成功）
+            if (!result.lsSuccess && !result.idbSuccess) {
+                throw new Error(`持久化完全失败: ${key}`);
+            }
+            
+            // 4. 验证数据可读性
+            if (result.idbSuccess) {
+                const verified = await this.getFromIndexedDB(key);
+                result.verified = !!verified;
+            } else if (result.lsSuccess) {
+                const verified = this.getFromLocalStorage(key);
+                result.verified = !!verified;
+            }
+            
+            console.log(`[AutogenUnifiedStorage] 持久化完成: ${key}`, result);
+            return result;
+            
+        } catch (error) {
+            console.error(`[AutogenUnifiedStorage] 持久化失败: ${key}`, error);
+            throw error;
+        }
     }
     
     /**
@@ -877,6 +944,61 @@ class AutogenUnifiedStorage {
         const totalHits = this.stats.hits.memory + this.stats.hits.localStorage + this.stats.hits.indexedDB;
         const totalRequests = totalHits + this.stats.misses;
         return totalRequests > 0 ? (totalHits / totalRequests) * 100 : 0;
+    }
+    
+    /**
+     * 🆕 查询存储配额
+     */
+    async getStorageQuota() {
+        if (navigator.storage && navigator.storage.estimate) {
+            try {
+                const estimate = await navigator.storage.estimate();
+                
+                const usage = estimate.usage || 0;
+                const quota = estimate.quota || 0;
+                
+                return {
+                    usage: usage,
+                    quota: quota,
+                    usageInMB: (usage / 1024 / 1024).toFixed(2),
+                    usageInGB: (usage / 1024 / 1024 / 1024).toFixed(2),
+                    quotaInMB: (quota / 1024 / 1024).toFixed(2),
+                    quotaInGB: (quota / 1024 / 1024 / 1024).toFixed(2),
+                    percentUsed: quota > 0 ? ((usage / quota) * 100).toFixed(2) : 0,
+                    availableInGB: ((quota - usage) / 1024 / 1024 / 1024).toFixed(2),
+                    supported: true
+                };
+            } catch (error) {
+                console.error('[AutogenUnifiedStorage] 查询配额失败:', error);
+                return { supported: false, error: error.message };
+            }
+        } else {
+            console.warn('[AutogenUnifiedStorage] 浏览器不支持Storage API');
+            return { supported: false, error: '浏览器不支持Storage API' };
+        }
+    }
+    
+    /**
+     * 🆕 显示存储配额信息
+     */
+    async showStorageQuota() {
+        const quota = await this.getStorageQuota();
+        
+        if (!quota.supported) {
+            console.warn('[存储配额] 浏览器不支持查询配额');
+            return;
+        }
+        
+        console.log('╔════════════════════════════════════════╗');
+        console.log('║       IndexedDB 存储配额信息           ║');
+        console.log('╠════════════════════════════════════════╣');
+        console.log(`║ 已使用: ${quota.usageInMB} MB (${quota.usageInGB} GB)`.padEnd(41) + '║');
+        console.log(`║ 总配额: ${quota.quotaInGB} GB`.padEnd(41) + '║');
+        console.log(`║ 使用率: ${quota.percentUsed}%`.padEnd(41) + '║');
+        console.log(`║ 剩余: ${quota.availableInGB} GB`.padEnd(41) + '║');
+        console.log('╚════════════════════════════════════════╝');
+        
+        return quota;
     }
     
     /**
@@ -1414,6 +1536,207 @@ class AutogenUnifiedStorage {
         } catch (error) {
             console.error(`[JSON数据底座] 读取失败:`, error);
             return null;
+        }
+    }
+    
+    /**
+     * 🆕 启用自动备份到本地文件
+     * @param {number} interval - 备份间隔（毫秒）
+     */
+    async enableAutoBackup(interval = 5 * 60 * 1000) {
+        // 请求目录访问权限
+        try {
+            if (!('showDirectoryPicker' in window)) {
+                console.warn('[AutogenUnifiedStorage] 浏览器不支持目录选择API');
+                alert('⚠️ 当前浏览器不支持自动备份功能\n\n建议使用：\n• Chrome 86+\n• Edge 86+');
+                return false;
+            }
+            
+            // 请求用户选择备份目录
+            const dirHandle = await window.showDirectoryPicker({
+                mode: 'readwrite',
+                startIn: 'documents'
+            });
+            
+            // 验证写入权限
+            const permission = await dirHandle.requestPermission({ mode: 'readwrite' });
+            if (permission !== 'granted') {
+                console.warn('[AutogenUnifiedStorage] 用户拒绝目录写入权限');
+                return false;
+            }
+            
+            // 保存目录句柄
+            this.backupConfig.directoryHandle = dirHandle;
+            this.backupConfig.interval = interval;
+            this.backupConfig.enabled = true;
+            
+            // 立即执行一次备份
+            await this.backupToLocalFile();
+            
+            // 启动定时备份
+            this.backupConfig.backupTimer = setInterval(() => {
+                this.backupToLocalFile();
+            }, interval);
+            
+            console.log(`[AutogenUnifiedStorage] ✅ 自动备份已启用，间隔: ${interval/1000}秒`);
+            console.log(`[AutogenUnifiedStorage] 备份目录: ${dirHandle.name}`);
+            
+            return true;
+            
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('[AutogenUnifiedStorage] 启用自动备份失败:', error);
+            }
+            return false;
+        }
+    }
+    
+    /**
+     * 🆕 禁用自动备份
+     */
+    disableAutoBackup() {
+        if (this.backupConfig.backupTimer) {
+            clearInterval(this.backupConfig.backupTimer);
+            this.backupConfig.backupTimer = null;
+        }
+        this.backupConfig.enabled = false;
+        console.log('[AutogenUnifiedStorage] 自动备份已禁用');
+    }
+    
+    /**
+     * 🆕 备份IndexedDB到本地文件
+     */
+    async backupToLocalFile() {
+        if (!this.backupConfig.directoryHandle) {
+            console.warn('[AutogenUnifiedStorage] 未配置备份目录');
+            return false;
+        }
+        
+        try {
+            // 1. 导出所有IndexedDB数据
+            const allData = await this.exportAllData();
+            
+            // 2. 生成文件名
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const filename = `indexeddb_backup_${timestamp}.json`;
+            
+            // 3. 创建文件
+            const fileHandle = await this.backupConfig.directoryHandle.getFileHandle(filename, { create: true });
+            const writable = await fileHandle.createWritable();
+            
+            // 4. 写入数据
+            const content = JSON.stringify(allData, null, 2);
+            await writable.write(content);
+            await writable.close();
+            
+            // 5. 更新备份时间
+            this.backupConfig.lastBackupTime = Date.now();
+            
+            console.log(`[AutogenUnifiedStorage] ✅ 备份完成: ${filename}`);
+            console.log(`[AutogenUnifiedStorage] 数据大小: ${(content.length / 1024).toFixed(2)} KB`);
+            
+            return true;
+            
+        } catch (error) {
+            console.error('[AutogenUnifiedStorage] 备份失败:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * 🆕 导出所有IndexedDB数据
+     */
+    async exportAllData() {
+        if (!this.indexedDBAvailable) {
+            return { error: 'IndexedDB不可用' };
+        }
+        
+        return new Promise((resolve) => {
+            try {
+                const transaction = this.indexedDB.transaction(['storage'], 'readonly');
+                const store = transaction.objectStore('storage');
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    const allItems = request.result || [];
+                    
+                    // 组织数据结构
+                    const exportData = {
+                        exportTime: new Date().toISOString(),
+                        version: this.currentVersion,
+                        totalItems: allItems.length,
+                        stats: this.getStats(),
+                        data: {}
+                    };
+                    
+                    // 按类型分组
+                    allItems.forEach(record => {
+                        const key = record.key;
+                        const item = record.item;
+                        
+                        // 提取类型（从key中）
+                        const typeMatch = key.match(/^([^:]+):/);
+                        const type = typeMatch ? typeMatch[1] : 'unknown';
+                        
+                        if (!exportData.data[type]) {
+                            exportData.data[type] = [];
+                        }
+                        
+                        exportData.data[type].push({
+                            key: key,
+                            data: item.data,
+                            timestamp: item.timestamp,
+                            ttl: item.ttl,
+                            version: item.version
+                        });
+                    });
+                    
+                    resolve(exportData);
+                };
+                
+                request.onerror = () => {
+                    console.error('[AutogenUnifiedStorage] 导出数据失败');
+                    resolve({ error: '导出失败' });
+                };
+                
+            } catch (error) {
+                console.error('[AutogenUnifiedStorage] 导出数据异常:', error);
+                resolve({ error: error.message });
+            }
+        });
+    }
+    
+    /**
+     * 🆕 从备份文件恢复数据
+     */
+    async restoreFromBackup(fileHandle) {
+        try {
+            const file = await fileHandle.getFile();
+            const content = await file.text();
+            const backupData = JSON.parse(content);
+            
+            if (!backupData.data) {
+                throw new Error('备份文件格式错误');
+            }
+            
+            let restoredCount = 0;
+            
+            // 恢复所有数据
+            for (const [type, items] of Object.entries(backupData.data)) {
+                for (const item of items) {
+                    await this.store(type, item.key.replace(`${type}:`, ''), item.data, {
+                        ttl: item.ttl
+                    });
+                    restoredCount++;
+                }
+            }
+            
+            console.log(`[AutogenUnifiedStorage] ✅ 恢复完成: ${restoredCount}条数据`);
+            return { success: true, count: restoredCount };
+            
+        } catch (error) {
+            console.error('[AutogenUnifiedStorage] 恢复失败:', error);
+            return { success: false, error: error.message };
         }
     }
 }

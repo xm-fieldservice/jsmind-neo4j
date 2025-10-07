@@ -8,6 +8,9 @@
   "data": {
     "id": "root",
     "topic": "中心节点",
+    "data": {
+      "content": ""
+    },
     "meta": {
       "createdAt": 1759587945387,
       "updatedAt": 1759597459750
@@ -16,6 +19,9 @@
       {
         "id": "node_1759800616043_t4a0herik",
         "topic": "脑图",
+        "data": {
+          "content": ""
+        },
         "meta": {
           "createdAt": 1759801196737,
           "updatedAt": 1759801196737
@@ -24,6 +30,9 @@
           {
             "id": "9ae719ba11a5f071",
             "topic": "想法",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759587945387,
               "updatedAt": 1759597459750
@@ -32,6 +41,9 @@
               {
                 "id": "sub1",
                 "topic": "脑图的ID加载过程",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -40,6 +52,9 @@
                   {
                     "id": "sub11",
                     "topic": "在搜索框旁边",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -48,6 +63,9 @@
                   {
                     "id": "sub12",
                     "topic": "根据ID从指定的数据底座中，读入该节点的所有子节点（部分读入脑图）",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -58,6 +76,9 @@
               {
                 "id": "9adabdab97a5182b",
                 "topic": "解读当前的“搜索节点”的功能，实时定位的功能很好",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -66,6 +87,9 @@
               {
                 "id": "sub2",
                 "topic": "添加“读”按键",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -74,6 +98,9 @@
               {
                 "id": "9ae81a27aa4559f8",
                 "topic": "脑图作为新的工作方法的手动编辑器",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -82,6 +109,9 @@
               {
                 "id": "node_1759571747078_lfcudehnv",
                 "topic": "审核实施效果的规范化动作和提示词模板",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -90,6 +120,9 @@
               {
                 "id": "9affc8a64758bf7c",
                 "topic": "项目管理中的难题解决的思路",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759597459750,
                   "updatedAt": 1759597459750
@@ -98,6 +131,9 @@
                   {
                     "id": "9affcc9c843f9f03",
                     "topic": "难题：流水账与战略地图之间的更新和调整",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759597459750,
                       "updatedAt": 1759597459750
@@ -106,6 +142,9 @@
                   {
                     "id": "9affd1a02fa1b3c9",
                     "topic": "人做流水账的记录",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759597459750,
                       "updatedAt": 1759597459750
@@ -114,6 +153,9 @@
                   {
                     "id": "9affd37e0e0b38bc",
                     "topic": "AI随时做战略地图的更新",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759597459750,
                       "updatedAt": 1759597459750
@@ -122,6 +164,9 @@
                   {
                     "id": "9affd70a46920247",
                     "topic": "在这之间是人的方法论的补齐：通过AI认知补齐显示和战略地图之间的差异。",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759597459750,
                       "updatedAt": 1759597459750
@@ -132,6 +177,9 @@
               {
                 "id": "9affe9d4a6a57d6a",
                 "topic": "单一“账目”状态变革的时间或者履历",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759597459750,
                   "updatedAt": 1759597459750
@@ -140,6 +188,9 @@
                   {
                     "id": "9affee74320613e6",
                     "topic": "通过变更data的数据",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759597459750,
                       "updatedAt": 1759597459750
@@ -148,6 +199,9 @@
                   {
                     "id": "9afff247b5cac11f",
                     "topic": "数据管理的机制",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759597459750,
                       "updatedAt": 1759597459750
@@ -156,6 +210,9 @@
                       {
                         "id": "9afff9792c9c570b",
                         "topic": "本地保存",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759597459750,
                           "updatedAt": 1759597459750
@@ -164,6 +221,9 @@
                       {
                         "id": "9afffb63a81ae3f0",
                         "topic": "读取",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759597459750,
                           "updatedAt": 1759597459750
@@ -172,6 +232,9 @@
                       {
                         "id": "9afffd9ee8fe8f91",
                         "topic": "持久化，缓存等等机制是否要同步更新",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759597459750,
                           "updatedAt": 1759597459750
@@ -184,6 +247,9 @@
               {
                 "id": "node_1759805714538_gexjvhx3d",
                 "topic": "脑图的样式和节点样式",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759811334095,
                   "updatedAt": 1759811334095
@@ -192,6 +258,9 @@
                   {
                     "id": "node_1759805736251_jnysidawq",
                     "topic": "JSMIND 节点样式和色板",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759811334095,
                       "updatedAt": 1759811334095
@@ -202,6 +271,9 @@
               {
                 "id": "node_1759810587504_vq5071we6",
                 "topic": "保存的文件（两次保存）都是JSON为什么大小不一样；是否压缩策略不一致吗",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759811334095,
                   "updatedAt": 1759811334095
@@ -210,6 +282,9 @@
               {
                 "id": "node_1759810791948_9mrt9reck",
                 "topic": "虚拟节点的功能开发",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759811334095,
                   "updatedAt": 1759811334095
@@ -220,6 +295,9 @@
           {
             "id": "9ae71b091e2c850b",
             "topic": "计划",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759587945387,
               "updatedAt": 1759597459750
@@ -228,6 +306,9 @@
               {
                 "id": "sub3",
                 "topic": "节点鼠标右键菜单",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -236,6 +317,9 @@
                   {
                     "id": "9ae7cfbe7e3a78aa",
                     "topic": "想法",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -244,6 +328,9 @@
                       {
                         "id": "9ada52442ba331b5",
                         "topic": "拷贝节点和内容到剪贴板",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -252,6 +339,9 @@
                       {
                         "id": "9ae764b22c216cf3",
                         "topic": "将剪贴板内的内容粘贴到内容框的尾部，中间用”---“ 分隔符隔开",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -260,6 +350,9 @@
                       {
                         "id": "9ada5cf87c73c44e",
                         "topic": "拷贝节点和所有子节点的标题和内容以MD格式到剪贴板",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -268,6 +361,9 @@
                       {
                         "id": "9ada54ce37e4dc8a",
                         "topic": "拷贝节点和子节点的标题到剪贴板（带格式）",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -276,6 +372,9 @@
                       {
                         "id": "9ada4af03942bd2e",
                         "topic": "拷贝节点标题到剪贴板",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -286,6 +385,9 @@
                   {
                     "id": "9ae7beb6d91c0975",
                     "topic": "总体方案",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -294,6 +396,9 @@
                   {
                     "id": "9ae7d61f0f77e900",
                     "topic": "论证",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -302,6 +407,9 @@
                   {
                     "id": "9ae8485e888ee6e4",
                     "topic": "实施",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -310,6 +418,9 @@
                   {
                     "id": "9ae87a506c5da79e",
                     "topic": "验收：git",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -320,6 +431,9 @@
               {
                 "id": "9ae8ba8124346030",
                 "topic": "对windsurf 强调，不必每次完成工作后，就生成一个MD文档，和你麻烦",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -328,6 +442,9 @@
               {
                 "id": "9af61891e1c34f21",
                 "topic": "当前数据底座的数据冗余分析和报告：80%冗余",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -336,6 +453,9 @@
                   {
                     "id": "9af62aa51ea24eb5",
                     "topic": "智能数据 管理机制",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -344,6 +464,9 @@
                   {
                     "id": "9af6509b68e1c7d2",
                     "topic": "当前页面对智能数据管理适配",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -352,6 +475,9 @@
                   {
                     "id": "9af653bf342d64dc",
                     "topic": "当前页面的保存机制对智能数据管理适配",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -360,6 +486,9 @@
                   {
                     "id": "9af6725fa18434ca",
                     "topic": "持久化是否需要做适配",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -370,6 +499,9 @@
               {
                 "id": "9afda34ec8929358",
                 "topic": "节点和内容是否要分开存储，通过id关联",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759597459750,
                   "updatedAt": 1759597459750
@@ -381,6 +513,9 @@
           {
             "id": "9ae9582b46694fd6",
             "topic": "审核",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759587945387,
               "updatedAt": 1759597459750
@@ -389,6 +524,9 @@
               {
                 "id": "9ae8817f52ca2ec0",
                 "topic": "创建新节点的时候，将时间戳打上；",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -397,6 +535,9 @@
                   {
                     "id": "9ae9014c01782d73",
                     "topic": "测试",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -405,6 +546,9 @@
                       {
                         "id": "9ae8cd9eed25ef0c",
                         "topic": "用按键添加节点，没问题",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -413,6 +557,9 @@
                       {
                         "id": "9ae8d1ab8601216b",
                         "topic": "用快捷键添加节点，时间戳没打上。",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -421,6 +568,9 @@
                       {
                         "id": "9ae98604cb650147",
                         "topic": "程序员报告修复",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -429,6 +579,9 @@
                           {
                             "id": "node_1759570874689",
                             "topic": "测试未通过",
+                            "data": {
+                              "content": ""
+                            },
                             "meta": {
                               "createdAt": 1759587945387,
                               "updatedAt": 1759597459750
@@ -439,6 +592,9 @@
                       {
                         "id": "9ae9116730d7afee",
                         "topic": "说明：节点统一化实施有问题",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -449,6 +605,9 @@
                   {
                     "id": "9ae91f712ce3159b",
                     "topic": "发起第三方审核：节点统一化实施",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -457,6 +616,9 @@
                       {
                         "id": "9aecb7cac5a82e66",
                         "topic": "整改成果未经审核",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -465,6 +627,9 @@
                       {
                         "id": "9aed8e4f4d284290",
                         "topic": "让程序员claude sonnet 4.5 promo发起架构审查",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -473,6 +638,9 @@
                       {
                         "id": "9aed97115a9ebdb0",
                         "topic": "让审核员deepseek复核",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -481,6 +649,9 @@
                           {
                             "id": "9aeda2ac9219f17d",
                             "topic": "让程序员反馈",
+                            "data": {
+                              "content": ""
+                            },
                             "meta": {
                               "createdAt": 1759587945387,
                               "updatedAt": 1759597459750
@@ -489,6 +660,9 @@
                           {
                             "id": "9aedc1884ebccd5f",
                             "topic": "按照审核员设定的目标，程序员制定下一步工作计划",
+                            "data": {
+                              "content": ""
+                            },
                             "meta": {
                               "createdAt": 1759587945387,
                               "updatedAt": 1759597459750
@@ -497,6 +671,9 @@
                           {
                             "id": "9aededf408a04647",
                             "topic": "审核员继续审查新的计划",
+                            "data": {
+                              "content": ""
+                            },
                             "meta": {
                               "createdAt": 1759587945387,
                               "updatedAt": 1759597459750
@@ -505,6 +682,9 @@
                           {
                             "id": "9af241638241c9c5",
                             "topic": "实施",
+                            "data": {
+                              "content": ""
+                            },
                             "meta": {
                               "createdAt": 1759587945387,
                               "updatedAt": 1759597459750
@@ -513,6 +693,9 @@
                               {
                                 "id": "9af24297cb63d7d4",
                                 "topic": "第一阶段",
+                                "data": {
+                                  "content": ""
+                                },
                                 "meta": {
                                   "createdAt": 1759587945387,
                                   "updatedAt": 1759597459750
@@ -521,6 +704,9 @@
                               {
                                 "id": "9af2451b0c85bcb6",
                                 "topic": "第二阶段",
+                                "data": {
+                                  "content": ""
+                                },
                                 "meta": {
                                   "createdAt": 1759587945387,
                                   "updatedAt": 1759597459750
@@ -529,6 +715,9 @@
                                   {
                                     "id": "9af327cc2d4f715d",
                                     "topic": "审核：第一次",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759587945387,
                                       "updatedAt": 1759597459750
@@ -537,6 +726,9 @@
                                   {
                                     "id": "9af32b753bf9ea71",
                                     "topic": "第二审核：感觉没认真都代码",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759587945387,
                                       "updatedAt": 1759597459750
@@ -545,6 +737,9 @@
                                   {
                                     "id": "9af3331e0103fdc0",
                                     "topic": "第一审核复审：认可第二审核",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759587945387,
                                       "updatedAt": 1759597459750
@@ -553,6 +748,9 @@
                                   {
                                     "id": "9af33c6dfdda2446",
                                     "topic": "第一审核：反省",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759587945387,
                                       "updatedAt": 1759597459750
@@ -561,6 +759,9 @@
                                   {
                                     "id": "9af3594c359c734f",
                                     "topic": "我的评论和认知：两个agent 不能保证客观，要三个才行",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759587945387,
                                       "updatedAt": 1759597459750
@@ -569,6 +770,9 @@
                                   {
                                     "id": "9af37fcc773ab642",
                                     "topic": "程序员：整改",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759587945387,
                                       "updatedAt": 1759597459750
@@ -577,6 +781,9 @@
                                       {
                                         "id": "9af386847585ec0f",
                                         "topic": "第一审核",
+                                        "data": {
+                                          "content": ""
+                                        },
                                         "meta": {
                                           "createdAt": 1759587945387,
                                           "updatedAt": 1759597459750
@@ -585,6 +792,9 @@
                                       {
                                         "id": "9af387999e9a440c",
                                         "topic": "第二审核",
+                                        "data": {
+                                          "content": ""
+                                        },
                                         "meta": {
                                           "createdAt": 1759587945387,
                                           "updatedAt": 1759597459750
@@ -597,6 +807,9 @@
                               {
                                 "id": "9af982c2afd9c20d",
                                 "topic": "修复持久化问题",
+                                "data": {
+                                  "content": ""
+                                },
                                 "meta": {
                                   "createdAt": 1759587945387,
                                   "updatedAt": 1759597459750
@@ -605,6 +818,9 @@
                                   {
                                     "id": "9af98533efbd595b",
                                     "topic": "内容持久化问题",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759587945387,
                                       "updatedAt": 1759597459750
@@ -615,6 +831,9 @@
                               {
                                 "id": "9afa7a38f1d4861c",
                                 "topic": "修复“保存”按键，不能保存内容的问题",
+                                "data": {
+                                  "content": ""
+                                },
                                 "meta": {
                                   "createdAt": 1759588837111,
                                   "updatedAt": 1759597459750
@@ -623,6 +842,9 @@
                               {
                                 "id": "9af3eed124f92165",
                                 "topic": "第三阶段",
+                                "data": {
+                                  "content": ""
+                                },
                                 "meta": {
                                   "createdAt": 1759587945387,
                                   "updatedAt": 1759597459750
@@ -631,6 +853,9 @@
                                   {
                                     "id": "9afca4d7fda9a06d",
                                     "topic": "3.1",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759590907973,
                                       "updatedAt": 1759597459750
@@ -639,6 +864,9 @@
                                   {
                                     "id": "9afd5c49714dcecd",
                                     "topic": "3.2",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759597459750,
                                       "updatedAt": 1759597459750
@@ -647,6 +875,9 @@
                                       {
                                         "id": "9aff497e2bd54f00",
                                         "topic": "何时执行",
+                                        "data": {
+                                          "content": ""
+                                        },
                                         "meta": {
                                           "createdAt": 1759597459750,
                                           "updatedAt": 1759597459750
@@ -657,6 +888,9 @@
                                   {
                                     "id": "9afd746771dc0357",
                                     "topic": "3.3",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759597459750,
                                       "updatedAt": 1759597459750
@@ -665,6 +899,9 @@
                                   {
                                     "id": "9afdc28e32289710",
                                     "topic": "3.4",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759597459750,
                                       "updatedAt": 1759597459750
@@ -673,6 +910,9 @@
                                       {
                                         "id": "9aff31b314fa557f",
                                         "topic": "何时执行",
+                                        "data": {
+                                          "content": ""
+                                        },
                                         "meta": {
                                           "createdAt": 1759597459750,
                                           "updatedAt": 1759597459750
@@ -685,6 +925,9 @@
                               {
                                 "id": "9afc8aa6a1298c07",
                                 "topic": "第四阶段",
+                                "data": {
+                                  "content": ""
+                                },
                                 "meta": {
                                   "createdAt": 1759590826973,
                                   "updatedAt": 1759597459750
@@ -693,6 +936,9 @@
                                   {
                                     "id": "9b001b01332ebdeb",
                                     "topic": "4.1",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759597459750,
                                       "updatedAt": 1759597459750
@@ -701,6 +947,9 @@
                                       {
                                         "id": "9b011414a3926e07",
                                         "topic": "审查员的复核",
+                                        "data": {
+                                          "content": ""
+                                        },
                                         "meta": {
                                           "createdAt": 1759597459750,
                                           "updatedAt": 1759597459750
@@ -709,6 +958,9 @@
                                       {
                                         "id": "9b027e2b4c52cc10",
                                         "topic": "审查员对阶段三的回溯",
+                                        "data": {
+                                          "content": ""
+                                        },
                                         "meta": {
                                           "createdAt": 1759597459750,
                                           "updatedAt": 1759597459750
@@ -717,6 +969,9 @@
                                           {
                                             "id": "9b0286d4b745db23",
                                             "topic": "程序员的申诉",
+                                            "data": {
+                                              "content": ""
+                                            },
                                             "meta": {
                                               "createdAt": 1759597459750,
                                               "updatedAt": 1759597459750
@@ -727,6 +982,9 @@
                                       {
                                         "id": "9b028af700f92e1a",
                                         "topic": "审查员对阶段三的接受和阶段四的反馈",
+                                        "data": {
+                                          "content": ""
+                                        },
                                         "meta": {
                                           "createdAt": 1759597459750,
                                           "updatedAt": 1759597459750
@@ -735,6 +993,9 @@
                                       {
                                         "id": "9b02e00f27e0960b",
                                         "topic": "程序员对4.1的调整和意见。",
+                                        "data": {
+                                          "content": ""
+                                        },
                                         "meta": {
                                           "createdAt": 1759597459750,
                                           "updatedAt": 1759597459750
@@ -747,6 +1008,9 @@
                               {
                                 "id": "9afc935a8fde3529",
                                 "topic": "1",
+                                "data": {
+                                  "content": ""
+                                },
                                 "meta": {
                                   "createdAt": 1759590826973,
                                   "updatedAt": 1759597459750
@@ -766,6 +1030,9 @@
           {
             "id": "9ae72427fc1c7c49",
             "topic": "进行中",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759587945387,
               "updatedAt": 1759597459750
@@ -774,6 +1041,9 @@
               {
                 "id": "node_1759574792064_sz5od6gpc",
                 "topic": "New Node",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -782,6 +1052,9 @@
                   {
                     "id": "node_1759574792076_9u7o6zhg3",
                     "topic": "新节点",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -792,6 +1065,9 @@
               {
                 "id": "node_1759574798085_vfe9d0umn",
                 "topic": "新节点",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -803,6 +1079,9 @@
           {
             "id": "9ae46e47587c000b",
             "topic": "已完成",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759587945387,
               "updatedAt": 1759597459750
@@ -811,6 +1090,9 @@
               {
                 "id": "9ae6235ddb041662",
                 "topic": "统一节点操作方法",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -819,6 +1101,9 @@
                   {
                     "id": "9ae4b84715fd679f",
                     "topic": "内部实现节点添加",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -827,6 +1112,9 @@
                   {
                     "id": "9ae4c044de431ccd",
                     "topic": "addnode 实现",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -835,6 +1123,9 @@
                   {
                     "id": "9ae7327e6f2fea98",
                     "topic": "完成报告",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -845,6 +1136,9 @@
               {
                 "id": "9adacd9c9d76ae61",
                 "topic": "脑图设置成右侧呈现，当前是双侧呈现；检查是否已经改过代码",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -853,6 +1147,9 @@
               {
                 "id": "node_1759571704983_v9hx3tg61",
                 "topic": "节点的快捷键复制和剪切，粘贴",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759587945387,
                   "updatedAt": 1759597459750
@@ -861,6 +1158,9 @@
                   {
                     "id": "node_1759571704991_mvjn7ehe0",
                     "topic": "功能没有实现，修复",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -869,6 +1169,9 @@
                   {
                     "id": "node_1759571705034_wj4ne73lh",
                     "topic": "你的改动，让快捷键创建子节点的功能消失了(ctrl + 回车），按键添加子节点还能用。恢复快捷键创建子节点功能。快捷键创建同级节点的功能没问题。",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -877,6 +1180,9 @@
                       {
                         "id": "node_1759571705039_iob3vsxv8",
                         "topic": "修复了",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -887,6 +1193,9 @@
                   {
                     "id": "node_1759571705123_d6tu4aryc",
                     "topic": "经过测试：剪切功能实际实现的是复制节点，原来的节点都在，好好检查",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -895,6 +1204,9 @@
                       {
                         "id": "node_1759571705131_311ijsfwg",
                         "topic": "修复了",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759587945387,
                           "updatedAt": 1759597459750
@@ -905,6 +1217,9 @@
                   {
                     "id": "node_1759571705216_72yls28fu",
                     "topic": "验收：git",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -913,6 +1228,9 @@
                   {
                     "id": "node_1759574245828_pho7527h8",
                     "topic": "功能消失了，修复",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759587945387,
                       "updatedAt": 1759597459750
@@ -925,6 +1243,9 @@
           {
             "id": "node_1759804817226_zy8tyz3ra",
             "topic": "BUG",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759804857107,
               "updatedAt": 1759804857107
@@ -933,6 +1254,9 @@
               {
                 "id": "node_1759804820421_5mwyadwf1",
                 "topic": "新建节点的时间戳功能消失了，恢复",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759804857107,
                   "updatedAt": 1759804857107
@@ -941,6 +1265,9 @@
               {
                 "id": "node_1759811348444_f06xs8ofn",
                 "topic": "复制节点后，颜色（复制节点定位浅色））刷新页面后，又失效了",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759812447097,
                   "updatedAt": 1759812447097
@@ -954,6 +1281,9 @@
       {
         "id": "node_1759800637339_3lx9purws",
         "topic": "架构",
+        "data": {
+          "content": ""
+        },
         "meta": {
           "createdAt": 1759801196737,
           "updatedAt": 1759801196737
@@ -962,6 +1292,9 @@
           {
             "id": "node_1759801200457_kqjiioi3c",
             "topic": "想法",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759801203135,
               "updatedAt": 1759801203135
@@ -970,6 +1303,9 @@
               {
                 "id": "node_1759800698308_kornoa66e",
                 "topic": "架构",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759801196737,
                   "updatedAt": 1759801196737
@@ -978,6 +1314,9 @@
                   {
                     "id": "node_1759801354152_iu859gjro",
                     "topic": "架构原始设计的合理性审计",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759801494288,
                       "updatedAt": 1759801494288
@@ -986,6 +1325,9 @@
                       {
                         "id": "node_1759807334121_rq71kvkxh",
                         "topic": "三个AI打成一锅粥了。互相指责，完全忘了最初让他们干什么",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759811334095,
                           "updatedAt": 1759811334095
@@ -994,6 +1336,9 @@
                           {
                             "id": "node_1759807570316_ea7oithfp",
                             "topic": "程序员整改方案",
+                            "data": {
+                              "content": ""
+                            },
                             "meta": {
                               "createdAt": 1759811334095,
                               "updatedAt": 1759811334095
@@ -1002,6 +1347,9 @@
                               {
                                 "id": "node_1759809866284_2eryzj1xq",
                                 "topic": "实施第一阶段",
+                                "data": {
+                                  "content": ""
+                                },
                                 "meta": {
                                   "createdAt": 1759811334095,
                                   "updatedAt": 1759811334095
@@ -1010,6 +1358,9 @@
                                   {
                                     "id": "node_1759810854094_cavqnwd6i",
                                     "topic": "今日 进度",
+                                    "data": {
+                                      "content": ""
+                                    },
                                     "meta": {
                                       "createdAt": 1759811334095,
                                       "updatedAt": 1759811334095
@@ -1018,15 +1369,50 @@
                                   {
                                     "id": "node_1759814642403_zo7vanrcc",
                                     "topic": "新进度",
+                                    "data": {
+                                      "content": ""
+                                    },
+                                    "meta": {
+                                      "createdAt": 1759817548367,
+                                      "updatedAt": 1759817548367
+                                    },
                                     "children": [
                                       {
                                         "id": "node_1759815009339_zadbxt3l3",
                                         "topic": "P0完成",
-                                        "direction": "right"
+                                        "data": {
+                                          "content": ""
+                                        },
+                                        "meta": {
+                                          "createdAt": 1759817548367,
+                                          "updatedAt": 1759817548367
+                                        }
+                                      },
+                                      {
+                                        "id": "node_1759816556183_e4b5ne5h7",
+                                        "topic": "P1",
+                                        "data": {
+                                          "content": ""
+                                        },
+                                        "meta": {
+                                          "createdAt": 1759817548367,
+                                          "updatedAt": 1759817548367
+                                        }
                                       }
                                     ]
                                   }
                                 ]
+                              },
+                              {
+                                "id": "node_1759817115601_q3qyn6qkl",
+                                "topic": "整改完成",
+                                "data": {
+                                  "content": ""
+                                },
+                                "meta": {
+                                  "createdAt": 1759817548367,
+                                  "updatedAt": 1759817548367
+                                }
                               }
                             ]
                           }
@@ -1037,6 +1423,9 @@
                   {
                     "id": "node_1759801386531_m0h6xgc5j",
                     "topic": "架构定期审计：手动和自动",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759801494288,
                       "updatedAt": 1759801494288
@@ -1047,6 +1436,9 @@
               {
                 "id": "node_1759801408339_nfy6q3ihx",
                 "topic": "存储系统本地化增强",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759801494288,
                   "updatedAt": 1759801494288
@@ -1055,22 +1447,127 @@
                   {
                     "id": "node_1759801413594_qc19a6hpf",
                     "topic": "日志本地化",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759801494288,
                       "updatedAt": 1759801494288
-                    }
+                    },
+                    "children": [
+                      {
+                        "id": "node_1759827706298_3xq8fxcae",
+                        "topic": "总的日志统一管理已经整改实现",
+                        "data": {
+                          "content": ""
+                        },
+                        "meta": {
+                          "createdAt": 1759833499572,
+                          "updatedAt": 1759833499572
+                        }
+                      },
+                      {
+                        "id": "node_1759827715361_jfqov2zqa",
+                        "topic": "当前的各个页面的日志框都是各自为政",
+                        "data": {
+                          "content": ""
+                        },
+                        "meta": {
+                          "createdAt": 1759833499572,
+                          "updatedAt": 1759833499572
+                        },
+                        "children": [
+                          {
+                            "id": "node_1759828029874_iksecktpl",
+                            "topic": "各个页面的日志整合到总日志管理",
+                            "data": {
+                              "content": ""
+                            },
+                            "meta": {
+                              "createdAt": 1759833499572,
+                              "updatedAt": 1759833499572
+                            }
+                          }
+                        ]
+                      }
+                    ]
                   },
                   {
                     "id": "node_1759801430855_pl35wtvjr",
                     "topic": "缓存本地化",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759801494288,
                       "updatedAt": 1759801494288
-                    }
+                    },
+                    "children": [
+                      {
+                        "id": "node_1759828441103_mqstwvwrk",
+                        "topic": "indexDB 本地化存储的机制",
+                        "data": {
+                          "content": ""
+                        },
+                        "meta": {
+                          "createdAt": 1759833499572,
+                          "updatedAt": 1759833499572
+                        }
+                      },
+                      {
+                        "id": "node_1759834070031_ymagna74q",
+                        "topic": "脑图内容",
+                        "data": {
+                          "content": "2025-10-07 18:47:50\n\n\n\n\n---\n\n**程序员**\n\n## 1. 包含内容的完整数据结构\n\n让我直接查看一个实际的保存调用，看数据结构：\n\n好，现在看压缩方法：\n\n现在看MindmapStorage的保存流程：\n\n## 📊 完整答案\n\n### 1. 包含内容的数据结构\n\n**原始结构（jsMind内存中）**：\n```javascript\n{\n    meta: {\n        name: \"项目脑图\",\n        version: \"1.0\"\n    },\n    format: \"node_tree\",\n    data: {\n        id: \"root\",\n        topic: \"根节点\",\n        data: {\n            content: \"# 根节点\\n\\n在此编写内容...\"  // ← content在这里\n        },\n        children: [\n            {\n                id: \"n1\",\n                topic: \"需求\",\n                data: {\n                    content: \"需求说明...\"  // ← 子节点的content\n                }\n            }\n        ]\n    }\n}\n```\n\n**关键点**：\n- content在`node.data.content`\n- 但`jm.get_data()`**不会自动导出`node.data`**\n- 必须手动调用[syncNodeData()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:719:24-729:26)复制\n\n### 2. 压缩方法对内容的影响\n\n**压缩流程**（第62行）：\n```javascript\nconst dataToStore = this.compressor ? this.compressor.compress(data) : data;\n```\n\n**_compressNode方法**（已修复）：\n```javascript\n_compressNode(node) {\n    const compressed = {\n        id: node.id,\n        topic: node.topic\n    };\n    \n    // ✅ 已修复：始终保存content\n    const content = node.data?.content || node.content || \"\";\n    compressed.data = { content: content };\n    \n    // 递归压缩子节点\n    if (node.children) {\n        compressed.children = node.children.map(child => this._compressNode(child));\n    }\n    \n    return compressed;\n}\n```\n\n**结论**：压缩方法**已修复**，会保留content。\n\n### 3. 流转过程中content的表现\n\n**完整流程**：\n\n```\n1. 用户编辑\n   → contentEditor.value\n   → node.data.content (jsMind内存)\n   ✅ content存在\n\n2. jm.get_data()\n   → 导出数据\n   ❌ 没有node.data！（jsMind不导出）\n\n3. syncNodeData()  ← 关键步骤！\n   → 手动复制 jmNode.data 到 exportNode.data\n   ✅ content恢复\n\n4. DataCompressor.compress()\n   → _compressNode()\n   ✅ content保留（已修复）\n\n5. StorageAdapter.saveMindmap()\n   → AutogenUnifiedStorage.store()\n   ✅ content应该在\n\n6. persistToStorage()\n   → LocalStorage + IndexedDB\n   ✅ content应该持久化\n```\n\n## 🚨 问题定位\n\n**根本问题**：[saveToUnifiedStorage()](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:2188:12-2220:13)方法**没有调用syncNodeData()**！\n\n看第2203行，它直接传入`data`：\n```javascript\nasync saveToUnifiedStorage(data) {\n    // ❌ 缺少 syncNodeData(data.data)\n    await this.mindmapStorage.saveMindmapData(data, true);\n}\n```\n\n但其他地方（autoSave、save等）都有syncNodeData！\n\n**立即修复**：在[saveToUnifiedStorage](cci:1://file:///d:/AI-Projects/project_manager%28neo4j+d3.jsECHART%29/column-sources/mindmap/mindmap-standalone.html:2188:12-2220:13)开头添加syncNodeData。\n\n要我现在修复吗？\n\n**程序员**"
+                        },
+                        "meta": {
+                          "createdAt": 1759834125155,
+                          "updatedAt": 1759834125155
+                        },
+                        "children": [
+                          {
+                            "id": "node_1759834075960_fzfxgl4iw",
+                            "topic": "关机内容丢失",
+                            "data": {
+                              "content": "2025-10-07 18:47:55\n\n\n"
+                            },
+                            "meta": {
+                              "createdAt": 1759834125155,
+                              "updatedAt": 1759834125155
+                            }
+                          },
+                          {
+                            "id": "node_1759834080744_k55svgdqt",
+                            "topic": "刷新不丢失",
+                            "data": {
+                              "content": "2025-10-07 18:48:00\n\n\n"
+                            },
+                            "meta": {
+                              "createdAt": 1759834125155,
+                              "updatedAt": 1759834125155
+                            }
+                          },
+                          {
+                            "id": "node_1759834085297_765evc8j8",
+                            "topic": "手动保存，不保存内容",
+                            "data": {
+                              "content": "2025-10-07 18:48:05\n\n\n"
+                            },
+                            "meta": {
+                              "createdAt": 1759834125155,
+                              "updatedAt": 1759834125155
+                            }
+                          }
+                        ]
+                      }
+                    ]
                   },
                   {
                     "id": "node_1759801435022_jnaqh7ez0",
                     "topic": "数据异地-本地化备份",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759801494288,
                       "updatedAt": 1759801494288
@@ -1079,6 +1576,9 @@
                       {
                         "id": "node_1759801528101_6csbga7r2",
                         "topic": "手动保存的时候，同时备份数据到项目根目录",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1087,6 +1587,9 @@
                       {
                         "id": "node_1759801596381_ysblvmalt",
                         "topic": "提交git 的时候，将数据底座和本地的其他备份数据一同提交：制定git策略",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1099,6 +1602,9 @@
               {
                 "id": "node_1759804702332_wf3865yxw",
                 "topic": "主页面内有很多检测脚本的加载点，定期清理",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759804756126,
                   "updatedAt": 1759804756126
@@ -1112,6 +1618,9 @@
       {
         "id": "node_1759802145236_rf8guud4c",
         "topic": "数据底座",
+        "data": {
+          "content": ""
+        },
         "meta": {
           "createdAt": 1759803510797,
           "updatedAt": 1759803510797
@@ -1120,6 +1629,9 @@
           {
             "id": "node_1759802148892_kvlpt0u7g",
             "topic": "评估数据底座使用MD格式或者JSON格式",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759803510797,
               "updatedAt": 1759803510797
@@ -1128,6 +1640,9 @@
               {
                 "id": "node_1759802693737_py3haev55",
                 "topic": "在手动保存的时候，同时保存两个格式的底座数据，是否可以；脑图平时加载的是JSON格式。MD格式作为备份，同时也作为可读版本；",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759803510797,
                   "updatedAt": 1759803510797
@@ -1136,6 +1651,9 @@
                   {
                     "id": "node_1759803105900_djnreu5ko",
                     "topic": "修改代码",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759803510797,
                       "updatedAt": 1759803510797
@@ -1151,6 +1669,9 @@
       {
         "id": "node_1759803176734_n3fgvfaou",
         "topic": "工作区",
+        "data": {
+          "content": ""
+        },
         "meta": {
           "createdAt": 1759803510797,
           "updatedAt": 1759803510797
@@ -1159,6 +1680,9 @@
           {
             "id": "node_1759803179970_zaqjm3864",
             "topic": "标签",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759803510797,
               "updatedAt": 1759803510797
@@ -1167,6 +1691,9 @@
               {
                 "id": "node_1759803186056_qglgyry3i",
                 "topic": "分类",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759803510797,
                   "updatedAt": 1759803510797
@@ -1175,6 +1702,9 @@
                   {
                     "id": "node_1759803219233_4aoh33q17",
                     "topic": "宏观",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759803510797,
                       "updatedAt": 1759803510797
@@ -1183,6 +1713,9 @@
                       {
                         "id": "node_1759803228325_3uhbc935n",
                         "topic": "目标",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1191,6 +1724,9 @@
                       {
                         "id": "node_1759803234191_iv39ul1us",
                         "topic": "战略",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1201,6 +1737,9 @@
                   {
                     "id": "node_1759803264047_rd7ggugsx",
                     "topic": "部门",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759803510797,
                       "updatedAt": 1759803510797
@@ -1209,6 +1748,9 @@
                       {
                         "id": "node_1759803266874_f9vg0mv34",
                         "topic": "软件",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1217,6 +1759,9 @@
                       {
                         "id": "node_1759803268729_2hbp777cn",
                         "topic": "生产",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1225,6 +1770,9 @@
                       {
                         "id": "node_1759803378166_tet90pr6t",
                         "topic": "内务",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1233,6 +1781,9 @@
                       {
                         "id": "node_1759803380508_qr464dhan",
                         "topic": "新项目",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1241,6 +1792,9 @@
                       {
                         "id": "node_1759803486857_aa9sosfx6",
                         "topic": "个人",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1251,6 +1805,9 @@
                   {
                     "id": "node_1759803416942_7ekn4xrzm",
                     "topic": "项目",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759803510797,
                       "updatedAt": 1759803510797
@@ -1259,6 +1816,9 @@
                       {
                         "id": "node_1759803420738_8sp6sbiqe",
                         "topic": "立项",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1267,6 +1827,9 @@
                       {
                         "id": "node_1759803435021_e3vpjk693",
                         "topic": "进行中",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1275,6 +1838,9 @@
                       {
                         "id": "node_1759803438236_5wak6ff83",
                         "topic": "中断",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1283,6 +1849,9 @@
                       {
                         "id": "node_1759803453417_2msynwfhs",
                         "topic": "新节点",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1291,6 +1860,9 @@
                       {
                         "id": "node_1759803456436_iemhtuk4t",
                         "topic": "归档",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1301,6 +1873,9 @@
                   {
                     "id": "node_1759810556027_u2lztzpbu",
                     "topic": "工作流",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759811334095,
                       "updatedAt": 1759811334095
@@ -1309,6 +1884,9 @@
                   {
                     "id": "node_1759803463619_fxy2dagz6",
                     "topic": "笔记",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759803510797,
                       "updatedAt": 1759803510797
@@ -1317,6 +1895,9 @@
                       {
                         "id": "node_1759803471313_gyyp21ojv",
                         "topic": "新节点",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1325,6 +1906,9 @@
                       {
                         "id": "node_1759803473083_v8tfl0l8v",
                         "topic": "议题",
+                        "data": {
+                          "content": ""
+                        },
                         "meta": {
                           "createdAt": 1759803510797,
                           "updatedAt": 1759803510797
@@ -1334,11 +1918,15 @@
                   }
                 ]
               }
-            ]
+            ],
+            "expanded": false
           },
           {
             "id": "node_1759810562887_6z9gwnjr1",
             "topic": "通用货架",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759811334095,
               "updatedAt": 1759811334095
@@ -1347,6 +1935,9 @@
           {
             "id": "node_1759812412055_mh79ccg9p",
             "topic": "日志",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759812447097,
               "updatedAt": 1759812447097
@@ -1355,6 +1946,9 @@
               {
                 "id": "node_1759811959160_ovrh5752s",
                 "topic": "当前日志审查报告",
+                "data": {
+                  "content": ""
+                },
                 "meta": {
                   "createdAt": 1759812447097,
                   "updatedAt": 1759812447097
@@ -1363,6 +1957,9 @@
                   {
                     "id": "node_1759811963898_jfrmx33j6",
                     "topic": "日志系统是否可以记录所有的代码工作",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759812447097,
                       "updatedAt": 1759812447097
@@ -1371,6 +1968,9 @@
                   {
                     "id": "node_1759812388202_ahylgiw3l",
                     "topic": "我对日志的期望和AI给我的方案",
+                    "data": {
+                      "content": ""
+                    },
                     "meta": {
                       "createdAt": 1759812447097,
                       "updatedAt": 1759812447097
@@ -1379,19 +1979,46 @@
                       {
                         "id": "node_1759812536922_wy2z9kl70",
                         "topic": "审查员：日志系统整改方案",
-                        "direction": "right"
+                        "data": {
+                          "content": ""
+                        },
+                        "meta": {
+                          "createdAt": 1759817548367,
+                          "updatedAt": 1759817548367
+                        }
                       },
                       {
                         "id": "node_1759812894710_9sjnpb3lt",
-                        "topic": "上述全日志的方案，是否可以实现对代码架构和代码失败的回溯"
+                        "topic": "上述全日志的方案，是否可以实现对代码架构和代码失败的回溯",
+                        "data": {
+                          "content": ""
+                        },
+                        "meta": {
+                          "createdAt": 1759817548367,
+                          "updatedAt": 1759817548367
+                        }
                       },
                       {
                         "id": "node_1759812995978_u3bpupuum",
-                        "topic": "审查是否有过度工程化的毛病出现，如果有，去冗，均衡"
+                        "topic": "审查是否有过度工程化的毛病出现，如果有，去冗，均衡",
+                        "data": {
+                          "content": ""
+                        },
+                        "meta": {
+                          "createdAt": 1759817548367,
+                          "updatedAt": 1759817548367
+                        }
                       },
                       {
                         "id": "node_1759813259035_3ik9x0a8c",
-                        "topic": "通过上述的AI对日志系统的反复修改，可见和它合作是多么的强的技术活"
+                        "topic": "通过上述的AI对日志系统的反复修改，可见和它合作是多么的强的技术活",
+                        "data": {
+                          "content": ""
+                        },
+                        "meta": {
+                          "createdAt": 1759817548367,
+                          "updatedAt": 1759817548367
+                        }
                       }
                     ]
                   }
@@ -1399,11 +2026,25 @@
               },
               {
                 "id": "node_1759813088301_sg6ilcch0",
-                "topic": "当前日志框折叠关闭同时日志框也关闭采集的功能丢失了。恢复"
+                "topic": "当前日志框折叠关闭同时日志框也关闭采集的功能丢失了。恢复",
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "createdAt": 1759817548367,
+                  "updatedAt": 1759817548367
+                }
               },
               {
                 "id": "node_1759813151723_1jc8svtmq",
-                "topic": "当前日志采集，点击一个节点，就出现一大堆，是否有必要"
+                "topic": "当前日志采集，点击一个节点，就出现一大堆，是否有必要",
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "createdAt": 1759817548367,
+                  "updatedAt": 1759817548367
+                }
               }
             ]
           }
@@ -1413,6 +2054,9 @@
       {
         "id": "node_1759810687123_6lbvcgfy1",
         "topic": "泳道",
+        "data": {
+          "content": ""
+        },
         "meta": {
           "createdAt": 1759811334095,
           "updatedAt": 1759811334095
@@ -1421,6 +2065,9 @@
           {
             "id": "node_1759810716313_q7jehr2lo",
             "topic": "想法",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759811334095,
               "updatedAt": 1759811334095
@@ -1429,7 +2076,13 @@
               {
                 "id": "node_1759815163211_7ggb71t1l",
                 "topic": "按照时间顺序列表很重要",
-                "direction": "right"
+                "data": {
+                  "content": ""
+                },
+                "meta": {
+                  "createdAt": 1759817548367,
+                  "updatedAt": 1759817548367
+                }
               }
             ]
           }
@@ -1439,6 +2092,9 @@
       {
         "id": "node_1759805797960_7cjs12qnc",
         "topic": "windsurf",
+        "data": {
+          "content": ""
+        },
         "meta": {
           "createdAt": 1759811334095,
           "updatedAt": 1759811334095
@@ -1447,6 +2103,9 @@
           {
             "id": "node_1759805802678_8u07gd1jm",
             "topic": "禁止每次生成报告。都直接回答，除非我明确要求生成文档 。 [复制×1]",
+            "data": {
+              "content": ""
+            },
             "meta": {
               "createdAt": 1759811334095,
               "updatedAt": 1759811334095
@@ -1458,6 +2117,9 @@
       {
         "id": "node_1759811300940_sv8x9h4if",
         "topic": "新节点",
+        "data": {
+          "content": ""
+        },
         "meta": {
           "createdAt": 1759811334095,
           "updatedAt": 1759811334095
@@ -1466,12 +2128,27 @@
           {
             "id": "9bced9153f91cf52",
             "topic": "⬌ 禁止每次生成报告。都直接回答，除非我明确要求生成文档 。",
+            "data": {
+              "content": "22222222"
+            },
             "meta": {
               "createdAt": 1759811334095,
               "updatedAt": 1759811334095
             }
           }
         ],
+        "direction": "right"
+      },
+      {
+        "id": "node_1759826412242_ktmsyts0n",
+        "topic": "1",
+        "data": {
+          "content": "1111111111"
+        },
+        "meta": {
+          "createdAt": 1759826418580,
+          "updatedAt": 1759826418580
+        },
         "direction": "right"
       }
     ]

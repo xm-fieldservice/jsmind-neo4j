@@ -2,7 +2,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>脑图工作栏 - 单页面测试</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>脑图工作栏 - 单页面测试 (v2025-10-07-fix)</title>
     
     <!-- jsMind CSS -->
     <link rel="stylesheet" href="../../vendor/jsmind/style/jsmind.css">
@@ -11,6 +14,12 @@
     <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
     <script src="../../src/core/messaging/AutogenEventBus.js"></script>
     <script src="../../src/core/ErrorHandler.js"></script>
+    
+    <!-- 统一日志系统 -->
+    <script src="../../src/core/UnifiedLogger.js"></script>
+    
+    <!-- 🔧 架构整改：添加StorageAdapter -->
+    <script src="../../src/adapters/StorageAdapter.js"></script>
     
     <!-- 🆕 src/ 架构组件 (Phase 2: 仅加载独立组件) -->
     <script src="../../src/data/DataCompressor.js"></script>
@@ -416,6 +425,8 @@
     <!-- 全局日志面板（从 index.html 复制） -->
     <div id="global-log-panel-container" style="position:fixed;bottom:20px;right:20px;width:400px;max-height:300px;z-index:9999;background:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
         <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;padding:8px;">
+            <button id="log-export-file" type="button" style="padding:2px 8px;font-size:11px;background:#8b5cf6;color:white;border:0;border-radius:3px;cursor:pointer;">💾 导出</button>
+            <button id="log-show-history" type="button" style="padding:2px 8px;font-size:11px;background:#06b6d4;color:white;border:0;border-radius:3px;cursor:pointer;">📜 历史</button>
             <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;">MD保存</button>
             <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
             <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
@@ -429,11 +440,15 @@
         </div>
     </div>
 
-    <!-- 日志面板脚本（从 index.html 复制） -->
+    <!-- 日志面板脚本（整合UnifiedLogger） -->
     <script>
       (function(){
+        // 获取UnifiedLogger实例
+        const logger = window.UnifiedLogger;
+        
         const pad = n => (n<10? '0':'') + n;
         function ts(){ const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+        
         function ensureInit(){
           const panel = document.getElementById('list-log-panel');
           const header = document.getElementById('list-log-header');
@@ -441,7 +456,11 @@
           const body = document.getElementById('list-log-body');
           const btnClear = document.getElementById('list-log-clear');
           const btnCopy = document.getElementById('list-log-copy');
+          const btnExport = document.getElementById('log-export-file');
+          const btnHistory = document.getElementById('log-show-history');
+          
           if (!panel || !header || !body) return false;
+          
           if (!header.__bound){
             header.__bound = true;
             header.addEventListener('click', function(){
@@ -457,10 +476,47 @@
               }
             });
           }
-          btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
-          btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(body.textContent||''); alert('日志已复制'); }catch(_){ } }));
+          
+          // 清空按钮
+          btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ 
+            body.textContent=''; 
+            logger && logger.clear();
+          }));
+          
+          // 复制按钮
+          btnCopy && !btnCopy.__bound && (btnCopy.__bound = true, btnCopy.addEventListener('click', ()=>{ 
+            try{ 
+              navigator.clipboard.writeText(body.textContent||''); 
+              alert('日志已复制'); 
+            }catch(_){ } 
+          }));
+          
+          // 🆕 导出按钮
+          btnExport && !btnExport.__bound && (btnExport.__bound = true, btnExport.addEventListener('click', async ()=>{ 
+            if (logger) {
+              const result = await logger.exportToFile('json');
+              if (result.success) {
+                alert(`✅ 日志已导出: ${result.filename}`);
+              }
+            }
+          }));
+          
+          // 🆕 历史按钮
+          btnHistory && !btnHistory.__bound && (btnHistory.__bound = true, btnHistory.addEventListener('click', ()=>{ 
+            if (logger) {
+              const history = logger.getHistory({ limit: 100 });
+              body.textContent = '';
+              history.forEach(entry => {
+                const time = new Date(entry.timestamp).toLocaleTimeString();
+                append(entry.level, `[${time}] ${entry.message}`);
+              });
+              alert(`📜 已加载${history.length}条历史日志`);
+            }
+          }));
+          
           return true;
         }
+        
         function append(level, message){
           if (!ensureInit()) return;
           const body = document.getElementById('list-log-body');
@@ -468,20 +524,63 @@
           body.textContent += (body.textContent ? "\n" : "") + line;
           body.scrollTop = body.scrollHeight;
         }
+        
+        // LogPanel作为UI显示层
         const LogPanel = {
-          log: (m)=>append('INFO', String(m)),
-          warn: (m)=>append('WARN', String(m)),
-          error: (m)=>append('ERROR', String(m)),
-          json: (title, obj)=>append('INFO', `${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`)
+          log: (m) => {
+            const msg = String(m);
+            logger && logger.info('UI', msg);
+            append('INFO', msg);
+          },
+          warn: (m) => {
+            const msg = String(m);
+            logger && logger.warn('UI', msg);
+            append('WARN', msg);
+          },
+          error: (m) => {
+            const msg = String(m);
+            logger && logger.error('UI', msg);
+            append('ERROR', msg);
+          },
+          json: (title, obj) => {
+            const msg = (()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})();
+            logger && logger.info('UI', msg);
+            append('INFO', msg);
+          }
         };
+        
         window.LogPanel = LogPanel;
+        
+        // 拦截console输出
         ['log','info','warn','error'].forEach(fn=>{
           const orig = console[fn].bind(console);
-          console[fn] = function(){ try{ LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); }catch(_){}; return orig.apply(console, arguments); };
+          console[fn] = function(){ 
+            try{ 
+              const msg = [].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ');
+              LogPanel[fn==='info'?'log':fn](msg); 
+            }catch(_){}
+            return orig.apply(console, arguments); 
+          };
         });
+        
+        // 监听UnifiedLogger事件
+        if (window.AutogenEventBus) {
+          window.AutogenEventBus.on('system:logging:entry', (data) => {
+            const entry = data.entry;
+            // 只显示本页面的日志
+            if (entry.pageId === logger.pageId) {
+              append(entry.level, entry.message);
+            }
+          });
+        }
+        
         window.addEventListener('error', e=>{ LogPanel.error(`WindowError: ${e.message}`); });
         window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
-        setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
+        
+        setTimeout(()=> {
+          LogPanel.log('日志面板已初始化（整合UnifiedLogger）');
+          logger && LogPanel.log(`页面: ${logger.pageId}, 会话: ${logger.sessionId}`);
+        }, 0);
       })();
     </script>
 
@@ -499,10 +598,30 @@
                 this.mindmapId = 'mindmap_column_standalone';
                 this.isFullscreen = false;
                 
+                // 🔧 架构整改修复：缓存MindmapStorage实例，避免重复创建
+                this.mindmapStorage = null;
+                
                 this.init();
             }
 
             async init() {
+                // 🔧 架构整改P1：初始化StorageAdapter
+                this.storageAdapter = null;
+                if (typeof window.StorageAdapter !== 'undefined') {
+                    try {
+                        this.storageAdapter = new window.StorageAdapter();
+                        await this.storageAdapter.initialize();
+                        console.log('[脑图工作栏] ✅ StorageAdapter初始化完成');
+                    } catch (err) {
+                        console.error('[脑图工作栏] ❌ StorageAdapter初始化失败:', err);
+                        console.warn('[脑图工作栏] 将使用降级模式（直接使用AutogenUnifiedStorage）');
+                        // 降级：不使用StorageAdapter，直接使用AutogenUnifiedStorage
+                        this.storageAdapter = null;
+                    }
+                } else {
+                    console.warn('[脑图工作栏] StorageAdapter未加载，使用降级模式');
+                }
+
                 // 使用DependencyManager确保架构组件加载
                 if (typeof window.DependencyManager !== 'undefined') {
                     try {
@@ -557,7 +676,10 @@
                     debugMode: true               // 调试模式
                 });
                 
-                await this.compat.initialize(this.jm, this.ops);
+                // 🔧 架构整改P1：注入StorageAdapter到兼容层
+                await this.compat.initialize(this.jm, this.ops, {
+                    storageAdapter: this.storageAdapter
+                });
                 
                 // 检查架构状态
                 const status = this.compat.getArchitectureStatus();
@@ -584,9 +706,44 @@
                     }
                 }, 200);
 
-                // 添加页面卸载前自动保存
-                window.addEventListener('beforeunload', () => {
-                    this.autoSaveCurrentNodeContent();
+                // 🔧 架构改进：页面卸载前强制持久化保存
+                window.addEventListener('beforeunload', async (e) => {
+                    try {
+                        console.log('[脑图工作栏] 页面卸载，开始强制保存...');
+                        
+                        // 1. 保存当前节点内容
+                        this.autoSaveCurrentNodeContent();
+                        
+                        // 2. 获取完整数据
+                        const data = this.jm.get_data();
+                        
+                        // 3. 同步所有节点content
+                        const syncNodeData = (exportNode) => {
+                            if (!exportNode) return;
+                            const jmNode = this.jm.get_node(exportNode.id);
+                            if (jmNode && jmNode.data) {
+                                exportNode.data = jmNode.data;
+                            }
+                            if (exportNode.children) {
+                                exportNode.children.forEach(child => syncNodeData(child));
+                            }
+                        };
+                        syncNodeData(data.data);
+                        
+                        // 4. 强制同步保存（不使用防抖）
+                        await this.saveToUnifiedStorage(data);
+                        
+                        // 5. 等待持久化完成
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                        console.log('[脑图工作栏] ✅ 强制保存完成');
+                    } catch (error) {
+                        console.error('[脑图工作栏] ❌ 强制保存失败:', error);
+                        // 保存失败时阻止关闭（可选）
+                        // e.preventDefault();
+                        // e.returnValue = '数据尚未保存完成，确定要离开吗？';
+                        // return e.returnValue;
+                    }
                 });
                 
                 // 初始化右键菜单
@@ -638,9 +795,14 @@
 
             async loadInitialData() {
                 try {
-                    // 🔧 优先从 IndexedDB 加载（持久化数据）- 使用 MindmapStorage 自动还原
-                    if (typeof window.MindmapStorage !== 'undefined') {
-                        const mindmapStorage = new window.MindmapStorage();
+                    // 🔧 架构整改修复：优先从 IndexedDB 加载（持久化数据）- 使用 MindmapStorage 自动还原
+                    if (typeof window.MindmapStorage !== 'undefined' && this.storageAdapter) {
+                        // 🔧 复用init()中创建的storageAdapter实例
+                        const mindmapStorage = new window.MindmapStorage({
+                            storageAdapter: this.storageAdapter,
+                            eventBus: window.AutogenEventBus,
+                            logger: console
+                        });
                         const stored = await mindmapStorage.loadMindmapData('current');
                         
                         // 检查是否有实际数据（不是默认的空数据）
@@ -669,9 +831,22 @@
                         const response = await fetch('mindmap_base.json');
                         if (response.ok) {
                             const data = await response.json();
+                            
+                            // 🔧 修复：初始化所有节点的data.content字段
+                            const initNodeData = (node) => {
+                                if (!node.data) node.data = {};
+                                if (!node.data.content) node.data.content = '';
+                                if (node.children) {
+                                    node.children.forEach(child => initNodeData(child));
+                                }
+                            };
+                            if (data.data) {
+                                initNodeData(data.data);
+                            }
+                            
                             this.jm.show(data);
                             this.updateNodeCount();
-                            console.log('[脑图工作栏] 📄 已加载初始数据文件 mindmap_base.json');
+                            console.log('[脑图工作栏] 📄 已加载初始数据文件 mindmap_base.json（已初始化data.content字段）');
                             // 立即保存到IndexedDB（会自动压缩），下次就能加载
                             await this.saveToUnifiedStorage(this.jm.get_data());
                             return;
@@ -769,7 +944,10 @@
 
                 // 添加jsMind事件监听器来捕获快捷键操作
                 this.jm.add_event_listener((type, data) => {
-                    console.log('[脑图工作栏] jsMind事件:', type, data);
+                    // 🔧 日志优化：只记录关键事件
+                    if (type !== jsMind.event_type.select) {
+                        console.log('[脑图工作栏] jsMind事件:', type, data);
+                    }
                     
                     if (type === jsMind.event_type.select) {
                         // 节点选择事件
@@ -863,7 +1041,15 @@
                     const { RelationManager } = await import('./relation-manager.js');
                     
                     if (RelationManager) {
-                        this.relationManager = new RelationManager(this.jm);
+                        // 🔧 修复：如果没有StorageAdapter，跳过关系管理器初始化
+                        if (!this.storageAdapter) {
+                            console.warn('[脑图工作栏] ⚠️  StorageAdapter不可用，跳过关系管理器初始化');
+                            return;
+                        }
+                        
+                        this.relationManager = new RelationManager(this.jm, {
+                            storageAdapter: this.storageAdapter
+                        });
                         console.log('[脑图工作栏] 关系管理器初始化完成');
                         
                         // 输出关系统计
@@ -1197,10 +1383,13 @@
                     let hasChanges = false;
                     
                     // 保存内容（不要trim，保留空行）
-                    if (editor && editor.value) {
+                    // 🔧 修复：即使内容为空也要保存，确保data.content字段存在
+                    if (editor) {
                         if (!currentNode.data) currentNode.data = {};
-                        currentNode.data.content = editor.value;
-                        console.log('[脑图工作栏] 自动保存节点内容:', this.currentNodeId);
+                        currentNode.data.content = editor.value || '';
+                        if (editor.value) {
+                            console.log('[脑图工作栏] 自动保存节点内容:', this.currentNodeId, `(${editor.value.length}字符)`);
+                        }
                         hasChanges = true;
                     }
                     
@@ -1551,8 +1740,11 @@
                     const titleInput = document.getElementById('nodeTitleEditor');
 
                     if (editor) {
-                        // 🔧 修复：兼容错误的嵌套结构 node.data.data.content
+                        // 🔧 修复：兼容多种数据结构
                         let content = '';
+                        
+                        // 🔧 修复：移除循环引用的JSON.stringify，jsMind节点有parent属性导致循环引用
+                        
                         if (node.data) {
                             // 正确结构：node.data.content
                             if (typeof node.data.content === 'string') {
@@ -1564,14 +1756,23 @@
                                 console.warn('[脑图工作栏] 检测到错误的数据结构嵌套:', node.id);
                             }
                         }
+                        
+                        // 🔧 新增：检查是否有旧的content字段（直接在node上）
+                        if (!content && node.content && typeof node.content === 'string') {
+                            content = node.content;
+                            console.warn('[脑图工作栏] 检测到旧格式content字段:', node.id);
+                        }
+                        
                         editor.value = String(content || '');
-                        console.log('[脑图工作栏] 加载节点内容到编辑器:', content);
+                        console.log('[DEBUG] 最终加载内容长度:', content.length, '来源:', content ? '有内容' : '空内容');
                     }
 
                     if (titleInput) {
                         titleInput.value = node.topic || '';
-                        console.log('[脑图工作栏] 加载节点标题到编辑器:', node.topic);
                     }
+
+                    // 🔧 日志优化：只输出一条摘要日志
+                    console.log(`[脑图工作栏] 节点选择: ${node.topic} (ID: ${node.id})`);
 
                     // 触发节点选中事件
                     this.emitEvent('mindmap.node.selected', {
@@ -2001,13 +2202,42 @@
             // 统一存储保存（完全委托给MindmapStorage）
             async saveToUnifiedStorage(data) {
                 try {
+                    // 🚨 关键修复：保存前必须同步所有节点的content
+                    // 原因：jm.get_data()不会自动导出node.data字段
+                    const syncNodeData = (exportNode) => {
+                        if (!exportNode) return;
+                        const jmNode = this.jm.get_node(exportNode.id);
+                        if (jmNode && jmNode.data) {
+                            exportNode.data = jmNode.data;
+                        }
+                        if (exportNode.children) {
+                            exportNode.children.forEach(child => syncNodeData(child));
+                        }
+                    };
+                    syncNodeData(data.data);
+                    console.log('[脑图工作栏] ✅ 已同步所有节点content');
+                    
                     if (typeof window.MindmapStorage === 'undefined') {
                         throw new Error('MindmapStorage未加载');
                     }
                     
-                    const mindmapStorage = new window.MindmapStorage();
-                    const success = await mindmapStorage.saveMindmapData(data, true);
-                    console.log('[脑图工作栏] 数据已保存:', this.mindmapId, '结果:', success);
+                    // 🔧 架构整改修复：复用init()中创建的storageAdapter实例
+                    if (!this.storageAdapter) {
+                        throw new Error('StorageAdapter未初始化，请检查init()方法');
+                    }
+                    
+                    // 🔧 架构整改修复：缓存MindmapStorage实例，避免每次保存都创建新实例
+                    if (!this.mindmapStorage) {
+                        this.mindmapStorage = new window.MindmapStorage({
+                            storageAdapter: this.storageAdapter,
+                            eventBus: window.AutogenEventBus,
+                            logger: console
+                        });
+                        console.log('[脑图工作栏] ✅ MindmapStorage实例已创建并缓存');
+                    }
+                    
+                    const success = await this.mindmapStorage.saveMindmapData(data, true);
+                    console.log('[脑图工作栏] ✅ 数据已保存:', this.mindmapId, '结果:', success);
                     return success;
                 } catch (err) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
@@ -2025,55 +2255,46 @@
         // 暴露到全局（方便调试）
         window.mindmapColumn = mindmapColumn;
         
-        // 🔧 调试工具：手动恢复缓存数据
+        // 🔧 架构整改P1：调试工具改用StorageAdapter
         window.debugRecoverCache = async function() {
             console.log('=== 开始恢复缓存数据 ===');
             
-            // 1. 检查IndexedDB（使用单例）
-            const storage = window.AutogenUnifiedStorage;
-            const cached = await storage.retrieve('mindmap', 'current');
+            // 🔧 使用StorageAdapter替代直接访问
+            const storageAdapter = window.mindmapColumn?.storageAdapter;
+            if (!storageAdapter) {
+                console.error('❌ StorageAdapter不可用');
+                return null;
+            }
             
-            if (cached) {
-                console.log('✅ 找到IndexedDB缓存:', cached);
+            try {
+                // 1. 通过StorageAdapter加载数据
+                const cached = await storageAdapter.loadMindmap('current');
                 
-                // 检查是否有实际数据
-                const hasData = cached.data && (
-                    (cached.data.children && cached.data.children.length > 0) ||
-                    (cached.meta && cached.meta.name && cached.meta.name !== 'default_mindmap')
-                );
-                
-                if (hasData) {
-                    console.log('✅ 缓存包含实际数据，开始恢复...');
-                    window.mindmapColumn.jm.show(cached);
-                    window.mindmapColumn.updateNodeCount();
-                    console.log('✅ 恢复完成！');
-                    return cached;
+                if (cached) {
+                    console.log('✅ 找到缓存数据:', cached);
+                    
+                    // 检查是否有实际数据
+                    const hasData = cached.data && (
+                        (cached.data.children && cached.data.children.length > 0) ||
+                        (cached.meta && cached.meta.name && cached.meta.name !== 'default_mindmap')
+                    );
+                    
+                    if (hasData) {
+                        console.log('✅ 缓存包含实际数据，开始恢复...');
+                        window.mindmapColumn.jm.show(cached);
+                        window.mindmapColumn.updateNodeCount();
+                        console.log('✅ 恢复完成！');
+                        return cached;
+                    } else {
+                        console.log('⚠️ 缓存只有默认数据，无需恢复');
+                        return null;
+                    }
                 } else {
-                    console.log('⚠️ 缓存只有默认数据，无需恢复');
+                    console.log('❌ 未找到缓存数据');
                     return null;
                 }
-            } else {
-                console.log('❌ 未找到IndexedDB缓存');
-                
-                // 2. 检查LocalStorage
-                const lsKey = 'autogen:mindmap:current';
-                const lsData = localStorage.getItem(lsKey);
-                if (lsData) {
-                    console.log('✅ 找到LocalStorage缓存');
-                    try {
-                        const parsed = JSON.parse(lsData);
-                        if (parsed.value) {
-                            window.mindmapColumn.jm.show(parsed.value);
-                            window.mindmapColumn.updateNodeCount();
-                            console.log('✅ 从LocalStorage恢复完成！');
-                            return parsed.value;
-                        }
-                    } catch (e) {
-                        console.error('❌ LocalStorage数据解析失败:', e);
-                    }
-                }
-                
-                console.log('❌ 所有缓存都为空');
+            } catch (error) {
+                console.error('❌ 恢复缓存失败:', error);
                 return null;
             }
         };

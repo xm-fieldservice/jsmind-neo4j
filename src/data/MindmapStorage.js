@@ -58,8 +58,11 @@ class MindmapStorage {
             // 获取存储键
             const mindKey = this._getMindmapKey(data);
             
-            // 🆕 智能压缩数据（如果压缩引擎可用）
+            // 🔧 架构整改修复：确保数据有id字段，使用固定的'current'作为ID
             const dataToStore = this.compressor ? this.compressor.compress(data) : data;
+            if (!dataToStore.id) {
+                dataToStore.id = 'current';  // 固定使用'current'作为ID
+            }
             
             // 使用StorageAdapter保存
             const success = await this.storageAdapter.saveMindmap(dataToStore);
@@ -183,99 +186,8 @@ class MindmapStorage {
         }
     }
 
-    /**
-     * 统一存储保存方法（从控制器迁移）
-     * @deprecated 此方法将在下一版本移除，请使用 saveMindmapData() 替代
-     * 🔧 架构整改：此方法仍使用旧的直接存储方式，需要重构
-     */
-    async saveWithUnifiedStorage(jmData, immediate = false) {
-        // 防抖逻辑
-        if (!immediate) {
-            clearTimeout(this._saveDebounceTimer);
-            this._saveDebounceTimer = setTimeout(() => {
-                this.saveWithUnifiedStorage(jmData, true);
-            }, 800);
-            return { success: true, deferred: true };
-        }
-
-        try {
-            // 🔧 临时方案：通过StorageAdapter访问底层存储
-            const storage = this.storageAdapter.storage;
-            if (!storage) {
-                throw new Error('底层存储不可用，无法保存数据');
-            }
-
-            // 获取存储键
-            const mindKey = this._extractMindKey(jmData);
-            
-            // 使用统一存储系统保存
-            const result = await storage.store('mindmap', mindKey, jmData);
-            
-            if (result && result.success) {
-                this.logger.log('[MindmapStorage] ✅ 统一存储保存成功:', mindKey);
-                
-                // 触发保存事件
-                if (this.eventBus) {
-                    this.eventBus.emit('mindmap:storageSaved', {
-                        mindKey,
-                        dataSize: JSON.stringify(jmData).length,
-                        timestamp: Date.now()
-                    });
-                }
-                
-                return { success: true, mindKey };
-            } else {
-                throw new Error(result?.error || '保存失败');
-            }
-            
-        } catch (error) {
-            this.logger.error('[MindmapStorage] 统一存储保存失败:', error);
-            return { success: false, error: error.message };
-        }
-    }
-
-    /**
-     * 从统一存储加载数据（从控制器迁移）
-     * @deprecated 此方法将在下一版本移除，请使用 loadMindmapData() 替代
-     * 🔧 架构整改：此方法仍使用旧的直接存储方式，需要重构
-     */
-    async loadFromUnifiedStorage(mindKey = null) {
-        try {
-            // 🔧 临时方案：通过StorageAdapter访问底层存储
-            const storage = this.storageAdapter.storage;
-            if (!storage) {
-                throw new Error('底层存储不可用');
-            }
-
-            // 默认使用当前键
-            const storageKey = mindKey || 'mindmap_data_v1';
-            
-            // 从统一存储加载
-            const data = await storage.retrieve('mindmap', storageKey);
-            
-            if (data) {
-                this.logger.log('[MindmapStorage] ✅ 从统一存储加载成功:', storageKey);
-                
-                // 触发加载事件
-                if (this.eventBus) {
-                    this.eventBus.emit('mindmap:storageLoaded', {
-                        storageKey,
-                        dataSize: JSON.stringify(data).length,
-                        timestamp: Date.now()
-                    });
-                }
-                
-                return data;
-            }
-            
-            this.logger.log('[MindmapStorage] 未找到数据:', storageKey);
-            return null;
-            
-        } catch (error) {
-            this.logger.error('[MindmapStorage] 从统一存储加载失败:', error);
-            return null;
-        }
-    }
+    // 🔧 架构整改：已删除saveWithUnifiedStorage()和loadFromUnifiedStorage()方法
+    // 统一使用saveMindmapData()和loadMindmapData()方法
 
     /**
      * JSON底座同步（从控制器迁移）

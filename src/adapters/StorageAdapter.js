@@ -22,6 +22,12 @@ class StorageAdapter {
         // 初始化标志
         this.initialized = false;
         
+        // 🆕 P1.3: JSON底座同步配置
+        this.jsonBaseSyncEnabled = true;
+        this.jsonBaseEndpoint = 'http://localhost:5001/api/sync-mindmap';
+        this._syncDebounceTimer = null;
+        this._lastSyncHash = null;
+        
         console.log('[StorageAdapter] 存储适配器创建');
     }
 
@@ -38,6 +44,12 @@ class StorageAdapter {
         if (typeof window !== 'undefined' && window.AutogenUnifiedStorage) {
             this.storage = window.AutogenUnifiedStorage;
             console.log('[StorageAdapter] 使用 AutogenUnifiedStorage');
+            
+            // 等待AutogenUnifiedStorage初始化完成
+            if (this.storage.indexedDB === undefined) {
+                console.log('[StorageAdapter] 等待AutogenUnifiedStorage初始化...');
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
         } else {
             throw new Error('[StorageAdapter] AutogenUnifiedStorage 未找到');
         }
@@ -65,14 +77,22 @@ class StorageAdapter {
         const transformed = this._transformToStorageFormat(validated, 'mindmap');
         
         // 存储
+        const mindmapId = mindmapData.id || this._generateId();
         const result = await this.storage.store(
             'mindmap',
-            mindmapData.id || this._generateId(),
+            mindmapId,
             transformed,
             options
         );
 
-        console.log(`[StorageAdapter] 脑图 ${mindmapData.id} 保存成功`);
+        // 🆕 P1.3: 自动同步到JSON底座
+        if (this.jsonBaseSyncEnabled && !options.skipJsonBaseSync) {
+            this._syncToJsonBase(mindmapId, transformed).catch(err => {
+                console.warn('[StorageAdapter] JSON底座同步失败（不影响保存）:', err.message);
+            });
+        }
+
+        console.log(`[StorageAdapter] 脑图 ${mindmapId} 保存成功`);
         return result;
     }
 
@@ -275,6 +295,107 @@ class StorageAdapter {
     _ensureInitialized() {
         if (!this.initialized) {
             throw new Error('[StorageAdapter] 存储适配器未初始化，请先调用 initialize()');
+        }
+    }
+
+    /**
+     * 🆕 P1.3: 同步到JSON底座
+     * @param {string} mindmapId - 脑图ID
+     * @param {Object} data - 脑图数据
+     * @param {boolean} immediate - 是否立即同步
+     */
+    async _syncToJsonBase(mindmapId, data, immediate = false) {
+        // 防抖机制
+        if (!immediate) {
+            clearTimeout(this._syncDebounceTimer);
+            this._syncDebounceTimer = setTimeout(() => {
+                this._syncToJsonBase(mindmapId, data, true);
+            }, 2000);
+            return { success: true, deferred: true };
+        }
+
+        try {
+            // 检查数据变更
+            const currentHash = this._calculateDataHash(data);
+            if (currentHash === this._lastSyncHash) {
+                return { success: true, skipped: true, reason: '数据未变更' };
+            }
+
+            // 构建同步数据
+            const syncData = {
+                id: mindmapId,
+                name: (data.data && (data.data.topic || data.data.label)) || '未命名项目',
+                data: data,
+                last_modified: new Date().toISOString(),
+                content_hash: currentHash
+            };
+
+            // 发送到JSON底座API
+            const response = await fetch(this.jsonBaseEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(syncData)
+            });
+
+            if (response.ok) {
+                this._lastSyncHash = currentHash;
+                console.log(`[StorageAdapter] ✅ JSON底座同步成功: ${mindmapId}`);
+                return { success: true, hash: currentHash };
+            } else {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+        } catch (error) {
+            // 网络错误时静默处理，不影响本地保存
+            console.warn(`[StorageAdapter] JSON底座同步异常: ${error.message}`);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * 🆕 P1.3: 批量同步到JSON底座
+     * @param {Array} items - 数据项数组 [{id, data}, ...]
+     */
+    async batchSyncToJsonBase(items) {
+        const results = {
+            success: 0,
+            failed: 0,
+            total: items.length
+        };
+
+        for (const item of items) {
+            try {
+                const result = await this._syncToJsonBase(item.id, item.data, true);
+                if (result.success) {
+                    results.success++;
+                } else {
+                    results.failed++;
+                }
+            } catch (error) {
+                results.failed++;
+            }
+        }
+
+        console.log(`[StorageAdapter] 批量同步完成: ${results.success}/${results.total}`);
+        return results;
+    }
+
+    /**
+     * 计算数据哈希值
+     * @private
+     */
+    _calculateDataHash(data) {
+        try {
+            const str = JSON.stringify(data);
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString(16);
+        } catch (error) {
+            return 'hash_error_' + Date.now();
         }
     }
 }

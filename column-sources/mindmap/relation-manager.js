@@ -16,21 +16,27 @@ export class RelationManager {
     /**
      * 构造函数
      * @param {jsMind} jm - jsMind实例
+     * @param {Object} dependencies - 依赖注入对象
      * @param {Object} options - 配置选项
      */
-    constructor(jm, options = {}) {
+    constructor(jm, dependencies = {}, options = {}) {
         this.jm = jm;
         this.options = options;
         
-        // 复用现有架构组件
-        this.storage = window.AutogenUnifiedStorage;
-        this.eventBus = window.AutogenEventBus;
-        this.errorHandler = window.ErrorHandler;
+        // 🔧 架构整改：强制使用StorageAdapter，移除直接访问window.AutogenUnifiedStorage
+        this.storageAdapter = dependencies.storageAdapter;
+        this.eventBus = dependencies.eventBus || window.AutogenEventBus;
+        this.errorHandler = dependencies.errorHandler || window.ErrorHandler;
+        
+        // 强制要求StorageAdapter
+        if (!this.storageAdapter) {
+            throw new Error('[RelationManager] StorageAdapter是必需的依赖，请通过依赖注入提供');
+        }
         
         // 验证依赖
         this._validateDependencies();
         
-        console.log('[RelationManager] 初始化完成');
+        console.log('[RelationManager] ✅ 初始化完成（使用StorageAdapter）');
     }
     
     /**
@@ -38,8 +44,8 @@ export class RelationManager {
      * @private
      */
     _validateDependencies() {
-        if (!this.storage) {
-            console.warn('[RelationManager] AutogenUnifiedStorage未找到，数据持久化功能将不可用');
+        if (!this.storageAdapter) {
+            console.warn('[RelationManager] StorageAdapter未找到，数据持久化功能将不可用');
         }
         if (!this.eventBus) {
             console.warn('[RelationManager] AutogenEventBus未找到，事件通知功能将不可用');
@@ -287,14 +293,15 @@ export class RelationManager {
      * @private
      */
     async _saveToStorage() {
-        if (!this.storage) {
+        if (!this.storageAdapter) {
             return;
         }
         
         try {
             const mindmapData = this.jm.get_data();
-            await this.storage.store('mindmap', 'current', mindmapData);
-            console.log('[RelationManager] 数据已保存到AutogenUnifiedStorage');
+            // 🔧 架构整改：使用StorageAdapter保存数据
+            await this.storageAdapter.saveMindmap(mindmapData);
+            console.log('[RelationManager] ✅ 数据已通过StorageAdapter保存');
         } catch (err) {
             console.error('[RelationManager] 保存失败:', err);
         }

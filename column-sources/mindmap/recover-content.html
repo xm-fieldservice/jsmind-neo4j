@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>恢复节点内容</title>
+</head>
+<body>
+    <h1>节点内容恢复工具</h1>
+    <button onclick="checkIndexedDB()">1. 检查IndexedDB数据</button>
+    <button onclick="listAllKeys()">2. 列出所有存储的key</button>
+    <button onclick="exportData()">3. 导出数据</button>
+    <pre id="output"></pre>
+
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script>
+        const output = document.getElementById('output');
+        
+        async function checkIndexedDB() {
+            output.textContent = '正在检查IndexedDB...\n';
+            
+            try {
+                // 检查mindmap数据
+                const mindmapKey = 'autogen:mindmap:current';
+                const data = await AutogenUnifiedStorage.retrieve(mindmapKey);
+                
+                if (data) {
+                    output.textContent += '\n✅ 找到数据！\n';
+                    output.textContent += JSON.stringify(data, null, 2);
+                } else {
+                    output.textContent += '\n❌ IndexedDB中没有数据\n';
+                }
+            } catch (e) {
+                output.textContent += '\n❌ 错误: ' + e.message;
+            }
+        }
+        
+        async function listAllKeys() {
+            output.textContent = '正在列出所有key...\n';
+            
+            try {
+                const stats = await AutogenUnifiedStorage.getStats();
+                output.textContent += '\n存储统计:\n';
+                output.textContent += JSON.stringify(stats, null, 2);
+                
+                // 尝试列出所有mindmap相关的key
+                const possibleKeys = [
+                    'autogen:mindmap:current',
+                    'autogen:mindmap:mindmap_column_standalone',
+                    'mindmap:current',
+                    'mindmap_data'
+                ];
+                
+                output.textContent += '\n\n检查可能的key:\n';
+                for (const key of possibleKeys) {
+                    const data = await AutogenUnifiedStorage.retrieve(key);
+                    if (data) {
+                        output.textContent += `\n✅ ${key}: 有数据 (${JSON.stringify(data).length}字节)`;
+                    } else {
+                        output.textContent += `\n❌ ${key}: 无数据`;
+                    }
+                }
+            } catch (e) {
+                output.textContent += '\n❌ 错误: ' + e.message;
+            }
+        }
+        
+        async function exportData() {
+            output.textContent = '正在导出数据...\n';
+            
+            try {
+                const mindmapKey = 'autogen:mindmap:current';
+                const data = await AutogenUnifiedStorage.retrieve(mindmapKey);
+                
+                if (data) {
+                    // 创建下载链接
+                    const json = JSON.stringify(data, null, 2);
+                    const blob = new Blob([json], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `recovered_mindmap_${Date.now()}.json`;
+                    a.click();
+                    
+                    output.textContent += '\n✅ 数据已导出！';
+                } else {
+                    output.textContent += '\n❌ 没有数据可导出';
+                }
+            } catch (e) {
+                output.textContent += '\n❌ 错误: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>

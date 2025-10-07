@@ -86,6 +86,10 @@
             this.errorHandler = null;
             this.eventBus = null;
             
+            // 🆕 页面标识
+            this.pageId = this._detectPageId();
+            this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
             // 🆕 重复日志检测
             this.lastLog = null;
             this.repeatCount = 0;
@@ -100,6 +104,11 @@
             this.persistEnabled = true;
             this.persistBatchSize = 10;
             this.persistQueue = [];
+            
+            // 🆕 本地文件导出配置
+            this.autoExportEnabled = false;
+            this.autoExportInterval = 5 * 60 * 1000; // 5分钟自动导出
+            this.lastExportTime = Date.now();
             
             // 统计信息
             this.stats = {
@@ -127,7 +136,7 @@
             // 自动清理定时器
             this._setupAutoCleanup();
             
-            console.log('[UnifiedLogger] ✅ 统一日志系统已初始化（整合版）');
+            console.log(`[UnifiedLogger] ✅ 统一日志系统已初始化（整合版） - 页面: ${this.pageId}`);
         }
 
         /**
@@ -246,6 +255,8 @@
                 category: category,
                 message: message,
                 data: data,
+                pageId: this.pageId,        // 🆕 页面标识
+                sessionId: this.sessionId,  // 🆕 会话标识
                 context: {
                     url: window.location?.href,
                     userAgent: navigator?.userAgent,
@@ -335,6 +346,23 @@
                     level: logEntry.level 
                 });
             }
+        }
+
+        /**
+         * 🆕 检测页面标识
+         */
+        _detectPageId() {
+            if (typeof window === 'undefined') return 'server';
+            
+            const path = window.location.pathname;
+            const filename = path.split('/').pop() || 'index.html';
+            
+            // 识别特定页面
+            if (filename.includes('mindmap')) return 'mindmap';
+            if (filename.includes('index')) return 'main';
+            if (filename.includes('test')) return 'test';
+            
+            return filename.replace('.html', '') || 'unknown';
         }
 
         /**
@@ -552,6 +580,8 @@
         export(format = 'json') {
             const data = {
                 exportTime: new Date().toISOString(),
+                pageId: this.pageId,
+                sessionId: this.sessionId,
                 stats: this.getStats(),
                 logs: this.logBuffer.getAll()
             };
@@ -563,6 +593,86 @@
             }
 
             return data;
+        }
+
+        /**
+         * 🆕 导出到本地文件
+         */
+        async exportToFile(format = 'json') {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const filename = `logs_${this.pageId}_${timestamp}.${format}`;
+            
+            const content = this.export(format);
+            const blob = new Blob([content], { 
+                type: format === 'json' ? 'application/json' : 'text/csv' 
+            });
+            
+            // 使用File System Access API（如果支持）
+            if ('showSaveFilePicker' in window) {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: filename,
+                        types: [{
+                            description: format === 'json' ? 'JSON日志文件' : 'CSV日志文件',
+                            accept: {
+                                [format === 'json' ? 'application/json' : 'text/csv']: [`.${format}`]
+                            }
+                        }]
+                    });
+                    
+                    const writable = await handle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    
+                    console.log(`[UnifiedLogger] ✅ 日志已导出到文件: ${filename}`);
+                    return { success: true, filename };
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error('[UnifiedLogger] 文件导出失败:', error);
+                    }
+                    return { success: false, error };
+                }
+            } else {
+                // 降级：使用下载链接
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                console.log(`[UnifiedLogger] ✅ 日志已下载: ${filename}`);
+                return { success: true, filename };
+            }
+        }
+
+        /**
+         * 🆕 启用自动导出
+         */
+        enableAutoExport(interval = 5 * 60 * 1000) {
+            this.autoExportEnabled = true;
+            this.autoExportInterval = interval;
+            
+            setInterval(() => {
+                if (this.autoExportEnabled && this.logBuffer.size > 0) {
+                    const timeSinceLastExport = Date.now() - this.lastExportTime;
+                    if (timeSinceLastExport >= this.autoExportInterval) {
+                        this.exportToFile('json').then(() => {
+                            this.lastExportTime = Date.now();
+                        });
+                    }
+                }
+            }, 60 * 1000); // 每分钟检查一次
+            
+            console.log(`[UnifiedLogger] 自动导出已启用，间隔: ${interval/1000}秒`);
+        }
+
+        /**
+         * 🆕 禁用自动导出
+         */
+        disableAutoExport() {
+            this.autoExportEnabled = false;
+            console.log('[UnifiedLogger] 自动导出已禁用');
         }
 
         /**

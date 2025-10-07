@@ -117,13 +117,10 @@ class DataCompressor {
             topic: node.topic
         };
         
-        // 🔧 保存所有内容（包括空内容）
-        // 策略：如果node.data存在，说明用户编辑过，必须保存
-        if (node.data !== undefined) {
-            const content = node.data.content || "";
-            // 保存所有内容，包括空字符串（用户可能清空了内容）
-            compressed.data = { content: content };
-        }
+        // 🔧 修复：始终保存data.content字段（即使为空）
+        // 原因：jsMind节点可能有content但没有data对象，需要兼容处理
+        const content = node.data?.content || node.content || "";
+        compressed.data = { content: content };
         
         // 只保存非默认meta
         const meta = this._compressNodeMeta(node.meta);
@@ -155,11 +152,14 @@ class DataCompressor {
     _decompressNode(node) {
         if (!node) return null;
         
+        // 🔧 修复：兼容多种content存储位置
+        const content = node.data?.content || node.content || "";
+        
         const decompressed = {
             id: node.id,
             topic: node.topic,
             data: {
-                content: node.data?.content || ""
+                content: content
             },
             meta: this._decompressNodeMeta(node.meta),
             children: node.children ? node.children.map(child => this._decompressNode(child)) : []
