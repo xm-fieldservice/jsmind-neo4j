@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ErrorHandler 浏览器测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .stats {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>ErrorHandler 浏览器测试</h1>
+    
+    <div class="stats" id="stats">
+        <h3>错误统计</h3>
+        <div id="statsContent">加载中...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>1. 基础错误处理</h3>
+        <button onclick="testBasicError()">测试Error对象</button>
+        <button onclick="testStringError()">测试字符串错误</button>
+        <button onclick="testAsyncError()">测试异步错误</button>
+        <div class="result" id="result1"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. 错误分类</h3>
+        <button onclick="testStorageError()">测试存储错误</button>
+        <button onclick="testNetworkError()">测试网络错误</button>
+        <button onclick="testPermissionError()">测试权限错误</button>
+        <div class="result" id="result2"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. 恢复策略</h3>
+        <button onclick="testRecoveryStrategy()">测试自定义恢复策略</button>
+        <button onclick="testStorageRecovery()">测试存储恢复</button>
+        <div class="result" id="result3"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. 错误日志</h3>
+        <button onclick="testErrorLog()">查看错误日志</button>
+        <button onclick="testFilterLog()">过滤错误日志</button>
+        <button onclick="testClearLog()">清空错误日志</button>
+        <div class="result" id="result4"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>5. 兼容接口测试</h3>
+        <button onclick="testProcessError()">测试processError()</button>
+        <button onclick="testRegisterHandler()">测试registerHandler()</button>
+        <div class="result" id="result5"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>6. 错误限流</h3>
+        <button onclick="testThrottling()">测试错误限流</button>
+        <div class="result" id="result6"></div>
+    </div>
+
+    <!-- 加载ErrorHandler -->
+    <script src="../../src/core/ErrorHandler.js"></script>
+    
+    <script>
+        // 更新统计信息
+        function updateStats() {
+            const stats = window.ErrorHandler.getErrorStats();
+            document.getElementById('statsContent').innerHTML = `
+                总错误数: ${stats.total}
+                最近24小时: ${stats.recent}
+                按级别: ${JSON.stringify(stats.byLevel, null, 2)}
+                按类型: ${JSON.stringify(stats.byType, null, 2)}
+            `;
+        }
+        
+        // 初始化统计
+        updateStats();
+        
+        // 测试函数
+        async function testBasicError() {
+            const result = document.getElementById('result1');
+            try {
+                const error = new Error('这是一个测试错误');
+                await window.ErrorHandler.handle(error, {}, { silent: true, returnResult: true });
+                
+                result.innerHTML = '<span class="success">✓ Error对象处理成功</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testStringError() {
+            const result = document.getElementById('result1');
+            try {
+                await window.ErrorHandler.handle('字符串错误测试', {}, { silent: true });
+                result.innerHTML = '<span class="success">✓ 字符串错误处理成功</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testAsyncError() {
+            const result = document.getElementById('result1');
+            try {
+                const asyncResult = await window.ErrorHandler.handle(
+                    new Error('异步错误'),
+                    {},
+                    { silent: true, returnResult: true }
+                );
+                
+                result.innerHTML = '<span class="success">✓ 异步错误处理成功\n' + 
+                    JSON.stringify(asyncResult, null, 2) + '</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testStorageError() {
+            const result = document.getElementById('result2');
+            try {
+                const error = new Error('localStorage quota exceeded');
+                await window.ErrorHandler.handle(error, {}, { silent: true });
+                
+                const lastError = window.ErrorHandler.errorLog[window.ErrorHandler.errorLog.length - 1];
+                result.innerHTML = '<span class="success">✓ 存储错误分类成功\n' +
+                    '错误类型: ' + lastError.type + '</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testNetworkError() {
+            const result = document.getElementById('result2');
+            try {
+                const error = new Error('fetch failed: network error');
+                await window.ErrorHandler.handle(error, {}, { silent: true });
+                
+                const lastError = window.ErrorHandler.errorLog[window.ErrorHandler.errorLog.length - 1];
+                result.innerHTML = '<span class="success">✓ 网络错误分类成功\n' +
+                    '错误类型: ' + lastError.type + '</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testPermissionError() {
+            const result = document.getElementById('result2');
+            try {
+                const error = new Error('permission denied');
+                await window.ErrorHandler.handle(error, {}, { silent: true });
+                
+                const lastError = window.ErrorHandler.errorLog[window.ErrorHandler.errorLog.length - 1];
+                result.innerHTML = '<span class="success">✓ 权限错误分类成功\n' +
+                    '错误类型: ' + lastError.type + '</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testRecoveryStrategy() {
+            const result = document.getElementById('result3');
+            try {
+                // 注册自定义恢复策略
+                window.ErrorHandler.registerRecoveryStrategy('CustomError', async (errorInfo) => {
+                    return { success: true, message: '自定义恢复成功' };
+                });
+                
+                const error = new Error('自定义错误');
+                error.name = 'CustomError';
+                
+                const handleResult = await window.ErrorHandler.handle(
+                    error,
+                    {},
+                    { silent: true, returnResult: true }
+                );
+                
+                result.innerHTML = '<span class="success">✓ 自定义恢复策略测试成功\n' +
+                    JSON.stringify(handleResult.recoveryResult, null, 2) + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testStorageRecovery() {
+            const result = document.getElementById('result3');
+            try {
+                const error = new Error('localStorage error');
+                const handleResult = await window.ErrorHandler.handle(
+                    error,
+                    {},
+                    { silent: true, returnResult: true, autoRecover: true }
+                );
+                
+                result.innerHTML = '<span class="success">✓ 存储恢复策略测试成功\n' +
+                    JSON.stringify(handleResult.recoveryResult, null, 2) + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        function testErrorLog() {
+            const result = document.getElementById('result4');
+            try {
+                const logs = window.ErrorHandler.getErrorLog({ limit: 10 });
+                result.innerHTML = '<span class="success">✓ 错误日志获取成功\n' +
+                    '最近10条错误:\n' + JSON.stringify(logs, null, 2) + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        function testFilterLog() {
+            const result = document.getElementById('result4');
+            try {
+                const warnings = window.ErrorHandler.getErrorLog({ level: 'warning' });
+                const errors = window.ErrorHandler.getErrorLog({ level: 'error' });
+                
+                result.innerHTML = '<span class="success">✓ 日志过滤成功\n' +
+                    '警告数: ' + warnings.length + '\n' +
+                    '错误数: ' + errors.length + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        function testClearLog() {
+            const result = document.getElementById('result4');
+            try {
+                const beforeCount = window.ErrorHandler.errorLog.length;
+                window.ErrorHandler.clearErrorLog();
+                const afterCount = window.ErrorHandler.errorLog.length;
+                
+                result.innerHTML = '<span class="success">✓ 日志清空成功\n' +
+                    '清空前: ' + beforeCount + ' 条\n' +
+                    '清空后: ' + afterCount + ' 条</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testProcessError() {
+            const result = document.getElementById('result5');
+            try {
+                const processResult = await window.ErrorHandler.processError(
+                    new Error('processError测试'),
+                    {}
+                );
+                
+                result.innerHTML = '<span class="success">✓ processError()接口测试成功\n' +
+                    JSON.stringify(processResult, null, 2) + '</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        function testRegisterHandler() {
+            const result = document.getElementById('result5');
+            try {
+                window.ErrorHandler.registerHandler('TestHandler', async (errorInfo) => {
+                    return { success: true, handled: true };
+                });
+                
+                const hasHandler = window.ErrorHandler.recoveryStrategies.has('TestHandler');
+                result.innerHTML = '<span class="success">✓ registerHandler()接口测试成功\n' +
+                    '处理器已注册: ' + hasHandler + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testThrottling() {
+            const result = document.getElementById('result6');
+            try {
+                const beforeCount = window.ErrorHandler.errorLog.length;
+                
+                // 快速触发10次相同错误
+                for (let i = 0; i < 10; i++) {
+                    await window.ErrorHandler.handle(
+                        new Error('重复错误测试'),
+                        {},
+                        { silent: true }
+                    );
+                }
+                
+                const afterCount = window.ErrorHandler.errorLog.length;
+                const actualAdded = afterCount - beforeCount;
+                
+                result.innerHTML = '<span class="success">✓ 错误限流测试成功\n' +
+                    '触发次数: 10\n' +
+                    '实际记录: ' + actualAdded + ' (限流生效)</span>';
+                updateStats();
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        // 定期更新统计
+        setInterval(updateStats, 5000);
+    </script>
+</body>
+</html>

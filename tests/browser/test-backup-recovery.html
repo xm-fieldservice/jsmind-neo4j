@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BackupRecoveryService 浏览器测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #0b7dda;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>BackupRecoveryService 浏览器测试</h1>
+    
+    <div class="test-section">
+        <h3>1. 创建备份</h3>
+        <button onclick="testCreateBackup()">创建手动备份</button>
+        <button onclick="testAutoBackup()">启动自动备份</button>
+        <button onclick="stopAutoBackup()">停止自动备份</button>
+        <div class="result" id="result1"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. 备份列表</h3>
+        <button onclick="testGetBackupList()">获取备份列表</button>
+        <button onclick="testGetBackupStats()">获取备份统计</button>
+        <div class="result" id="result2"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. 恢复备份</h3>
+        <input type="text" id="restoreBackupId" placeholder="输入备份ID" style="padding: 8px; width: 300px;">
+        <button onclick="testRestoreBackup()">恢复备份</button>
+        <div class="result" id="result3"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. 删除备份</h3>
+        <input type="text" id="deleteBackupId" placeholder="输入备份ID" style="padding: 8px; width: 300px;">
+        <button onclick="testDeleteBackup()">删除备份</button>
+        <div class="result" id="result4"></div>
+    </div>
+
+    <!-- 加载依赖 -->
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="../../src/adapters/StorageAdapter.js"></script>
+    <script src="../../src/services/BackupRecoveryService.js"></script>
+    
+    <script>
+        let backupService;
+        let storageAdapter;
+        
+        // 初始化
+        async function init() {
+            try {
+                // 初始化StorageAdapter
+                storageAdapter = new StorageAdapter();
+                await storageAdapter.initialize();
+                
+                // 创建BackupRecoveryService
+                backupService = new BackupRecoveryService({
+                    storageAdapter: storageAdapter,
+                    config: {
+                        autoBackupEnabled: false,
+                        autoBackupInterval: 10000, // 10秒
+                        maxBackups: 5
+                    }
+                });
+                
+                console.log('[测试] 初始化完成');
+            } catch (error) {
+                console.error('[测试] 初始化失败:', error);
+                alert('初始化失败: ' + error.message);
+            }
+        }
+        
+        // 测试函数
+        async function testCreateBackup() {
+            const result = document.getElementById('result1');
+            try {
+                result.innerHTML = '创建备份中...';
+                
+                const backupResult = await backupService.createBackup('manual');
+                
+                result.innerHTML = '<span class="success">✓ 备份创建成功\n' +
+                    JSON.stringify(backupResult, null, 2) + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        function testAutoBackup() {
+            const result = document.getElementById('result1');
+            try {
+                backupService.startAutoBackup();
+                result.innerHTML = '<span class="success">✓ 自动备份已启动\n' +
+                    '间隔: ' + backupService.config.autoBackupInterval + 'ms</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        function stopAutoBackup() {
+            const result = document.getElementById('result1');
+            try {
+                backupService.stopAutoBackup();
+                result.innerHTML = '<span class="success">✓ 自动备份已停止</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testGetBackupList() {
+            const result = document.getElementById('result2');
+            try {
+                result.innerHTML = '获取备份列表中...';
+                
+                const backups = await backupService.getBackupList();
+                
+                result.innerHTML = '<span class="success">✓ 备份列表获取成功\n' +
+                    '备份数量: ' + backups.length + '\n\n' +
+                    JSON.stringify(backups, null, 2) + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testGetBackupStats() {
+            const result = document.getElementById('result2');
+            try {
+                const stats = await backupService.getBackupStats();
+                
+                result.innerHTML = '<span class="success">✓ 备份统计获取成功\n' +
+                    JSON.stringify(stats, null, 2) + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testRestoreBackup() {
+            const result = document.getElementById('result3');
+            const backupId = document.getElementById('restoreBackupId').value;
+            
+            if (!backupId) {
+                result.innerHTML = '<span class="error">✗ 请输入备份ID</span>';
+                return;
+            }
+            
+            try {
+                result.innerHTML = '恢复备份中...';
+                
+                const restoreResult = await backupService.restoreBackup(backupId);
+                
+                result.innerHTML = '<span class="success">✓ 备份恢复成功\n' +
+                    JSON.stringify(restoreResult, null, 2) + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        async function testDeleteBackup() {
+            const result = document.getElementById('result4');
+            const backupId = document.getElementById('deleteBackupId').value;
+            
+            if (!backupId) {
+                result.innerHTML = '<span class="error">✗ 请输入备份ID</span>';
+                return;
+            }
+            
+            try {
+                const deleteResult = await backupService.deleteBackup(backupId);
+                
+                result.innerHTML = '<span class="success">✓ 备份删除成功\n' +
+                    '结果: ' + deleteResult + '</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ 测试失败: ' + e.message + '</span>';
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
