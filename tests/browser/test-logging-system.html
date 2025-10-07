@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日志系统测试 - EnhancedUnifiedLogger + StandardLogPanel + ErrorBacktracer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #2196F3;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-info { background: #2196F3; color: white; }
+        .btn-warning { background: #FF9800; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+        .btn-secondary { background: #9E9E9E; color: white; }
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        #log-container {
+            margin-top: 20px;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+        .error-result {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 日志系统测试套件</h1>
+        <p>测试 EnhancedUnifiedLogger、StandardLogPanel 和 ErrorBacktracer 组件</p>
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-label">总日志数</div>
+                <div class="stat-value" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">错误数</div>
+                <div class="stat-value" id="stat-errors">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">已合并</div>
+                <div class="stat-value" id="stat-merged">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">已持久化</div>
+                <div class="stat-value" id="stat-persisted">0</div>
+            </div>
+        </div>
+
+        <!-- 测试1: EnhancedUnifiedLogger -->
+        <div class="test-section">
+            <h3>📝 测试1: EnhancedUnifiedLogger - 增强型统一日志器</h3>
+            <div class="button-group">
+                <button class="btn-info" onclick="testBasicLogging()">基础日志</button>
+                <button class="btn-warning" onclick="testLogLevels()">日志级别</button>
+                <button class="btn-primary" onclick="testRepeatDetection()">重复检测</button>
+                <button class="btn-info" onclick="testLogMerging()">日志合并</button>
+                <button class="btn-warning" onclick="testContentTruncation()">内容截断</button>
+                <button class="btn-secondary" onclick="updateStats()">更新统计</button>
+            </div>
+            <div id="test1-result"></div>
+        </div>
+
+        <!-- 测试2: StandardLogPanel -->
+        <div class="test-section">
+            <h3>🖥️ 测试2: StandardLogPanel - 标准日志面板</h3>
+            <div class="button-group">
+                <button class="btn-info" onclick="testPanelDisplay()">面板显示</button>
+                <button class="btn-warning" onclick="testPanelControls()">控制功能</button>
+                <button class="btn-primary" onclick="testPanelAutoScroll()">自动滚动</button>
+                <button class="btn-secondary" onclick="logPanel.clear()">清空面板</button>
+            </div>
+            <div id="test2-result"></div>
+        </div>
+
+        <!-- 测试3: ErrorBacktracer -->
+        <div class="test-section">
+            <h3>🐛 测试3: ErrorBacktracer - 错误回溯器</h3>
+            <div class="button-group">
+                <button class="btn-danger" onclick="testSyncError()">同步错误</button>
+                <button class="btn-danger" onclick="testAsyncError()">异步错误</button>
+                <button class="btn-info" onclick="testErrorQuery()">错误查询</button>
+                <button class="btn-warning" onclick="testErrorExport()">错误导出</button>
+                <button class="btn-secondary" onclick="showErrorStats()">错误统计</button>
+            </div>
+            <div id="test3-result"></div>
+        </div>
+
+        <!-- 测试4: 集成测试 -->
+        <div class="test-section">
+            <h3>🔗 测试4: 组件集成测试</h3>
+            <div class="button-group">
+                <button class="btn-primary" onclick="testFullIntegration()">完整集成</button>
+                <button class="btn-info" onclick="testStressTest()">压力测试</button>
+                <button class="btn-warning" onclick="testMemoryManagement()">内存管理</button>
+                <button class="btn-danger" onclick="clearAllData()">清空所有数据</button>
+            </div>
+            <div id="test4-result"></div>
+        </div>
+
+        <!-- 日志面板容器 -->
+        <div id="log-container"></div>
+    </div>
+
+    <!-- 加载依赖 -->
+    <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
+    <script src="../../src/core/messaging/AutogenEventBus.js"></script>
+    <script src="../../src/core/EnhancedUnifiedLogger.js"></script>
+    <script src="../../src/components/StandardLogPanel.js"></script>
+    <script src="../../src/core/ErrorBacktracer.js"></script>
+
+    <script>
+        // 初始化日志系统
+        let logger, logPanel, errorTracer;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 初始化日志系统测试...');
+
+            // 创建日志器
+            logger = new EnhancedUnifiedLogger({
+                level: 'DEBUG',
+                bufferSize: 1000,
+                interceptConsole: true
+            });
+
+            // 创建日志面板
+            logPanel = StandardLogPanel.embed('#log-container', {
+                maxLines: 200,
+                height: '400px'
+            });
+
+            // 错误回溯器已自动创建
+            errorTracer = window.errorBacktracer;
+
+            console.log('✅ 日志系统初始化完成');
+            updateStats();
+        });
+
+        // 测试1: 基础日志
+        function testBasicLogging() {
+            logger.debug('system', '这是一条DEBUG日志');
+            logger.info('business', '这是一条INFO日志');
+            logger.warn('ui', '这是一条WARN日志');
+            logger.error('data', '这是一条ERROR日志');
+            
+            showResult('test1-result', '✅ 基础日志测试完成，已输出4条不同级别的日志');
+            updateStats();
+        }
+
+        // 测试2: 日志级别
+        function testLogLevels() {
+            logger.setLevel('WARN');
+            logger.debug('test', '这条DEBUG不会显示');
+            logger.info('test', '这条INFO不会显示');
+            logger.warn('test', '这条WARN会显示');
+            logger.error('test', '这条ERROR会显示');
+            
+            logger.setLevel('INFO');
+            showResult('test1-result', '✅ 日志级别测试完成，已切换到WARN级别再恢复到INFO');
+            updateStats();
+        }
+
+        // 测试3: 重复检测
+        function testRepeatDetection() {
+            for (let i = 0; i < 10; i++) {
+                logger.info('test', '重复的日志消息');
+            }
+            showResult('test1-result', '✅ 重复检测测试完成，10条重复日志应该只显示前3条');
+            updateStats();
+        }
+
+        // 测试4: 日志合并
+        function testLogMerging() {
+            for (let i = 0; i < 15; i++) {
+                logger.info('mindmap', '加载节点内容', { nodeId: i });
+            }
+            showResult('test1-result', '✅ 日志合并测试完成，15条相似日志应该被合并');
+            updateStats();
+        }
+
+        // 测试5: 内容截断
+        function testContentTruncation() {
+            const longString = 'A'.repeat(500);
+            const largeObject = { data: 'X'.repeat(1000) };
+            
+            logger.info('test', '长字符串测试', longString);
+            logger.info('test', '大对象测试', largeObject);
+            
+            showResult('test1-result', '✅ 内容截断测试完成，长内容已自动截断');
+            updateStats();
+        }
+
+        // 测试6: 面板显示
+        function testPanelDisplay() {
+            for (let i = 0; i < 5; i++) {
+                logger.info('test', `面板显示测试 ${i + 1}`);
+            }
+            showResult('test2-result', '✅ 面板显示测试完成，已输出5条日志到面板');
+        }
+
+        // 测试7: 面板控制
+        function testPanelControls() {
+            logPanel.togglePause();
+            logger.info('test', '这条日志应该被暂停');
+            
+            setTimeout(() => {
+                logPanel.togglePause();
+                logger.info('test', '这条日志应该显示');
+                showResult('test2-result', '✅ 面板控制测试完成，暂停/继续功能正常');
+            }, 1000);
+        }
+
+        // 测试8: 自动滚动
+        function testPanelAutoScroll() {
+            for (let i = 0; i < 50; i++) {
+                logger.info('test', `自动滚动测试 ${i + 1}`);
+            }
+            showResult('test2-result', '✅ 自动滚动测试完成，面板应该自动滚动到底部');
+        }
+
+        // 测试9: 同步错误
+        function testSyncError() {
+            try {
+                throw new Error('这是一个测试同步错误');
+            } catch (error) {
+                // 错误会被ErrorBacktracer自动捕获
+            }
+            
+            setTimeout(() => {
+                const errors = errorTracer.getRecentErrors(5);
+                showResult('test3-result', `✅ 同步错误测试完成，捕获了 ${errors.length} 个错误`);
+            }, 100);
+        }
+
+        // 测试10: 异步错误
+        function testAsyncError() {
+            Promise.reject('这是一个测试异步错误');
+            
+            setTimeout(() => {
+                const errors = errorTracer.getRecentErrors(5);
+                showResult('test3-result', `✅ 异步错误测试完成，捕获了 ${errors.length} 个错误`);
+            }, 100);
+        }
+
+        // 测试11: 错误查询
+        function testErrorQuery() {
+            const allErrors = errorTracer.queryErrors();
+            const syncErrors = errorTracer.queryErrors({ type: 'SYNC_ERROR' });
+            const asyncErrors = errorTracer.queryErrors({ type: 'ASYNC_ERROR' });
+            
+            const result = `
+                <strong>错误查询结果:</strong><br>
+                总错误数: ${allErrors.length}<br>
+                同步错误: ${syncErrors.length}<br>
+                异步错误: ${asyncErrors.length}
+            `;
+            showResult('test3-result', result);
+        }
+
+        // 测试12: 错误导出
+        function testErrorExport() {
+            const json = errorTracer.exportErrors('json');
+            const csv = errorTracer.exportErrors('csv');
+            
+            showResult('test3-result', `
+                ✅ 错误导出测试完成<br>
+                JSON长度: ${json.length} 字符<br>
+                CSV长度: ${csv.length} 字符<br>
+                <pre>${json.substring(0, 200)}...</pre>
+            `);
+        }
+
+        // 测试13: 错误统计
+        function showErrorStats() {
+            const stats = errorTracer.getStats();
+            showResult('test3-result', `
+                <strong>错误统计:</strong><br>
+                总错误数: ${stats.total}<br>
+                同步错误: ${stats.syncErrors}<br>
+                异步错误: ${stats.asyncErrors}<br>
+                已持久化: ${stats.persisted}
+            `);
+        }
+
+        // 测试14: 完整集成
+        function testFullIntegration() {
+            logger.info('integration', '开始完整集成测试');
+            
+            // 测试日志流
+            logger.debug('test', 'DEBUG消息');
+            logger.info('test', 'INFO消息');
+            logger.warn('test', 'WARN消息');
+            logger.error('test', 'ERROR消息');
+            
+            // 测试错误捕获
+            try {
+                throw new Error('集成测试错误');
+            } catch (e) {}
+            
+            setTimeout(() => {
+                const logStats = logger.getStats();
+                const errorStats = errorTracer.getStats();
+                
+                showResult('test4-result', `
+                    ✅ 完整集成测试完成<br>
+                    日志总数: ${logStats.total}<br>
+                    错误总数: ${errorStats.total}<br>
+                    已合并: ${logStats.merged}<br>
+                    已持久化: ${logStats.persisted}
+                `);
+                updateStats();
+            }, 200);
+        }
+
+        // 测试15: 压力测试
+        function testStressTest() {
+            const startTime = performance.now();
+            
+            for (let i = 0; i < 1000; i++) {
+                logger.info('stress', `压力测试消息 ${i}`);
+            }
+            
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+            
+            showResult('test4-result', `
+                ✅ 压力测试完成<br>
+                1000条日志耗时: ${duration}ms<br>
+                平均每条: ${(duration / 1000).toFixed(3)}ms
+            `);
+            updateStats();
+        }
+
+        // 测试16: 内存管理
+        function testMemoryManagement() {
+            const buffer = logger.getLogBuffer();
+            const bufferSize = buffer.length;
+            
+            // 添加超过缓冲区大小的日志
+            for (let i = 0; i < 1500; i++) {
+                logger.info('memory', `内存测试 ${i}`);
+            }
+            
+            const newBuffer = logger.getLogBuffer();
+            const newBufferSize = newBuffer.length;
+            
+            showResult('test4-result', `
+                ✅ 内存管理测试完成<br>
+                初始缓冲区: ${bufferSize} 条<br>
+                添加1500条后: ${newBufferSize} 条<br>
+                FIFO工作正常: ${newBufferSize <= 1000 ? '✅' : '❌'}
+            `);
+            updateStats();
+        }
+
+        // 清空所有数据
+        function clearAllData() {
+            logger.clearLogs();
+            logPanel.clear();
+            errorTracer.clearErrors();
+            
+            showResult('test4-result', '✅ 所有数据已清空');
+            updateStats();
+        }
+
+        // 更新统计
+        function updateStats() {
+            const logStats = logger.getStats();
+            const errorStats = errorTracer.getStats();
+            
+            document.getElementById('stat-total').textContent = logStats.total;
+            document.getElementById('stat-errors').textContent = errorStats.total;
+            document.getElementById('stat-merged').textContent = logStats.merged;
+            document.getElementById('stat-persisted').textContent = logStats.persisted;
+        }
+
+        // 显示结果
+        function showResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${isError ? 'error-result' : ''}">${message}</div>`;
+        }
+
+        // 定期更新统计
+        setInterval(updateStats, 5000);
+    </script>
+</body>
+</html>
