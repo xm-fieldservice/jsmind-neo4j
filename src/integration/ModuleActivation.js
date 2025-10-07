@@ -8,7 +8,7 @@
  * - 提供一键式模块激活功能
  * 
  * 设计原则：
- * - 基于现有DependencyManager
+ * - 基于ModuleManager（已更新）
  * - 无侵入式集成
  * - 错误隔离与回退机制
  * - 性能优化与懒加载
@@ -19,7 +19,8 @@
     
     class ModuleActivation {
         constructor() {
-            this.dependencyManager = global.DependencyManager;
+            // 使用新的ModuleManager替代DependencyManager
+            this.moduleManager = global.ModuleManager || global.DependencyManager;
             this.eventBus = global.AutogenEventBus;
             this.logger = console;
             
@@ -94,7 +95,7 @@
                 }
                 
                 // 批量初始化
-                const results = await this.dependencyManager.initializeAll();
+                const results = await this.moduleManager.initializeAll();
                 
                 // 统计激活结果
                 this._updateActivationStatus(results);
@@ -116,7 +117,9 @@
          * 获取模块依赖关系图
          */
         getDependencyGraph() {
-            return this.dependencyManager.getDependencyGraph();
+            return this.moduleManager.getDependencyGraph ? 
+                   this.moduleManager.getDependencyGraph() : 
+                   this.moduleManager.dependencies;
         }
         
         /**
@@ -152,8 +155,8 @@
                     // 检查模块是否真实存在
                     if (window[moduleName]) {
                         // 检查是否已注册
-                        const status = this.dependencyManager.getStatus(moduleName);
-                        if (status.status === 'not_registered') {
+                        const status = this.moduleManager.getStatus(moduleName);
+                        if (!status || status.status === 'not_registered') {
                             // 动态注册未注册的核心模块
                             this._registerModule(moduleName, [], () => {
                                 return window[moduleName];
@@ -377,7 +380,13 @@
         
         _registerModule(name, dependencies, factory, options) {
             try {
-                this.dependencyManager.register(name, dependencies, factory, options);
+                // ModuleManager的register参数顺序: (name, module, dependencies, options)
+                if (this.moduleManager.register) {
+                    this.moduleManager.register(name, factory, dependencies, options);
+                } else {
+                    // 回退到旧API
+                    this.moduleManager.register(name, dependencies, factory, options);
+                }
                 console.log(`[ModuleActivation] ✅ 已注册模块: ${name}`);
             } catch (error) {
                 console.error(`[ModuleActivation] ❌ 注册模块失败: ${name}`, error);
@@ -387,7 +396,6 @@
         
         _loadModuleFromPath(path) {
             // 尝试从全局对象获取已加载的模块
-            const moduleName = path.split('/').pop().replace('.js', '');
             
             // 增强的模块查找逻辑
             const possibleNames = [

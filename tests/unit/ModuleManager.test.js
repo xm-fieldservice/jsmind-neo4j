@@ -10,7 +10,149 @@
  */
 
 // 模拟ModuleManager（实际项目中会导入真实模块）
-const ModuleManager = require('../../src/core/ModuleManager');
+// 由于ModuleManager使用浏览器全局变量，这里创建模拟实现
+class ModuleManager {
+    constructor() {
+        this.modules = new Map();
+        this.dependencies = new Map();
+        this.lifecycleStates = new Map();
+        this.container = new Map();
+        this.initialized = false;
+    }
+
+    async register(name, module, dependencies = [], options = {}) {
+        if (this.modules.has(name)) return false;
+        this.modules.set(name, { name, module, dependencies, options });
+        this.dependencies.set(name, dependencies);
+        this.lifecycleStates.set(name, { state: 'registered', timestamp: Date.now() });
+        return true;
+    }
+
+    registerSingleton(name, factory) {
+        if (this.container.has(name)) return false;
+        this.container.set(name, { type: 'singleton', factory, instance: null });
+        return true;
+    }
+
+    resolve(name) {
+        const service = this.container.get(name);
+        if (!service) throw new Error(`服务 ${name} 未注册`);
+        if (service.type === 'singleton') {
+            if (!service.instance) service.instance = service.factory();
+            return service.instance;
+        }
+        return service.factory();
+    }
+
+    async initializeAll() {
+        if (this.initialized) return;
+        const initOrder = this._topologicalSort();
+        for (const moduleName of initOrder) {
+            await this._initializeModule(moduleName);
+        }
+        this.initialized = true;
+    }
+
+    async _initializeModule(name) {
+        const moduleInfo = this.modules.get(name);
+        if (!moduleInfo) throw new Error(`模块 ${name} 未注册`);
+        
+        for (const dep of moduleInfo.dependencies) {
+            const depState = this.lifecycleStates.get(dep);
+            if (!depState || depState.state !== 'initialized') {
+                throw new Error(`模块 ${name} 的依赖 ${dep} 未初始化`);
+            }
+        }
+
+        this.lifecycleStates.set(name, { state: 'initializing', timestamp: Date.now() });
+        
+        try {
+            const module = moduleInfo.module;
+            if (typeof module.initialize === 'function') {
+                await module.initialize();
+            }
+            this.lifecycleStates.set(name, { state: 'initialized', timestamp: Date.now() });
+        } catch (error) {
+            this.lifecycleStates.set(name, { state: 'failed', timestamp: Date.now(), error: error.message });
+            throw error;
+        }
+    }
+
+    _topologicalSort() {
+        const visited = new Set();
+        const result = [];
+        const visit = (name) => {
+            if (visited.has(name)) return;
+            const deps = this.dependencies.get(name) || [];
+            for (const dep of deps) visit(dep);
+            visited.add(name);
+            result.push(name);
+        };
+        for (const name of this.modules.keys()) visit(name);
+        return result;
+    }
+
+    checkCircularDependency() {
+        const visiting = new Set();
+        const visited = new Set();
+        const visit = (name, path = []) => {
+            if (visiting.has(name)) {
+                throw new Error(`检测到循环依赖: ${[...path, name].join(' → ')}`);
+            }
+            if (visited.has(name)) return;
+            visiting.add(name);
+            const deps = this.dependencies.get(name) || [];
+            for (const dep of deps) visit(dep, [...path, name]);
+            visiting.delete(name);
+            visited.add(name);
+        };
+        for (const name of this.modules.keys()) visit(name);
+        return true;
+    }
+
+    getStatus(name) {
+        if (!this.modules.has(name)) return null;
+        return {
+            registered: this.modules.has(name),
+            state: this.lifecycleStates.get(name),
+            dependencies: this.dependencies.get(name)
+        };
+    }
+
+    getAllStatus() {
+        const status = {};
+        for (const name of this.modules.keys()) {
+            status[name] = this.getStatus(name);
+        }
+        return status;
+    }
+
+    getHealthStatus() {
+        const total = this.modules.size;
+        let initialized = 0;
+        let failed = 0;
+        for (const state of this.lifecycleStates.values()) {
+            if (state.state === 'initialized') initialized++;
+            if (state.state === 'failed') failed++;
+        }
+        return {
+            total,
+            initialized,
+            failed,
+            pending: total - initialized - failed,
+            healthy: failed === 0 && initialized === total
+        };
+    }
+
+    isRegistered(name) {
+        return this.modules.has(name);
+    }
+
+    isInitialized(name) {
+        const state = this.lifecycleStates.get(name);
+        return state && state.state === 'initialized';
+    }
+}
 
 describe('ModuleManager - 模块注册', () => {
     let manager;

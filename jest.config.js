@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   testMatch: [
     "**/tests/unit/**/*.test.js",
     "**/__integration__/**/*.test.js"
@@ -17,5 +17,6 @@ module.exports = {
       lines: 60,
       statements: 60
     }
-  }
+  },
+  transform: {}
 };

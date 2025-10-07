@@ -73,7 +73,7 @@ class SystemInitializationCoordinator {
             'AutogenUnifiedStorage',
             'AutogenEventBus', 
             'AutogenSystemInitializer',
-            'DependencyManager'
+            'ModuleManager'  // 使用新的ModuleManager替代DependencyManager
         ];
         
         const loadedScripts = [];
