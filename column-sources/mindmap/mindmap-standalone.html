@@ -268,6 +268,38 @@
                 // 🆕 Phase 2: 存储协调器（替代直接使用mindmapStorage）
                 this.storageCoordinator = null;
                 
+                // 🆕 日志辅助方法（使用UnifiedLogger）
+                this._log = {
+                    info: (msg, data) => {
+                        if (data !== undefined) {
+                            window.UnifiedLogger?.info('MINDMAP', msg, data) || console.log(`[脑图工作栏] ${msg}`, data);
+                        } else {
+                            window.UnifiedLogger?.info('MINDMAP', msg) || console.log(`[脑图工作栏] ${msg}`);
+                        }
+                    },
+                    warn: (msg, data) => {
+                        if (data !== undefined) {
+                            window.UnifiedLogger?.warn('MINDMAP', msg, data) || console.warn(`[脑图工作栏] ${msg}`, data);
+                        } else {
+                            window.UnifiedLogger?.warn('MINDMAP', msg) || console.warn(`[脑图工作栏] ${msg}`);
+                        }
+                    },
+                    error: (msg, data) => {
+                        if (data !== undefined) {
+                            window.UnifiedLogger?.error('MINDMAP', msg, data) || console.error(`[脑图工作栏] ${msg}`, data);
+                        } else {
+                            window.UnifiedLogger?.error('MINDMAP', msg) || console.error(`[脑图工作栏] ${msg}`);
+                        }
+                    },
+                    debug: (msg, data) => {
+                        if (data !== undefined) {
+                            window.UnifiedLogger?.debug('MINDMAP', msg, data);
+                        } else {
+                            window.UnifiedLogger?.debug('MINDMAP', msg);
+                        }
+                    }
+                };
+                
                 this.init();
             }
 
@@ -278,15 +310,15 @@
                     try {
                         this.storageAdapter = new window.StorageAdapter();
                         await this.storageAdapter.initialize();
-                        console.log('[脑图工作栏] ✅ StorageAdapter初始化完成');
+                        // 初始化日志已合并
                     } catch (err) {
-                        console.error('[脑图工作栏] ❌ StorageAdapter初始化失败:', err);
-                        console.warn('[脑图工作栏] 将使用降级模式（直接使用AutogenUnifiedStorage）');
+                        this._log.error('❌ StorageAdapter初始化失败', err);
+                        this._log.warn('将使用降级模式');
                         // 降级：不使用StorageAdapter，直接使用AutogenUnifiedStorage
                         this.storageAdapter = null;
                     }
                 } else {
-                    console.warn('[脑图工作栏] StorageAdapter未加载，使用降级模式');
+                    this._log.warn('StorageAdapter未加载，使用降级模式');
                 }
                 
                 // 🆕 Phase 2: 初始化存储协调器
@@ -296,9 +328,9 @@
                         window.AutogenEventBus,
                         console
                     );
-                    console.log('[脑图工作栏] ✅ 存储协调器初始化完成');
+                    // 初始化日志已合并
                 } else {
-                    console.warn('[脑图工作栏] 存储协调器初始化失败，将使用传统模式');
+                    this._log.warn('存储协调器初始化失败，将使用传统模式');
                 }
                 
                 // 🆕 Phase 2: 初始化事件协调器（需要在jsMind创建后再初始化）
@@ -310,7 +342,7 @@
                         window.ErrorHandler,
                         console
                     );
-                    console.log('[脑图工作栏] ✅ 错误处理器初始化完成');
+                    // 初始化日志已合并
                 } else {
                     this.errorHandler = null;
                 }
@@ -319,9 +351,9 @@
                 if (typeof window.DependencyManager !== 'undefined') {
                     try {
                         await window.DependencyManager.initializeAll();
-                        console.log('[脑图工作栏] 架构组件初始化完成');
+                        this._log.info('架构组件初始化完成');
                     } catch (err) {
-                        console.warn('[脑图工作栏] 架构组件初始化失败，继续使用基础功能:', err);
+                        this._log.warn('架构组件初始化失败，继续使用基础功能', err);
                     }
                 }
 
@@ -329,7 +361,7 @@
                 if (typeof window.ModuleActivation !== 'undefined') {
                     try {
                         await window.ModuleActivation.activateModule('mindmap');
-                        console.log('[脑图工作栏] 脑图模块激活完成');
+                        this._log.info(' 脑图模块激活完成');
                     } catch (err) {
                         console.warn('[脑图工作栏] 脑图模块激活失败，继续使用基础功能:', err);
                     }
@@ -360,7 +392,7 @@
                 
                 // 为操作类设置jsMind实例
                 this.ops.jm = this.jm;
-                console.log('[脑图工作栏] 统一节点操作API初始化完成');
+                // 初始化日志已合并
                 
                 // 🆕 Phase 2: 初始化事件协调器（jsMind已创建）
                 if (typeof window.MindmapEventCoordinator !== 'undefined') {
@@ -370,7 +402,7 @@
                         window.MindmapEventManager
                     );
                     this.eventCoordinator.init();
-                    console.log('[脑图工作栏] ✅ 事件协调器初始化完成');
+                    // 初始化日志已合并
                 }
                 
                 // 🆕 Phase 2.1: 初始化内容编辑器
@@ -381,7 +413,7 @@
                         this.eventCoordinator,
                         this.errorHandler
                     );
-                    console.log('[脑图工作栏] ✅ 内容编辑器初始化完成');
+                    // 初始化日志已合并
                 }
                 
                 // 🆕 Phase 2.1: 初始化UI管理器
@@ -391,7 +423,7 @@
                         this.eventCoordinator
                     );
 
-                    console.log('[脑图工作栏] ✅ UI管理器初始化完成');
+                    // 初始化日志已合并
                 }
                                 
                 // 🆕 Phase 2.1: 初始化数据加载器
@@ -402,7 +434,7 @@
                         this.uiManager,
                         this.errorHandler
                     );
-                    console.log('[脑图工作栏] ✅ 数据加载器初始化完成');
+                    // 初始化日志已合并
                 }
                 // 🆕 创建并初始化兼容层
                 this.compat = new MindmapCompatLayer({
@@ -418,7 +450,7 @@
                 
                 // 检查架构状态
                 const status = this.compat.getArchitectureStatus();
-                console.log('[脑图工作栏] 架构状态:', status);
+                this._log.debug('架构状态', status);
                 
                 // 优先从统一存储加载，失败回退到测试数据
                 await this.loadInitialData();
@@ -444,7 +476,7 @@
                 // 🔧 架构改进：页面卸载前强制持久化保存
                 window.addEventListener('beforeunload', async (e) => {
                     try {
-                        console.log('[脑图工作栏] 页面卸载，开始强制保存...');
+                        this._log.info(' 页面卸载，开始强制保存...');
                         
                         // 1. 保存当前节点内容
                         if (this.contentEditor) {
@@ -463,7 +495,7 @@
                         // 5. 等待持久化完成
                         await new Promise(resolve => setTimeout(resolve, 100));
                         
-                        console.log('[脑图工作栏] ✅ 强制保存完成');
+                        this._log.info(' ✅ 强制保存完成');
                     } catch (error) {
                         console.error('[脑图工作栏] ❌ 强制保存失败:', error);
                         // 保存失败时阻止关闭（可选）
@@ -475,12 +507,12 @@
                 
                 // 初始化右键菜单
                 this.contextMenu = new ContextMenuManager(this.jm, this);
-                console.log('[脑图工作栏] 右键菜单初始化完成');
+                // 初始化日志已合并
                 
                 // 🆕 初始化关系管理器
                 await this.initRelationManager();
                 
-                console.log('[脑图工作栏] 初始化完成');
+                this._log.info('✅ 脑图初始化完成 (8个组件)');
             }
 
             // 修复jsMind内部所有节点的数据结构
@@ -490,6 +522,8 @@
                 // 获取所有节点
                 const allNodes = this.jm.get_data();
                 if (!allNodes || !allNodes.data) return;
+                
+                let fixedCount = 0;  // 统计修复的节点数
                 
                 // 递归修复所有节点
                 const fixNode = (nodeData) => {
@@ -502,13 +536,17 @@
                         const innerData = jmNode.data.data;
                         const meta = jmNode.data.meta;
                         
+                        // 🔧 修复：优先从innerData.content获取，如果为空则从原始位置获取
+                        const originalContent = jmNode.data.content || '';
+                        const nestedContent = innerData.content || '';
+                        
                         // 重建正确的data结构
                         jmNode.data = {
-                            content: innerData.content || '',
-                            meta: meta || {}  // ✅ 保持meta作为子对象
+                            content: nestedContent || originalContent,  // ✅ 保留原始content
+                            meta: meta || {}
                         };
                         
-                        console.log('[脑图工作栏] 修复jsMind节点数据结构:', nodeData.id);
+                        fixedCount++;  // 计数，不再每个节点都输出日志
                     }
                     
                     // 递归修复子节点
@@ -518,6 +556,11 @@
                 };
                 
                 fixNode(allNodes.data);
+                
+                // 只记录一次总结
+                if (fixedCount > 0) {
+                    console.log(`[脑图工作栏] ✅ 修复了${fixedCount}个节点的数据结构`);
+                }
             }
 
             // 🆕 Phase 0: 确保MindmapStorage实例存在（统一实例管理）
@@ -528,7 +571,7 @@
                         eventBus: window.AutogenEventBus,
                         logger: console
                     });
-                    console.log('[脑图工作栏] ✅ MindmapStorage实例已创建并缓存');
+                    this._log.info(' ✅ MindmapStorage实例已创建并缓存');
                 }
                 return this.mindmapStorage;
             }
@@ -553,10 +596,10 @@
                             this._fixJsMindNodeData();
                             
                             this.updateNodeCount();
-                            console.log('[脑图工作栏] ✅ 已从IndexedDB加载持久化数据 (自动还原)');
+                            this._log.info(' ✅ 已从IndexedDB加载持久化数据 (自动还原)');
                             return;
                         } else {
-                            console.log('[脑图工作栏] IndexedDB中只有默认数据，尝试加载初始数据文件');
+                            this._log.info(' IndexedDB中只有默认数据，尝试加载初始数据文件');
                         }
                     }
                     
@@ -580,13 +623,13 @@
                             
                             this.jm.show(data);
                             this.updateNodeCount();
-                            console.log('[脑图工作栏] 📄 已加载初始数据文件 mindmap_base.json（已初始化data.content字段）');
+                            this._log.info(' 📄 已加载初始数据文件 mindmap_base.json（已初始化data.content字段）');
                             // 立即保存到IndexedDB（会自动压缩），下次就能加载
                             await this.saveToUnifiedStorage(this.jm.get_data());
                             return;
                         }
                     } catch (fileErr) {
-                        console.log('[脑图工作栏] mindmap_base.json 加载失败:', fileErr.message);
+                        this._log.info(' mindmap_base.json 加载失败:', fileErr.message);
                     }
                     
                     console.warn('[脑图工作栏] 未找到任何数据，加载测试数据');
@@ -680,7 +723,7 @@
                 this.jm.add_event_listener((type, data) => {
                     // 🔧 日志优化：只记录关键事件
                     if (type !== jsMind.event_type.select) {
-                        console.log('[脑图工作栏] jsMind事件:', type, data);
+                        this._log.debug('jsMind事件', {type, data});
                     }
                     
                     if (type === jsMind.event_type.select) {
@@ -691,32 +734,32 @@
                         }
                     } else if (type === jsMind.event_type.edit) {
                         // 节点编辑事件 - 处理jsMind内置编辑
-                        console.log('[脑图工作栏] 节点编辑事件，触发自动保存', data);
+                        this._log.info(' 节点编辑事件，触发自动保存', data);
                         
                         // 延迟处理确保jsMind内部状态更新完成
                         setTimeout(() => {
                             // 从事件数据中获取节点信息
                             const nodeId = data.node;
                             const newTitle = data.data && data.data.length > 1 ? data.data[1] : null;
-                            console.log('[脑图工作栏] 编辑事件数据 - 节点ID:', nodeId, '新标题:', newTitle);
+                            this._log.info(' 编辑事件数据 - 节点ID:', nodeId, '新标题:', newTitle);
                             
                             if (nodeId && newTitle && nodeId === this.currentNodeId) {
                                 const currentNode = this.jm.get_node(nodeId);
-                                console.log('[脑图工作栏] 通过ID获取编辑节点:', currentNode);
+                                this._log.info(' 通过ID获取编辑节点:', currentNode);
                                 
                                 if (currentNode) {
                                     const titleInput = document.getElementById('nodeTitleEditor');
-                                    console.log('[脑图工作栏] 当前编辑框标题:', titleInput ? titleInput.value : 'null', '节点标题:', currentNode.topic);
+                                    this._log.info(' 当前编辑框标题:', titleInput ? titleInput.value : 'null', '节点标题:', currentNode.topic);
                                     
                                     if (titleInput && titleInput.value !== currentNode.topic) {
                                         titleInput.value = currentNode.topic;
                                         document.getElementById('currentNode').textContent = currentNode.topic;
-                                        console.log('[脑图工作栏] jsMind编辑后同步标题到编辑框:', currentNode.id, currentNode.topic);
+                                        this._log.info(' jsMind编辑后同步标题到编辑框:', currentNode.id, currentNode.topic);
                                         
                                         // 🔧 修复：不要调用saveContentFromSidebarSilent，因为它会错误地保存内容
                                         // 标题已经通过jsMind的update_node事件更新了，不需要额外保存
                                         // 只需要同步UI显示即可
-                                        console.log('[脑图工作栏] 标题已同步，跳过保存避免错误覆盖');
+                                        this._log.info(' 标题已同步，跳过保存避免错误覆盖');
                                         return; // 不需要再调用autoSave
                                     }
                                 }
@@ -726,31 +769,31 @@
                         }, 100);
                     } else if (type === jsMind.event_type.show) {
                         // 脑图显示事件，不需要保存
-                        console.log('[脑图工作栏] 脑图显示事件');
+                        this._log.debug('脑图显示事件');
                     } else {
                         // 其他事件（包括节点编辑）
-                        console.log('[脑图工作栏] 其他脑图变化事件，触发自动保存');
+                        this._log.debug('脑图变化事件，触发自动保存');
                         // 延迟一点确保jsMind内部状态更新完成
                         setTimeout(() => {
                             // 检查是否是节点标题编辑事件
                             if (data && data.evt === 'update_node') {
                                 const nodeId = data.node;
                                 const newTitle = data.data && data.data.length > 1 ? data.data[1] : null;
-                                console.log('[脑图工作栏] 检测到节点更新事件 - 节点ID:', nodeId, '新标题:', newTitle, '当前节点ID:', this.currentNodeId);
+                                this._log.info(' 检测到节点更新事件 - 节点ID:', nodeId, '新标题:', newTitle, '当前节点ID:', this.currentNodeId);
                                 
                                 if (nodeId && newTitle && nodeId === this.currentNodeId) {
                                     const currentNode = this.jm.get_node(nodeId);
                                     if (currentNode) {
                                         const titleInput = document.getElementById('nodeTitleEditor');
-                                        console.log('[脑图工作栏] 当前编辑框标题:', titleInput ? titleInput.value : 'null', '节点标题:', currentNode.topic);
+                                        this._log.info(' 当前编辑框标题:', titleInput ? titleInput.value : 'null', '节点标题:', currentNode.topic);
                                         
                                         if (titleInput && titleInput.value !== currentNode.topic) {
                                             titleInput.value = currentNode.topic;
                                             document.getElementById('currentNode').textContent = currentNode.topic;
-                                            console.log('[脑图工作栏] 节点更新事件后同步标题到编辑框:', currentNode.id, currentNode.topic);
+                                            this._log.info(' 节点更新事件后同步标题到编辑框:', currentNode.id, currentNode.topic);
                                             
                                             // 直接调用已经工作正常的保存方法（静默保存，不显示弹窗）
-                                            console.log('[脑图工作栏] 模仿编辑按键，调用静默保存');
+                                            this._log.info(' 模仿编辑按键，调用静默保存');
                                             this.saveContentFromSidebarSilent().catch(err => {
                                                 console.error('[脑图工作栏] 模仿编辑按键保存失败:', err);
                                             });
@@ -784,11 +827,11 @@
                         this.relationManager = new RelationManager(this.jm, {
                             storageAdapter: this.storageAdapter
                         });
-                        console.log('[脑图工作栏] 关系管理器初始化完成');
+                        // 初始化日志已合并
                         
                         // 输出关系统计
                         const stats = this.relationManager.getRelationStats();
-                        console.log('[脑图工作栏] 关系统计:', stats);
+                        this._log.debug('关系统计', stats);
                     } else {
                         console.warn('[脑图工作栏] RelationManager类未找到');
                     }
@@ -930,7 +973,7 @@
                     }
                 });
                 
-                console.log('[脑图工作栏] 全局快捷键绑定完成 (Tab/Ctrl+Enter=子节点, Enter=兄弟节点, Delete, Ctrl+C/X/V)');
+                // 快捷键日志已合并到初始化
             }
 
             onNodeSelected(node) {
@@ -944,7 +987,7 @@
                 
                 // 更新UI
                 document.getElementById('currentNode').textContent = node.topic;
-                console.log('[脑图工作栏] 节点选择:', node.topic, '(ID:', node.id, ')');
+                this._log.debug('节点选择', {id: node.id, topic: node.topic});
                 
                 // 触发事件
                 this.emitEvent('mindmap.node.selected', {
@@ -1096,7 +1139,7 @@
                     DataSyncHelper.syncAllNodes(this.jm, data);
                     
                     await this.saveToUnifiedStorage(data);
-                    console.log('[脑图工作栏] 自动保存完成');
+                    this._log.debug('自动保存完成');
                 } catch (err) {
                     console.error('[脑图工作栏] 自动保存失败:', err);
                 }
@@ -1133,12 +1176,12 @@
 
             async save() {
                 const data = this.jm.get_data();
-                console.log('[脑图工作栏] 💾 手动保存开始');
+                this._log.info(' 💾 手动保存开始');
                 
                 try {
                     // 1. 保存JSON格式到IndexedDB（自动保存功能继续使用）
                     await this.saveToUnifiedStorage(data);
-                    console.log('[脑图工作栏] ✅ JSON格式已保存到IndexedDB');
+                    this._log.info(' ✅ JSON格式已保存到IndexedDB');
                     
                     // 2. 检查浏览器是否支持File System Access API
                     if ('showSaveFilePicker' in window) {
@@ -1170,10 +1213,10 @@
                     const timestamp = Date.now();
                     const baseName = data.meta?.name || '脑图';
                     
-                    console.log('[脑图工作栏] 开始文件选择器保存流程');
+                    this._log.info(' 开始文件选择器保存流程');
                     
                     // 1. 保存第一份JSON（主文件）
-                    console.log('[脑图工作栏] 准备打开第一个JSON文件选择器');
+                    this._log.info(' 准备打开第一个JSON文件选择器');
                     const jsonHandle1 = await window.showSaveFilePicker({
                         suggestedName: `${baseName}_${timestamp}.json`,
                         types: [{
@@ -1182,15 +1225,15 @@
                         }],
                         startIn: 'downloads'
                     });
-                    console.log('[脑图工作栏] 第一个JSON文件选择器已选择:', jsonHandle1.name);
+                    this._log.info(' 第一个JSON文件选择器已选择:', jsonHandle1.name);
                     
                     const jsonWritable1 = await jsonHandle1.createWritable();
                     await jsonWritable1.write(JSON.stringify(data, null, 2));
                     await jsonWritable1.close();
-                    console.log('[脑图工作栏] ✅ 第一份JSON已保存到:', jsonHandle1.name);
+                    this._log.info(' ✅ 第一份JSON已保存到:', jsonHandle1.name);
                     
                     // 2. 保存第二份JSON（备份文件）
-                    console.log('[脑图工作栏] 准备打开第二个JSON文件选择器');
+                    this._log.info(' 准备打开第二个JSON文件选择器');
                     const jsonHandle2 = await window.showSaveFilePicker({
                         suggestedName: `${baseName}_备份_${timestamp}.json`,
                         types: [{
@@ -1199,17 +1242,17 @@
                         }],
                         startIn: 'downloads'
                     });
-                    console.log('[脑图工作栏] 第二个JSON文件选择器已选择:', jsonHandle2.name);
+                    this._log.info(' 第二个JSON文件选择器已选择:', jsonHandle2.name);
                     
                     const jsonWritable2 = await jsonHandle2.createWritable();
                     await jsonWritable2.write(JSON.stringify(data, null, 2));
                     await jsonWritable2.close();
-                    console.log('[脑图工作栏] ✅ 第二份JSON已保存到:', jsonHandle2.name);
+                    this._log.info(' ✅ 第二份JSON已保存到:', jsonHandle2.name);
                     
                     alert(`✅ 双份保存完成！\n\n已保存：\n1. ${jsonHandle1.name}（主文件）\n2. ${jsonHandle2.name}（备份）\n\n💡 建议保存到 mindmap 目录`);
                 } catch (error) {
                     if (error.name === 'AbortError') {
-                        console.log('[脑图工作栏] 用户取消保存');
+                        this._log.info(' 用户取消保存');
                         alert('已取消保存');
                     } else {
                         console.error('[脑图工作栏] 保存过程出错:', error);
@@ -1291,21 +1334,21 @@
                         document.getElementById('currentNode').textContent = newTitle;
                         
                         this.emitEvent('mindmap.node.title.updated', { nodeId: node.id, title: newTitle });
-                        console.log('[脑图工作栏] 静默保存节点标题:', node.id, newTitle);
+                        this._log.info(' 静默保存节点标题:', node.id, newTitle);
                     }
                     
                     if (!node.data) node.data = {};
                     // 统一放在 data.content 字段
                     node.data.content = text;
                     this.updateLastModified();
-                    console.log('[脑图工作栏] 静默保存节点内容到 node.data.content');
+                    this._log.info(' 静默保存节点内容到 node.data.content');
                     
                     // 🔧 关键修复：确保 jsMind 内部节点也更新了 data
                     const jmNode = this.jm.get_node(node.id);
                     if (jmNode) {
                         if (!jmNode.data) jmNode.data = {};
                         jmNode.data.content = text;
-                        console.log('[脑图工作栏] jsMind内部节点data也已更新（静默）');
+                        this._log.info(' jsMind内部节点data也已更新（静默）');
                     }
                     
                     // 触发内容更新事件
@@ -1322,7 +1365,7 @@
                     DataSyncHelper.syncAllNodes(this.jm, data);
                     
                     await this.saveToUnifiedStorage(data).catch(() => {});
-                    console.log('[脑图工作栏] 静默保存完成，无弹窗提示');
+                    this._log.info(' 静默保存完成，无弹窗提示');
                 } catch (e) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
                         window.ErrorHandler.handle(e, { component: 'MindmapColumn', action: 'saveContentFromSidebarSilent' }, { silent: true });
@@ -1403,7 +1446,7 @@
                     const success = await this.saveWithFilePicker(formattedData);
                     
                     if (success) {
-                        console.log('[脑图工作栏] 脑图已按数据底座规范v1.2格式保存');
+                        this._log.info(' 脑图已按数据底座规范v1.2格式保存');
                         alert('脑图已保存到数据底座！');
                     } else {
                         console.warn('[脑图工作栏] 用户取消保存或保存失败');
@@ -1547,7 +1590,7 @@
                     if (typeof window.DataCompressor !== 'undefined') {
                         const compressor = new window.DataCompressor();
                         dataToSave = compressor.compress(data);
-                        console.log('[脑图工作栏] 文件保存：数据已压缩');
+                        this._log.info(' 文件保存：数据已压缩');
                     }
                     
                     // 检查浏览器是否支持File System Access API
@@ -1567,7 +1610,7 @@
                         await writable.write(JSON.stringify(dataToSave, null, 2));
                         await writable.close();
 
-                        console.log('[脑图工作栏] 文件已保存:', fileHandle.name);
+                        this._log.info(' 文件已保存:', fileHandle.name);
                         return true;
                     } else {
                         // 降级到传统下载方式
@@ -1583,12 +1626,12 @@
                         document.body.removeChild(a);
                         URL.revokeObjectURL(url);
 
-                        console.log('[脑图工作栏] 文件已下载（降级模式）');
+                        this._log.info(' 文件已下载（降级模式）');
                         return true;
                     }
                 } catch (err) {
                     if (err.name === 'AbortError') {
-                        console.log('[脑图工作栏] 用户取消保存');
+                        this._log.info(' 用户取消保存');
                         return false;
                         }
                     throw err;
@@ -1645,7 +1688,7 @@
                     // 选中第一个结果
                     this.jm.select_node(results[0].id);
                 } else {
-                    console.log('[脑图工作栏] 未找到匹配节点');
+                    this._log.info(' 未找到匹配节点');
                 }
             }
 
@@ -1672,13 +1715,13 @@
             // 展开全部节点
             expandAll() {
                 this.jm.expand_all();
-                console.log('[脑图工作栏] 全部展开');
+                this._log.info(' 全部展开');
             }
 
             // 折叠全部节点
             collapseAll() {
                 this.jm.collapse_all();
-                console.log('[脑图工作栏] 全部折叠');
+                this._log.info(' 全部折叠');
             }
 
             // 编辑节点属性
@@ -1729,7 +1772,7 @@
                 
                 Object.assign(this.currentEditingNode.data.meta, properties);
 
-                console.log('[脑图工作栏] 属性已保存:', properties);
+                this._log.info(' 属性已保存:', properties);
                 
                 this.closePropertiesPanel();
                 this.updateLastModified();
@@ -1790,7 +1833,7 @@
                     // 🆕 Phase 2: 使用存储协调器保存
                     if (this.storageCoordinator) {
                         const success = await this.storageCoordinator.saveMindmap(data, true);
-                        console.log('[脑图工作栏] ✅ 数据已保存:', this.mindmapId, '结果:', success);
+                        this._log.debug('数据已保存', {id: this.mindmapId, success});
                         return success;
                     }
                     
@@ -1801,7 +1844,7 @@
                     
                     const mindmapStorage = this._ensureMindmapStorage();
                     const success = await mindmapStorage.saveMindmapData(data, true);
-                    console.log('[脑图工作栏] ✅ 数据已保存（降级模式）:', this.mindmapId, '结果:', success);
+                    this._log.info(' ✅ 数据已保存（降级模式）:', this.mindmapId, '结果:', success);
                     return success;
                 } catch (err) {
                     if (window.ErrorHandler && typeof window.ErrorHandler.handle === 'function') {
