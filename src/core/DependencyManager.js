@@ -1,6 +1,26 @@
 /**
  * 依赖管理器 - 管理模块依赖关系和初始化顺序
  * 确保系统组件按正确顺序加载和初始化
+ * 
+ * @deprecated 此组件已废弃，请使用 ModuleManager 替代
+ * @see src/core/ModuleManager.js
+ * 
+ * 迁移指南:
+ * 1. 将 DependencyManager 替换为 ModuleManager
+ * 2. 使用 ModuleManager.register() 替代 DependencyManager.register()
+ * 3. 使用 ModuleManager.initializeAll() 替代 DependencyManager.initializeAll()
+ * 
+ * 示例:
+ * // 旧代码
+ * const dm = new DependencyManager();
+ * dm.register('myModule', ['dep1'], factory);
+ * 
+ * // 新代码
+ * const mm = new ModuleManager();
+ * await mm.register('myModule', factory, ['dep1']);
+ * 
+ * 废弃时间: 2025-10-07
+ * 移除计划: 3个版本后 (约3个月)
  */
 
 ;(function(global) {
@@ -8,6 +28,9 @@
     
     class DependencyManager {
         constructor() {
+            console.warn('[DependencyManager] ⚠️ 此组件已废弃，请使用 ModuleManager 替代');
+            console.warn('[DependencyManager] 详见: src/core/ModuleManager.js');
+            
             this.dependencies = new Map();
             this.initialized = new Set();
             this.initializing = new Set();
