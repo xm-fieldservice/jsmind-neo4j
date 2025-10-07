@@ -59,6 +59,9 @@
     
     <!-- 🆕 Phase 2: 事件协调器 -->
     <script src="js/MindmapEventCoordinator.js"></script>
+    
+    <!-- 🆕 Phase 2: 错误处理包装器 -->
+    <script src="js/MindmapErrorHandler.js"></script>
 </head>
 <body>
     <div class="container" id="mindmapColumn">
@@ -292,6 +295,17 @@
                 
                 // 🆕 Phase 2: 初始化事件协调器（需要在jsMind创建后再初始化）
                 this.eventCoordinator = null;
+                
+                // 🆕 Phase 2: 初始化错误处理器
+                if (typeof window.MindmapErrorHandler !== 'undefined') {
+                    this.errorHandler = new window.MindmapErrorHandler(
+                        window.ErrorHandler,
+                        console
+                    );
+                    console.log('[脑图工作栏] ✅ 错误处理器初始化完成');
+                } else {
+                    this.errorHandler = null;
+                }
 
                 // 使用DependencyManager确保架构组件加载
                 if (typeof window.DependencyManager !== 'undefined') {
