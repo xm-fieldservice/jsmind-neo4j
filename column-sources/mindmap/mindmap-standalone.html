@@ -65,6 +65,9 @@
     
     <!-- 🆕 Phase 2.1: 内容编辑器模块 -->
     <script src="js/MindmapContentEditor.js"></script>
+    
+    <!-- 🆕 Phase 2.1: UI管理器模块 -->
+    <script src="js/MindmapUIManager.js"></script>
 </head>
 <body>
     <div class="container" id="mindmapColumn">
@@ -377,6 +380,15 @@
                         this.errorHandler
                     );
                     console.log('[脑图工作栏] ✅ 内容编辑器初始化完成');
+                }
+                
+                // 🆕 Phase 2.1: 初始化UI管理器
+                if (typeof window.MindmapUIManager !== 'undefined') {
+                    this.uiManager = new window.MindmapUIManager(
+                        this.jm,
+                        this.eventCoordinator
+                    );
+                    console.log('[脑图工作栏] ✅ UI管理器初始化完成');
                 }
                 
                 // 🆕 创建并初始化兼容层
