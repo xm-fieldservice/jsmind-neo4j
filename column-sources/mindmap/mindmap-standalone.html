@@ -62,6 +62,9 @@
     
     <!-- 🆕 Phase 2: 错误处理包装器 -->
     <script src="js/MindmapErrorHandler.js"></script>
+    
+    <!-- 🆕 Phase 2.1: 内容编辑器模块 -->
+    <script src="js/MindmapContentEditor.js"></script>
 </head>
 <body>
     <div class="container" id="mindmapColumn">
@@ -363,6 +366,17 @@
                     );
                     this.eventCoordinator.init();
                     console.log('[脑图工作栏] ✅ 事件协调器初始化完成');
+                }
+                
+                // 🆕 Phase 2.1: 初始化内容编辑器
+                if (typeof window.MindmapContentEditor !== 'undefined') {
+                    this.contentEditor = new window.MindmapContentEditor(
+                        this.jm,
+                        this.storageCoordinator,
+                        this.eventCoordinator,
+                        this.errorHandler
+                    );
+                    console.log('[脑图工作栏] ✅ 内容编辑器初始化完成');
                 }
                 
                 // 🆕 创建并初始化兼容层
@@ -893,17 +907,30 @@
             }
 
             onNodeSelected(node) {
-                // 如果之前有选中的节点，先保存其内容
-                if (this.currentNodeId && this.currentNodeId !== node.id) {
-                    this.autoSaveCurrentNodeContent();
+                // 🆕 Phase 2.1: 委托给内容编辑器
+                if (this.contentEditor) {
+                    this.contentEditor.onNodeSelected(node);
+                    this.currentNodeId = this.contentEditor.currentNodeId;
+                } else {
+                    // 降级：使用原有逻辑
+                    if (this.currentNodeId && this.currentNodeId !== node.id) {
+                        this.autoSaveCurrentNodeContent();
+                    }
+                    this.currentNodeId = node.id;
+                    this.loadNodeContentToEditor(node);
                 }
                 
-                this.currentNodeId = node.id;
+                // 更新UI
                 document.getElementById('currentNode').textContent = node.topic;
-                console.log('[脑图工作栏] 节点选中:', node);
+                console.log('[脑图工作栏] 节点选择:', node.topic, '(ID:', node.id, ')');
                 
-                // 同步右侧编辑框内容
-                this.loadNodeContentToEditor(node);
+                // 触发事件
+                this.emitEvent('mindmap.node.selected', {
+                    nodeId: node.id,
+                    topic: node.topic,
+                    mindmapId: this.mindmapId,
+                    data: node.data
+                });
             }
             
             showMessage(message, type = 'info') {
