@@ -35,16 +35,71 @@
     };
 
     /**
-     * 统一日志器
+     * 环形缓冲区（FIFO）- 从EnhancedUnifiedLogger移植
+     */
+    class CircularBuffer {
+        constructor(maxSize = 1000) {
+            this.maxSize = maxSize;
+            this.buffer = [];
+            this.head = 0;
+        }
+
+        add(item) {
+            if (this.buffer.length < this.maxSize) {
+                this.buffer.push(item);
+            } else {
+                this.buffer[this.head] = item;
+                this.head = (this.head + 1) % this.maxSize;
+            }
+        }
+
+        getAll() {
+            if (this.buffer.length < this.maxSize) {
+                return [...this.buffer];
+            }
+            return [
+                ...this.buffer.slice(this.head),
+                ...this.buffer.slice(0, this.head)
+            ];
+        }
+
+        clear() {
+            this.buffer = [];
+            this.head = 0;
+        }
+
+        get size() {
+            return this.buffer.length;
+        }
+    }
+
+    /**
+     * 统一日志器（整合版）
      */
     class UnifiedLogger {
         constructor() {
             this.currentLevel = LOG_LEVELS.INFO;
             this.enabledCategories = new Set(Object.values(LOG_CATEGORIES));
-            this.logBuffer = [];
-            this.maxBufferSize = 2000;
+            
+            // 🆕 使用环形缓冲区替代数组
+            this.logBuffer = new CircularBuffer(2000);
             this.errorHandler = null;
             this.eventBus = null;
+            
+            // 🆕 重复日志检测
+            this.lastLog = null;
+            this.repeatCount = 0;
+            this.maxRepeats = 3;
+            
+            // 🆕 日志合并管理
+            this.recentLogs = new Map();
+            this.mergeWindow = 5000; // 5秒合并窗口
+            
+            // 🆕 持久化配置
+            this.storage = null;
+            this.persistEnabled = true;
+            this.persistBatchSize = 10;
+            this.persistQueue = [];
             
             // 统计信息
             this.stats = {
@@ -52,7 +107,10 @@
                 byLevel: {},
                 byCategory: {},
                 errors: 0,
-                warnings: 0
+                warnings: 0,
+                dropped: 0,
+                merged: 0,
+                persisted: 0
             };
             
             // 初始化统计
@@ -63,10 +121,13 @@
                 this.stats.byCategory[category] = 0;
             });
             
+            // 🆕 初始化存储适配器
+            this._initializeStorage();
+            
             // 自动清理定时器
             this._setupAutoCleanup();
             
-            console.log('[UnifiedLogger] ✅ 统一日志系统已初始化');
+            console.log('[UnifiedLogger] ✅ 统一日志系统已初始化（整合版）');
         }
 
         /**
@@ -96,7 +157,7 @@
         }
 
         /**
-         * 核心日志方法
+         * 核心日志方法（增强版）
          */
         log(level, category, message, data = null, context = {}) {
             // 检查日志级别
@@ -106,6 +167,19 @@
 
             // 检查分类是否启用
             if (!this.enabledCategories.has(category)) {
+                return;
+            }
+
+            // 🆕 重复检测
+            const logKey = `${level.name}:${category}:${message}`;
+            if (this._isDuplicate(logKey)) {
+                this.stats.dropped++;
+                return;
+            }
+
+            // 🆕 日志合并
+            if (this._shouldMerge(category, message)) {
+                this._mergeLog(level, category, message, data, context);
                 return;
             }
 
@@ -122,6 +196,11 @@
             
             // 更新统计
             this._updateStats(level, category);
+            
+            // 🆕 持久化重要日志
+            if (this.persistEnabled && level.value <= LOG_LEVELS.WARN.value) {
+                this._queueForPersistence(logEntry);
+            }
             
             // 特殊处理错误级别
             if (level.value <= LOG_LEVELS.ERROR.value) {
@@ -210,15 +289,10 @@
         }
 
         /**
-         * 添加到缓冲区
+         * 添加到缓冲区（使用环形缓冲）
          */
         _addToBuffer(logEntry) {
-            this.logBuffer.push(logEntry);
-            
-            // 保持缓冲区大小
-            if (this.logBuffer.length > this.maxBufferSize) {
-                this.logBuffer = this.logBuffer.slice(-this.maxBufferSize);
-            }
+            this.logBuffer.add(logEntry);
         }
 
         /**
@@ -264,15 +338,136 @@
         }
 
         /**
+         * 🆕 初始化存储适配器
+         */
+        _initializeStorage() {
+            if (typeof window !== 'undefined' && window.AutogenUnifiedStorage) {
+                this.storage = window.AutogenUnifiedStorage;
+                console.log('[UnifiedLogger] 存储适配器已连接');
+            }
+        }
+
+        /**
+         * 🆕 重复日志检测
+         */
+        _isDuplicate(logKey) {
+            if (this.lastLog === logKey) {
+                this.repeatCount++;
+                if (this.repeatCount === this.maxRepeats) {
+                    console.log(`[UnifiedLogger] 日志重复${this.maxRepeats}次，后续将被抑制`);
+                }
+                return this.repeatCount > this.maxRepeats;
+            }
+            this.lastLog = logKey;
+            this.repeatCount = 0;
+            return false;
+        }
+
+        /**
+         * 🆕 判断是否应该合并日志
+         */
+        _shouldMerge(category, message) {
+            // 合并脑图节点选择相关的日志
+            if (category === 'ui' && message.includes('节点选择')) {
+                return true;
+            }
+            // 合并存储操作日志
+            if (category === 'data' && message.includes('保存')) {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * 🆕 合并日志
+         */
+        _mergeLog(level, category, message, data, context) {
+            const key = `${category}:${message}`;
+            const now = Date.now();
+
+            if (!this.recentLogs.has(key)) {
+                // 首次出现，正常输出
+                this.recentLogs.set(key, { count: 1, lastTime: now });
+                const logEntry = this._createLogEntry(level, category, message, data, context);
+                this._addToBuffer(logEntry);
+                this._outputToConsole(logEntry);
+                this.stats.total++;
+                this.stats.byLevel[level.name]++;
+                this.stats.byCategory[category]++;
+            } else {
+                // 已存在，增加计数
+                const log = this.recentLogs.get(key);
+                log.count++;
+                log.lastTime = now;
+                this.stats.merged++;
+
+                // 每10次合并输出一次
+                if (log.count % 10 === 0) {
+                    const logEntry = this._createLogEntry(
+                        level, 
+                        category, 
+                        `${message} (已合并${log.count}次)`,
+                        data,
+                        context
+                    );
+                    this._outputToConsole(logEntry);
+                }
+            }
+        }
+
+        /**
+         * 🆕 队列持久化
+         */
+        _queueForPersistence(entry) {
+            this.persistQueue.push(entry);
+
+            // 达到批量大小时持久化
+            if (this.persistQueue.length >= this.persistBatchSize) {
+                this._persistBatch();
+            }
+        }
+
+        /**
+         * 🆕 批量持久化
+         */
+        async _persistBatch() {
+            if (this.persistQueue.length === 0 || !this.storage) {
+                return;
+            }
+
+            const batch = [...this.persistQueue];
+            this.persistQueue = [];
+
+            try {
+                const key = `logs_${Date.now()}`;
+                await this.storage.store('logs', key, batch, { 
+                    ttl: 7 * 24 * 60 * 60 * 1000  // 7天TTL
+                });
+                this.stats.persisted += batch.length;
+            } catch (error) {
+                console.error('[UnifiedLogger] 日志持久化失败:', error);
+            }
+        }
+
+        /**
          * 设置自动清理
          */
         _setupAutoCleanup() {
             setInterval(() => {
-                const cutoff = Date.now() - (24 * 60 * 60 * 1000); // 24小时前
-                this.logBuffer = this.logBuffer.filter(entry => 
-                    new Date(entry.timestamp).getTime() > cutoff
-                );
-            }, 60 * 60 * 1000); // 每小时清理一次
+                const now = Date.now();
+                
+                // 清理过期的合并日志
+                for (const [key, log] of this.recentLogs.entries()) {
+                    if (now - log.lastTime > this.mergeWindow) {
+                        this.recentLogs.delete(key);
+                    }
+                }
+
+                // 持久化剩余日志
+                if (this.persistQueue.length > 0) {
+                    this._persistBatch();
+                }
+            }, 60 * 1000); // 每分钟清理一次
         }
 
         /**
@@ -288,9 +483,10 @@
         getStats() {
             return {
                 ...this.stats,
-                bufferSize: this.logBuffer.length,
+                bufferSize: this.logBuffer.size,
                 currentLevel: this.currentLevel.name,
-                enabledCategories: Array.from(this.enabledCategories)
+                enabledCategories: Array.from(this.enabledCategories),
+                mergedCount: this.recentLogs.size
             };
         }
 
@@ -298,7 +494,7 @@
          * 获取日志历史
          */
         getHistory(filters = {}) {
-            let filtered = this.logBuffer;
+            let filtered = this.logBuffer.getAll();
 
             if (filters.level) {
                 filtered = filtered.filter(entry => entry.level === filters.level);
@@ -328,7 +524,9 @@
          * 清空日志缓冲区
          */
         clear() {
-            this.logBuffer = [];
+            this.logBuffer.clear();
+            this.recentLogs.clear();
+            this.persistQueue = [];
             this.stats = {
                 total: 0,
                 byLevel: {},
@@ -355,7 +553,7 @@
             const data = {
                 exportTime: new Date().toISOString(),
                 stats: this.getStats(),
-                logs: this.logBuffer
+                logs: this.logBuffer.getAll()
             };
 
             if (format === 'json') {
