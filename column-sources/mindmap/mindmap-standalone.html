@@ -14,6 +14,7 @@
     
     <!-- 🆕 src/ 架构组件 (Phase 2: 仅加载独立组件) -->
     <script src="../../src/data/DataCompressor.js"></script>
+    <script src="../../src/data/MDConverter.js"></script>
     <script src="../../src/data/MindmapStorage.js"></script>
     <script src="../../src/data/ImportExportService.js"></script>
     <script src="../../src/presentation/MindmapRenderer.js"></script>
@@ -1266,22 +1267,91 @@
 
             async save() {
                 const data = this.jm.get_data();
-                console.log('[脑图工作栏] 保存数据:', data);
+                console.log('[脑图工作栏] 💾 手动保存开始');
                 
-                // 保存到统一存储（失败时降级不抛出）
-                await this.saveToUnifiedStorage(data).catch(err => {
-                    console.error('[脑图工作栏] 统一存储保存失败:', err);
-                });
-                
-                // 按照数据底座规范v1.2格式保存到文件
-                await this.saveMindmapToDataBase();
-                
-                // 触发保存事件
-                this.emitEvent('mindmap.data.saved', {
-                    mindmapId: this.mindmapId,
-                    nodeCount: this.countNodes(data.data)
-                });
+                try {
+                    // 1. 保存JSON格式到IndexedDB（自动保存功能继续使用）
+                    await this.saveToUnifiedStorage(data);
+                    console.log('[脑图工作栏] ✅ JSON格式已保存到IndexedDB');
+                    
+                    // 2. 检查浏览器是否支持File System Access API
+                    if ('showSaveFilePicker' in window) {
+                        await this.saveWithFilePicker(data);
+                    } else {
+                        // 不支持文件选择器，提示用户
+                        alert('❌ 当前浏览器不支持文件选择器功能\n\n建议使用：\n• Chrome 86+\n• Edge 86+\n• Opera 72+\n\n数据已保存到IndexedDB，可以继续使用。');
+                        console.warn('[脑图工作栏] 浏览器不支持File System Access API');
+                    }
+                    
+                    // 3. 按照数据底座规范v1.2格式保存到文件（兼容旧功能）
+                    await this.saveMindmapToDataBase();
+                    
+                    // 4. 触发保存事件
+                    this.emitEvent('mindmap.data.saved', {
+                        mindmapId: this.mindmapId,
+                        nodeCount: this.countNodes(data.data),
+                        formats: ['json', 'md']
+                    });
+                } catch (error) {
+                    console.error('[脑图工作栏] ❌ 保存失败:', error);
+                    alert('❌ 保存失败：' + error.message);
+                }
             }
+            
+            // 使用文件选择器保存（推荐方式）
+            async saveWithFilePicker(data) {
+                try {
+                    const timestamp = Date.now();
+                    const baseName = data.meta?.name || '脑图';
+                    
+                    console.log('[脑图工作栏] 开始文件选择器保存流程');
+                    
+                    // 1. 保存第一份JSON（主文件）
+                    console.log('[脑图工作栏] 准备打开第一个JSON文件选择器');
+                    const jsonHandle1 = await window.showSaveFilePicker({
+                        suggestedName: `${baseName}_${timestamp}.json`,
+                        types: [{
+                            description: 'JSON数据文件（脑图数据）',
+                            accept: { 'application/json': ['.json'] }
+                        }],
+                        startIn: 'downloads'
+                    });
+                    console.log('[脑图工作栏] 第一个JSON文件选择器已选择:', jsonHandle1.name);
+                    
+                    const jsonWritable1 = await jsonHandle1.createWritable();
+                    await jsonWritable1.write(JSON.stringify(data, null, 2));
+                    await jsonWritable1.close();
+                    console.log('[脑图工作栏] ✅ 第一份JSON已保存到:', jsonHandle1.name);
+                    
+                    // 2. 保存第二份JSON（备份文件）
+                    console.log('[脑图工作栏] 准备打开第二个JSON文件选择器');
+                    const jsonHandle2 = await window.showSaveFilePicker({
+                        suggestedName: `${baseName}_备份_${timestamp}.json`,
+                        types: [{
+                            description: 'JSON数据文件（备份）',
+                            accept: { 'application/json': ['.json'] }
+                        }],
+                        startIn: 'downloads'
+                    });
+                    console.log('[脑图工作栏] 第二个JSON文件选择器已选择:', jsonHandle2.name);
+                    
+                    const jsonWritable2 = await jsonHandle2.createWritable();
+                    await jsonWritable2.write(JSON.stringify(data, null, 2));
+                    await jsonWritable2.close();
+                    console.log('[脑图工作栏] ✅ 第二份JSON已保存到:', jsonHandle2.name);
+                    
+                    alert(`✅ 双份保存完成！\n\n已保存：\n1. ${jsonHandle1.name}（主文件）\n2. ${jsonHandle2.name}（备份）\n\n💡 建议保存到 mindmap 目录`);
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        console.log('[脑图工作栏] 用户取消保存');
+                        alert('已取消保存');
+                    } else {
+                        console.error('[脑图工作栏] 保存过程出错:', error);
+                        throw error;
+                    }
+                }
+            }
+            
             
             // 🆕 测试关系功能
             testRelationFeature() {

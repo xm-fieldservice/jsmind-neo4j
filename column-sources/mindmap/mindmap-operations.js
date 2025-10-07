@@ -75,9 +75,12 @@ class MindmapOperations {
      * @returns {Object} 处理后的节点
      */
     _postProcessNode(node, timestamp, position) {
+        console.log('[脑图工作栏] 统一核心: 开始后置处理', node.id, '时间戳:', timestamp);
+        
         // 1. 设置内容（时间戳 + 两行空行）- 统一处理
         if (!node.data) node.data = {};
         node.data.content = timestamp + '\n\n\n';
+        console.log('[脑图工作栏] 统一核心: 已设置时间戳内容', node.data.content);
 
         // 2. 选择节点 - 统一处理
         this.jm.select_node(node.id);
