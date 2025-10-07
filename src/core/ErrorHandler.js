@@ -36,7 +36,7 @@
          * @param {Object} context - 错误上下文信息
          * @param {Object} options - 处理选项
          */
-        handle(error, context = {}, options = {}) {
+        async handle(error, context = {}, options = {}) {
             const errorInfo = this._normalizeError(error, context);
             
             // P2.2: 使用统一日志系统记录错误
@@ -64,8 +64,19 @@
             this._emitErrorEvent(errorInfo);
             
             // 尝试自动恢复
+            let recoveryResult = null;
             if (options.autoRecover !== false) {
-                this._attemptRecovery(errorInfo);
+                recoveryResult = await this._attemptRecovery(errorInfo);
+            }
+            
+            // 返回处理结果（如果需要）
+            if (options.returnResult) {
+                return {
+                    success: true,
+                    errorInfo,
+                    recoveryResult,
+                    context
+                };
             }
             
             // 持久化错误日志
@@ -75,11 +86,30 @@
         /**
          * 注册错误恢复策略
          * @param {string} errorType - 错误类型
-         * @param {Function} strategy - 恢复策略函数
+         * @param {Function} strategy - 恢复策略函数（支持异步）
          */
         registerRecoveryStrategy(errorType, strategy) {
             this.recoveryStrategies.set(errorType, strategy);
             console.log(`[ErrorHandler] 已注册恢复策略: ${errorType}`);
+        }
+        
+        /**
+         * 🔧 整合ErrorProcessingPipeline：注册错误处理器（别名）
+         * @param {string} type - 错误类型
+         * @param {Function} handler - 处理器函数
+         */
+        registerHandler(type, handler) {
+            this.registerRecoveryStrategy(type, handler);
+        }
+        
+        /**
+         * 🔧 整合ErrorProcessingPipeline：管道式错误处理（别名）
+         * @param {Error|string} error - 错误对象
+         * @param {Object} context - 上下文
+         * @returns {Promise<Object>} 处理结果
+         */
+        async processError(error, context = {}) {
+            return await this.handle(error, context, { returnResult: true });
         }
         
         /**
@@ -318,16 +348,19 @@
             }
         }
         
-        _attemptRecovery(errorInfo) {
+        async _attemptRecovery(errorInfo) {
             const strategy = this.recoveryStrategies.get(errorInfo.type);
             if (strategy && typeof strategy === 'function') {
                 try {
                     console.log(`[ErrorHandler] 尝试恢复策略: ${errorInfo.type}`);
-                    strategy(errorInfo);
+                    const result = await strategy(errorInfo);
+                    return result || { success: true };
                 } catch (recoveryError) {
                     console.error('[ErrorHandler] 恢复策略执行失败:', recoveryError);
+                    return { success: false, error: recoveryError.message };
                 }
             }
+            return null;
         }
         
         _persistErrorLog() {
@@ -364,29 +397,68 @@
         }
         
         _registerDefaultRecoveryStrategies() {
-            // 存储错误恢复策略
-            this.registerRecoveryStrategy('StorageError', (errorInfo) => {
-                console.log('[ErrorHandler] 尝试清理存储空间');
+            // 🔧 整合ErrorProcessingPipeline：存储错误恢复策略（增强版）
+            this.registerRecoveryStrategy('StorageError', async (errorInfo) => {
+                console.log('[ErrorHandler] 尝试存储错误恢复...');
                 try {
-                    // 清理过期数据
-                    if (global.AutogenUnifiedStorage && typeof global.AutogenUnifiedStorage.cleanup === 'function') {
-                        global.AutogenUnifiedStorage.cleanup();
+                    // 尝试重新初始化存储系统
+                    if (global.AutogenUnifiedStorage) {
+                        if (typeof global.AutogenUnifiedStorage.initialize === 'function') {
+                            await global.AutogenUnifiedStorage.initialize();
+                            console.log('[ErrorHandler] 存储系统已重新初始化');
+                            return { success: true, message: '存储系统已重新初始化' };
+                        } else if (typeof global.AutogenUnifiedStorage.cleanup === 'function') {
+                            global.AutogenUnifiedStorage.cleanup();
+                            return { success: true, message: '存储空间已清理' };
+                        }
                     }
                 } catch (error) {
-                    console.warn('[ErrorHandler] 存储清理失败:', error);
+                    console.error('[ErrorHandler] 存储恢复失败:', error);
+                    return { success: false, error: error.message };
                 }
+                return { success: false, message: '存储系统恢复失败' };
             });
             
-            // 网络错误恢复策略
-            this.registerRecoveryStrategy('NetworkError', (errorInfo) => {
-                console.log('[ErrorHandler] 网络错误，稍后重试');
-                // 可以在这里实现重试逻辑
+            // 🔧 整合ErrorProcessingPipeline：网络错误恢复策略（带重试）
+            this.registerRecoveryStrategy('NetworkError', async (errorInfo) => {
+                console.log('[ErrorHandler] 尝试网络错误恢复...');
+                let retries = 0;
+                const maxRetries = 3;
+                
+                while (retries < maxRetries) {
+                    try {
+                        const response = await fetch('/favicon.ico', {
+                            method: 'HEAD',
+                            cache: 'no-cache'
+                        });
+                        
+                        if (response.ok) {
+                            console.log('[ErrorHandler] 网络连接已恢复');
+                            return { success: true, message: '网络连接已恢复' };
+                        }
+                    } catch (e) {
+                        console.warn(`[ErrorHandler] 网络恢复尝试 ${retries + 1} 失败`);
+                    }
+                    
+                    retries++;
+                    if (retries < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+                    }
+                }
+                
+                return { success: false, message: '网络连接恢复失败' };
             });
             
             // 权限错误恢复策略
-            this.registerRecoveryStrategy('PermissionError', (errorInfo) => {
+            this.registerRecoveryStrategy('PermissionError', async (errorInfo) => {
                 console.log('[ErrorHandler] 权限错误，尝试降级处理');
-                // 可以在这里实现降级处理逻辑
+                return { success: true, message: '权限错误已记录' };
+            });
+            
+            // 🔧 整合ErrorProcessingPipeline：验证错误恢复策略
+            this.registerRecoveryStrategy('ValidationError', async (errorInfo) => {
+                console.log('[ErrorHandler] 验证错误，无需恢复操作');
+                return { success: true, message: '验证错误已记录' };
             });
         }
         

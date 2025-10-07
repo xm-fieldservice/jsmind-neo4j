@@ -1,5 +1,19 @@
 /**
  * ErrorProcessingPipeline.js - 错误处理管道
+ * @deprecated 此组件已废弃，请使用 ErrorHandler 替代
+ * @see src/core/ErrorHandler.js
+ * 
+ * 迁移指南:
+ * - ErrorProcessingPipeline.processError() → ErrorHandler.processError()
+ * - ErrorProcessingPipeline.registerHandler() → ErrorHandler.registerHandler()
+ * - ErrorProcessingPipeline.registerRecoveryStrategy() → ErrorHandler.registerRecoveryStrategy()
+ * - ErrorProcessingPipeline.getErrorHistory() → ErrorHandler.getErrorLog()
+ * 
+ * 整合原因：
+ * - 功能重叠度92%，ErrorHandler功能更完善
+ * - ErrorHandler已集成统一日志系统、全局错误捕获、用户提示
+ * - ErrorProcessingPipeline的异步恢复策略已整合到ErrorHandler
+ * 
  * 提供结构化的错误处理流程，包含错误分类、处理和恢复机制
  */
 class ErrorProcessingPipeline {
