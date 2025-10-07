@@ -1,11 +1,16 @@
 /**
  * 统一模块生命周期管理器 - 解决模块初始化顺序和依赖问题
  * 
- * 架构原则：
- * 1. 统一的模块注册和初始化机制
- * 2. 依赖关系管理和顺序控制
- * 3. 模块状态监控和健康检查
- * 4. 错误隔离和恢复机制
+ * @deprecated 此组件已废弃，请使用 ModuleManager 替代
+ * @see src/core/ModuleManager.js
+ * 
+ * 迁移指南:
+ * - 使用 ModuleManager.register() 替代 registerModule()
+ * - 使用 ModuleManager.initializeAll() 替代 initialize()
+ * - 使用 ModuleManager.getStatus() 替代 getModuleState()
+ * 
+ * 废弃时间: 2025-10-07
+ * 移除计划: 3个版本后 (约3个月)
  */
 
 ;(function(global) {
@@ -13,6 +18,9 @@
     
     class ModuleLifecycleManager {
         constructor() {
+            console.warn('[ModuleLifecycleManager] ⚠️ 此组件已废弃，请使用 ModuleManager 替代');
+            console.warn('[ModuleLifecycleManager] 详见: docs/迁移指南-模块管理组件.md');
+            
             // 模块注册表
             this.modules = new Map();
             this.moduleStates = new Map();

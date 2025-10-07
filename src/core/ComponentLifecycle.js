@@ -2,6 +2,13 @@
  * 组件生命周期管理系统
  * 阶段2.3：定义组件生命周期接口，实现统一的组件管理
  * 基于阶段2.2的状态管理系统，提供组件注册、初始化、销毁等生命周期管理
+ * 
+ * @deprecated 此组件已废弃，请使用 ModuleManager 替代
+ * @see src/core/ModuleManager.js
+ * @see docs/迁移指南-模块管理组件.md
+ * 
+ * 废弃时间: 2025-10-07
+ * 移除计划: 3个版本后 (约3个月)
  */
 
 import { ActionTypes } from './StateManager.js';
@@ -184,6 +191,9 @@ export class IComponent {
  */
 export class ComponentLifecycleManager {
     constructor(stateManager, eventBus, standardEvents) {
+        console.warn('[ComponentLifecycleManager] ⚠️ 此组件已废弃，请使用 ModuleManager 替代');
+        console.warn('[ComponentLifecycleManager] 详见: docs/迁移指南-模块管理组件.md');
+        
         this.stateManager = stateManager;
         this.eventBus = eventBus;
         this.events = standardEvents;
