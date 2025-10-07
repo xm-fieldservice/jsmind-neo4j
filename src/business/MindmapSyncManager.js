@@ -402,12 +402,8 @@ class MindmapSyncManager {
         snapshots.splice(0, snapshots.length - this.config.maxSnapshots);
       }
       
-      // 保存快照
-      if (this.storageAdapter) {
-        await this.storageAdapter.saveConfig(this.storageKeys.snapshots, snapshots);
-      } else {
-        await this.autogenStorage.store('mindmap', this.storageKeys.snapshots, snapshots);
-      }
+      // 🔧 架构整改：强制使用StorageAdapter
+      await this.storageAdapter.saveConfig(this.storageKeys.snapshots, snapshots);
       
       this.state.lastSnapshotTime = Date.now();
       this.stats.totalSnapshots++;
@@ -506,11 +502,8 @@ class MindmapSyncManager {
       }
       
       snapshots.splice(index, 1);
-      if (this.storageAdapter) {
-        await this.storageAdapter.saveConfig(this.storageKeys.snapshots, snapshots);
-      } else {
-        await this.autogenStorage.store('mindmap', this.storageKeys.snapshots, snapshots);
-      }
+      // 🔧 架构整改：强制使用StorageAdapter
+      await this.storageAdapter.saveConfig(this.storageKeys.snapshots, snapshots);
       
       this.logger.log(`[MindmapSyncManager] 快照删除成功: ${snapshotId}`);
       
@@ -552,7 +545,8 @@ class MindmapSyncManager {
     try {
       const mindKey = this._getMindKey();
       const storageKey = `${mindKey}:data`;
-      return await this.autogenStorage.retrieve('mindmap', storageKey);
+      // 🔧 架构整改：使用StorageAdapter
+      return await this.storageAdapter.loadConfig(storageKey);
     } catch (error) {
       this.logger.warn('[MindmapSyncManager] 专用存储加载失败:', error);
       return null;
@@ -564,7 +558,8 @@ class MindmapSyncManager {
    */
   async _loadFromMainStorage() {
     try {
-      return await this.autogenStorage.retrieve('mindmap', this.storageKeys.mainData);
+      // 🔧 架构整改：使用StorageAdapter
+      return await this.storageAdapter.loadConfig(this.storageKeys.mainData);
     } catch (error) {
       this.logger.warn('[MindmapSyncManager] 主存储加载失败:', error);
       return null;
@@ -576,7 +571,8 @@ class MindmapSyncManager {
    */
   async _loadFromFullCache() {
     try {
-      return await this.autogenStorage.retrieve('mindmap', this.storageKeys.fullCache);
+      // 🔧 架构整改：使用StorageAdapter
+      return await this.storageAdapter.loadConfig(this.storageKeys.fullCache);
     } catch (error) {
       this.logger.warn('[MindmapSyncManager] 全图缓存加载失败:', error);
       return null;
@@ -609,24 +605,17 @@ class MindmapSyncManager {
     const mindKey = this._getMindKey();
     const storageKey = `${mindKey}:data`;
     
-    if (this.storageAdapter) {
-      await this.storageAdapter.saveConfig(storageKey, data);
-      await this.storageAdapter.saveConfig(this.storageKeys.mainData, data);
-    } else {
-      await this.autogenStorage.store('mindmap', storageKey, data);
-      await this.autogenStorage.store('mindmap', this.storageKeys.mainData, data);
-    }
+    // 🔧 架构整改：强制使用StorageAdapter
+    await this.storageAdapter.saveConfig(storageKey, data);
+    await this.storageAdapter.saveConfig(this.storageKeys.mainData, data);
   }
   
   /**
    * 保存到全图缓存
    */
   async _saveToFullCache(data) {
-    if (this.storageAdapter) {
-      await this.storageAdapter.saveConfig(this.storageKeys.fullCache, data);
-    } else {
-      await this.autogenStorage.store('mindmap', this.storageKeys.fullCache, data);
-    }
+    // 🔧 架构整改：强制使用StorageAdapter
+    await this.storageAdapter.saveConfig(this.storageKeys.fullCache, data);
   }
   
   /**
@@ -698,7 +687,8 @@ class MindmapSyncManager {
    */
   async _getSnapshots() {
     try {
-      const snapshots = await this.autogenStorage.retrieve('mindmap', this.storageKeys.snapshots);
+      // 🔧 架构整改：使用StorageAdapter
+      const snapshots = await this.storageAdapter.loadConfig(this.storageKeys.snapshots, []);
       return Array.isArray(snapshots) ? snapshots : [];
     } catch (error) {
       this.logger.warn('[MindmapSyncManager] 获取快照失败:', error);
