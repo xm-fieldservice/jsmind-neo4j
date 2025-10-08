@@ -24,13 +24,19 @@ class AIWorkflowMonitor {
         this.architectureCache = null;
         this.logger = window.UnifiedLogger;
         this.controlPanel = null; // UI控制面板
+        this.isReviewing = false; // 当前是否正在审核
+        this.currentReviewTarget = null; // 当前审核的目标
         
         // 审查统计
         this.stats = {
             totalReviews: 0,
             passed: 0,
             failed: 0,
-            violations: []
+            warnings: 0,  // 有条件通过
+            autoTriggered: 0,  // 自动触发次数
+            manualTriggered: 0,  // 手动触发次数
+            violations: [],
+            reviewHistory: []  // 审核历史（最近20次）
         };
         
         console.log('[AIWorkflowMonitor] 初始化完成');
@@ -237,7 +243,21 @@ class AIWorkflowMonitor {
      * 综合审查
      */
     async comprehensiveReview(params) {
+        // 设置审核状态
+        this.isReviewing = true;
+        this.currentReviewTarget = params.target;
+        this.updateStatusDisplay();
+        
+        const startTime = Date.now();
         this.stats.totalReviews++;
+        
+        // 判断触发类型
+        const isManual = params.manual === true;
+        if (isManual) {
+            this.stats.manualTriggered++;
+        } else {
+            this.stats.autoTriggered++;
+        }
         
         try {
             // 并行执行所有检查
@@ -266,29 +286,60 @@ class AIWorkflowMonitor {
                 suggestions.push(`建议复用现有模块: ${redundancyCheck.existingModules.join(', ')}`);
             }
             
-            const approved = violations.length === 0;
+            const score = violations.length === 0 ? 100 : Math.max(0, 100 - violations.length * 30);
+            const approved = score >= 60; // 60分以上算通过
+            const duration = Date.now() - startTime;
             
-            if (approved) {
+            // 分类统计
+            if (score === 100) {
                 this.stats.passed++;
+            } else if (score >= 60) {
+                this.stats.warnings++;  // 有条件通过
             } else {
                 this.stats.failed++;
-                this.stats.violations.push({
-                    timestamp: Date.now(),
-                    target: params.target,
-                    violations
-                });
             }
             
-            // 更新UI统计显示
+            // 创建审核记录
+            const reviewRecord = {
+                id: this.stats.totalReviews,
+                timestamp: Date.now(),
+                type: isManual ? 'manual' : 'auto',
+                target: params.target,
+                action: params.action,
+                score: score,
+                approved: approved,
+                violations: violations,
+                suggestions: suggestions,
+                duration: duration,
+                details: {
+                    architectureCheck: archCheck,
+                    moduleCheck: moduleCheck,
+                    redundancyCheck: redundancyCheck
+                }
+            };
+            
+            // 保存到历史记录（最多保留20条）
+            this.stats.reviewHistory.unshift(reviewRecord);
+            if (this.stats.reviewHistory.length > 20) {
+                this.stats.reviewHistory.pop();
+            }
+            
+            // 自动导出：只导出警告和失败的审核
+            if (score < 100) {
+                this.autoExportReview(reviewRecord);
+            }
+            
+            // 更新UI
             if (this.statsDiv) {
                 this.updateStatsDisplay();
             }
             
             return {
                 approved,
-                score: approved ? 100 : Math.max(0, 100 - violations.length * 30),
+                score: score,
                 violations,
                 suggestions,
+                duration,
                 details: {
                     architectureCheck: archCheck,
                     moduleCheck: moduleCheck,
@@ -308,6 +359,11 @@ class AIWorkflowMonitor {
                 suggestions: ['审查系统异常，已默认通过'],
                 error: error.message
             };
+        } finally {
+            // 重置审核状态
+            this.isReviewing = false;
+            this.currentReviewTarget = null;
+            this.updateStatusDisplay();
         }
     }
     
@@ -478,6 +534,21 @@ class AIWorkflowMonitor {
             background: #f9f9f9;
         `;
         
+        // 状态显示
+        const statusDiv = document.createElement('div');
+        statusDiv.id = 'ai-workflow-status';
+        statusDiv.style.cssText = `
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 12px;
+        `;
+        statusDiv.innerHTML = '🟢 空闲';
+        statusDiv.style.color = '#4CAF50';
+        
         // 自动拦截开关
         const autoRow = this.createSwitchRow(
             '自动拦截',
@@ -505,9 +576,55 @@ class AIWorkflowMonitor {
         `;
         this.updateStatsDisplay(statsDiv);
         
+        // 导出按钮
+        const exportDiv = document.createElement('div');
+        exportDiv.style.cssText = `
+            margin-top: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        `;
+        
+        const exportTitle = document.createElement('div');
+        exportTitle.innerHTML = '<strong>📥 导出报告</strong>';
+        exportTitle.style.cssText = 'color: #666; margin-bottom: 8px; font-size: 11px;';
+        
+        const exportBtns = document.createElement('div');
+        exportBtns.style.cssText = 'display: flex; gap: 4px; flex-wrap: wrap;';
+        
+        const btnStyle = `
+            padding: 4px 8px;
+            font-size: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        `;
+        
+        const createExportBtn = (text, type) => {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            btn.style.cssText = btnStyle;
+            btn.onmouseover = () => btn.style.background = '#f0f0f0';
+            btn.onmouseout = () => btn.style.background = 'white';
+            btn.onclick = () => this.exportReviews(type);
+            return btn;
+        };
+        
+        exportBtns.appendChild(createExportBtn('最近一次', 'last'));
+        exportBtns.appendChild(createExportBtn('警告记录', 'warnings'));
+        exportBtns.appendChild(createExportBtn('失败记录', 'failures'));
+        exportBtns.appendChild(createExportBtn('全部', 'all'));
+        
+        exportDiv.appendChild(exportTitle);
+        exportDiv.appendChild(exportBtns);
+        
+        body.appendChild(statusDiv);
         body.appendChild(autoRow);
         body.appendChild(manualRow);
         body.appendChild(statsDiv);
+        body.appendChild(exportDiv);
         
         panel.appendChild(header);
         panel.appendChild(body);
@@ -608,13 +725,113 @@ class AIWorkflowMonitor {
             ? ((this.stats.passed / this.stats.totalReviews) * 100).toFixed(1)
             : '0.0';
         
+        // 最近一次审核
+        const lastReview = this.stats.reviewHistory[0];
+        const lastReviewTime = lastReview ? new Date(lastReview.timestamp).toLocaleTimeString() : '--';
+        const lastReviewResult = lastReview ? 
+            (lastReview.score === 100 ? '✅ 通过' : 
+             lastReview.score >= 60 ? '⚠️ 警告' : '❌ 失败') : '--';
+        
         statsDiv.innerHTML = `
             <div style="color: #666; margin-bottom: 5px;"><strong>📊 审查统计</strong></div>
-            <div style="color: #333;">总计: ${this.stats.totalReviews} 次</div>
-            <div style="color: #4CAF50;">通过: ${this.stats.passed} 次</div>
-            <div style="color: #f44336;">失败: ${this.stats.failed} 次</div>
+            <div style="color: #333;">总计: ${this.stats.totalReviews}次 (🤖${this.stats.autoTriggered} 👆${this.stats.manualTriggered})</div>
+            <div style="color: #4CAF50;">✅ 通过: ${this.stats.passed}</div>
+            <div style="color: #FF9800;">⚠️ 警告: ${this.stats.warnings}</div>
+            <div style="color: #f44336;">❌ 失败: ${this.stats.failed}</div>
             <div style="color: #2196F3;">通过率: ${passRate}%</div>
+            <div style="color: #666; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e0e0e0;">
+                <strong>⏱️ 最近审核</strong><br>
+                时间: ${lastReviewTime}<br>
+                结果: ${lastReviewResult}
+            </div>
         `;
+    }
+    
+    /**
+     * 更新状态显示
+     */
+    updateStatusDisplay() {
+        const statusDiv = document.getElementById('ai-workflow-status');
+        if (!statusDiv) return;
+        
+        if (this.isReviewing) {
+            statusDiv.innerHTML = '🔴 审核中';
+            statusDiv.style.color = '#f44336';
+            if (this.currentReviewTarget) {
+                statusDiv.title = `正在审核: ${this.currentReviewTarget}`;
+            }
+        } else {
+            statusDiv.innerHTML = '🟢 空闲';
+            statusDiv.style.color = '#4CAF50';
+            statusDiv.title = '等待审核';
+        }
+    }
+    
+    /**
+     * 自动导出审核报告（只导出警告和失败）
+     */
+    autoExportReview(reviewRecord) {
+        try {
+            // 保存到 LocalStorage
+            const key = `ai-workflow-review-${reviewRecord.id}`;
+            const data = JSON.stringify(reviewRecord, null, 2);
+            localStorage.setItem(key, data);
+            
+            // 记录日志
+            const level = reviewRecord.score >= 60 ? 'WARN' : 'ERROR';
+            const message = `审核报告已自动导出: ${reviewRecord.target} (评分: ${reviewRecord.score})`;
+            this.logger?.log(level, 'AI_WORKFLOW', message, reviewRecord);
+            
+            console.log(`[AIWorkflowMonitor] ${message}`);
+        } catch (error) {
+            console.error('[AIWorkflowMonitor] 导出审核报告失败:', error);
+        }
+    }
+    
+    /**
+     * 导出审核报告（手动）
+     */
+    exportReviews(type = 'all') {
+        let reviews = [];
+        
+        switch (type) {
+            case 'last':
+                reviews = this.stats.reviewHistory.slice(0, 1);
+                break;
+            case 'warnings':
+                reviews = this.stats.reviewHistory.filter(r => r.score >= 60 && r.score < 100);
+                break;
+            case 'failures':
+                reviews = this.stats.reviewHistory.filter(r => r.score < 60);
+                break;
+            case 'all':
+            default:
+                reviews = this.stats.reviewHistory;
+                break;
+        }
+        
+        if (reviews.length === 0) {
+            alert('没有可导出的审核记录');
+            return;
+        }
+        
+        // 生成JSON
+        const exportData = {
+            exportTime: new Date().toISOString(),
+            totalRecords: reviews.length,
+            records: reviews
+        };
+        
+        // 下载文件
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ai-workflow-reviews-${type}-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        console.log(`[AIWorkflowMonitor] 已导出 ${reviews.length} 条审核记录`);
     }
     
     /**
