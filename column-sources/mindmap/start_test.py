@@ -3,7 +3,7 @@
 """
 脑图工作栏测试服务器启动脚本
 启动本地HTTP服务器并自动打开浏览器
-关闭浏览器后自动退出并释放端口
+手动关闭时自动释放端口
 """
 
 import http.server
@@ -12,51 +12,21 @@ import webbrowser
 import os
 import sys
 import time
-import threading
 from pathlib import Path
 
 # 配置
 PORT = 8888
 HOST = "localhost"
 TEST_PAGE = "mindmap-standalone.html"
-IDLE_TIMEOUT = 300  # 5分钟无请求后自动退出（秒）
-CHECK_INTERVAL = 10  # 检查间隔（秒）
-
-# 全局变量：记录最后一次请求时间
-last_request_time = time.time()
-server_running = True
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    """自定义HTTP请求处理器，记录请求时间"""
-    
-    def do_GET(self):
-        global last_request_time
-        last_request_time = time.time()
-        return super().do_GET()
+    """自定义HTTP请求处理器，简化日志输出"""
     
     def log_message(self, format, *args):
         """简化日志输出"""
         # 只记录HTML页面请求，忽略静态资源
         if self.path.endswith('.html') or self.path == '/':
             print(f"📄 [{time.strftime('%H:%M:%S')}] {self.path}")
-
-def check_idle_timeout(httpd):
-    """检查空闲超时，自动关闭服务器"""
-    global server_running
-    
-    while server_running:
-        time.sleep(CHECK_INTERVAL)
-        
-        idle_time = time.time() - last_request_time
-        
-        if idle_time > IDLE_TIMEOUT:
-            print()
-            print("=" * 60)
-            print(f"⏰ 超过 {IDLE_TIMEOUT//60} 分钟无请求，自动关闭服务器...")
-            print("=" * 60)
-            server_running = False
-            httpd.shutdown()
-            break
 
 def start_server():
     """启动HTTP服务器"""
@@ -107,14 +77,9 @@ def start_server():
             print("   • 使用工具栏按钮操作")
             print("   • 按 F12 打开开发者工具查看日志")
             print("   • 按 Ctrl+C 停止服务器")
-            print(f"   • {IDLE_TIMEOUT//60}分钟无请求自动退出")
             print()
             print("=" * 60)
             print()
-            
-            # 启动超时检测线程
-            timeout_thread = threading.Thread(target=check_idle_timeout, args=(httpd,), daemon=True)
-            timeout_thread.start()
             
             # 自动打开浏览器
             print("🌐 正在打开浏览器...")
@@ -122,7 +87,6 @@ def start_server():
             
             print()
             print("✅ 浏览器已打开！服务器运行中...")
-            print(f"   （{IDLE_TIMEOUT//60}分钟无请求将自动退出）")
             print()
             
             # 启动服务器（阻塞）
@@ -133,8 +97,8 @@ def start_server():
         print("=" * 60)
         print("🛑 用户手动停止服务器")
         print("=" * 60)
-        global server_running
-        server_running = False
+        print()
+        print("✅ 端口已释放，可以重新启动")
         sys.exit(0)
     except OSError as e:
         if e.errno == 10048:  # Windows端口占用错误
@@ -152,13 +116,6 @@ def start_server():
             print(f"❌ 错误: {e}")
         input("\n按任意键退出...")
         sys.exit(1)
-    finally:
-        # 确保服务器正常关闭
-        global server_running
-        server_running = False
-        print()
-        print("✅ 端口已释放，可以重新启动")
-        print()
 
 if __name__ == "__main__":
     start_server()
