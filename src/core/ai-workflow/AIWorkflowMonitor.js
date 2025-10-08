@@ -620,11 +620,52 @@ class AIWorkflowMonitor {
         exportDiv.appendChild(exportTitle);
         exportDiv.appendChild(exportBtns);
         
+        // Git回退按钮
+        const gitDiv = document.createElement('div');
+        gitDiv.style.cssText = `
+            margin-top: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        `;
+        
+        const gitTitle = document.createElement('div');
+        gitTitle.innerHTML = '<strong>🔄 Git操作</strong>';
+        gitTitle.style.cssText = 'color: #666; margin-bottom: 8px; font-size: 11px;';
+        
+        const rollbackBtn = document.createElement('button');
+        rollbackBtn.textContent = '⬅️ 回退到上个提交';
+        rollbackBtn.style.cssText = `
+            width: 100%;
+            padding: 8px;
+            font-size: 11px;
+            border: 1px solid #f44336;
+            border-radius: 3px;
+            background: white;
+            color: #f44336;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        `;
+        rollbackBtn.onmouseover = () => {
+            rollbackBtn.style.background = '#f44336';
+            rollbackBtn.style.color = 'white';
+        };
+        rollbackBtn.onmouseout = () => {
+            rollbackBtn.style.background = 'white';
+            rollbackBtn.style.color = '#f44336';
+        };
+        rollbackBtn.onclick = () => this.rollbackToLastCommit();
+        
+        gitDiv.appendChild(gitTitle);
+        gitDiv.appendChild(rollbackBtn);
+        
         body.appendChild(statusDiv);
         body.appendChild(autoRow);
         body.appendChild(manualRow);
         body.appendChild(statsDiv);
         body.appendChild(exportDiv);
+        body.appendChild(gitDiv);
         
         panel.appendChild(header);
         panel.appendChild(body);
@@ -908,6 +949,90 @@ class AIWorkflowMonitor {
             document.onmouseup = null;
             document.onmousemove = null;
         }
+    }
+    
+    /**
+     * 回退到上个提交
+     */
+    async rollbackToLastCommit() {
+        // 确认对话框
+        const confirmed = confirm(
+            '⚠️ 警告：此操作将回退到上个提交\n\n' +
+            '这将：\n' +
+            '1. 撤销所有未提交的更改\n' +
+            '2. 回退到上一个Git提交\n' +
+            '3. 无法恢复当前的修改\n\n' +
+            '确定要继续吗？'
+        );
+        
+        if (!confirmed) {
+            console.log('[AIWorkflowMonitor] 用户取消回退操作');
+            return;
+        }
+        
+        try {
+            console.log('[AIWorkflowMonitor] 开始回退到上个提交...');
+            this.logger?.warn('AI_WORKFLOW', '用户触发Git回退操作');
+            
+            // 检查是否有未提交的更改
+            const statusCheck = await this.executeGitCommand('git status --porcelain');
+            
+            if (statusCheck.trim()) {
+                // 有未提交的更改，先保存到stash
+                console.log('[AIWorkflowMonitor] 检测到未提交的更改，保存到stash...');
+                await this.executeGitCommand('git stash push -m "Auto-stash before rollback"');
+            }
+            
+            // 回退到上个提交
+            console.log('[AIWorkflowMonitor] 执行 git reset --hard HEAD~1');
+            await this.executeGitCommand('git reset --hard HEAD~1');
+            
+            // 成功提示
+            alert('✅ 已成功回退到上个提交！\n\n页面将刷新以加载回退后的代码。');
+            
+            this.logger?.info('AI_WORKFLOW', '✅ Git回退成功');
+            
+            // 刷新页面
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+            
+        } catch (error) {
+            console.error('[AIWorkflowMonitor] 回退失败:', error);
+            this.logger?.error('AI_WORKFLOW', 'Git回退失败', error);
+            
+            alert(
+                '❌ 回退失败\n\n' +
+                '错误信息：' + error.message + '\n\n' +
+                '请手动执行：\n' +
+                'git reset --hard HEAD~1'
+            );
+        }
+    }
+    
+    /**
+     * 执行Git命令（浏览器环境的模拟）
+     */
+    async executeGitCommand(command) {
+        // 注意：浏览器环境无法直接执行Git命令
+        // 这里提供一个接口，实际执行需要后端支持或使用Electron等环境
+        
+        console.warn('[AIWorkflowMonitor] 浏览器环境无法直接执行Git命令:', command);
+        
+        // 如果有后端API，可以调用
+        // const response = await fetch('/api/git/execute', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({ command })
+        // });
+        // return await response.text();
+        
+        // 降级方案：提示用户手动执行
+        throw new Error(
+            '浏览器环境无法直接执行Git命令。\n' +
+            '请在终端手动执行：\n' +
+            command
+        );
     }
     
     // ========== 静态初始化 ==========
