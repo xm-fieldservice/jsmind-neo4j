@@ -558,10 +558,36 @@ class AIWorkflowMonitor {
         
         // 手动调用开关
         const manualRow = this.createSwitchRow(
-            '手动调用',
+            '手动调用API',
             this.manualMode,
             (enabled) => this.setManualMode(enabled)
         );
+        
+        // 手动触发审核按钮
+        const manualTriggerBtn = document.createElement('button');
+        manualTriggerBtn.textContent = '🔍 立即审核';
+        manualTriggerBtn.style.cssText = `
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 11px;
+            border: 1px solid #2196F3;
+            border-radius: 3px;
+            background: white;
+            color: #2196F3;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        `;
+        manualTriggerBtn.onmouseover = () => {
+            manualTriggerBtn.style.background = '#2196F3';
+            manualTriggerBtn.style.color = 'white';
+        };
+        manualTriggerBtn.onmouseout = () => {
+            manualTriggerBtn.style.background = 'white';
+            manualTriggerBtn.style.color = '#2196F3';
+        };
+        manualTriggerBtn.onclick = () => this.triggerManualReview();
         
         // 统计信息
         const statsDiv = document.createElement('div');
@@ -633,6 +659,39 @@ class AIWorkflowMonitor {
         gitTitle.innerHTML = '<strong>🔄 Git操作</strong>';
         gitTitle.style.cssText = 'color: #666; margin-bottom: 8px; font-size: 11px;';
         
+        // 按钮容器
+        const gitBtnsContainer = document.createElement('div');
+        gitBtnsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 6px;';
+        
+        // 自动提交控制按钮
+        const autoCommitBtn = document.createElement('button');
+        autoCommitBtn.id = 'auto-commit-control-btn';
+        autoCommitBtn.textContent = '▶️ 启动自动提交';
+        autoCommitBtn.style.cssText = `
+            width: 100%;
+            padding: 8px;
+            font-size: 11px;
+            border: 1px solid #4CAF50;
+            border-radius: 3px;
+            background: white;
+            color: #4CAF50;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        `;
+        autoCommitBtn.onmouseover = () => {
+            const isRunning = autoCommitBtn.textContent.includes('停止');
+            autoCommitBtn.style.background = isRunning ? '#f44336' : '#4CAF50';
+            autoCommitBtn.style.color = 'white';
+        };
+        autoCommitBtn.onmouseout = () => {
+            const isRunning = autoCommitBtn.textContent.includes('停止');
+            autoCommitBtn.style.background = 'white';
+            autoCommitBtn.style.color = isRunning ? '#f44336' : '#4CAF50';
+        };
+        autoCommitBtn.onclick = () => this.toggleAutoCommit();
+        
+        // 回退按钮
         const rollbackBtn = document.createElement('button');
         rollbackBtn.textContent = '⬅️ 回退到上个提交';
         rollbackBtn.style.cssText = `
@@ -657,12 +716,16 @@ class AIWorkflowMonitor {
         };
         rollbackBtn.onclick = () => this.rollbackToLastCommit();
         
+        gitBtnsContainer.appendChild(autoCommitBtn);
+        gitBtnsContainer.appendChild(rollbackBtn);
+        
         gitDiv.appendChild(gitTitle);
-        gitDiv.appendChild(rollbackBtn);
+        gitDiv.appendChild(gitBtnsContainer);
         
         body.appendChild(statusDiv);
         body.appendChild(autoRow);
         body.appendChild(manualRow);
+        body.appendChild(manualTriggerBtn);
         body.appendChild(statsDiv);
         body.appendChild(exportDiv);
         body.appendChild(gitDiv);
@@ -1033,6 +1096,66 @@ class AIWorkflowMonitor {
             '请在终端手动执行：\n' +
             command
         );
+    }
+    
+    /**
+     * 手动触发审核
+     */
+    async triggerManualReview() {
+        alert(
+            '🔍 手动审核功能\n\n' +
+            '此功能用于手动触发架构审核。\n\n' +
+            '使用方式：\n' +
+            '1. 在控制台调用: window.aiReview({...})\n' +
+            '2. 或者等待AI操作时自动触发\n\n' +
+            '当前此按钮为演示功能。'
+        );
+        
+        console.log('[AIWorkflowMonitor] 手动触发审核');
+        this.logger?.info('AI_WORKFLOW', '用户手动触发审核');
+    }
+    
+    /**
+     * 切换自动提交
+     */
+    toggleAutoCommit() {
+        const btn = document.getElementById('auto-commit-control-btn');
+        if (!btn) return;
+        
+        const isRunning = btn.textContent.includes('停止');
+        
+        if (isRunning) {
+            // 停止自动提交
+            alert(
+                '⏸️ 停止自动提交\n\n' +
+                '浏览器环境无法直接控制PowerShell进程。\n\n' +
+                '请在运行 auto-commit-smart.ps1 的终端按 Ctrl+C 停止。'
+            );
+        } else {
+            // 启动自动提交
+            const confirmed = confirm(
+                '▶️ 启动自动提交\n\n' +
+                '这将在新终端启动自动提交脚本。\n' +
+                '检测到文件变化后5分钟无新变化时自动提交。\n\n' +
+                '确定要启动吗？'
+            );
+            
+            if (confirmed) {
+                alert(
+                    '📝 启动说明\n\n' +
+                    '浏览器环境无法直接启动PowerShell脚本。\n\n' +
+                    '请手动在终端执行：\n' +
+                    '.\\auto-commit-smart.ps1 -WaitMinutes 5 -AutoPush\n\n' +
+                    '或者：\n' +
+                    'Start-Process powershell -ArgumentList "-File auto-commit-smart.ps1 -WaitMinutes 5 -AutoPush"'
+                );
+                
+                // 更新按钮状态（仅UI）
+                btn.textContent = '⏸️ 停止自动提交';
+                btn.style.borderColor = '#f44336';
+                btn.style.color = '#f44336';
+            }
+        }
     }
     
     // ========== 静态初始化 ==========
