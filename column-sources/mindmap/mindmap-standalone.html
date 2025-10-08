@@ -12,7 +12,6 @@
     
     <!-- 🆕 Phase 1: 脑图工作栏样式 -->
     <link rel="stylesheet" href="css/mindmap-column.css">
-    
     <!-- Autogen 架构组件 -->
     <script src="../../src/core/storage/AutogenUnifiedStorage.js"></script>
     <script src="../../src/core/messaging/AutogenEventBus.js"></script>
@@ -21,10 +20,13 @@
     <!-- 统一日志系统 -->
     <script src="../../src/core/UnifiedLogger.js"></script>
     
+    <!-- AI开发工作流监控系统 -->
+    <script src="../../src/core/ai-workflow/ArchitectureAlignmentChecker.js"></script>
+    <script src="../../src/core/ai-workflow/ModuleComplianceChecker.js"></script>
+    <script src="../../src/core/ai-workflow/AIWorkflowMonitor.js"></script>
+    
     <!-- 🔧 架构整改：添加StorageAdapter -->
     <script src="../../src/adapters/StorageAdapter.js"></script>
-    
-    <!-- 🆕 src/ 架构组件 (Phase 2: 仅加载独立组件) -->
     <script src="../../src/data/DataCompressor.js"></script>
     <script src="../../src/data/MDConverter.js"></script>
     <script src="../../src/data/MindmapStorage.js"></script>

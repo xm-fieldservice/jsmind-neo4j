@@ -46,9 +46,10 @@
     <!-- 全局日志面板 -->
     <div id="global-log-panel-container" style="position:fixed;bottom:20px;right:20px;width:400px;max-height:300px;z-index:9999;background:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
         <div id="list-log-controls" style="display:flex;gap:8px;margin-bottom:4px;justify-content:flex-end;padding:8px;">
-            <button id="test-md-save" type="button" style="padding:2px 8px;font-size:11px;background:#10b981;color:white;border:0;border-radius:3px;cursor:pointer;">MD保存</button>
-            <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">清空</button>
-            <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">复制</button>
+            <button id="log-export-file" type="button" style="padding:2px 8px;font-size:11px;background:#8b5cf6;color:white;border:0;border-radius:3px;cursor:pointer;">💾 导出</button>
+            <button id="log-show-history" type="button" style="padding:2px 8px;font-size:11px;background:#f59e0b;color:white;border:0;border-radius:3px;cursor:pointer;">📜 历史</button>
+            <button id="list-log-clear" type="button" style="padding:2px 8px;font-size:11px;background:#ef4444;color:white;border:0;border-radius:3px;cursor:pointer;">🗑️ 清空</button>
+            <button id="list-log-copy" type="button" style="padding:2px 8px;font-size:11px;background:#3b82f6;color:white;border:0;border-radius:3px;cursor:pointer;">📋 复制</button>
         </div>
         <div id="list-log-panel" data-collapsed="false" style="border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;">
             <button id="list-log-header" type="button" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#f8fafc;border:0;border-bottom:1px solid #e5e7eb;width:100%;cursor:pointer;">
@@ -66,73 +67,23 @@
     
     <!-- ========== 核心架构脚本 ========== -->
     
-    <!-- 日志面板 -->
-    <script>
-      (function(){
-        const pad = n => (n<10? '0':'') + n;
-        function ts(){ const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
-        function ensureInit(){
-          const panel = document.getElementById('list-log-panel');
-          const header = document.getElementById('list-log-header');
-          const caret = document.getElementById('list-log-caret');
-          const body = document.getElementById('list-log-body');
-          const btnClear = document.getElementById('list-log-clear');
-          const btnCopy = document.getElementById('list-log-copy');
-          if (!panel || !header || !body) return false;
-          if (!header.__bound){
-            header.__bound = true;
-            header.addEventListener('click', function(){
-              const collapsed = panel.getAttribute('data-collapsed') !== 'false';
-              if (collapsed){
-                panel.setAttribute('data-collapsed','false');
-                body.style.display = 'block';
-                caret.textContent = '▾';
-              } else {
-                panel.setAttribute('data-collapsed','true');
-                body.style.display = 'none';
-                caret.textContent = '▸';
-              }
-            });
-          }
-          btnClear && !btnClear.__bound && (btnClear.__bound = true, btnClear.addEventListener('click', ()=>{ body.textContent=''; }));
-          btnCopy  && !btnCopy.__bound  && (btnCopy.__bound  = true, btnCopy.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(body.textContent||''); alert('日志已复制'); }catch(_){ } }));
-          return true;
-        }
-        function append(level, message){
-          if (!ensureInit()) return;
-          const body = document.getElementById('list-log-body');
-          const line = `[${ts()}][${level}] ${message}`;
-          body.textContent += (body.textContent ? "\n" : "") + line;
-          body.scrollTop = body.scrollHeight;
-        }
-        const LogPanel = {
-          log: (m)=>append('INFO', String(m)),
-          warn: (m)=>append('WARN', String(m)),
-          error: (m)=>append('ERROR', String(m)),
-          json: (title, obj)=>append('INFO', `${title}: ${(()=>{try{return JSON.stringify(obj, null, 2)}catch(_){return String(obj)}})()}`)
-        };
-        window.LogPanel = LogPanel;
-        ['log','info','warn','error'].forEach(fn=>{
-          const orig = console[fn].bind(console);
-          console[fn] = function(){ try{ LogPanel[fn==='info'?'log':fn]([].map.call(arguments, x=> (typeof x==='object'? JSON.stringify(x): String(x))).join(' ')); }catch(_){}; return orig.apply(console, arguments); };
-        });
-        window.addEventListener('error', e=>{ LogPanel.error(`WindowError: ${e.message}`); });
-        window.addEventListener('unhandledrejection', e=>{ LogPanel.error(`UnhandledRejection: ${e.reason && e.reason.message ? e.reason.message : String(e.reason)}`); });
-        setTimeout(()=> LogPanel.log('日志面板已初始化'), 0);
-      })();
-    </script>
+    <!-- 日志面板已改用LogPanel模块，旧的内联代码已删除 -->
     
-    <!-- 核心存储和事件系统 -->
+    <!-- 样心存储和事件系统 -->
     <script src="src/core/storage/AutogenUnifiedStorage.js"></script>
     <script src="src/core/messaging/AutogenEventBus.js"></script>
     <script src="src/core/DependencyManager.js"></script>
-    <script src="src/core/ErrorHandler.js"></script>
     <script src="src/core/SystemInitializationCoordinator.js"></script>
     
     <!-- 统一日志系统（整合版） -->
     <script src="src/core/UnifiedLogger.js"></script>
-    <script src="src/components/StandardLogPanel.js"></script>
+    <script src="column-sources/mindmap/js/LogPanel.js"></script>
     <script src="src/core/ErrorBacktracer.js"></script>
+    
+    <!-- AI开发工作流监控系统 -->
+    <script src="src/core/ai-workflow/ArchitectureAlignmentChecker.js"></script>
+    <script src="src/core/ai-workflow/ModuleComplianceChecker.js"></script>
+    <script src="src/core/ai-workflow/AIWorkflowMonitor.js"></script>
     
     <!-- 工作栏生态系统核心 -->
     <script src="js/core/column-registry.js?v=20251001"></script>
@@ -153,13 +104,17 @@
                 // UnifiedLogger已自动初始化为全局单例
                 console.log('[日志] ✅ UnifiedLogger已初始化（整合版）');
                 
-                // 创建标准日志面板（右下角）
-                if (window.StandardLogPanel) {
-                    window.logPanel = StandardLogPanel.autoEmbed({
-                        maxLines: 200,
-                        height: '300px'
-                    });
-                    console.log('[日志] ✅ StandardLogPanel已嵌入');
+                // 创建LogPanel实例（统一日志面板）
+                if (window.LogPanel) {
+                    window.logPanelInstance = new LogPanel('global-log-panel-container', window.UnifiedLogger);
+                    // 向后兼容：保持window.LogPanel作为静态接口
+                    window.LogPanel = {
+                        log: (m) => window.logPanelInstance.log(m),
+                        warn: (m) => window.logPanelInstance.warn(m),
+                        error: (m) => window.logPanelInstance.error(m),
+                        json: (t, o) => window.logPanelInstance.json(t, o)
+                    };
+                    console.log('[日志] ✅ LogPanel已嵌入（统一模块）');
                 }
             }
             
