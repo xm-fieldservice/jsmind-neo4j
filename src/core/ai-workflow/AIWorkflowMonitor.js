@@ -23,6 +23,7 @@ class AIWorkflowMonitor {
         this.manualMode = true; // 手动调用模式
         this.architectureCache = null;
         this.logger = window.UnifiedLogger;
+        this.controlPanel = null; // UI控制面板
         
         // 审查统计
         this.stats = {
@@ -48,6 +49,9 @@ class AIWorkflowMonitor {
         if (this.manualMode) {
             this.exposeManualAPI();
         }
+        
+        // 创建UI控制面板
+        this.createControlPanel();
         
         this.logger?.info('AI_WORKFLOW', '✅ AI工作流监控已启动', {
             autoMode: this.autoMode,
@@ -275,6 +279,11 @@ class AIWorkflowMonitor {
                 });
             }
             
+            // 更新UI统计显示
+            if (this.statsDiv) {
+                this.updateStatsDisplay();
+            }
+            
             return {
                 approved,
                 score: approved ? 100 : Math.max(0, 100 - violations.length * 30),
@@ -403,6 +412,285 @@ class AIWorkflowMonitor {
         });
         
         return { modules };
+    }
+    
+    // ========== UI控制面板 ==========
+    
+    /**
+     * 创建UI控制面板
+     */
+    createControlPanel() {
+        // 创建面板容器
+        const panel = document.createElement('div');
+        panel.id = 'ai-workflow-control-panel';
+        panel.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            background: white;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 13px;
+            min-width: 280px;
+        `;
+        
+        // 创建头部
+        const header = document.createElement('div');
+        header.style.cssText = `
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            user-select: none;
+        `;
+        
+        const title = document.createElement('div');
+        title.innerHTML = '<strong>🛡️ 架构审核</strong>';
+        
+        const collapseBtn = document.createElement('button');
+        collapseBtn.textContent = '▼';
+        collapseBtn.style.cssText = `
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        `;
+        collapseBtn.onclick = () => this.togglePanel();
+        
+        header.appendChild(title);
+        header.appendChild(collapseBtn);
+        
+        // 创建主体
+        const body = document.createElement('div');
+        body.id = 'ai-workflow-panel-body';
+        body.style.cssText = `
+            padding: 15px;
+            background: #f9f9f9;
+        `;
+        
+        // 自动拦截开关
+        const autoRow = this.createSwitchRow(
+            '自动拦截',
+            this.autoMode,
+            (enabled) => this.setAutoMode(enabled)
+        );
+        
+        // 手动调用开关
+        const manualRow = this.createSwitchRow(
+            '手动调用',
+            this.manualMode,
+            (enabled) => this.setManualMode(enabled)
+        );
+        
+        // 统计信息
+        const statsDiv = document.createElement('div');
+        statsDiv.id = 'ai-workflow-stats';
+        statsDiv.style.cssText = `
+            margin-top: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 1.6;
+        `;
+        this.updateStatsDisplay(statsDiv);
+        
+        body.appendChild(autoRow);
+        body.appendChild(manualRow);
+        body.appendChild(statsDiv);
+        
+        panel.appendChild(header);
+        panel.appendChild(body);
+        document.body.appendChild(panel);
+        
+        this.controlPanel = panel;
+        this.statsDiv = statsDiv;
+        this.collapseBtn = collapseBtn;
+        
+        // 使面板可拖动
+        this.makeDraggable(panel, header);
+        
+        console.log('[AIWorkflowMonitor] ✅ UI控制面板已创建');
+    }
+    
+    /**
+     * 创建开关行
+     */
+    createSwitchRow(label, initialState, onChange) {
+        const row = document.createElement('div');
+        row.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        `;
+        
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = label;
+        labelSpan.style.color = '#333';
+        
+        const switchContainer = document.createElement('label');
+        switchContainer.style.cssText = `
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        `;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = initialState;
+        checkbox.style.cssText = 'opacity: 0; width: 0; height: 0;';
+        checkbox.onchange = (e) => onChange(e.target.checked);
+        
+        const slider = document.createElement('span');
+        slider.style.cssText = `
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: ${initialState ? '#4CAF50' : '#ccc'};
+            transition: .3s;
+            border-radius: 24px;
+        `;
+        
+        const sliderButton = document.createElement('span');
+        sliderButton.style.cssText = `
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: ${initialState ? '23px' : '3px'};
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        `;
+        
+        checkbox.onchange = (e) => {
+            const checked = e.target.checked;
+            slider.style.backgroundColor = checked ? '#4CAF50' : '#ccc';
+            sliderButton.style.left = checked ? '23px' : '3px';
+            onChange(checked);
+        };
+        
+        slider.appendChild(sliderButton);
+        switchContainer.appendChild(checkbox);
+        switchContainer.appendChild(slider);
+        
+        row.appendChild(labelSpan);
+        row.appendChild(switchContainer);
+        
+        return row;
+    }
+    
+    /**
+     * 更新统计显示
+     */
+    updateStatsDisplay(statsDiv) {
+        if (!statsDiv) statsDiv = this.statsDiv;
+        if (!statsDiv) return;
+        
+        const passRate = this.stats.totalReviews > 0 
+            ? ((this.stats.passed / this.stats.totalReviews) * 100).toFixed(1)
+            : '0.0';
+        
+        statsDiv.innerHTML = `
+            <div style="color: #666; margin-bottom: 5px;"><strong>📊 审查统计</strong></div>
+            <div style="color: #333;">总计: ${this.stats.totalReviews} 次</div>
+            <div style="color: #4CAF50;">通过: ${this.stats.passed} 次</div>
+            <div style="color: #f44336;">失败: ${this.stats.failed} 次</div>
+            <div style="color: #2196F3;">通过率: ${passRate}%</div>
+        `;
+    }
+    
+    /**
+     * 设置自动模式
+     */
+    setAutoMode(enabled) {
+        this.autoMode = enabled;
+        console.log(`[AIWorkflowMonitor] 自动拦截模式: ${enabled ? '开启' : '关闭'}`);
+        this.logger?.info('AI_WORKFLOW', `自动拦截模式${enabled ? '开启' : '关闭'}`);
+        
+        if (enabled) {
+            this.interceptCascadeTools();
+        }
+    }
+    
+    /**
+     * 设置手动模式
+     */
+    setManualMode(enabled) {
+        this.manualMode = enabled;
+        console.log(`[AIWorkflowMonitor] 手动调用模式: ${enabled ? '开启' : '关闭'}`);
+        this.logger?.info('AI_WORKFLOW', `手动调用模式${enabled ? '开启' : '关闭'}`);
+        
+        if (enabled) {
+            this.exposeManualAPI();
+        } else {
+            delete window.aiReview;
+        }
+    }
+    
+    /**
+     * 切换面板显示
+     */
+    togglePanel() {
+        const body = document.getElementById('ai-workflow-panel-body');
+        if (!body) return;
+        
+        const isCollapsed = body.style.display === 'none';
+        body.style.display = isCollapsed ? 'block' : 'none';
+        this.collapseBtn.textContent = isCollapsed ? '▼' : '▲';
+    }
+    
+    /**
+     * 使面板可拖动
+     */
+    makeDraggable(panel, header) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        
+        header.onmousedown = dragMouseDown;
+        
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+        
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            panel.style.top = (panel.offsetTop - pos2) + "px";
+            panel.style.left = (panel.offsetLeft - pos1) + "px";
+            panel.style.bottom = 'auto';
+            panel.style.right = 'auto';
+        }
+        
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
     }
     
     // ========== 静态初始化 ==========
