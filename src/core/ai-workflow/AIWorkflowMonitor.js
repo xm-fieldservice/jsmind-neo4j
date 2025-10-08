@@ -654,7 +654,7 @@ class AIWorkflowMonitor {
         
         const isCollapsed = body.style.display === 'none';
         body.style.display = isCollapsed ? 'block' : 'none';
-        this.collapseBtn.textContent = isCollapsed ? '▼' : '▲';
+        this.collapseBtn.textContent = isCollapsed ? '▼' : '▶';
     }
     
     /**
