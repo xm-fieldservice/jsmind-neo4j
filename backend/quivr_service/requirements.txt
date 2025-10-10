@@ -1,0 +1,34 @@
+# Quivr智能问答服务依赖
+
+# Web框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# RAG相关
+chromadb==0.4.18
+langchain==0.1.0
+langchain-community==0.0.10
+
+# OpenAI兼容客户端
+openai==1.6.1
+httpx==0.25.2
+
+# 文档处理
+pypdf==3.17.4
+python-docx==1.1.0
+markdown==3.5.1
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# 工具库
+python-dotenv==1.0.0
+requests==2.31.0
+aiofiles==23.2.1
+
+# 日志和监控
+loguru==0.7.2
+
+# 测试
+pytest==7.4.3
+pytest-asyncio==0.21.1
