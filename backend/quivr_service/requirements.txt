@@ -1,14 +1,16 @@
 # Quivr智能问答服务依赖
+# 轻量级RAG方案，不需要完整安装Quivr
 
 # Web框架
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.0
 
-# RAG相关
-chromadb==0.4.18
+# RAG核心组件
+chromadb==0.4.22
 langchain==0.1.0
 langchain-community==0.0.10
+langchain-openai==0.0.5
 
 # OpenAI兼容客户端
 openai==1.6.1
@@ -20,6 +22,10 @@ python-docx==1.1.0
 markdown==3.5.1
 beautifulsoup4==4.12.2
 lxml==4.9.3
+unstructured==0.11.8
+
+# 向量嵌入
+sentence-transformers==2.2.2
 
 # 工具库
 python-dotenv==1.0.0
@@ -32,3 +38,7 @@ loguru==0.7.2
 # 测试
 pytest==7.4.3
 pytest-asyncio==0.21.1
+
+# 可选：如果需要本地模型
+# torch==2.1.0
+# transformers==4.35.0

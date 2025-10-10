@@ -1,16 +1,20 @@
 """
 Quivr服务配置文件
-复用现有的模型配置：data/config/models/
+复用现有的模型配置：column-sources/autogen/config/models/
 """
 import os
 import json
 from pathlib import Path
+from dotenv import load_dotenv
+
+# 加载 .env 文件
+load_dotenv()
 
 # 项目根目录
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-# 模型配置目录
-MODEL_CONFIG_DIR = PROJECT_ROOT / "data" / "config" / "models"
+# 模型配置目录（实际位置）
+MODEL_CONFIG_DIR = PROJECT_ROOT / "column-sources" / "autogen" / "config" / "models"
 
 # 向量数据库配置
 VECTOR_DB_CONFIG = {
