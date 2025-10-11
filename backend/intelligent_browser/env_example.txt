@@ -1,0 +1,20 @@
+# 智能浏览器环境变量配置示例
+
+# 通义千问API (必需)
+DASHSCOPE_API_KEY=sk-your-dashscope-api-key
+
+# Google Custom Search API (可选,用于网络搜索)
+GOOGLE_API_KEY=your-google-api-key
+GOOGLE_CSE_ID=your-custom-search-engine-id
+
+# 服务配置
+IB_SERVICE_HOST=0.0.0.0
+IB_SERVICE_PORT=8001
+
+# 说明:
+# 1. DASHSCOPE_API_KEY: 必需,用于LLM和Embedding
+# 2. GOOGLE_API_KEY: 可选,用于网络搜索
+#    - 如果不配置,会自动使用DuckDuckGo降级方案(免费,无需API Key)
+#    - Google免费额度: 100次/天
+# 3. GOOGLE_CSE_ID: Google自定义搜索引擎ID
+#    - 在 https://programmablesearchengine.google.com/ 创建

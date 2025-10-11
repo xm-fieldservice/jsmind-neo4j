@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能浏览器 - 问答演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid transparent;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .question-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s;
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .url-group {
+            display: none;
+        }
+
+        .url-group.show {
+            display: block;
+        }
+
+        .ask-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ask-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ask-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-area {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .result-header h3 {
+            color: #333;
+            font-size: 18px;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-local {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-web {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-hybrid {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .answer-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .routing-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .routing-info strong {
+            color: #1976d2;
+        }
+
+        .sources {
+            margin-top: 20px;
+        }
+
+        .sources h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .source-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .source-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .source-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .source-content {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-box {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .config-info {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #e65100;
+        }
+
+        .config-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>🤖</span>
+                智能浏览器
+            </h1>
+            <p>基于 Autogen + LangChain + ChromaDB 的智能问答系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 配置提示 -->
+            <div class="config-info">
+                <strong>⚙️ 服务配置</strong>
+                当前连接: <span id="apiUrl">http://localhost:8001</span>
+                <br>
+                <small>如需修改,请在下方JavaScript代码中更改 API_BASE_URL</small>
+            </div>
+
+            <!-- 模式选择 -->
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="auto">
+                    🎯 自动路由
+                </button>
+                <button class="mode-btn" data-mode="local">
+                    📚 本地检索
+                </button>
+                <button class="mode-btn" data-mode="web">
+                    🌐 网络搜索
+                </button>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="input-area">
+                <div class="input-group">
+                    <label for="questionInput">💬 您的问题</label>
+                    <textarea 
+                        id="questionInput" 
+                        class="question-input" 
+                        placeholder="例如：智能问答系统的核心决策是什么？"
+                    ></textarea>
+                </div>
+
+                <div class="input-group url-group" id="urlGroup">
+                    <label for="urlInput">🔗 网页URL (可选,多个URL用逗号分隔)</label>
+                    <input 
+                        type="text" 
+                        id="urlInput" 
+                        class="url-input" 
+                        placeholder="https://example.com, https://example2.com"
+                    />
+                </div>
+
+                <button id="askBtn" class="ask-btn">
+                    🚀 开始提问
+                </button>
+            </div>
+
+            <!-- 结果区域 -->
+            <div id="resultArea" class="result-area">
+                <div class="result-header">
+                    <h3>💡 回答</h3>
+                    <span id="modeBadge" class="badge"></span>
+                </div>
+
+                <div id="routingInfo" class="routing-info"></div>
+
+                <div id="answerBox" class="answer-box"></div>
+
+                <div id="sourcesArea" class="sources"></div>
+            </div>
+
+            <!-- 加载状态 -->
+            <div id="loadingArea" class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>正在思考中...</p>
+            </div>
+
+            <!-- 错误提示 -->
+            <div id="errorBox" class="error-box" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 配置 ====================
+        const API_BASE_URL = 'http://localhost:8001';
+        
+        // ==================== 状态管理 ====================
+        let currentMode = 'auto';
+
+        // ==================== DOM元素 ====================
+        const questionInput = document.getElementById('questionInput');
+        const urlInput = document.getElementById('urlInput');
+        const urlGroup = document.getElementById('urlGroup');
+        const askBtn = document.getElementById('askBtn');
+        const resultArea = document.getElementById('resultArea');
+        const loadingArea = document.getElementById('loadingArea');
+        const errorBox = document.getElementById('errorBox');
+        const answerBox = document.getElementById('answerBox');
+        const sourcesArea = document.getElementById('sourcesArea');
+        const modeBadge = document.getElementById('modeBadge');
+        const routingInfo = document.getElementById('routingInfo');
+
+        // ==================== 模式切换 ====================
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 更新按钮状态
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 更新当前模式
+                currentMode = btn.dataset.mode;
+                
+                // 显示/隐藏URL输入框
+                if (currentMode === 'web') {
+                    urlGroup.classList.add('show');
+                } else {
+                    urlGroup.classList.remove('show');
+                }
+            });
+        });
+
+        // ==================== 提问功能 ====================
+        askBtn.addEventListener('click', async () => {
+            const question = questionInput.value.trim();
+            
+            if (!question) {
+                showError('请输入问题');
+                return;
+            }
+
+            // 准备请求数据
+            const requestData = {
+                question: question,
+                mode: currentMode
+            };
+
+            // 如果是web模式且有URL
+            if (currentMode === 'web' && urlInput.value.trim()) {
+                const urls = urlInput.value.split(',').map(url => url.trim()).filter(url => url);
+                if (urls.length > 0) {
+                    requestData.urls = urls;
+                }
+            }
+
+            // 显示加载状态
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/intelligent-browser/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult(result);
+                } else {
+                    showError(result.error || '查询失败');
+                }
+
+            } catch (error) {
+                showError(`请求失败: ${error.message}\n\n请确保后端服务已启动 (python main.py)`);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // 回车提问 (Ctrl+Enter)
+        questionInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                askBtn.click();
+            }
+        });
+
+        // ==================== 显示结果 ====================
+        function showResult(result) {
+            // 显示结果区域
+            resultArea.classList.add('show');
+            errorBox.style.display = 'none';
+
+            // 设置模式标签
+            const queryType = result.routing?.query_type || currentMode;
+            modeBadge.textContent = getModeText(queryType);
+            modeBadge.className = `badge badge-${queryType.replace('_', '-')}`;
+
+            // 显示路由信息
+            if (result.routing) {
+                routingInfo.innerHTML = `
+                    <strong>🎯 路由决策:</strong> ${result.routing.reasoning || '自动判断'}
+                `;
+            }
+
+            // 显示答案
+            answerBox.innerHTML = formatAnswer(result.answer);
+
+            // 显示来源
+            if (result.sources && result.sources.length > 0) {
+                sourcesArea.innerHTML = `
+                    <h4>📖 参考来源 (${result.sources.length})</h4>
+                    ${result.sources.map((source, index) => `
+                        <div class="source-item">
+                            <div class="source-title">
+                                ${index + 1}. ${source.title || source.url || source.metadata?.source || '来源'}
+                            </div>
+                            <div class="source-content">
+                                ${source.content || source.excerpt || source.chunk || ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            } else {
+                sourcesArea.innerHTML = '';
+            }
+
+            // 滚动到结果
+            resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // ==================== 辅助函数 ====================
+        function showLoading() {
+            loadingArea.style.display = 'block';
+            resultArea.classList.remove('show');
+            errorBox.style.display = 'none';
+            askBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            loadingArea.style.display = 'none';
+            askBtn.disabled = false;
+        }
+
+        function showError(message) {
+            errorBox.textContent = message;
+            errorBox.style.display = 'block';
+            resultArea.classList.remove('show');
+        }
+
+        function getModeText(mode) {
+            const modeMap = {
+                'auto': '🎯 自动路由',
+                'local': '📚 本地检索',
+                'local_rag': '📚 本地检索',
+                'web': '🌐 网络搜索',
+                'web_search': '🌐 网络搜索',
+                'hybrid': '🔀 混合模式'
+            };
+            return modeMap[mode] || mode;
+        }
+
+        function formatAnswer(answer) {
+            // 简单的Markdown格式化
+            return answer
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/^(.+)$/, '<p>$1</p>');
+        }
+
+        // ==================== 初始化 ====================
+        document.getElementById('apiUrl').textContent = API_BASE_URL;
+
+        // 测试连接
+        fetch(`${API_BASE_URL}/health`)
+            .then(res => res.json())
+            .then(data => {
+                console.log('✅ 后端服务连接成功:', data);
+            })
+            .catch(err => {
+                console.warn('⚠️ 后端服务未启动:', err.message);
+                showError('后端服务未启动\n\n请运行: cd backend/intelligent_browser && python main.py');
+            });
+    </script>
+</body>
+</html>

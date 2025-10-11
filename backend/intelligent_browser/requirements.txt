@@ -1,0 +1,28 @@
+# 智能浏览器依赖包 (优化版)
+
+# Autogen框架
+pyautogen>=0.2.0
+
+# LangChain生态
+langchain>=0.1.0
+langchain-community>=0.0.20
+
+# 向量数据库
+chromadb>=0.4.0
+
+# 网络搜索 (替代Playwright)
+beautifulsoup4>=4.12.0
+duckduckgo-search>=4.0.0  # 免费搜索API降级方案
+google-api-python-client>=2.100.0  # Google Custom Search API (可选)
+
+# Web框架
+fastapi>=0.104.0
+uvicorn>=0.24.0
+python-dotenv>=1.0.0
+
+# OpenAI兼容
+openai>=1.0.0
+
+# 工具库
+pydantic>=2.0.0
+requests>=2.31.0
